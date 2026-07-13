@@ -20,7 +20,6 @@ ehthumbs.db
 migrate_working_dir/
 
 # ─── AI tooling artifacts (NEVER commit) ───────────────────
-.agents/
 .claude/
 .opencode/
 .aider*
