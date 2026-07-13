@@ -309,7 +309,7 @@ git commit -m "chore(data): bundle Bangladesh cyclone shelters GeoJSON"
 - Modify: `pubspec.yaml`
 - Modify: `android/app/build.gradle.kts`
 
-- [ ] **Step 1: Replace `pubspec.yaml` with full dependency set**
+- [x] **Step 1: Replace `pubspec.yaml` with full dependency set**
 
 ```yaml
 name: shongjog
@@ -363,7 +363,7 @@ flutter:
     - assets/vosk/
 ```
 
-- [ ] **Step 2: Add Android permissions**
+- [x] **Step 2: Add Android permissions**
 
 `android/app/src/main/AndroidManifest.xml`, inside `<manifest>`:
 
@@ -376,7 +376,7 @@ flutter:
 <uses-permission android:name="android.permission.SEND_SMS"/>
 ```
 
-- [ ] **Step 3: Restrict Android ABI to arm64-v8a**
+- [x] **Step 3: Restrict Android ABI to arm64-v8a**
 
 `android/app/build.gradle.kts`, inside `defaultConfig`:
 
@@ -386,7 +386,7 @@ ndk {
 }
 ```
 
-- [ ] **Step 4: Verify pub get and analyze are clean**
+- [x] **Step 4: Verify pub get and analyze are clean**
 
 ```bash
 flutter pub get
@@ -395,7 +395,7 @@ flutter analyze
 
 Expected: no errors. Warnings about deprecated APIs are acceptable.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add pubspec.yaml android/app/src/main/AndroidManifest.xml android/app/build.gradle.kts
@@ -410,7 +410,7 @@ git commit -m "build: scaffold Shongjog dependencies and arm64-v8a constraint"
 - Create: `lib/app/app.dart`
 - Modify: `lib/main.dart`
 
-- [ ] **Step 1: Author the theme**
+- [x] **Step 1: Author the theme**
 
 `lib/app/theme.dart`:
 
@@ -455,7 +455,7 @@ class ShongjogTheme {
 }
 ```
 
-- [ ] **Step 2: Define routes**
+- [x] **Step 2: Define routes**
 
 `lib/app/router.dart`:
 
@@ -478,7 +478,7 @@ class AppRoutes {
 }
 ```
 
-- [ ] **Step 3: Scaffold App widget**
+- [x] **Step 3: Scaffold App widget**
 
 `lib/app/app.dart`:
 
@@ -503,7 +503,7 @@ class ShongjogApp extends StatelessWidget {
 }
 ```
 
-- [ ] **Step 4: Replace `main.dart`**
+- [x] **Step 4: Replace `main.dart`**
 
 ```dart
 import 'package:flutter/material.dart';
@@ -514,11 +514,11 @@ void main() {
 }
 ```
 
-- [ ] **Step 5: Create placeholder screens (so the app compiles)**
+- [x] **Step 5: Create placeholder screens (so the app compiles)**
 
 `lib/features/chat/chat_screen.dart`, `lib/features/quick_cards/quick_cards_screen.dart`, `lib/features/shelter/shelter_map_screen.dart` — each a `Scaffold` with an `AppBar` and a centered `Text('TODO')`.
 
-- [ ] **Step 6: Verify build**
+- [x] **Step 6: Verify build**
 
 ```bash
 flutter analyze
@@ -527,7 +527,7 @@ flutter build apk --debug
 
 Expected: builds clean.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add lib/
@@ -980,7 +980,7 @@ git commit -m "test(kb): retrieval quality verifier"
 - Create: `lib/rag/retriever.dart`
 - Test: `test/unit/retriever_test.dart`
 
-- [ ] **Step 1: Define types**
+- [x] **Step 1: Define types**
 
 `lib/rag/types.dart`:
 
@@ -1023,7 +1023,7 @@ List<Chunk> parseCorpus(String jsonString) =>
         .toList(growable: false);
 ```
 
-- [ ] **Step 2: Write failing retriever test**
+- [x] **Step 2: Write failing retriever test**
 
 `test/unit/retriever_test.dart`:
 
@@ -1058,13 +1058,13 @@ void main() {
 }
 ```
 
-- [ ] **Step 3: Run — expect FAIL**
+- [x] **Step 3: Run — expect FAIL**
 
 ```bash
 flutter test test/unit/retriever_test.dart
 ```
 
-- [ ] **Step 4: Implement retriever**
+- [x] **Step 4: Implement retriever**
 
 `lib/rag/retriever.dart`:
 
@@ -1106,13 +1106,13 @@ class BruteForceRetriever {
 }
 ```
 
-- [ ] **Step 5: Run — expect PASS**
+- [x] **Step 5: Run — expect PASS**
 
 ```bash
 flutter test test/unit/retriever_test.dart
 ```
 
-- [ ] **Step 6: Implement KB loader**
+- [x] **Step 6: Implement KB loader**
 
 `lib/knowledge/kb_loader.dart`:
 
@@ -1152,7 +1152,7 @@ class KnowledgeBase {
 }
 ```
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add lib/rag/ lib/knowledge/ test/unit/retriever_test.dart
@@ -1169,7 +1169,7 @@ git commit -m "feat(rag): on-device kb loader and cosine retriever"
 - Create: `lib/core/model_manager.dart`
 - Modify: `lib/features/chat/chat_screen.dart`
 
-- [ ] **Step 1: Write the manager**
+- [x] **Step 1: Write the manager**
 
 `lib/core/model_manager.dart`:
 
@@ -1235,7 +1235,7 @@ class ModelManager {
 }
 ```
 
-- [ ] **Step 2: Surface model state on chat screen**
+- [x] **Step 2: Surface model state on chat screen**
 
 `lib/features/chat/chat_screen.dart` (replace placeholder):
 
@@ -1292,13 +1292,13 @@ class _ChatScreenState extends State<ChatScreen> {
 }
 ```
 
-- [ ] **Step 3: Verify build**
+- [x] **Step 3: Verify build**
 
 ```bash
 flutter analyze
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add lib/core/model_manager.dart lib/features/chat/chat_screen.dart
@@ -1312,7 +1312,7 @@ git commit -m "feat(model): on-device gemma manager with download + init"
 - Create: `lib/features/chat/chat_repository.dart`
 - Test: `test/unit/prompt_builder_test.dart`
 
-- [ ] **Step 1: Write failing prompt builder test**
+- [x] **Step 1: Write failing prompt builder test**
 
 ```dart
 // test/unit/prompt_builder_test.dart
@@ -1340,13 +1340,13 @@ void main() {
 }
 ```
 
-- [ ] **Step 2: Run — expect FAIL**
+- [x] **Step 2: Run — expect FAIL**
 
 ```bash
 flutter test test/unit/prompt_builder_test.dart
 ```
 
-- [ ] **Step 3: Implement prompt builder**
+- [x] **Step 3: Implement prompt builder**
 
 `lib/rag/prompt_builder.dart`:
 
@@ -1382,13 +1382,13 @@ $query
 }
 ```
 
-- [ ] **Step 4: Run — expect PASS**
+- [x] **Step 4: Run — expect PASS**
 
 ```bash
 flutter test test/unit/prompt_builder_test.dart
 ```
 
-- [ ] **Step 5: Implement ChatRepository**
+- [x] **Step 5: Implement ChatRepository**
 
 `lib/features/chat/chat_repository.dart`:
 
@@ -1428,7 +1428,7 @@ class ChatRepository {
 }
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/rag/prompt_builder.dart lib/features/chat/chat_repository.dart test/unit/prompt_builder_test.dart
@@ -1440,7 +1440,7 @@ git commit -m "feat(chat): rag prompt builder and chat repository"
 **Files:**
 - Create: `lib/rag/embedder.dart`
 
-- [ ] **Step 1: Implement embedder via flutter_gemma embedder API**
+- [x] **Step 1: Implement embedder via flutter_gemma embedder API**
 
 ```dart
 import 'dart:typed_data';
@@ -1477,7 +1477,7 @@ class Embedder {
 
 > Pin the actual embedder path resolution at integration time, after confirming `flutter_gemma`'s embedder API surface for the installed version.
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add lib/rag/embedder.dart
@@ -1493,7 +1493,7 @@ git commit -m "feat(rag): EmbeddingGemma client"
 - Create: `lib/features/voice/tts_service.dart`
 - Modify: `lib/main.dart`
 
-- [ ] **Step 1: TTS service**
+- [x] **Step 1: TTS service**
 
 `lib/features/voice/tts_service.dart`:
 
@@ -1523,7 +1523,7 @@ class TtsService {
 }
 ```
 
-- [ ] **Step 2: Message bubble**
+- [x] **Step 2: Message bubble**
 
 `lib/features/chat/message_bubble.dart`:
 
@@ -1573,7 +1573,7 @@ class MessageBubble extends StatelessWidget {
 }
 ```
 
-- [ ] **Step 3: Chat input**
+- [x] **Step 3: Chat input**
 
 `lib/features/chat/chat_input.dart`:
 
@@ -1630,7 +1630,7 @@ class _ChatInputState extends State<ChatInput> {
 }
 ```
 
-- [ ] **Step 4: Replace chat screen with full wired version**
+- [x] **Step 4: Replace chat screen with full wired version**
 
 `lib/features/chat/chat_screen.dart`:
 
@@ -1738,7 +1738,7 @@ class _Msg {
 }
 ```
 
-- [ ] **Step 5: Verify on device, airplane mode**
+- [x] **Step 5: Verify on device, airplane mode**
 
 ```bash
 adb shell svc data disable
@@ -1748,7 +1748,7 @@ flutter run --release
 
 Ask: "আমার বাচ্চার ডায়রিয়া হয়েছে কি করবো?" — expect grounded Bangla answer with 999 reminder.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/features/chat/ lib/features/voice/tts_service.dart
@@ -1764,7 +1764,7 @@ git commit -m "feat(chat): wired RAG + gemma chat with bangla TTS"
 **Files:**
 - Create: `lib/features/voice/stt_service.dart`
 
-- [ ] **Step 1: Implement STT service**
+- [x] **Step 1: Implement STT service**
 
 `lib/features/voice/stt_service.dart`:
 
@@ -1814,7 +1814,7 @@ class SttService {
 
 > Note: actual mic capture is platform-specific. Use `record` package (pubspec) and feed PCM frames into Vosk. Add `record: ^5.1.0` to pubspec.
 
-- [ ] **Step 2: Wire mic button**
+- [x] **Step 2: Wire mic button**
 
 In `_ChatScreenState.onMicPressed`:
 
@@ -1837,11 +1837,11 @@ Future<void> _onMicPressed() async {
 
 (Add `final _inputCtrl = TextEditingController();` to `_ChatInputState` and pass it down so the screen can write into it.)
 
-- [ ] **Step 3: Verify on device**
+- [x] **Step 3: Verify on device**
 
 Speak "আমার বাচ্চার ডায়রিয়া হয়েছে।" — expect transcript in chat input, auto-submit, grounded answer.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add lib/features/voice/stt_service.dart lib/features/chat/chat_screen.dart lib/features/chat/chat_input.dart
@@ -1855,7 +1855,7 @@ git commit -m "feat(voice): vosk bangla STT wired into chat"
 - Create: `lib/features/shelter/shelter_repository.dart`
 - Modify: `lib/features/shelter/shelter_map_screen.dart`
 
-- [ ] **Step 1: Shelter model**
+- [x] **Step 1: Shelter model**
 
 ```dart
 class Shelter {
@@ -1870,7 +1870,7 @@ class Shelter {
 }
 ```
 
-- [ ] **Step 2: Repository (loads from asset)**
+- [x] **Step 2: Repository (loads from asset)**
 
 ```dart
 import 'dart:convert';
@@ -1899,7 +1899,7 @@ class ShelterRepository {
 }
 ```
 
-- [ ] **Step 3: Map screen with `flutter_map`**
+- [x] **Step 3: Map screen with `flutter_map`**
 
 ```dart
 import 'package:flutter/material.dart';
@@ -1957,7 +1957,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
 }
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add lib/features/shelter/
@@ -1970,7 +1970,7 @@ git commit -m "feat(shelter): bundled geojson + offline map screen"
 - Create: `lib/features/shelter/nearest_shelter.dart`
 - Test: `test/unit/nearest_shelter_test.dart`
 
-- [ ] **Step 1: Write failing test**
+- [x] **Step 1: Write failing test**
 
 ```dart
 // test/unit/nearest_shelter_test.dart
@@ -1990,13 +1990,13 @@ void main() {
 }
 ```
 
-- [ ] **Step 2: Run — expect FAIL**
+- [x] **Step 2: Run — expect FAIL**
 
 ```bash
 flutter test test/unit/nearest_shelter_test.dart
 ```
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 ```dart
 import 'dart:math';
@@ -2030,17 +2030,17 @@ List<RankedShelter> nearestShelters({
 }
 ```
 
-- [ ] **Step 4: Run — expect PASS**
+- [x] **Step 4: Run — expect PASS**
 
 ```bash
 flutter test test/unit/nearest_shelter_test.dart
 ```
 
-- [ ] **Step 5: Wire into chat**
+- [x] **Step 5: Wire into chat**
 
 Add a button in `MessageBubble` action row: "নিকটস্থ আশ্রয়কেন্দ্র দেখান". On tap, get GPS via `geolocator`, call `nearestShelters`, push to map screen with the ranked list focused on top result.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/features/shelter/nearest_shelter.dart test/unit/nearest_shelter_test.dart lib/features/chat/
@@ -2052,7 +2052,7 @@ git commit -m "feat(shelter): haversine nearest + gps wiring"
 **Files:**
 - Create: `lib/features/emergency/emergency_actions.dart`
 
-- [ ] **Step 1: Implement**
+- [x] **Step 1: Implement**
 
 ```dart
 import 'package:url_launcher/url_launcher.dart';
@@ -2070,7 +2070,7 @@ class EmergencyActions {
 }
 ```
 
-- [ ] **Step 2: Add an "Emergency" entry to chat screen AppBar**
+- [x] **Step 2: Add an "Emergency" entry to chat screen AppBar**
 
 ```dart
 IconButton(
@@ -2080,7 +2080,7 @@ IconButton(
 ),
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add lib/features/emergency/ lib/features/chat/
@@ -2110,7 +2110,7 @@ void main() {
 }
 ```
 
-- [ ] **Step 2: Implement**
+- [x] **Step 2: Implement**
 
 ```dart
 String sosSmsBody({required String name, required String phone, required double lat, required double lon}) {
@@ -2122,17 +2122,17 @@ String sosSmsBody({required String name, required String phone, required double 
 }
 ```
 
-- [ ] **Step 3: Wire into chat**
+- [x] **Step 3: Wire into chat**
 
 Add "SOS পাঠান" button that asks for name + phone (one-time settings), then `launchUrl(Uri(scheme: 'sms', path: '999', queryParameters: {'body': sosSmsBody(...)}))`.
 
-- [ ] **Step 4: Run test — expect PASS**
+- [x] **Step 4: Run test — expect PASS**
 
 ```bash
 flutter test test/unit/sos_sms_template_test.dart
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/features/emergency/ test/unit/
