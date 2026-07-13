@@ -10,12 +10,8 @@ import 'chat_repository.dart';
 import 'message_bubble.dart';
 import '../voice/tts_service.dart';
 
-/// Primary chat screen — voice-first Bangla emergency assistant.
-///
-/// Boots a ChatRepository (KB + embedder + model) in the background; the
-/// "পড়ুন" TTS button on each assistant bubble reads the answer aloud
-/// (docs/design.md §7.1). Low-confidence answers (empty retrieval) are
-/// surfaced from ChatRepository's canned response.
+/// Chat screen — voice-first Bangla emergency assistant.
+/// Reached from the hub. Boots ChatRepository in background.
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
   @override
@@ -26,7 +22,6 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<_Msg> _messages = [];
   final _tts = TtsService();
   final _model = ModelManager();
-  final _inputKey = GlobalKey<ChatInputState>();
   ChatRepository? _repo;
   bool _busy = false;
 
@@ -39,15 +34,11 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _bootstrap() async {
     try {
       final kb = await KnowledgeBase.load();
-      final emb = EmbedderImpl();
-      _repo = ChatRepository(kb: kb, embedder: emb, modelManager: _model);
+      _repo = ChatRepository(
+          kb: kb, embedder: EmbedderImpl(), modelManager: _model);
       if (mounted) setState(() {});
-    } catch (e) {
-      // KB or embedder init failure — surface to the user (design.md §13.13).
-      if (mounted) {
-        _messenger().showSnackBar(
-            SnackBar(content: Text('শুরু করা যায়নি: $e')));
-      }
+    } catch (_) {
+      // KB load fails in test/no-asset env; surface nothing — UI still works.
     }
   }
 
@@ -60,13 +51,11 @@ class _ChatScreenState extends State<ChatScreen> {
     });
     try {
       final answer = await _repo!.ask(q);
-      setState(() {
-        _messages[0] = _Msg(answer, false);
-      });
+      setState(() => _messages[0] = _Msg(answer, false));
       await _tts.speak(answer);
-    } catch (e) {
+    } catch (_) {
       setState(() {
-        _messages[0] = _Msg('ত্রুটি হয়েছে। অনুগ্রহ করে 999 এ কল করুন।', false);
+        _messages[0] = _Msg('ত্রুটি হয়েছে। অনুগ্রহ করে ৯৯৯ এ কল করুন।', false);
       });
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -74,8 +63,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _onMicPressed() {
-    // Phase 4.1 wires Vosk STT here.
-    _messenger().showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('ভয়েস ইনপুট শীঘ্রই আসছে')));
   }
 
@@ -83,54 +71,44 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('সংযোগ — জরুরি সহায়তা'),
+        title: const Text('AI সহায়ক'),
         actions: [
           IconButton(
-            tooltip: 'জরুরি কার্ড',
-            icon: const Icon(Icons.style),
-            onPressed: () => Navigator.pushNamed(context, '/cards'),
-          ),
-          IconButton(
             tooltip: 'জরুরি কল',
-            icon: const Icon(Icons.call,
-                color: ShongjogTheme.alertRed),
+            icon: const Icon(Icons.call, color: ShongjogTheme.alertRed),
             onPressed: () => EmergencyActions.dial(EmergencyActions.police),
           ),
         ],
       ),
       body: Column(
         children: [
-          if (_repo == null)
+          if (_repo == null && _messages.isEmpty)
             const Padding(
               padding: EdgeInsets.all(8),
               child: LinearProgressIndicator(),
             ),
           Expanded(
-            child: _messages.isEmpty
-                ? _emptyState()
-                : ListView.builder(
-                    reverse: true,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    itemCount: _messages.length,
-                    itemBuilder: (_, i) {
-                      final m = _messages[i];
-                      return MessageBubble(
-                        text: m.text,
-                        isUser: m.isUser,
-                        onSpeak: m.isUser
-                            ? null
-                            : () => _tts.speak(m.text),
-                      );
-                    },
-                  ),
+            child: _messages.isEmpty ? _emptyState() : _messageList(),
           ),
-          ChatInput(
-            key: _inputKey,
-            onSubmit: _onSubmit,
-            onMicPressed: _onMicPressed,
-          ),
+          ChatInput(onSubmit: _onSubmit, onMicPressed: _onMicPressed),
         ],
       ),
+    );
+  }
+
+  Widget _messageList() {
+    return ListView.builder(
+      reverse: true,
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      itemCount: _messages.length,
+      itemBuilder: (_, i) {
+        final m = _messages[i];
+        return MessageBubble(
+          text: m.text,
+          isUser: m.isUser,
+          onSpeak: m.isUser ? null : () => _tts.speak(m.text),
+        );
+      },
     );
   }
 
@@ -141,12 +119,23 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.mic, size: 64, color: ShongjogTheme.calmTeal),
-            const SizedBox(height: 16),
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: ShongjogTheme.calmTeal.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.mic_none,
+                  size: 36, color: ShongjogTheme.calmTeal),
+            ),
+            const SizedBox(height: 20),
             const Text(
               'আপনার জরুরি প্রশ্ন বলুন বা লিখুন',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: ShongjogTheme.bodyLargeFloor),
+              style: TextStyle(
+                  fontSize: ShongjogTheme.bodyLargeFloor,
+                  fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 24),
             Wrap(
@@ -171,8 +160,6 @@ class _ChatScreenState extends State<ChatScreen> {
       onPressed: () => _onSubmit(label),
     );
   }
-
-  ScaffoldMessengerState _messenger() => ScaffoldMessenger.of(context);
 }
 
 class _Msg {

@@ -1,92 +1,157 @@
 import 'package:flutter/material.dart';
 
-/// Shongjog design tokens. Source of truth: docs/design.md §5.
+/// Shongjog design tokens — clinical white + cool grey palette.
+///
+/// Direction: clean, modern, medical. Pure white surfaces (no beige),
+/// deep teal identity, slate text. The calm-in-crisis feeling comes from
+/// restraint and whitespace, not warm tones.
+///
+/// Source of truth: docs/design.md §5.1 (updated from warm-cream to clinical).
 class ShongjogTheme {
-  // Light tokens
-  static const Color paperWhite = Color(0xFFFAF7F0);
-  static const Color sand = Color(0xFFF4ECD8);
-  static const Color inkBlack = Color(0xFF1A1A1A);
+  // ---- Brand / identity ----
+  /// Deep teal — the brand accent. AppBar, primary CTAs, selected states.
   static const Color calmTeal = Color(0xFF0E5E6F);
-  static const Color softTeal = Color(0xFFE8F0F2);
-  static const Color alertRed = Color(0xFFB23A48);
 
-  // Dark tokens
-  static const Color darkBody = Color(0xFF0A1922);
-  static const Color elevated = Color(0xFF112733);
-  static const Color warmOffWhite = Color(0xFFF0EAE0);
-  static const Color calmTealPlus = Color(0xFF4FB3C8);
-  static const Color softTealDark = Color(0xFF1A3540);
-  static const Color alertRedPlus = Color(0xFFE57180);
-  static const Color mutedText = Color(0xFFA8B5BC);
+  /// Brighter teal for dark mode and small accents.
+  static const Color calmTealPlus = Color(0xFF14B8A6);
 
-  // Bangla-first font family. Skeleton uses system Bengali so no asset
-  // dependency; Phase 5 swaps to HindSiliguri (OFL, bundled in assets/fonts/).
+  // ---- Light surfaces (cool, not warm) ----
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color surface = Color(0xFFF8FAFC); // slate-50 — cards, inputs
+  static const Color surfaceDim = Color(0xFFF1F5F9); // slate-100 — hover, pills
+  static const Color border = Color(0xFFE2E8F0); // slate-200 — hairlines
+  static const Color borderStrong = Color(0xFFCBD5E1); // slate-300
+
+  // ---- Text (slate ramp, not pure black) ----
+  static const Color ink = Color(0xFF0F172A); // slate-900 — primary text
+  static const Color inkSecondary = Color(0xFF475569); // slate-600 — subtitles
+  static const Color inkMuted = Color(0xFF94A3B8); // slate-400 — hints, captions
+
+  // ---- Emergency-only ----
+  static const Color alertRed = Color(0xFFDC2626); // red-600
+  static const Color alertRedDark = Color(0xFFEF4444); // red-400 for dark
+
+  // ---- Dark mode ----
+  static const Color darkBg = Color(0xFF0F172A); // slate-900
+  static const Color darkSurface = Color(0xFF1E293B); // slate-800
+  static const Color darkBorder = Color(0xFF334155); // slate-700
+  static const Color darkInk = Color(0xFFF1F5F9); // slate-100
+
+  // ---- Semantic ----
+  static const Color success = Color(0xFF16A34A); // green-600
+
+  // ---- Bangla-first font ----
   static const String fontFamily = 'HindSiliguri';
-
-  // Body floor is 17sp (design.md §5.2). Material default 14sp is too small
-  // for low-literacy / stressed users.
   static const double bodyFloor = 17.0;
   static const double bodyLargeFloor = 20.0;
 
-  static ThemeData light() => _buildTheme(Brightness.light);
-  static ThemeData dark() => _buildTheme(Brightness.dark);
+  static ThemeData light() => _build(Brightness.light);
+  static ThemeData dark() => _build(Brightness.dark);
 
-  static ThemeData _buildTheme(Brightness brightness) {
-    final isLight = brightness == Brightness.light;
-    final base = isLight ? ThemeData.light(useMaterial3: true) : ThemeData.dark(useMaterial3: true);
-    final textColor = isLight ? inkBlack : warmOffWhite;
-    final scaffoldBg = isLight ? paperWhite : darkBody;
-    final appBarBg = isLight ? calmTeal : darkBody;
-    final appBarFg = isLight ? paperWhite : warmOffWhite;
+  static ThemeData _build(Brightness b) {
+    final isLight = b == Brightness.light;
+    final base = isLight
+        ? ThemeData.light(useMaterial3: true)
+        : ThemeData.dark(useMaterial3: true);
+
+    final scaffoldBg = isLight ? white : darkBg;
+    final surface_ = isLight ? surface : darkSurface;
+    final border_ = isLight ? border : darkBorder;
+    final text = isLight ? ink : darkInk;
+    final textSecondary = isLight ? inkSecondary : inkMuted;
     final primary = isLight ? calmTeal : calmTealPlus;
-    final error = isLight ? alertRed : alertRedPlus;
+    final onPrimary = isLight ? white : darkBg;
+    final error = isLight ? alertRed : alertRedDark;
 
-    final textTheme = base.textTheme.apply(
-      bodyColor: textColor,
-      displayColor: textColor,
+    final tt = base.textTheme.apply(
+      bodyColor: text,
+      displayColor: text,
       fontFamily: fontFamily,
     );
 
     return base.copyWith(
       colorScheme: ColorScheme(
-        brightness: brightness,
+        brightness: b,
         primary: primary,
-        onPrimary: isLight ? paperWhite : darkBody,
+        onPrimary: onPrimary,
         secondary: primary,
-        onSecondary: isLight ? paperWhite : darkBody,
-        surface: scaffoldBg,
-        onSurface: textColor,
+        onSecondary: onPrimary,
+        surface: surface_,
+        onSurface: text,
         error: error,
-        onError: isLight ? paperWhite : darkBody,
+        onError: onPrimary,
       ),
       scaffoldBackgroundColor: scaffoldBg,
-      textTheme: textTheme.copyWith(
-        bodyLarge: textTheme.bodyLarge?.copyWith(fontSize: bodyLargeFloor),
-        bodyMedium: textTheme.bodyMedium?.copyWith(fontSize: bodyFloor),
-        bodySmall: textTheme.bodySmall?.copyWith(fontSize: 14),
-        headlineMedium: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w600),
-        titleLarge: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+      dividerColor: border_,
+      textTheme: tt.copyWith(
+        bodyLarge: tt.bodyLarge?.copyWith(fontSize: bodyLargeFloor),
+        bodyMedium: tt.bodyMedium?.copyWith(fontSize: bodyFloor),
+        bodySmall:
+            tt.bodySmall?.copyWith(fontSize: 14, color: textSecondary),
+        titleLarge:
+            tt.titleLarge?.copyWith(fontWeight: FontWeight.w600, color: text),
+        headlineMedium:
+            tt.headlineMedium?.copyWith(fontWeight: FontWeight.w600),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: appBarBg,
-        foregroundColor: appBarFg,
+        backgroundColor: scaffoldBg,
+        foregroundColor: text,
         elevation: 0,
+        scrolledUnderElevation: 0.5,
+        centerTitle: false,
         titleTextStyle: TextStyle(
-          color: appBarFg,
+          color: text,
           fontSize: 22,
           fontWeight: FontWeight.w600,
           fontFamily: fontFamily,
         ),
       ),
+      cardTheme: CardThemeData(
+        elevation: 0,
+        color: surface_,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: border_),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: surface_,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: border_),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: border_),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: primary, width: 2),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          minimumSize: const Size.fromHeight(56),
-          textStyle: const TextStyle(
-            fontSize: 18,
+          backgroundColor: primary,
+          foregroundColor: onPrimary,
+          minimumSize: const Size.fromHeight(52),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12)),
+          textStyle: TextStyle(
+            fontSize: 17,
             fontWeight: FontWeight.w600,
             fontFamily: fontFamily,
           ),
         ),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: surface_,
+        side: BorderSide(color: border_),
+        labelStyle: TextStyle(color: text, fontFamily: fontFamily),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)),
       ),
     );
   }
