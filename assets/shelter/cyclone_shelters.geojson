@@ -1,0 +1,54 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [89.55, 22.85] },
+      "properties": {
+        "name": "Khulna Shelter A",
+        "name_bn": "খুলনা শেল্টার এ",
+        "capacity": 1200,
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [90.40, 22.70] },
+      "properties": {
+        "name": "Barisal Cyclone Shelter",
+        "name_bn": "বরিশাল সাইক্লোন শেল্টার",
+        "capacity": 800,
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [91.82, 22.33] },
+      "properties": {
+        "name": "Chittagong Shelter C",
+        "name_bn": "চট্টগ্রাম শেল্টার সি",
+        "capacity": 1500,
+        "source": "BDRCS"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [89.25, 23.92] },
+      "properties": {
+        "name": "Pabna Shelter",
+        "name_bn": "পাবনা শেল্টার",
+        "capacity": 600,
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [90.36, 23.75] },
+      "properties": {
+        "name": "Dhaka Emergency Shelter",
+        "name_bn": "ঢাকা জরুরি শেল্টার",
+        "source": "OSM"
+      }
+    }
+  ]
+}
