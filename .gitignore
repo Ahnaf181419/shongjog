@@ -1,0 +1,115 @@
+# ─── OS / Editor ────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+ehthumbs.db
+*.swp
+*.swo
+*~
+.atom/
+.history
+.build/
+.buildlog/
+.svn/
+.swiftpm/
+.fleet/
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+migrate_working_dir/
+
+# ─── AI tooling artifacts (NEVER commit) ───────────────────
+.agents/
+.claude/
+.opencode/
+.aider*
+.cursor/
+.continue/
+.cody/
+
+# ─── Flutter / Dart / Pub ───────────────────────────────────
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.flutter-plugins
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# ─── Symbolication / obfuscation ────────────────────────────
+app.*.symbols
+app.*.map.json
+
+# ─── Android ────────────────────────────────────────────────
+/android/app/debug
+/android/app/profile
+/android/app/release
+/android/local.properties
+/android/key.properties
+/android/app/upload-keystore.jks
+/android/.gradle/
+/android/captures/
+*.jks
+*.keystore
+
+# ─── iOS / macOS ────────────────────────────────────────────
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/macos/Flutter/ephemeral/
+**/macos/Pods/
+.DS_Store
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+xcuserdata/
+
+# ─── Windows / Linux desktop ────────────────────────────────
+**/windows/flutter/ephemeral/
+**/linux/flutter/ephemeral/
+
+# ─── Python (tools/ venv for build_kb.py) ───────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+tools/.venv/
+tools/venv/
+tools/env/
+.env
+.env.local
+*.egg-info/
+build/
+dist/
+.eggs/
+
+# ─── AI model files (NEVER commit — downloaded separately) ─
+*.task
+*.litertlm
+*.tflite
+*.gguf
+*.onnx
+*.pb
+
+# ─── Patch / merge artifacts ────────────────────────────────
+*.orig
+*.rej
+*.patch
+.git.rebase.head
+
+# ─── Misc ───────────────────────────────────────────────────
+*.class
+*.log
+*.lock
+package-lock.json
+yarn.lock
+crashlytics/
+firebase*.json
+google-services.json
+*.tmp
+*.bak
