@@ -1,20 +1,22 @@
-// Smoke test for the skeleton shell. Verifies that:
-//  - the chat screen renders on initialRoute
-//  - the AppBar shows the Bangla title
-//  - the placeholder body text renders
-// Real widget tests for each feature land with that feature (Phase 1.3+).
+// Smoke test for the skeleton shell. Verifies the chat screen renders with
+// its Bangla AppBar title and empty-state suggestion pills. The full chat
+// flow (model + TTS) is validated on-device in Phase 5, not in widget tests.
 
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:shongjog/app/app.dart';
 
 void main() {
-  testWidgets('skeleton shell renders chat screen with Bangla AppBar',
+  testWidgets('chat screen renders AppBar title and empty-state suggestions',
       (WidgetTester tester) async {
     await tester.pumpWidget(const ShongjogApp());
-    await tester.pumpAndSettle();
+    // Let _bootstrap's async KB load run; it will fail in the test env
+    // (no rootBundle) but the UI still renders the empty state.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.text('সংযোগ — জরুরি সহায়তা'), findsOneWidget);
-    expect(find.text('চ্যাট UI শীঘ্রই আসছে'), findsOneWidget);
+    // Empty-state copy.
+    expect(find.text('আপনার জরুরি প্রশ্ন বলুন বা লিখুন'), findsOneWidget);
   });
 }
