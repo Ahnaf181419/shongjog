@@ -15,6 +15,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('সংযোগ — জরুরি সহায়তা'), findsOneWidget);
-    expect(find.text('চ্যাট — শীঘ্রই আসছে'), findsOneWidget);
+    expect(find.text('চ্যাট UI শীঘ্রই আসছে'), findsOneWidget);
   });
 }
