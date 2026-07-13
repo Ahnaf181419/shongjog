@@ -4,6 +4,7 @@ import '../../app/theme.dart';
 import '../../core/model_manager.dart';
 import '../../knowledge/kb_loader.dart';
 import '../../rag/embedder.dart';
+import '../emergency/emergency_actions.dart';
 import 'chat_input.dart';
 import 'chat_repository.dart';
 import 'message_bubble.dart';
@@ -88,6 +89,12 @@ class _ChatScreenState extends State<ChatScreen> {
             tooltip: 'জরুরি কার্ড',
             icon: const Icon(Icons.style),
             onPressed: () => Navigator.pushNamed(context, '/cards'),
+          ),
+          IconButton(
+            tooltip: 'জরুরি কল',
+            icon: const Icon(Icons.call,
+                color: ShongjogTheme.alertRed),
+            onPressed: () => EmergencyActions.dial(EmergencyActions.police),
           ),
         ],
       ),
