@@ -104,7 +104,8 @@ dist/
 # ─── Misc ───────────────────────────────────────────────────
 *.class
 *.log
-*.lock
+# pubspec.lock IS committed for app projects (Flutter convention);
+# `*.lock` is intended to keep Python package-lock.json / yarn.lock out.
 package-lock.json
 yarn.lock
 crashlytics/
@@ -112,3 +113,7 @@ firebase*.json
 google-services.json
 *.tmp
 *.bak
+!pubspec.lock
+
+# ─── Team-local AI tooling (per-developer, not project code) ─
+.agents/

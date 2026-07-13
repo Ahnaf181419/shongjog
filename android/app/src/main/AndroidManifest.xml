@@ -1,6 +1,22 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--
+      Permissions:
+      - INTERNET: used ONLY for the one-time Gemma model download,
+        gated behind ModelManager. Core loop runs in airplane mode.
+      - RECORD_AUDIO: Vosk-Bangla STT.
+      - ACCESS_FINE_LOCATION: GPS for nearest shelter.
+      - CALL_PHONE: tel:999/333 dial.
+      - SEND_SMS: pre-drafted SOS SMS to 999.
+    -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+
     <application
-        android:label="shongjog"
+        android:label="Shongjog"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
