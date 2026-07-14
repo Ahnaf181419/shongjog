@@ -745,13 +745,13 @@ git commit -m "feat(quick-cards): static bangla emergency cards (no model dep)"
 
 ## Phase 2 — Knowledge Base Pipeline
 
-### Task 2.1: Corpus JSON schema and authoring workflow
+### Task 2.1: Corpus JSON schema and authoring workflow ✅ DONE (Sehab)
 
 **Files:**
 - Create: `tools/corpus.json`
 - Create: `tools/README.md`
 
-- [ ] **Step 1: Author corpus schema doc**
+- [x] **Step 1: Author corpus schema doc**
 
 `tools/README.md`:
 
@@ -770,7 +770,7 @@ git commit -m "feat(quick-cards): static bangla emergency cards (no model dep)"
 All chunks must be reviewed by a human before `build_kb.py` runs.
 ```
 
-- [ ] **Step 2: Draft ~25 chunks in `tools/corpus.json`**
+- [x] **Step 2: Draft ~25 chunks in `tools/corpus.json`**
 
 Authoring checklist per chunk:
 - Plain Bangla, no jargon
@@ -792,11 +792,11 @@ Topics to cover (target counts):
 
 Total: ~23 chunks.
 
-- [ ] **Step 3: Human review**
+- [x] **Step 3: Human review**
 
 Have a native Bangla speaker review every chunk. Fix phrasing, add missing steps. Update `source` field per chunk.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add tools/corpus.json tools/README.md

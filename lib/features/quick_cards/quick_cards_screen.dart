@@ -85,8 +85,11 @@ class _CardTile extends StatelessWidget {
                       Expanded(
                         child: Text(
                           e.value,
-                          style: const TextStyle(
-                              fontSize: 16, height: 1.4),
+                          style: TextStyle(
+                            fontSize: 16,
+                            height: 1.4,
+                            color: ShongjogTheme.ink,
+                          ),
                         ),
                       ),
                     ],
