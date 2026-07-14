@@ -26,7 +26,8 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
+    final isDark = cs.brightness == Brightness.dark;
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -35,9 +36,15 @@ class MessageBubble extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
+          // User bubble uses the adaptive primary — sky-700 (deep) in light,
+          // sky-400 (bright) in dark. Hardcoded `ocean` blended into the dark
+          // scaffold; this matches `cs.primary` so the bubble pops in both
+          // modes while staying on-brand.
           color: isUser
-              ? ShongjogTheme.ocean
-              : (isDark ? ShongjogTheme.surfaceDark : ShongjogTheme.surface),
+              ? cs.primary
+              : (isDark
+                  ? cs.surfaceContainerHighest
+                  : cs.surface),
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
@@ -46,11 +53,7 @@ class MessageBubble extends StatelessWidget {
           ),
           border: isUser
               ? null
-              : Border.all(
-                  color: isDark
-                      ? ShongjogTheme.borderDark
-                      : ShongjogTheme.border,
-                ),
+              : Border.all(color: ShongjogTheme.hairline(context)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,7 +64,7 @@ class MessageBubble extends StatelessWidget {
                 style: TextStyle(
                   fontSize: ShongjogTheme.bodyFloor,
                   height: 1.5,
-                  color: isDark ? ShongjogTheme.inkDark : null,
+                  color: isDark ? ShongjogTheme.inkDark : ShongjogTheme.ink,
                 ),
               )
             else
@@ -70,7 +73,11 @@ class MessageBubble extends StatelessWidget {
                 style: TextStyle(
                   fontSize: ShongjogTheme.bodyFloor,
                   height: 1.5,
-                  color: isUser ? ShongjogTheme.white : null,
+                  // User bubble: white text always (the surface is brand
+                  // primary in both modes, both pass AAA with white).
+                  // Assistant bubble: theme-adaptive body color so it
+                  // reads on either light or dark surface.
+                  color: isUser ? cs.onPrimary : cs.onSurface,
                 ),
               ),
             if (!isUser && onSpeak != null) ...[
@@ -82,6 +89,7 @@ class MessageBubble extends StatelessWidget {
                   icon: const Icon(Icons.volume_up, size: 18),
                   label: const Text('পড়ুন'),
                   style: TextButton.styleFrom(
+                    foregroundColor: cs.primary,
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     minimumSize: const Size(0, 32),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,

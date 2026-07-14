@@ -214,22 +214,27 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             const Text('AI সহায়ক'),
             if (_sttProviderName != null)
-              Text(
-                _stt.isOfflineCapable ? 'অফলাইন ভয়েস' : 'অনলাইন ভয়েস',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w400,
-                  color: _stt.isOfflineCapable
-                      ? ShongjogTheme.success
-                      : ShongjogTheme.inkSecondary,
-                ),
-              ),
+              Builder(builder: (context) {
+                final isDark = Theme.of(context).brightness == Brightness.dark;
+                return Text(
+                  _stt.isOfflineCapable ? 'অফলাইন ভয়েস' : 'অনলাইন ভয়েস',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                    color: _stt.isOfflineCapable
+                        ? (isDark
+                            ? ShongjogTheme.successBright
+                            : ShongjogTheme.success)
+                        : ShongjogTheme.bodySecondary(context),
+                  ),
+                );
+              }),
           ],
         ),
         actions: [
           IconButton(
             tooltip: 'জরুরি কল',
-            icon: const Icon(Icons.call, color: ShongjogTheme.alert),
+            icon: Icon(Icons.call, color: Theme.of(context).colorScheme.error),
             onPressed: () => EmergencySheet.show(context),
           ),
         ],
@@ -342,10 +347,11 @@ class _ChatScreenState extends State<ChatScreen> {
                 const SizedBox(width: 8),
                 TextButton.icon(
                   onPressed: () => EmergencySheet.show(context),
-                  icon: const Icon(Icons.call,
-                      size: 18, color: ShongjogTheme.alert),
-                  label: const Text('৯৯৯ কল',
-                      style: TextStyle(color: ShongjogTheme.alert)),
+                  icon: Icon(Icons.call,
+                      size: 18, color: Theme.of(context).colorScheme.error),
+                  label: Text('৯৯৯ কল',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.error)),
                 ),
               ],
             ),

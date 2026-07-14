@@ -80,14 +80,45 @@ class ShongjogTheme {
 
   // ─── Helpers for custom widgets ───────────────────────────
 
+  /// Body text color that adapts to the current theme.
+  ///
+  /// `ShongjogTheme.ink` (slate-900) is correct only in light mode; on a
+  /// dark scaffold it would render dark-on-dark and be invisible. Same
+  /// for `inkSecondary`. These helpers route through Material 3's
+  /// [ColorScheme.onSurface] so text reads AAA on every background.
+  ///
+  /// Usage in production screens:
+  /// ```dart
+  /// color: ShongjogTheme.body(context),
+  /// color: ShongjogTheme.bodySecondary(context),
+  /// ```
+  static Color body(BuildContext c) => Theme.of(c).colorScheme.onSurface;
+
+  /// Secondary body color (captions, subtitles, helper text). Adapts.
+  static Color bodySecondary(BuildContext c) =>
+      Theme.of(c).colorScheme.onSurfaceVariant;
+
+  /// Card surface color that adapts — returns `surface` in light, the
+  /// mid-tone `surfaceContainerHighest` in dark. Avoids the "jarring
+  /// bright white card on dark scaffold" problem when widgets hardcode
+  /// `ShongjogTheme.surface`.
+  static Color cardSurface(BuildContext c) {
+    final cs = Theme.of(c).colorScheme;
+    return cs.brightness == Brightness.dark
+        ? cs.surfaceContainerHighest
+        : cs.surface;
+  }
+
   /// Soft-elevation card decoration — tinted surface, hairline border,
   /// diffuse shadow. The signature "clean and rich" surface.
   static BoxDecoration cardDecoration(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
     return BoxDecoration(
-      color: Theme.of(context).colorScheme.surface,
+      color: cardSurface(context),
       borderRadius: BorderRadius.circular(radius),
-      border: Border.all(color: isLight ? border : borderDark),
+      border: Border.all(
+        color: isLight ? border : Theme.of(context).colorScheme.outlineVariant,
+      ),
       boxShadow: [
         BoxShadow(
           color: isLight
@@ -110,6 +141,11 @@ class ShongjogTheme {
       borderRadius: BorderRadius.circular(radiusSm),
     );
   }
+
+  /// Adaptive hairline border color (slate-200 in light, surfaceContainerHighest
+  /// outline in dark).
+  static Color hairline(BuildContext c) =>
+      Theme.of(c).colorScheme.outlineVariant;
 
   // ─── Theme data builders ──────────────────────────────────
 

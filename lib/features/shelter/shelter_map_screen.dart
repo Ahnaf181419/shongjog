@@ -214,7 +214,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                 : const LatLng(23.8, 90.4),
             initialZoom: 8,
             backgroundColor: _isOnline
-                ? Colors.white
+                ? Theme.of(context).colorScheme.surface
                 : Theme.of(context).colorScheme.surfaceContainerHighest,
           ),
           children: [

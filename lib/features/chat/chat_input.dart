@@ -111,8 +111,13 @@ class ChatInputState extends State<ChatInput>
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final isDark = cs.brightness == Brightness.dark;
+    // Listening-state color must adapt: `alert` (red-600) reads OK on
+    // light, but on dark scaffold a brighter tone (red-400) keeps the
+    // FAB and its glow visible. Both guaranteed ≥AAA on the surrounding
+    // white-on-color text/icons.
     final micColor = widget.isListening
-        ? ShongjogTheme.alert
+        ? (isDark ? ShongjogTheme.alertBright : ShongjogTheme.alert)
         : cs.primary;
     final micLabel = widget.isListening
         ? 'শুনছি, থামাতে আবার চাপুন'
@@ -139,32 +144,31 @@ class ChatInputState extends State<ChatInput>
                     child: InkWell(
                       onTap: _handleMic,
                       customBorder: const CircleBorder(),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: micColor,
-                          boxShadow: widget.isListening
-                              ? [
-                                  BoxShadow(
-                                    color: ShongjogTheme.alert
-                                        .withValues(alpha: 0.45),
-                                    blurRadius: 18,
-                                    spreadRadius: 1,
-                                  ),
-                                ]
-                              : null,
-                        ),
-                        child: Center(
-                          child: Opacity(
-                            opacity: _opacity.value,
-                            child: Icon(
-                              widget.isListening ? Icons.stop_rounded : Icons.mic_rounded,
-                              color: cs.onPrimary,
-                              size: 28,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: micColor,
+                            boxShadow: widget.isListening
+                                ? [
+                                    BoxShadow(
+                                      color: micColor.withValues(alpha: 0.55),
+                                      blurRadius: 18,
+                                      spreadRadius: 1,
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          child: Center(
+                            child: Opacity(
+                              opacity: _opacity.value,
+                              child: Icon(
+                                widget.isListening ? Icons.stop_rounded : Icons.mic_rounded,
+                                color: cs.onPrimary,
+                                size: 28,
+                              ),
                             ),
                           ),
                         ),
-                      ),
                     ),
                   );
                 },

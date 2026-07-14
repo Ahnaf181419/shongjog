@@ -175,12 +175,15 @@ class _HeroAskCard extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.18),
+                  // Theme-aware scrim on the brand surface: white-tinted in
+                  // light mode, slate-tinted in dark mode (so it reads on
+                  // sky-400).
+                  color: cs.onPrimary.withValues(alpha: 0.18),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.mic_rounded,
-                  color: Colors.white,
+                  color: cs.onPrimary,
                   size: 28,
                 ),
               ),
@@ -204,7 +207,10 @@ class _HeroAskCard extends StatelessWidget {
                       'বাংলায় ভয়েসে জিজ্ঞাসা করুন — অফলাইনেই উত্তর',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.white.withValues(alpha: 0.85),
+                        // Same-onPrimary at 85% opacity — readable on both
+                        // ocean (light, white text) and oceanBright (dark,
+                        // slate-900 text).
+                        color: cs.onPrimary.withValues(alpha: 0.85),
                         height: 1.4,
                       ),
                     ),
@@ -213,7 +219,7 @@ class _HeroAskCard extends StatelessWidget {
               ),
               Icon(
                 Icons.arrow_forward_rounded,
-                color: Colors.white.withValues(alpha: 0.8),
+                color: cs.onPrimary.withValues(alpha: 0.8),
                 size: 24,
               ),
             ],
@@ -338,7 +344,9 @@ class _EmergencyHeroTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Material(
-      color: ShongjogTheme.alert,
+      // cs.error adapts: red-600 in light, red-400 in dark. Both offer
+      // ≥AAA contrast vs. `cs.onPrimary` (white in light, slate-900 in dark).
+      color: cs.error,
       borderRadius: BorderRadius.circular(ShongjogTheme.radius),
       clipBehavior: Clip.antiAlias,
       elevation: 0,
@@ -352,11 +360,11 @@ class _EmergencyHeroTile extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: cs.onError.withValues(alpha: 0.20),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.phone_in_talk_rounded,
-                    color: Colors.white, size: 22),
+                child: Icon(Icons.phone_in_talk_rounded,
+                    color: cs.onError, size: 22),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -369,7 +377,7 @@ class _EmergencyHeroTile extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
-                        color: cs.onPrimary,
+                        color: cs.onError,
                         height: 1.2,
                       ),
                     ),
@@ -378,15 +386,15 @@ class _EmergencyHeroTile extends StatelessWidget {
                       '৯৯৯ · ১৬১৬৩ · জরুরি যোগাযোগ',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.white.withValues(alpha: 0.85),
+                        color: cs.onError.withValues(alpha: 0.85),
                         height: 1.3,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.arrow_forward_rounded,
-                  color: Colors.white, size: 22),
+              Icon(Icons.arrow_forward_rounded,
+                  color: cs.onError, size: 22),
             ],
           ),
         ),

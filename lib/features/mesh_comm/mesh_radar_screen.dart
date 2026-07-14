@@ -17,7 +17,8 @@ class _MeshRadarScreenState extends State<MeshRadarScreen> {
   @override
   void initState() {
     super.initState();
-    _mesh = MeshService(userName: 'User_${DateTime.now().millisecondsSinceEpoch % 1000}');
+    _mesh = MeshService(
+        userName: 'User_${DateTime.now().millisecondsSinceEpoch % 1000}');
     _startMesh();
   }
 
@@ -51,27 +52,37 @@ class _MeshRadarScreenState extends State<MeshRadarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
         title: const Text('অফলাইন যোগাযোগ রাডার'),
       ),
       body: Column(
         children: [
+          // Peer-count strip — theme-aware primary tint.
           Container(
             padding: const EdgeInsets.all(16),
-            color: ShongjogTheme.calmTeal.withValues(alpha: 0.1),
+            color: cs.primary.withValues(alpha: 0.10),
             child: Row(
               children: [
-                const Icon(Icons.radar, color: ShongjogTheme.calmTeal),
+                Icon(Icons.radar, color: cs.primary),
                 const SizedBox(width: 8),
-                StreamBuilder<List<String>>(
-                  stream: _mesh.peers,
-                  initialData: const [],
-                  builder: (context, snapshot) {
-                    final count = snapshot.data?.length ?? 0;
-                    return Text('নিকটস্থ ডিভাইসের সংখ্যা: $count',
-                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16));
-                  },
+                Expanded(
+                  child: StreamBuilder<List<String>>(
+                    stream: _mesh.peers,
+                    initialData: const [],
+                    builder: (context, snapshot) {
+                      final count = snapshot.data?.length ?? 0;
+                      return Text(
+                        'নিকটস্থ ডিভাইসের সংখ্যা: $count',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          color: ShongjogTheme.body(context),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
@@ -84,17 +95,22 @@ class _MeshRadarScreenState extends State<MeshRadarScreen> {
                 final m = _messages[index];
                 final isMe = m.senderId == 'Me';
                 return Align(
-                  alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment:
+                      isMe ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
                     margin: const EdgeInsets.symmetric(vertical: 4),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: isMe ? ShongjogTheme.calmTeal : Colors.grey[300],
+                      color: isMe
+                          ? cs.primary
+                          : cs.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       m.text,
-                      style: TextStyle(color: isMe ? Colors.white : Colors.black87),
+                      style: TextStyle(
+                        color: isMe ? cs.onPrimary : cs.onSurface,
+                      ),
                     ),
                   ),
                 );
@@ -112,7 +128,8 @@ class _MeshRadarScreenState extends State<MeshRadarScreen> {
                       decoration: const InputDecoration(
                         hintText: 'মেসেজ লিখুন...',
                         border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 16),
                       ),
                       onSubmitted: (_) => _sendMessage(),
                     ),
@@ -121,8 +138,10 @@ class _MeshRadarScreenState extends State<MeshRadarScreen> {
                   IconButton.filled(
                     onPressed: _sendMessage,
                     icon: const Icon(Icons.send),
-                    color: Colors.white,
-                    style: IconButton.styleFrom(backgroundColor: ShongjogTheme.calmTeal),
+                    style: IconButton.styleFrom(
+                      backgroundColor: cs.primary,
+                      foregroundColor: cs.onPrimary,
+                    ),
                   ),
                 ],
               ),
@@ -133,3 +152,4 @@ class _MeshRadarScreenState extends State<MeshRadarScreen> {
     );
   }
 }
+
