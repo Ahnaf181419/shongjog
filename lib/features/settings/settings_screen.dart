@@ -103,7 +103,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: const Text('জাতীয় নম্বর ও নিজের পরিচিতি'),
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () =>
-                Navigator.pushNamed(context, AppRoutes.emergencyContacts),
+                pushNamedSafe(context, AppRoutes.emergencyContacts),
           ),
           const _Divider(),
           _SectionHeader('ডায়াগনস্টিকস'),
@@ -142,7 +142,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: const Text('অ্যাপ সম্পর্কে'),
             subtitle: const Text('তথ্যসূত্র, লাইসেন্স, সংস্করণ'),
             trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => Navigator.pushNamed(context, AppRoutes.about),
+            onTap: () => pushNamedSafe(context, AppRoutes.about),
           ),
         ],
       ),
