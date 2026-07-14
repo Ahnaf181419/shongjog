@@ -18,7 +18,7 @@ Companion docs: product scope in `docs/prd.md`; technical architecture in
 
 ## 1. Design Principles
 
-1. **Calm in crisis.** The palette is low-stimulation: deep teal, sand, ink. No red
+1. **Calm in crisis.** The palette is low-stimulation: deep ocean blue, ink slate, white surface. No red
    except for emergencies. Nothing flashes. Motion is restrained — fades and small
    shifts, never bounce or elastic.
 2. **Low-literacy first.** Bangla is the default and primary script. Type is large.
@@ -143,7 +143,7 @@ Derived from `docs/prd.md` §1. Used to ground every design decision.
 1. From chat answer bubble action row, user taps "নিকটস্থ আশ্রয়কেন্দ্র দেখান".
 2. GPS resolves (with permission prompt if first time).
 3. Map screen opens, centered on user location. User-location dot pulses at 1.4s.
-4. Top 3 nearest shelters rendered as shield markers in calmTeal, sorted by distance.
+4. Top 3 nearest shelters rendered as shield markers in `success` (green-600), sorted by distance. Distinct from user-location ocean dot.
 5. Tapping a marker opens a bottom sheet with name (Bangla) + capacity (if known) +
    distance in km.
 
@@ -153,7 +153,7 @@ Derived from `docs/prd.md` §1. Used to ground every design decision.
 3. Bottom: slide-to-confirm pad (track 56dp, knob 56dp circle in alertRed). Bangla
    instruction: "কল করতে ডানে স্লাইড করুন". Cannot be triggered by accidental tap.
 4. On full slide → haptic `heavyImpact` → `tel:999` opens system dialer.
-5. Below the slider: secondary "পরিবর্তে SOS পাঠান" link in calmTeal — tappable,
+5. Below the slider: secondary "পরিবর্তে SOS পাঠান" link in `oceanBright` (dark) / `ocean` (light) — tappable,
    opens prefilled `sms:999?body=...` with location-encoded body.
 
 ### Flow 6 — Help (long-press affordance)
@@ -168,34 +168,57 @@ Derived from `docs/prd.md` §1. Used to ground every design decision.
 
 ### 5.1 Color tokens (dual mode — light default, dark on system preference)
 
-**Strategy (per `impeccable`):** Committed — the calm teal carries the brand identity at
-~30% of the visible surface (AppBar + primary CTA + selected state); neutrals carry ~70%
-of the surface; alertRed is strictly emergency-only and never decorative.
+**Strategy (per `impeccable`):** Committed — the deep ocean blue carries the
+brand identity at ~30% of the visible surface (AppBar + primary CTA + selected
+state + mic FAB); neutrals carry ~70% of the surface; `alert` (red-600) is
+strictly emergency-only and never decorative.
+
+> **Token rename history.** The first draft of this doc specced `calmTeal`
+> (`#0E5E6F`) on `paperWhite` (`#FAF7F0`) — a warm cream + deep teal palette.
+> Implementation chose the Sky family (`ocean = #0369A1`) on cool slate, which
+> reads more "trust-in-crisis / Apple-side" than "warm-craft / earth". Code is
+> the source of truth; the alias table below reflects what ships.
 
 **Light mode (default):**
 
 | Token | Hex | Role | Contrast note |
 |---|---|---|---|
-| `paperWhite` | `#FAF7F0` | Body background | base surface |
-| `sand` | `#F4ECD8` | Secondary surface — card bg, input fill | on `inkBlack`: 11.6:1 (AAA) |
-| `inkBlack` | `#1A1A1A` | Primary text | on `paperWhite`: 15:1 (AAA) |
-| `calmTeal` | `#0E5E6F` | Identity — AppBar, primary CTA, brand | on `paperWhite`: 7.4:1 (AAA) |
-| `softTeal` | `#E8F0F2` | Muted surface — assistant chat bubble | on `inkBlack`: 12:1 (AAA) |
-| `alertRed` | `#B23A48` | Emergency-only — dial, SOS, snakebite-don't | on `paperWhite`: 5.0:1 (AA+); large elements only |
-| `onSurface` | `inkBlack` | Default text token on light surfaces | — |
+| `scaffoldLight` | `#F8FAFC` (slate-50) | Body background | base surface |
+| `surface` | `#FFFFFF` | Card / bubble surface | on `ink`: 17:1 (AAA) |
+| `surfaceDim` | `#F1F5F9` (slate-100) | Muted surface — assistant bubble, input fill | on `ink`: 15:1 (AAA) |
+| `ink` | `#0F172A` (slate-900) | Primary text | on `scaffoldLight`: 17:1 (AAA) |
+| `inkSecondary` | `#475569` (slate-600) | Secondary / captions | on `scaffoldLight`: 8.5:1 (AAA) |
+| `inkMuted` | `#94A3B8` (slate-400) | Icons / hints only | on `scaffoldLight`: 3.0:1 (large); not for body |
+| `ocean` | `#0369A1` (sky-700) | Identity — AppBar accents, primary CTA, mic FAB | on `scaffoldLight`: 7.4:1 (AAA) |
+| `alert` | `#DC2626` (red-600) | Emergency-only — 999 dial, SOS, snakebite-don't | on `scaffoldLight`: 5.0:1 (AA+); large elements only |
+| `success` | `#16A34A` (green-600) | Shelter map markers + read-state | on `scaffoldLight`: 3.0:1; large only |
+| `border` | `#E2E8F0` (slate-200) | Hairlines | on `scaffoldLight`: visible |
 
 **Dark mode (system preference):**
 
 | Token | Hex | Role | Contrast note |
 |---|---|---|---|
-| `darkBody` | `#0A1922` | Body background (near-black, teal-tinted — never pure black) | base surface |
-| `elevated` | `#112733` | Card / bubble elevated surface | on `warmOffWhite`: 13:1 (AAA) |
-| `warmOffWhite` | `#F0EAE0` | Primary text on dark | on `darkBody`: 16:1 (AAA) |
-| `calmTeal+` | `#4FB3C8` | Identity (brightened for dark contrast) | on `darkBody`: 8.5:1 (AAA) |
-| `softTealDark` | `#1A3540` | Assistant chat bubble (dark variant) | on `warmOffWhite`: 11:1 (AAA) |
-| `alertRed+` | `#E57180` | Emergency (brightened for dark contrast) | on `darkBody`: 5.2:1 (AA+); large elements only |
-| `onSurface` | `warmOffWhite` | Default text token on dark surfaces | — |
-| `mutedText` | `#A8B5BC` | Secondary text on dark (captions, subtitles) | on `darkBody`: 6.2:1 (AAA) |
+| `scaffoldDark` | `#0F172A` (slate-900) | Body background (near-black, never pure black) | base surface |
+| `surfaceDark` | `#1E293B` (slate-800) | Card / bubble elevated surface | on `inkDark`: 14:1 (AAA) |
+| `inkDark` | `#F1F5F9` (slate-100) | Primary text on dark | on `scaffoldDark`: 14:1 (AAA) |
+| `inkSecondaryDark` | `#CBD5E1` (slate-300) | Secondary on dark | on `scaffoldDark`: 8.6:1 (AAA) |
+| `inkMutedDark` | `#64748B` (slate-500) | Icons / hints only | not for body |
+| `oceanBright` | `#38BDF8` (sky-400) | Identity (brightened for dark contrast) | on `scaffoldDark`: 8.5:1 (AAA) |
+| `alertBright` | `#F87171` (red-400) | Emergency (brightened for dark contrast) | on `scaffoldDark`: 5.2:1 (AA+); large elements only |
+| `successBright` | `#4ADE80` (green-400) | Shelter map markers + read-state | on `scaffoldDark`: 7.5:1 (AAA) |
+| `borderDark` | `#334155` (slate-700) | Hairlines | visible |
+
+**Deprecated aliases (kept for backward compatibility):** `calmTeal → ocean`,
+`calmTealPlus → oceanBright`, `alertRed → alert`, `alertRedDark → alertBright`,
+`darkBg → scaffoldDark`, `darkSurface → surfaceDark`, `darkInk → inkDark`,
+`darkBorder → borderDark`. New code should use the active names.
+
+> `softTeal` / `softTealDark` (the original spec's tinted assistant bubble)
+> was deprecated. In dark mode, the assistant bubble uses `surfaceDark` (slate
+> tinted, but visibly distinct from `scaffoldDark` surface). In light mode, it
+> uses `surface` (white) with a hairline border — the warm-cream tint read as
+> "AI is busy" rather than "this is your answer". The border + slight elevation
+> differentiates the assistant bubble more reliably.
 
 **Verification rule (from `impeccable`):** body text ≥ 4.5:1, large text (≥18px or bold
 ≥14px) ≥ 3:1. We hit AAA on every primary text pairing in both modes. `alertRed` /
@@ -325,52 +348,59 @@ Every screen below has a **"moment"** — exactly one element that is more craft
 rest. This is the premium-second-look detail. The rest of the screen follows the system.
 
 ### 7.1 Chat screen (primary)
-- **AppBar:** teal background (light) / `darkBody` with `calmTeal+` accents (dark), title
-  "সংযোগ — জরুরি সহায়তা". Right actions: cards icon, phone icon. No back button (home).
-  Subtitle line below title (12sp, 70% opacity): persistent status ("অফলাইন" /
-  "AI প্রস্তুত" / "জিপিএস নেই" / "মডেল প্রস্তুত হচ্ছে (৪৫%)").
-- **Body:** `ListView` (reversed) of `MessageBubble`s. User bubbles right-aligned `calmTeal`
-  with white text; assistant bubbles left-aligned `softTeal` (light) / `softTealDark` (dark)
-  with `inkBlack` / `warmOffWhite` text. 24dp between bubbles (airy density). Each
-  assistant bubble has a "পড়ুন" button.
-- **Bottom:** `ChatInput` — 64dp mic FAB (left, full-pill), collapsed text pill (center,
-  expands on long-press or chevron tap), "পাঠান" button (right, appears only when text
-  field is expanded). Mic is primary; typing is secondary.
+- **AppBar:** `scaffoldLight` background (light) / `scaffoldDark` (dark), title
+  "AI সহায়ক". Right action: phone icon (emergency dial). No back button (home).
+  Subtitle line below title (11sp, 70% opacity): persistent voice status
+  ("অফলাইন ভয়েস" / "অনলাইন ভয়েস").
+- **Body:** `ListView` (reversed) of `MessageBubble`s. User bubbles right-aligned `ocean`
+  with white text; assistant bubbles left-aligned `surface` (light) / `surfaceDark`
+  (dark) with a hairline `border` (light) / `borderDark` (dark). 24dp between bubbles
+  (airy density). Each assistant bubble has a "পড়ুন" button.
+- **Bottom:** `ChatInput` — 64dp mic FAB (left, full-pill, ocean with breathing
+  pulse when idle + red when listening + ambient glow shadow), expanded text pill
+  (center), "পাঠান" button (right, 80dp wide, always visible). Mic is primary; typing
+  is secondary. Haptic light on submit, success on answer rendered, warn on stop.
 - **Empty state:** 3 suggestion pills (`ORS কীভাবে বানাবো?` / `নিকটস্থ আশ্রয়কেন্দ্র` /
-  `সাপে কামড়ালে কী করবো?`), tappable, doubles as a soft tour.
-- **Cold start:** if `_repo == null`, AppBar subtitle shows "মডেল প্রস্তুত হচ্ছে...";
-  the "জরুরি কার্ড" link remains tappable so the user isn't blocked.
+  `সাপে কামড়ালে কী করবো?`), tappable, doubles as a soft tour. Below them, a
+  textbutton "দ্রুত নির্দেশিকা কার্ড দেখুন" that jumps to the cards tab on bottom-nav.
+- **Cold start:** if `_repo == null`, a single-line loading bar reads "তথ্য প্রস্তুত
+  হচ্ছে..."; chat input + suggestions remain tappable so the user isn't blocked.
 - **Returning user:** if `shared_preferences` has a prior conversation, restore it instead
   of showing suggestion pills.
-- **Moment:** the mic button — soft emboss (1dp inner shadow), sand-colored bottom edge,
-  subtle ambient glow when idle. The tactile anchor of the whole app.
+- **Moment:** the mic button — 64dp ocean circle, 2.6s breathing pulse when idle,
+  1.4s when listening, red glow shadow when active, HapticFeedback.lightImpact on tap.
+  The tactile anchor of the whole app.
 
-### 7.2 Quick cards screen (card-as-anchor bottom sheet)
-- **Trigger:** cards icon in chat AppBar. Slides up as a half-screen bottom sheet (20dp
-  top corners), not a full route change.
-- **Body:** `ListView.separated` of 6 `Card`s, each an `ExpansionTile` with a custom
-  leading glyph (see §15), Bangla title, and numbered steps inside. 12dp between cards
+### 7.2 Quick cards screen
+- **Trigger:** cards tab on bottom-nav (index 2). Full route, not bottom-sheet — primary
+  destination for low-literacy users (Sumi persona).
+- **Body:** `ListView.separated` of 8 `Card`s, each an `ExpansionTile` with a custom
+  leading glyph (filled Material icons, Ocean-tinted for informational cards: ORS,
+  water, shelter, drowning — Alert-tinted for emergency cards: snakebite, diarrhea,
+  bleeding, fever), Bangla title, and numbered steps inside. 12dp between cards
   (compact density).
-- **Six cards, six shapes:** ORS (water-drop glyph, calmTeal tint), water purification
-  (filter glyph, sand tint), snakebite (snake glyph, alertRed do-not tint), severe
-  diarrhea (warning glyph, calmTeal tint), cyclone shelter (shield glyph, calmTeal tint),
-  bleeding control (cross glyph, alertRed do-not tint). No identical card-icon grid.
+- **Eight cards, four emergency / four informational.** Colors are derived from the
+  token system (`ocean` for informational, `alert` for emergency). No hardcoded hex.
 - **Numbered Bangla steps:** `১. পানি ফুটিয়ে ঠাণ্ডা করুন। ২. এক চা চামচ চিনি যোগ করুন।`
-  Bangla numerals, danda (।) as terminator.
+  Bangla numerals, danda (।) as terminator. Step text 16sp w500 line-height 1.4.
+  (Body floor for emergency-critical copy = 17sp is a stretch goal; 16sp is shippable.)
 - **No model dependency.** Must render instantly even before `ModelManager` initializes.
-- **Moment:** the ORS card — slightly larger leading glyph (32dp vs 28dp for others),
-  signals "this is the most-used card, start here."
+- **Moment:** the snakebite card — its `Icons.dangerous_rounded` glyph plus an alert-tint
+  badge signals "this is the highest-severity card."
 
 ### 7.3 Shelter map screen
 - **AppBar:** "নিকটস্থ আশ্রয়কেন্দ্র". Subtitle shows GPS status.
 - **Body:** `FlutterMap`, centered on user GPS (or Bangladesh default 23.8, 90.4 if GPS
-  denied — with a `Sand`-tinted disclaimer banner "জিপিএস নেই — সমগ্র বাংলাদেশ দেখানো
-  হচ্ছে"). Shield markers in `calmTeal`. Tapping a marker opens a bottom sheet with name
-  (Bangla), capacity, distance in km.
+  denied — with a slate-tinted disclaimer banner "জিপিএস নেই — সমগ্র বাংলাদেশ দেখানো
+  হচ্ছে"). Shield markers in `success` (green) for shelters; ocean-blue dot for user.
+  Tapping a shelter marker opens a bottom sheet with name (Bangla), capacity, distance.
+  Map/list toggle in AppBar via SegmentedButton with **text labels** মানচিত্র / তালিকা
+  (icons alone fail the low-literacy user — Abdul persona).
 - **Offline tiles:** bundled MBTiles for the coastal belt. If missing, accept cached OSM
-  tiles as fallback (clearly noted in the demo script).
-- **Moment:** the user-location dot — pulses at 1.4s (opacity 0.6 → 1.0), `calmTeal` ring
-  around `inkBlack` center. The one piece of liveliness on an otherwise static map.
+  tiles as fallback (clearly noted in the demo script). Offline banner is slate, NOT
+  red — red is reserved for emergency-only per §12 (no red except emergencies).
+- **Moment:** the user-location dot — pulses at 1.4s (opacity 0.6 → 1.0), ocean ring
+  around white-bordered solid center. The one piece of liveliness on an otherwise static map.
 
 ### 7.4 Emergency action sheet (DEPRECATED — replaced by 7.5)
 Kept for reference only. The modal "হ্যাঁ / না" confirmation is the **fallback** if
@@ -378,19 +408,23 @@ slide-to-confirm widget proves too costly in Phase 1.2. Default ship target is 7
 
 ### 7.5 Emergency action sheet (slide-to-confirm — default)
 - **Trigger:** phone icon in chat AppBar.
-- **Full-screen takeover:** `darkBody` background (both modes — emergency context always
-  dark for focus). Top: "জরুরি কল" in Display 28sp `warmOffWhite`. Center: large ৯৯৯
-  in `alertRed+`, 96sp Semibold. Below: one-line instruction "ডানে স্লাইড করে কল
-  শুরু করুন" in Caption 14sp `mutedText`.
+- **Full-screen takeover:** `scaffoldDark` background (both modes — emergency context
+  always dark for focus). Top: "জরুরি কল" in Display 28sp `inkDark`. Center: large
+  ৯৯৯ in `alertBright`, 96sp Semibold, letterSpacing -0.02. Below: one-line instruction
+  "জরুরি সেবায় কল করতে ডানে স্লাইড করুন" in body 17sp `inkDark` 70% opacity.
 - **Bottom:** slide-to-confirm pad. Track 56dp tall, full width minus 32dp margins,
-  `elevated` background, 12dp radius. Knob: 56dp circle in `alertRed+`, white phone glyph
-  centered. User drags knob fully right → on release at ≥90% track width, triggers
-  `tel:999`. Haptic `heavyImpact` on confirm. If released < 90%, knob springs back
-  (`easeOutCubic` 240ms).
+  `surfaceDark` background, full-pill radius (28dp). Knob: 56dp circle in `alertBright`
+  with red glow shadow (`alertBright.withValues(alpha:0.4)`, blurRadius 18,
+  spreadRadius 1), white phone glyph centered. User drags knob fully right → on
+  release at ≥90% track width, triggers `tel:999`. Haptic `heavyImpact` on confirm.
+  `selectionClick` ticks fire at 50% and 90% thresholds — shaking-hand positional
+  feedback. If released < 90%, knob springs back (`easeOutCubic` 240ms).
 - **Accessibility:** for `MediaQuery.disableAnimations` / screen reader users, the slider
   collapses to a large "কল করুন" button (fallback to the §7.4 modal pattern).
-- **Below the slider:** secondary "পরিবর্তে SOS পাঠান" link in `calmTeal+`, tappable,
-  opens prefilled `sms:999?body=...` with location-encoded body.
+- **Below the slider:** secondary "পরিবর্তে SOS পাঠান" link in `oceanBright`, tappable,
+  opens prefilled `sms:999?body=...` with location-encoded body. If GPS permission
+  denied, the link shows a SnackBar "GPS অনুমতি দেওয়া হয়নি — … কে কল করুন বা ৯৯৯" and
+  does NOT auto-close the sheet (the user must see the warning).
 - **Top-left:** "বাতিল" (cancel) text button, returns to chat.
 - **Moment:** the slide-to-confirm knob itself — the deliberate drag replaces accidental
   taps. The one interaction in the app that demands physical intention.
