@@ -5,15 +5,16 @@ import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../core/connectivity_provider.dart';
 import '../../core/haptics.dart';
-import '../weather/weather_tile.dart';
+import '../weather/weather_card.dart';
 
-/// Home tab — the informative main menu.
+/// Home tab — context-first dashboard.
 ///
-/// Layout: status strip → hero AI card (the moment) → 3 emergency tiles
-/// (cards / shelter / 999) → live weather tile → contextual tip.
+/// Layout: status strip → weather card (today + 3-day strip) → AI hero
+/// (28 sp CTA on the drenched panel) → 2-up emergency triad (cards /
+/// shelter; 999 lives in the AppBar now) → mesh tile → tip.
 ///
-/// Per design.md §7.6, the home is 3-4 tiles max. Mesh-radar + settings
-/// surface from the AppBar / About so the critical path stays uncluttered.
+/// Per AGENTS.md, the 999 entry point is always reachable via the
+/// persistent AppBar pill, even when the body content scrolls past.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, this.onNavigateToTab});
 
@@ -26,6 +27,8 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('সংযোগ'),
         actions: [
+          const _EmergencyCallPill(),
+          const SizedBox(width: 4),
           IconButton(
             tooltip: 'সেটিংস',
             icon: const Icon(Icons.settings_rounded),
@@ -37,16 +40,20 @@ class HomeScreen extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         children: [
           const _StatusStrip(),
-          const SizedBox(height: 14),
-          // ── Hero card: the moment. Voice-first AI entry point. ──
+          const SizedBox(height: 10),
+          // ── Weather card sits at the top: today's weather + 3-day strip.
+          //   Optional network feature — degrades to a tap-to-load affordance.
+          const WeatherCard(),
+          const SizedBox(height: 16),
+          // ── Hero: voice-first AI entry. Smaller (28 sp) than before; the
+          //   weather card now leads, so the hero is "one of several" CTAs.
           _HeroAskCard(onTap: () => onNavigateToTab?.call(1)),
           const SizedBox(height: 16),
-          // ── 3 emergency tiles: cards / shelter / 999 ──
+          // ── 2 emergency tiles (cards / shelter). The 999 entry point
+          //   lives in the AppBar pill — always reachable while scrolling.
           _EmergencyTriad(),
           const SizedBox(height: 12),
           _OfflineMessageTile(),
-          const SizedBox(height: 12),
-          const WeatherTile(),
           const SizedBox(height: 12),
           // ── Contextual tip ──
           const _TipCard(),
@@ -57,7 +64,57 @@ class HomeScreen extends StatelessWidget {
 }
 
 // ════════════════════════════════════════════════════════════════
-//  Status strip — single grounded line
+//  AppBar pill — persistent 999 shortcut
+// ════════════════════════════════════════════════════════════════
+
+/// Compact red pill that sits in the AppBar left of the settings icon.
+/// Routes to [AppRoutes.emergencyContacts] (not a direct dial — the
+/// contacts screen surfaces 999, 16163, and named personal contacts).
+class _EmergencyCallPill extends StatelessWidget {
+  const _EmergencyCallPill();
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => pushNamedSafe(context, AppRoutes.emergencyContacts),
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: ShongjogTheme.emergencyPill(context),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.phone_in_talk_rounded,
+                  size: 16,
+                  color: cs.onError,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  'জরুরি কল',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: cs.onError,
+                    height: 1.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  Status strip — chip row
 // ════════════════════════════════════════════════════════════════
 
 class _StatusStrip extends StatefulWidget {
@@ -217,7 +274,7 @@ class _OfflineDotState extends State<_OfflineDot>
 }
 
 // ════════════════════════════════════════════════════════════════
-//  Hero — voice-first entry to AI
+//  Hero — voice-first entry to AI (28 sp CTA)
 // ════════════════════════════════════════════════════════════════
 
 class _HeroAskCard extends StatefulWidget {
@@ -257,23 +314,23 @@ class _HeroAskCardState extends State<_HeroAskCard> {
           child: Ink(
             decoration: ShongjogTheme.heroPanel(context),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 22, 18, 22),
+              padding: const EdgeInsets.fromLTRB(20, 18, 18, 18),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Recessed mic well — contained object, not a glow source.
                   Container(
-                    width: 64,
-                    height: 64,
+                    width: 56,
+                    height: 56,
                     decoration: ShongjogTheme.micWell(context),
                     child: Icon(
                       Icons.mic_rounded,
                       color: cs.onPrimary,
-                      size: 30,
+                      size: 26,
                     ),
                   ),
-                  const SizedBox(width: 18),
-                  // Middle: oversized Bangla display + caption.
+                  const SizedBox(width: 16),
+                  // Middle: Bangla heading + caption.
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,14 +339,14 @@ class _HeroAskCardState extends State<_HeroAskCard> {
                         Text(
                           'প্রশ্ন করুন',
                           style: TextStyle(
-                            fontSize: 44,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w700,
                             color: cs.onPrimary,
-                            height: 1.10,
+                            height: 1.15,
                             letterSpacing: -0.01,
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 4),
                         Text(
                           'অফলাইনে বাংলায় ভয়েসে উত্তর',
                           style: TextStyle(
@@ -303,32 +360,30 @@ class _HeroAskCardState extends State<_HeroAskCard> {
                   ),
                   const SizedBox(width: 12),
                   // Right: quiet secondary status + Bangla numeral chip.
-                  // Breaks the SaaS "icon-left, copy-left, arrow-right"
-                  // pattern; anchors the panel in real product state.
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                        Text(
-                          '২৪/৭ সক্রিয়',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: cs.onPrimary.withValues(alpha: 0.85),
-                            height: 1.1,
-                            letterSpacing: 0.02,
-                          ),
+                      Text(
+                        '২৪/৭ সক্রিয়',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: cs.onPrimary.withValues(alpha: 0.85),
+                          height: 1.1,
+                          letterSpacing: 0.02,
                         ),
-                      const SizedBox(height: 8),
+                      ),
+                      const SizedBox(height: 6),
                       Container(
-                        width: 34,
-                        height: 34,
+                        width: 30,
+                        height: 30,
                         alignment: Alignment.center,
                         decoration: ShongjogTheme.numeralChip(context),
                         child: Text(
                           '১',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 15,
                             fontWeight: FontWeight.w600,
                             color: cs.onPrimary,
                             height: 1.0,
@@ -348,38 +403,30 @@ class _HeroAskCardState extends State<_HeroAskCard> {
 }
 
 // ════════════════════════════════════════════════════════════════
-//  Emergency triad — 3 tiles per design.md §7.6
+//  Emergency triad — 2-up tiles (999 moved to AppBar pill)
 // ════════════════════════════════════════════════════════════════
 
 class _EmergencyTriad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: _TriadTile(
-                icon: Icons.style_rounded,
-                titleBn: 'জরুরি কার্ড',
-                subtitleBn: '৮টি দ্রুত নির্দেশিকা',
-                onTap: () => MainShellRoute.goTo(context, 2),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _TriadTile(
-                icon: Icons.shield_rounded,
-                titleBn: 'নিকটস্থ আশ্রয়',
-                subtitleBn: 'GPS থেকে শেল্টার',
-                onTap: () => MainShellRoute.goTo(context, 3),
-              ),
-            ),
-          ],
+        Expanded(
+          child: _TriadTile(
+            icon: Icons.style_rounded,
+            titleBn: 'জরুরি কার্ড',
+            subtitleBn: '৮টি দ্রুত নির্দেশিকা',
+            onTap: () => MainShellRoute.goTo(context, 2),
+          ),
         ),
-        const SizedBox(height: 12),
-        _EmergencyHeroTile(
-          onTap: () => pushNamedSafe(context, AppRoutes.emergencyContacts),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _TriadTile(
+            icon: Icons.shield_rounded,
+            titleBn: 'নিকটস্থ আশ্রয়',
+            subtitleBn: 'GPS থেকে শেল্টার',
+            onTap: () => MainShellRoute.goTo(context, 3),
+          ),
         ),
       ],
     );
@@ -438,73 +485,6 @@ class _TriadTile extends StatelessWidget {
                   color: cs.onSurfaceVariant,
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _EmergencyHeroTile extends StatelessWidget {
-  final VoidCallback onTap;
-  const _EmergencyHeroTile({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Material(
-      // cs.error adapts: red-600 in light, red-400 in dark. Both offer
-      // ≥AAA contrast vs. `cs.onPrimary` (white in light, slate-900 in dark).
-      color: cs.error,
-      borderRadius: BorderRadius.circular(ShongjogTheme.radius),
-      clipBehavior: Clip.antiAlias,
-      elevation: 0,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: cs.onError.withValues(alpha: 0.20),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.phone_in_talk_rounded,
-                    color: cs.onError, size: 22),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'জরুরি কল',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                        color: cs.onError,
-                        height: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '৯৯৯ · ১৬১৬৩ · জরুরি যোগাযোগ',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: cs.onError.withValues(alpha: 0.85),
-                        height: 1.3,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(Icons.arrow_forward_rounded,
-                  color: cs.onError, size: 22),
             ],
           ),
         ),

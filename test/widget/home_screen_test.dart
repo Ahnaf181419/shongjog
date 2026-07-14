@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/core/connectivity_provider.dart';
 import 'package:shongjog/features/home/home_screen.dart';
+import 'package:shongjog/features/weather/weather_card.dart';
 
 void main() {
   Widget wrapHome({ValueChanged<int>? onNavigateToTab}) {
@@ -35,14 +36,43 @@ void main() {
       expect(find.text('প্রশ্ন করুন'), findsOneWidget);
     });
 
-    testWidgets('renders 3-tile emergency triad', (tester) async {
+    testWidgets('renders 2-tile emergency triad + AppBar 999 pill',
+        (tester) async {
       await tester.pumpWidget(wrapHome());
       await pumpOnce(tester);
+      // Two body tiles remain — 999 has moved to the AppBar pill.
       expect(find.text('জরুরি কার্ড'), findsOneWidget);
-      expect(find.text('জরুরি কল'), findsOneWidget);
       expect(find.text('নিকটস্থ আশ্রয়'), findsOneWidget);
-      // Settings moved to AppBar — must NOT appear in body.
+      // জরুরি কল lives in the AppBar pill exactly once.
+      expect(find.text('জরুরি কল'), findsOneWidget);
+      // Settings still in AppBar — must NOT appear in body.
       expect(find.byIcon(Icons.settings_rounded), findsOneWidget);
+    });
+
+    testWidgets('app bar shows জরুরি কল pill left of settings icon',
+        (tester) async {
+      await tester.pumpWidget(wrapHome());
+      await pumpOnce(tester);
+      final pillBox = tester.getRect(find.text('জরুরি কল'));
+      final settingsBox = tester.getRect(find.byIcon(Icons.settings_rounded));
+      // The meaningful invariant: pill is to the left of settings. Y-axis
+      // alignment is incidental (the pill has its own vertical padding).
+      expect(pillBox.right, lessThan(settingsBox.left + 1));
+    });
+
+    testWidgets('app bar জরুরি কল pill routes to emergency contacts',
+        (tester) async {
+      await tester.pumpWidget(wrapHome());
+      await pumpOnce(tester);
+      await tester.tap(find.text('জরুরি কল'));
+      // Pump the page transition without pumpAndSettle — the hero
+      // press-scale + the breathing dot are infinite by design.
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      // wrapHome stubs /emergency-contacts with a Scaffold that renders
+      // 'Contacts' as body text.
+      expect(find.text('Contacts'), findsOneWidget);
     });
 
     testWidgets('renders status line', (tester) async {
@@ -80,14 +110,16 @@ void main() {
       expect(find.text('অনলাইনে চলছে'), findsNothing);
     });
 
-    testWidgets('renders weather tile in some state', (tester) async {
+    testWidgets('renders weather card in some state', (tester) async {
       await tester.pumpWidget(wrapHome());
       await pumpOnce(tester);
-      // Either a loading indicator or a fallback/error message.
-      // Real weather fetches never complete in widget tests.
-      final hasErrorOrHint = find.textContaining('আবহাওয়া').evaluate().isNotEmpty;
-      final hasCircular = find.byType(CircularProgressIndicator).evaluate().isNotEmpty;
-      expect(hasErrorOrHint || hasCircular, isTrue);
+      // Real weather fetches never complete in widget tests, so the card
+      // is in skeleton / offline state. Verifying the widget type itself
+      // is present guarantees the new WeatherCard replaces the old tile.
+      expect(find.byType(WeatherCard), findsOneWidget);
+      // Every state label contains 'আবহাওয়া' for consistency.
+      final hasBangla = find.textContaining('আবহাওয়া').evaluate().isNotEmpty;
+      expect(hasBangla, isTrue);
     });
 
     testWidgets('renders tip card after scrolling', (tester) async {
