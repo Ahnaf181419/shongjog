@@ -4,6 +4,7 @@ import '../core/theme_controller.dart';
 import '../features/about/about_screen.dart';
 import '../features/contacts/emergency_contacts_screen.dart';
 import '../features/settings/settings_screen.dart';
+import '../features/mesh_comm/mesh_radar_screen.dart';
 import 'main_shell.dart';
 import 'router.dart';
 import 'theme.dart';
@@ -28,6 +29,7 @@ class ShongjogApp extends StatelessWidget {
             AppRoutes.emergencyContacts: (_) =>
                 const EmergencyContactsScreen(),
             AppRoutes.about: (_) => const AboutScreen(),
+            AppRoutes.meshRadar: (_) => const MeshRadarScreen(),
           },
           debugShowCheckedModeBanner: false,
         );

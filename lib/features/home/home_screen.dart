@@ -258,6 +258,13 @@ class _BentoGrid extends StatelessWidget {
                 subtitleBn: 'থিম, ভয়েস, তথ্যসূত্র',
                 onTap: () => Navigator.pushNamed(context, AppRoutes.settings),
               ),
+              const SizedBox(height: 12),
+              _BentoTile(
+                icon: Icons.radar,
+                titleBn: 'অফলাইন রাডার',
+                subtitleBn: 'আশেপাশের ডিভাইসে যোগাযোগ',
+                onTap: () => Navigator.pushNamed(context, AppRoutes.meshRadar),
+              ),
             ],
           ),
         ),
