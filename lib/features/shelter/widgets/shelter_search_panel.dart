@@ -71,7 +71,7 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Material(
       color: Theme.of(context).scaffoldBackgroundColor,
       child: SafeArea(
         child: Column(
