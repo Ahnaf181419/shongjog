@@ -1,21 +1,25 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:path_provider/path_provider.dart';
 
-/// Utility for checking network connectivity and managing offline state.
+import '../../core/connectivity_provider.dart';
+
+/// Backward-compatible connectivity helper.
+///
+/// Thin delegate over [ConnectivityProvider] for [isOnline] (reads the
+/// cached boolean — no plugin call). [onConnectivityChanged] is a
+/// passthrough to the underlying `connectivity_plus` stream; new code
+/// should depend on [ConnectivityProvider] directly.
 class ConnectivityHelper {
-  /// Returns true if the device has any network connection (WiFi, cellular,
-  /// or ethernet). Returns false if only none/bluetooth.
-  static Future<bool> isOnline() async {
-    final result = await Connectivity().checkConnectivity();
-    return !result.contains(ConnectivityResult.none) && result.isNotEmpty;
-  }
+  /// Returns true if the device currently has a usable network interface.
+  static Future<bool> isOnline() async => connectivityProvider.isOnline;
 
   /// Streams connectivity changes. Emits true when online, false when offline.
   static Stream<bool> get onConnectivityChanged {
     return Connectivity().onConnectivityChanged.map((results) {
-      return !results.contains(ConnectivityResult.none) && results.isNotEmpty;
+      return results.isNotEmpty && !results.contains(ConnectivityResult.none);
     });
   }
 }
