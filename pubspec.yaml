@@ -45,7 +45,8 @@ dependencies:
   # Cloud AI & Mesh Networking (Phase 4.6 & 4.7)
   google_generative_ai: ^0.4.6
   connectivity_plus: ^6.1.1
-  nearby_connections: ^3.1.2
+  nearby_connections: ^4.3.0
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_test:
