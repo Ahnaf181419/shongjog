@@ -1,15 +1,14 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 
 import '../../app/theme.dart';
 import 'cached_tile_provider.dart';
 import 'nearest_shelter.dart';
+import 'osrm_route_service.dart';
 import 'shelter_model.dart';
 import 'shelter_repository.dart';
 
@@ -57,6 +56,10 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
   bool _showSearchPanel = false;
   List<RankedShelter> _rankedShelters = const [];
 
+  // OSRM HTTP client wrapper. Replaced by the ViewModel in the
+  // upcoming arch refactor; for now lives here with explicit dispose.
+  late final OsrmRouteService _routeService = OsrmRouteService();
+
   @override
   void initState() {
     super.initState();
@@ -81,6 +84,8 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
   void dispose() {
     _pulse.dispose();
     _connSub?.cancel();
+    _routeService.dispose();
+    _mapController.dispose();
     super.dispose();
   }
 
@@ -115,6 +120,8 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
   // Fetch a driving route from the user's GPS to the chosen shelter.
   // Network-gated by _isOnline so offline taps fall through to
   // _fallbackStraightLine immediately (no 8-s timeout for offline).
+  // The HTTP/JSON parsing lives in [OsrmRouteService] so it is unit-
+  // testable without spinning up the widget tree.
 
   Future<void> _fetchRoute(Shelter shelter) async {
     if (_userPosition == null) return;
@@ -129,44 +136,21 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
       return;
     }
 
-    final userLatLng =
-        LatLng(_userPosition!.latitude, _userPosition!.longitude);
-    final shelterLatLng = LatLng(shelter.lat, shelter.lon);
-
-    try {
-      final url = Uri.parse(
-        'https://router.project-osrm.org/route/v1/driving/'
-        '${userLatLng.longitude},${userLatLng.latitude};'
-        '${shelterLatLng.longitude},${shelterLatLng.latitude}'
-        '?overview=full&geometries=geojson',
-      );
-      final resp = await http.get(url).timeout(const Duration(seconds: 8));
-
-      if (resp.statusCode == 200) {
-        final data = jsonDecode(resp.body) as Map<String, dynamic>;
-        if (data['code'] == 'Ok' && data['routes'] != null) {
-          final route = (data['routes'] as List).first as Map<String, dynamic>;
-          final geometry = route['geometry'] as Map<String, dynamic>;
-          final coords = (geometry['coordinates'] as List);
-          final points = coords
-              .map((c) =>
-                  LatLng((c[1] as num).toDouble(), (c[0] as num).toDouble()))
-              .toList();
-          final distMeters = (route['distance'] as num).toDouble();
-          if (!mounted) return;
-          setState(() {
-            _routePoints = points;
-            _routeDistanceKm = distMeters / 1000.0;
-            _loadingRoute = false;
-          });
-          _fitMapToRoute(points);
-          return;
-        }
-      }
+    final route = await _routeService.fetchRoute(
+      from: LatLng(_userPosition!.latitude, _userPosition!.longitude),
+      to: LatLng(shelter.lat, shelter.lon),
+    );
+    if (!mounted) return;
+    if (route == null) {
       _fallbackStraightLine(shelter);
-    } catch (_) {
-      _fallbackStraightLine(shelter);
+      return;
     }
+    setState(() {
+      _routePoints = route.points;
+      _routeDistanceKm = route.distanceKm;
+      _loadingRoute = false;
+    });
+    _fitMapToRoute(route.points);
   }
 
   void _fallbackStraightLine(Shelter shelter) {
@@ -581,7 +565,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                   Text('রুট খুঁজছি...', style: TextStyle(fontSize: 14)),
                 ],
               )
-            else
+              else
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -595,7 +579,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                         color: ShongjogTheme.ocean, size: 18),
                     const SizedBox(width: 8),
                     Text(
-                      '${_routeDistanceKm!.toStringAsFixed(1)} কিমি',
+                      '${(_routeDistanceKm?.toStringAsFixed(1) ?? '—')} কিমি',
                       style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
