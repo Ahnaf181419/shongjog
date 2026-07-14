@@ -60,7 +60,6 @@ flutter:
   assets:
     - assets/kb/
     - assets/shelter/
-    - assets/vosk/
     - assets/sound/chime.wav
     - assets/sound/knock.wav
   fonts:

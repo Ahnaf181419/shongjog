@@ -257,6 +257,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const SizedBox(width: 8),
           FilledButton(
             onPressed: _next,
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(120, 52), // Override global infinite width theme
+            ),
             child: Text(_page < _pages - 1 ? 'পরবর্তী' : 'শুরু করুন'),
           ),
         ],

@@ -243,7 +243,7 @@ class ShongjogTheme {
         style: FilledButton.styleFrom(
           backgroundColor: primaryColor,
           foregroundColor: onPrimaryColor,
-          minimumSize: const Size.fromHeight(52),
+          minimumSize: const Size(0, 52), // Replaces Size.fromHeight(52) which causes infinite width crashes
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(radius)),
           textStyle: TextStyle(

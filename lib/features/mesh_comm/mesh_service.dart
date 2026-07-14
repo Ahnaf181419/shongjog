@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:nearby_connections/nearby_connections.dart';
@@ -44,7 +45,7 @@ class MeshService {
           id,
           onPayLoadRecieved: (endid, payload) {
             if (payload.type == PayloadType.BYTES) {
-              final str = String.fromCharCodes(payload.bytes!);
+              final str = utf8.decode(payload.bytes!);
               _messagesController.add(MeshMessage(senderId: endid, text: str));
             }
           },
@@ -78,7 +79,7 @@ class MeshService {
               id,
               onPayLoadRecieved: (endid, payload) {
                 if (payload.type == PayloadType.BYTES) {
-                  final str = String.fromCharCodes(payload.bytes!);
+                  final str = utf8.decode(payload.bytes!);
                   _messagesController.add(MeshMessage(senderId: endid, text: str));
                 }
               },
@@ -115,8 +116,9 @@ class MeshService {
 
   void sendMessage(String text) {
     if (_connectedPeers.isEmpty) return;
+    final bytes = Uint8List.fromList(utf8.encode(text));
     for (final peer in _connectedPeers) {
-      Nearby().sendBytesPayload(peer, Uint8List.fromList(text.codeUnits));
+      Nearby().sendBytesPayload(peer, bytes);
     }
   }
 }

@@ -23,19 +23,19 @@ Three reasons, in order of importance:
 2. **Attribution.** Every chunk carries a source (WHO, BDRCS, MoDMR, CDC). When the app
    answers, it can tell the user *where* the guidance comes from. This builds trust and
    makes the corpus auditable by partners post-hackathon.
-3. **Offline simplicity.** ~23 chunks × 768 dims ≈ 75KB of vectors. It ships inside the
+3. **Offline simplicity.** ~27 chunks × 768 dims ≈ 90KB of vectors. It ships inside the
    APK, loads in under 200ms, and searches in under 5ms. No server, no network, no
    first-run download that could fail in a flood.
 
 This is **not** a general knowledge base. It is a tightly scoped emergency reference for
-the 10–12 topics most likely to save lives in a Bangladesh flood or cyclone.
+the 10–12 topics most likely to save lives in a Bangladesh flood, cyclone/tornado, earthquake, or tsunami.
 
 ---
 
 ## 2. Topic Coverage Matrix
 
-Target: **~23 chunks** across 10 topics. Each topic has a target count; the counts add
-up to 23. Topics are ordered by demo impact (the first ones are what we'll show on
+Target: **~27 chunks** across 12 topics. Each topic has a target count; the counts add
+up to 27. Topics are ordered by demo impact (the first ones are what we'll show on
 stage).
 
 | Topic | `topic` value | Target chunks | Priority |
@@ -46,11 +46,13 @@ stage).
 | Snakebite do/don't | `snakebite` | 2 | P0 (demo) |
 | Bleeding / wound care | `bleeding` | 3 | P1 |
 | Cyclone shelter / flood safety | `cyclone` | 3 | P1 |
+| Earthquake safety (Drop, Cover, Hold) | `earthquake` | 2 | P1 |
+| Tsunami evacuation / high ground | `tsunami` | 2 | P1 |
 | Drowning rescue | `drowning` | 2 | P1 |
 | Fever / infection signs | `fever` | 2 | P2 |
 | Pregnancy / infant care in disaster | `infant` | 2 | P2 |
 | Emotional first-aid / panic | `emotional` | 1 | P2 |
-| **Total** | | **23** | |
+| **Total** | | **27** | |
 
 P0 topics must be done by IC-2 (end of Day 3). P1 by IC-3 (end of Day 5). P2 if time
 permits — they're valuable but not demo-critical.

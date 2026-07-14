@@ -79,7 +79,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     CloudAiService? cloudAi;
     try {
-      const apiKey = String.fromEnvironment('GEMINI_API_KEY');
+      const apiKey = 'AQ.Ab8RN6I-fxGxIBHGuwbJljSNkaRxw8QfCx8waeaRkbJ7cpe_wg';
       if (apiKey.isNotEmpty) {
         cloudAi = CloudAiService(apiKey: apiKey);
       }

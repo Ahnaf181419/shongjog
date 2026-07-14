@@ -3,8 +3,9 @@
 > **Internal team-facing document.** Scope, success criteria, and constraints for the
 > *Build with Gemma 4: ML, AI, Deep Learning & NLP Community Hackathon* (Bangladesh).
 >
-> **One-line product statement:** An on-device, Bangla, voice-first flood/cyclone
-> emergency companion powered by Gemma 4 — **it works when the internet doesn't.**
+> **One-line product statement:** An on-device, Bangla, voice-first emergency companion
+> powered by Gemma 4 for floods, cyclones/tornadoes, earthquakes, tsunamis, and other
+> major primary disasters in Bangladesh — **it works when the internet doesn't.**
 
 This PRD supersedes `docs/plan.md` (the original hackathon pitch). The pitch content
 has been folded into the sections below. The companion task-by-task build plan lives in
@@ -15,7 +16,7 @@ has been folded into the sections below. The companion task-by-task build plan l
 
 ## 1. Problem Statement
 
-Every year, floods and cyclones displace millions of people across Bangladesh. In those
+Every year, floods, cyclones/tornadoes, earthquakes, and tsunamis affect millions of people across Bangladesh. In those
 exact moments, mobile networks, mobile data, and electricity are the first things to
 fail — which means every internet-dependent "AI assistant," helpline app, or chatbot
 becomes useless precisely when guidance is needed most.
@@ -40,7 +41,7 @@ The people most exposed are the least served by internet-dependent tools:
 
 ### Why it matters
 
-Bangladesh is one of the most flood- and cyclone-exposed countries on earth. Preventable
+Bangladesh is one of the most disaster-prone countries on earth, exposed to floods, cyclones/tornadoes, earthquakes, and tsunamis. Preventable
 deaths from waterborne disease (cholera, severe diarrhea), unsafe drinking water,
 drowning, and mismanaged snakebite spike during and after every major event. A tool that
 delivers correct, personalized, offline guidance in the local language — accessible by
@@ -132,13 +133,15 @@ answer using **Retrieval-Augmented Generation** over a curated, on-device knowle
    reach emergency services without navigating menus.
 6. As a **person in immediate danger**, I want a single tap to send a pre-drafted SOS SMS
    with my GPS location, so that responders can find me when voice calls fail.
-7. As a **displaced person**, I want to find the nearest cyclone shelter from my current
-   GPS, so that I know where to go during a flood or cyclone.
-8. As a **judge**, I want the airplane-mode reveal on stage, so that the offline claim is
+7. As a **displaced person**, I want to find the nearest safe zone (cyclone shelter, 
+   earthquake open space, or tsunami high ground) from my current GPS.
+8. As an **at-risk resident**, I want to toggle my current "Disaster Mode" (e.g., Flood, 
+   Earthquake) on the home screen so that the Quick Cards adapt to my specific crisis.
+9. As a **judge**, I want the airplane-mode reveal on stage, so that the offline claim is
    self-evidently true rather than asserted.
-9. As a **teammate**, I want clear done-criteria per task, so that I can ship my slice
-   without ambiguity.
-10. As a **content reviewer**, I want every knowledge chunk tagged with its source, so
+10. As a **teammate**, I want clear done-criteria per task, so that I can ship my slice
+    without ambiguity.
+11. As a **content reviewer**, I want every knowledge chunk tagged with its source, so
     that I can verify the corpus against authoritative material.
 
 ---
@@ -159,8 +162,9 @@ answer using **Retrieval-Augmented Generation** over a curated, on-device knowle
 | # | Feature |
 |---|---|
 | S5 | **Voice input** — speak your emergency hands-free (Vosk-Bangla, fully offline) |
-| S6 | **Offline shelter locator** — bundled GeoJSON of cyclone shelters + device GPS, triggered by a Gemma function call |
-| S7 | **One-tap emergency dial** (999 / 333) and a **pre-drafted location SOS SMS** (SMS often works on the cellular voice channel when data is down) |
+| S6 | **Offline multi-disaster safe zone locator** — bundled GeoJSON of cyclone shelters, earthquake open spaces, and tsunami high grounds + device GPS |
+| S7 | **Dynamic Disaster Context Mode** — A toggle on the home screen to switch the UI/Quick Cards context (Flood, Cyclone, Earthquake, Tsunami) |
+| S8 | **One-tap emergency dial** (999 / 333) and a **pre-drafted location SOS SMS** (SMS often works on the cellular voice channel when data is down) |
 
 ### Stretch (explicitly **deferred** — see Out of Scope)
 
@@ -313,8 +317,8 @@ Deferred to post-hackathon roadmap (see §14):
 
 Because the technology finally makes it possible. Open, efficient, multimodal models like
 Gemma 4 can now run on an ordinary phone with no connection — and that single capability
-turns a chronic, deadly gap into a solvable problem. The people most exposed to floods
-and cyclones are often the least served by internet-dependent tools. Shongjog puts
+turns a chronic, deadly gap into a solvable problem. The people most exposed to floods,
+cyclones, earthquakes, and tsunamis are often the least served by internet-dependent tools. Shongjog puts
 trustworthy, spoken, local-language emergency guidance in their hands at the exact moment
 everything else goes offline. That is a small app with a disproportionately large
 potential to prevent harm.

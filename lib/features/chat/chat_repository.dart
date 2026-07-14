@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 
 import '../../core/model_manager.dart';
 import '../../knowledge/kb_loader.dart';
@@ -34,11 +35,6 @@ class ChatRepository {
   Future<String> ask(String userQuery, {void Function()? onFallback}) async {
     final hits = _retrieve(userQuery);
 
-    if (hits.isEmpty) {
-      return 'আমার কাছে এই প্রশ্নের উত্তর নেই। অনুগ্রহ করে স্বাস্থ্যকর্মী বা '
-          '999 নম্বরে যোগাযোগ করুন।';
-    }
-
     final prompt = buildPrompt(query: userQuery, hits: hits);
 
     if (cloudAi != null) {
@@ -47,16 +43,24 @@ class ChatRepository {
         try {
           return await cloudAi!.generate(prompt);
         } catch (e) {
-          if (onFallback != null) onFallback();
+          return 'Cloud AI Error: $e';
         }
       }
     }
 
+    if (hits.isEmpty) {
+      return 'আমার কাছে এই প্রশ্নের উত্তর নেই। অনুগ্রহ করে স্বাস্থ্যকর্মী বা '
+          '999 নম্বরে যোগাযোগ করুন।';
+    }
+
     if (modelManager != null) {
       try {
-        return await modelManager!.generate(prompt);
+        if (modelManager!.isReady || await modelManager!.isOnDisk()) {
+          return await modelManager!.generate(prompt);
+        }
       } catch (e) {
-        return 'AI মডেল চালু করা যায়নি। অনুগ্রহ করে ৯৯৯ এ কল করুন।';
+        debugPrint('Model generation failed, falling back to keyword retrieval: $e');
+        // Do not return an error string; fall through to the keyword hit below.
       }
     }
 

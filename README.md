@@ -1,6 +1,6 @@
 # Shongjog
 
-**An on-device, Bangla, voice-first flood/cyclone emergency companion powered by Gemma 4
+**An on-device, Bangla, voice-first emergency companion powered by Gemma 4 for floods, cyclones/tornadoes, earthquakes, tsunamis, and other major primary disasters in Bangladesh
 — it works when the internet doesn't.**
 
 Built for the *Build with Gemma 4: ML, AI, Deep Learning & NLP Community Hackathon*
@@ -52,7 +52,8 @@ flutter run -d <arm64-device-id> --release
 | Typewriter text reveal for AI responses | ✅ Done |
 | Bangla TTS with auto-read toggle | ✅ Done |
 | Voice input via STT provider abstraction (speech_to_text online, Vosk stub offline) | ✅ Done |
-| Shelter map with map/list toggle, connectivity-aware tiles, distance ranking | ✅ Done |
+| Dynamic Disaster Context Mode — toggle UI/Quick Cards context (Flood, Cyclone, Earthquake, Tsunami) | 🔴 Pending |
+| Multi-disaster safe zone map with map/list toggle, covering cyclone shelters and earthquake open spaces | ✅ Done |
 | Emergency slide-to-confirm dial (999) with real GPS | ✅ Done |
 | SOS SMS with location-encoded body | ✅ Done |
 | Settings screen with model download card, voice prefs, clear-cache | ✅ Done |
