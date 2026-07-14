@@ -33,6 +33,20 @@ class ChatScreen extends StatefulWidget {
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
+class _Msg {
+  final String text;
+  final bool isUser;
+  final bool isThinking;
+  final bool isError;
+  final bool animate;
+  final GenerationPath? path;
+  _Msg(this.text, this.isUser,
+      {this.isThinking = false,
+      this.isError = false,
+      this.animate = false,
+      this.path});
+}
+
 class _ChatScreenState extends State<ChatScreen> {
   final List<_Msg> _messages = [];
   final _tts = TtsService();
@@ -47,6 +61,7 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _autoRead = true;
   bool _voiceInputEnabled = true;
   String? _lastQuery;
+  GenerationPath? _lastPath;
 
   @override
   void initState() {
@@ -145,14 +160,21 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _tryGenerate() async {
     try {
-      final answer = await _repo!.ask(_lastQuery!, onFallback: () {
-        if (mounted) {
-          setState(() => _messages[0] =
-              _Msg('AI প্রস্তুত হচ্ছে...', false, isThinking: true));
-        }
-      });
+      final answer = await _repo!.ask(
+        _lastQuery!,
+        onFallback: () {
+          if (mounted) {
+            setState(() => _messages[0] =
+                _Msg('AI প্রস্তুত হচ্ছে...', false, isThinking: true));
+          }
+        },
+        onPath: (path) {
+          _lastPath = path;
+        },
+      );
       if (!mounted) return;
-      setState(() => _messages[0] = _Msg(answer, false, animate: true));
+      setState(() => _messages[0] = _Msg(answer, false,
+          animate: true, path: _lastPath));
       HapticService.success();
       _sound.chime();
       if (_autoRead) _tts.speak(answer);
@@ -298,6 +320,7 @@ class _ChatScreenState extends State<ChatScreen> {
           text: m.text,
           isUser: m.isUser,
           animate: m.animate,
+          path: m.path,
           onSpeak: m.isUser || m.isThinking ? null : () => _tts.speak(m.text),
         );
       },
@@ -422,14 +445,4 @@ class _ChatScreenState extends State<ChatScreen> {
       onPressed: () => _onSubmit(label),
     );
   }
-}
-
-class _Msg {
-  final String text;
-  final bool isUser;
-  final bool isThinking;
-  final bool isError;
-  final bool animate;
-  _Msg(this.text, this.isUser,
-      {this.isThinking = false, this.isError = false, this.animate = false});
 }

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import 'chat_repository.dart';
 import 'typewriter_text.dart';
 
 /// A single chat message bubble. User bubbles right-aligned (ocean blue),
 /// assistant bubbles left-aligned (surface). Assistant bubbles carry a
-/// "পড়ুন" read-aloud button when [onSpeak] is provided and use a
-/// typewriter reveal effect for freshly generated responses.
+/// "পড়ুন" read-aloud button when [onSpeak] is provided, a small
+/// [path] chip indicating which generation path answered, and a typewriter
+/// reveal effect for freshly generated responses.
 class MessageBubble extends StatelessWidget {
   final String text;
   final bool isUser;
@@ -16,12 +18,18 @@ class MessageBubble extends StatelessWidget {
   /// Set to false for messages restored from persistence.
   final bool animate;
 
+  /// Which generation path produced this answer. Rendered as a small chip
+  /// on the assistant bubble (so the user knows whether cloud, on-device
+  /// Gemma, raw corpus, or the canned 999 fallback answered).
+  final GenerationPath? path;
+
   const MessageBubble({
     super.key,
     required this.text,
     required this.isUser,
     this.onSpeak,
     this.animate = false,
+    this.path,
   });
 
   @override
@@ -36,10 +44,6 @@ class MessageBubble extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
-          // User bubble uses the adaptive primary — sky-700 (deep) in light,
-          // sky-400 (bright) in dark. Hardcoded `ocean` blended into the dark
-          // scaffold; this matches `cs.primary` so the bubble pops in both
-          // modes while staying on-brand.
           color: isUser
               ? cs.primary
               : (isDark
@@ -58,6 +62,10 @@ class MessageBubble extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (!isUser && path != null) ...[
+              _PathChip(path: path!),
+              const SizedBox(height: 8),
+            ],
             if (!isUser && animate)
               TypewriterText(
                 text: text,
@@ -73,10 +81,6 @@ class MessageBubble extends StatelessWidget {
                 style: TextStyle(
                   fontSize: ShongjogTheme.bodyFloor,
                   height: 1.5,
-                  // User bubble: white text always (the surface is brand
-                  // primary in both modes, both pass AAA with white).
-                  // Assistant bubble: theme-adaptive body color so it
-                  // reads on either light or dark surface.
                   color: isUser ? cs.onPrimary : cs.onSurface,
                 ),
               ),
@@ -98,6 +102,49 @@ class MessageBubble extends StatelessWidget {
               ),
             ],
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PathChip extends StatelessWidget {
+  final GenerationPath path;
+  const _PathChip({required this.path});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isLight = cs.brightness == Brightness.light;
+    Color tint;
+    switch (path) {
+      case GenerationPath.cloud:
+        tint = isLight ? ShongjogTheme.ocean : ShongjogTheme.oceanBright;
+        break;
+      case GenerationPath.device:
+        tint = isLight ? ShongjogTheme.success : ShongjogTheme.successBright;
+        break;
+      case GenerationPath.corpus:
+        tint = cs.onSurfaceVariant;
+        break;
+      case GenerationPath.canned:
+        tint = isLight ? ShongjogTheme.alert : ShongjogTheme.alertBright;
+        break;
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: tint.withValues(alpha: isLight ? 0.12 : 0.18),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        path.labelBn,
+        style: TextStyle(
+          fontFamily: ShongjogTheme.fontFamily,
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: tint,
+          height: 1.1,
         ),
       ),
     );

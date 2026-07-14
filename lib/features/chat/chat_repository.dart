@@ -1,4 +1,4 @@
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 
 import '../../core/model_manager.dart';
 import '../../knowledge/kb_loader.dart';
@@ -31,13 +31,12 @@ class ChatRepository {
 
   /// Run a full RAG query and return the Bangla answer, or a canned
   /// low-confidence response if retrieval returns nothing above floor.
-  Future<String> ask(String userQuery, {void Function()? onFallback}) async {
+  Future<String> ask(
+    String userQuery, {
+    void Function()? onFallback,
+    void Function(GenerationPath path)? onPath,
+  }) async {
     final hits = _retrieve(userQuery);
-
-    if (hits.isEmpty) {
-      return 'আমার কাছে এই প্রশ্নের উত্তর নেই। অনুগ্রহ করে স্বাস্থ্যকর্মী বা '
-          '999 নম্বরে যোগাযোগ করুন।';
-    }
 
     final prompt = buildPrompt(query: userQuery, hits: hits);
 
@@ -45,21 +44,35 @@ class ChatRepository {
       final isOnline = await cloudAi!.isOnline;
       if (isOnline) {
         try {
-          return await cloudAi!.generate(prompt);
+          final answer = await cloudAi!.generate(prompt);
+          if (onPath != null) onPath(GenerationPath.cloud);
+          return answer;
         } catch (e) {
+          debugPrint('Cloud AI failed, falling back: $e');
           if (onFallback != null) onFallback();
         }
       }
     }
 
+    if (hits.isEmpty) {
+      if (onPath != null) onPath(GenerationPath.canned);
+      return 'আমার কাছে এই প্রশ্নের উত্তর নেই। অনুগ্রহ করে স্বাস্থ্যকর্মী বা '
+          '999 নম্বরে যোগাযোগ করুন।';
+    }
+
     if (modelManager != null) {
       try {
-        return await modelManager!.generate(prompt);
+        if (modelManager!.isReady || await modelManager!.isOnDisk()) {
+          final answer = await modelManager!.generate(prompt);
+          if (onPath != null) onPath(GenerationPath.device);
+          return answer;
+        }
       } catch (e) {
-        return 'AI মডেল চালু করা যায়নি। অনুগ্রহ করে ৯৯৯ এ কল করুন।';
+        debugPrint('Model generation failed, falling back to keyword retrieval: $e');
       }
     }
 
+    if (onPath != null) onPath(GenerationPath.corpus);
     return hits.first.chunk.text;
   }
 
@@ -67,11 +80,6 @@ class ChatRepository {
   /// by cosine similarity when an embedder is available.
   List<RetrievalHit> _retrieve(String query) {
     final keywordHits = kb.keywordRetriever.topK(query, k: 5);
-    // Cosine re-ranking is deferred: `flutter_gemma` 0.5.x has no embedder
-    // API, and we deliberately do not call a network embedder (offline
-    // thesis). When a local embed lands, replace the body of this branch
-    // with:  embed(query) → score each hit → re-sort by descending cosine.
-    // See docs/POST-HACKATHON.md §1 for the embedder roadmap.
     return keywordHits.take(3).toList();
   }
 }
@@ -79,3 +87,25 @@ class ChatRepository {
 /// Function type for embedding a query into a Float32List.
 /// Allows swapping embedder implementations without changing ChatRepository.
 typedef EmbedderFn = Future<Float32List> Function(String text);
+
+/// Which generation path answered a given query. Surfaced to the user as
+/// a small chip on the assistant bubble so the offline thesis is visible.
+enum GenerationPath {
+  cloud,
+  device,
+  corpus,
+  canned;
+
+  String get labelBn {
+    switch (this) {
+      case GenerationPath.cloud:
+        return 'ক্লাউড';
+      case GenerationPath.device:
+        return 'ডিভাইস';
+      case GenerationPath.corpus:
+        return 'কোরপাস';
+      case GenerationPath.canned:
+        return '৯৯৯';
+    }
+  }
+}
