@@ -11,6 +11,14 @@ import 'nearest_shelter.dart';
 import 'osrm_route_service.dart';
 import 'shelter_model.dart';
 import 'shelter_repository.dart';
+import 'widgets/gps_banner.dart';
+import 'widgets/nearest_card.dart';
+import 'widgets/offline_banner.dart';
+import 'widgets/shelter_list_view.dart';
+import 'widgets/shelter_marker.dart' show buildShelterMarker;
+import 'widgets/shelter_route_info_card.dart';
+import 'widgets/shelter_search_panel.dart';
+import 'widgets/user_marker.dart' show buildUserMarker;
 
 /// Shelter map with GPS-based nearest ranking, interactive routing, search,
 /// and offline-aware tile rendering.
@@ -51,7 +59,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
   bool _loadingRoute = false;
 
   // Search state (added from sehab's branch). When true, the full-screen
-  // _searchPanel overlay is shown with a text-filtered list ranked by
+  // search overlay is shown with a text-filtered list ranked by
   // distance from the user.
   bool _showSearchPanel = false;
   List<RankedShelter> _rankedShelters = const [];
@@ -116,11 +124,11 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
     }
   }
 
-  // ─── Routing (added from sehab's branch) ──────────────────────────
+  // ─── Routing ──────────────────────────────────────────────────────
   // Fetch a driving route from the user's GPS to the chosen shelter.
   // Network-gated by _isOnline so offline taps fall through to
   // _fallbackStraightLine immediately (no 8-s timeout for offline).
-  // The HTTP/JSON parsing lives in [OsrmRouteService] so it is unit-
+  // HTTP/JSON parsing lives in [OsrmRouteService] so it is unit-
   // testable without spinning up the widget tree.
 
   Future<void> _fetchRoute(Shelter shelter) async {
@@ -191,10 +199,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
     });
   }
 
-  // ─── Search (added from sehab's branch) ───────────────────────────
-  // Full-screen overlay listing all shelters ranked by distance from
-  // the user, with a text-filter. Tapping a row fetches a route
-  // (or straight line if offline).
+  // ─── Search ───────────────────────────────────────────────────────
 
   void _toggleSearchPanel() {
     if (_showSearchPanel) {
@@ -340,8 +345,11 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
           if (_showMap) {
             return _mapView(shelters, ranked);
           } else {
-            return _listView(ranked ??
-                shelters.map((s) => RankedShelter(s, 0)).toList());
+            return ShelterListView(
+              shelters: ranked ??
+                  shelters.map((s) => RankedShelter(s, 0)).toList(),
+              onTap: (s) => _showShelterSheet(s as Shelter),
+            );
           }
         },
       ),
@@ -382,113 +390,48 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
             MarkerLayer(
               markers: [
                 if (_userPosition != null)
-                  Marker(
-                    point: LatLng(_userPosition!.latitude,
-                        _userPosition!.longitude),
-                    width: 56,
-                    height: 56,
-                    child: AnimatedBuilder(
-                      animation: _pulse,
-                      builder: (_, _) {
-                        return Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Container(
-                              width: 56,
-                              height: 56,
-                              decoration: BoxDecoration(
-                                color: ShongjogTheme.ocean.withValues(
-                                    alpha: 0.18 + 0.18 * _pulse.value),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            Container(
-                              width: 18,
-                              height: 18,
-                              decoration: BoxDecoration(
-                                color: ShongjogTheme.ocean,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                    color: Colors.white, width: 3),
-                                boxShadow: [
-                                  BoxShadow(
-                                      color: Colors.black
-                                          .withValues(alpha: 0.3),
-                                      blurRadius: 4),
-                                ],
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
+                  buildUserMarker(
+                    LatLng(
+                        _userPosition!.latitude, _userPosition!.longitude),
+                    _pulse,
                   ),
-                ...shelters.map((s) {
-                  final isSelected =
-                      _selectedShelter != null && _selectedShelter!.name == s.name;
-                  return Marker(
-                    point: LatLng(s.lat, s.lon),
-                    width: isSelected ? 60 : 44,
-                    height: isSelected ? 60 : 44,
-                    child: Material(
-                      color: Colors.transparent,
-                      shape: const CircleBorder(),
-                      clipBehavior: Clip.antiAlias,
-                      child: InkWell(
-                        onTap: () => _fetchRoute(s),
-                        child: Container(
-                          width: isSelected ? 60 : 44,
-                          height: isSelected ? 60 : 44,
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? ShongjogTheme.alert
-                                : ShongjogTheme.success.withValues(alpha: 0.85),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                                color: Colors.white, width: 2),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black
-                                    .withValues(alpha: isSelected ? 0.3 : 0.2),
-                                blurRadius: isSelected ? 8 : 3,
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.shield_rounded,
-                            color: Colors.white,
-                            size: isSelected ? 32 : 24,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }),
+                ...shelters.map((s) => buildShelterMarker(
+                      s,
+                      _selectedShelter?.name == s.name,
+                      () => _fetchRoute(s),
+                    )),
               ],
             ),
           ],
         ),
-        if (!_isOnline) _offlineBanner(),
+        if (!_isOnline) const OfflineBanner(),
         if (_selectedShelter != null)
           Positioned(
             left: 12,
             right: 12,
             bottom: 12,
-            child: _routeInfoCard(),
+            child: ShelterRouteInfoCard(
+              selected: _selectedShelter!,
+              loading: _loadingRoute,
+              distanceKm: _routeDistanceKm,
+              onCancel: _clearRoute,
+              onDetails: () => _showShelterSheet(_selectedShelter!),
+            ),
           )
         else if (ranked != null && ranked.isNotEmpty && !_showSearchPanel)
           Positioned(
             left: 16,
             right: 16,
             bottom: 16,
-            child: _nearestCard(ranked.take(3).toList()),
+            child: NearestCard(
+              top3: ranked.take(3).toList(),
+              onTapRow: (s) => _fetchRoute(s as Shelter),
+            ),
           )
         else if (_gpsError != null)
-          Positioned(
-            top: _isOnline ? 16 : 56,
-            left: 16,
-            right: 16,
-            child: _gpsBanner(),
+          GpsBanner(
+            error: _gpsError,
+            stackedBelowOfflinePill: !_isOnline,
           ),
         if (_showSearchPanel)
           Positioned(
@@ -496,370 +439,13 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
             left: 0,
             right: 0,
             bottom: 0,
-            child: _searchPanel(shelters),
+            child: ShelterSearchPanel(
+              ranked: _rankedShelters,
+              onSelect: _onSearchSelect,
+              onClose: _toggleSearchPanel,
+            ),
           ),
       ],
-    );
-  }
-
-  // ─── Route info card (added from sehab's branch) ──────────────────
-  // Bottom card showing the currently-routed shelter, distance + actions.
-  // "বিস্তারিত" opens the full shelter sheet; "বাতিল" clears the route.
-
-  Widget _routeInfoCard() {
-    final shelter = _selectedShelter!;
-    final bnName = shelter.nameBn.isNotEmpty ? shelter.nameBn : shelter.name;
-    return Material(
-      elevation: 8,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: ShongjogTheme.border),
-        ),
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: ShongjogTheme.ocean.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(Icons.shield,
-                      color: ShongjogTheme.ocean, size: 20),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(bnName,
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w600)),
-                      if (shelter.capacity != null)
-                        Text('ধারণক্ষমতা: ${shelter.capacity} জন',
-                            style: const TextStyle(
-                                fontSize: 13,
-                                color: ShongjogTheme.inkSecondary)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (_loadingRoute)
-              const Row(
-                children: [
-                  SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2)),
-                  SizedBox(width: 8),
-                  Text('রুট খুঁজছি...', style: TextStyle(fontSize: 14)),
-                ],
-              )
-              else
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: ShongjogTheme.ocean.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.route,
-                        color: ShongjogTheme.ocean, size: 18),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${(_routeDistanceKm?.toStringAsFixed(1) ?? '—')} কিমি',
-                      style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: ShongjogTheme.ocean),
-                    ),
-                  ],
-                ),
-              ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _clearRoute,
-                    icon: const Icon(Icons.close, size: 18),
-                    label: const Text('বাতিল'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: ShongjogTheme.inkSecondary,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: () => _showShelterSheet(shelter),
-                    icon: const Icon(Icons.info_outline, size: 18),
-                    label: const Text('বিস্তারিত'),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ─── Search panel (added from sehab's branch) ─────────────────────
-  // Full-screen overlay listing ranked shelters with a filter TextField.
-  // Tapping a row calls _onSearchSelect, which closes the panel and
-  // starts routing.
-
-  Widget _searchPanel(List<Shelter> shelters) {
-    final queryCtrl = TextEditingController();
-    List<RankedShelter> displayed = _rankedShelters;
-
-    return StatefulBuilder(
-      builder: (context, setLocalState) {
-        void filter(String q) {
-          final query = q.trim().toLowerCase();
-          if (query.isEmpty) {
-            setLocalState(() => displayed = _rankedShelters);
-            return;
-          }
-          setLocalState(() {
-            displayed = _rankedShelters.where((r) {
-              final s = r.shelter;
-              return s.name.toLowerCase().contains(query) ||
-                  s.nameBn.contains(query) ||
-                  s.source.toLowerCase().contains(query);
-            }).toList();
-          });
-        }
-
-        return Container(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          child: SafeArea(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: TextField(
-                    controller: queryCtrl,
-                    autofocus: true,
-                    onChanged: filter,
-                    decoration: InputDecoration(
-                      hintText: 'আশ্রয়কেন্দ্র খুঁজুন...',
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () {
-                          queryCtrl.clear();
-                          filter('');
-                          _toggleSearchPanel();
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: displayed.isEmpty
-                      ? const Center(
-                          child: Text('কোনো আশ্রয়কেন্দ্র পাওয়া যায়নি'))
-                      : ListView.separated(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 4),
-                          itemCount: displayed.length,
-                          separatorBuilder: (_, _) => const Divider(height: 1),
-                          itemBuilder: (_, i) {
-                            final r = displayed[i];
-                            final s = r.shelter;
-                            final bnName =
-                                s.nameBn.isNotEmpty ? s.nameBn : s.name;
-                            return ListTile(
-                              leading: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color:
-                                      ShongjogTheme.ocean.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: const Icon(Icons.shield,
-                                    color: ShongjogTheme.ocean, size: 22),
-                              ),
-                              title: Text(bnName,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w500)),
-                              subtitle: Text(
-                                '${r.km.toStringAsFixed(1)} কিমি'
-                                '${s.capacity != null ? '  •  ${s.capacity} জন' : ''}'
-                                '  •  ${s.source}',
-                                style: const TextStyle(fontSize: 13),
-                              ),
-                              trailing: const Icon(Icons.chevron_right),
-                              onTap: () => _onSearchSelect(r),
-                            );
-                          },
-                        ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _listView(List<RankedShelter> shelters) {
-    if (shelters.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.shield_outlined,
-                size: 56,
-                color: Theme.of(context).colorScheme.onSurfaceVariant),
-            const SizedBox(height: 16),
-            const Text('কোনো আশ্রয়কেন্দ্রের তথ্য নেই'),
-          ],
-        ),
-      );
-    }
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: shelters.length,
-      itemBuilder: (_, i) {
-        final r = shelters[i];
-        final s = r.shelter;
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          child: ListTile(
-            leading: Container(
-              width: 40,
-              height: 40,
-              decoration: ShongjogTheme.iconBadge(context),
-              child: const Icon(Icons.shield_outlined, size: 22),
-            ),
-            title: Text(
-              s.nameBn.isNotEmpty ? s.nameBn : s.name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            subtitle: Text(
-              [
-                if (r.km > 0) '${r.km.toStringAsFixed(1)} কিমি',
-                if (s.capacity != null) 'ধারণক্ষমতা: ${s.capacity} জন',
-                if (r.km == 0 && s.capacity == null) s.source,
-              ].join(' • '),
-            ),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => _showShelterSheet(s),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _offlineBanner() {
-    return Positioned(
-      top: 8,
-      left: 16,
-      right: 16,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: ShongjogTheme.surfaceDark,
-          borderRadius: BorderRadius.circular(ShongjogTheme.radius),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black.withValues(alpha: 0.15), blurRadius: 6),
-          ],
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.wifi_off_rounded,
-                color: ShongjogTheme.oceanBright, size: 18),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'অফলাইন — মানচিত্রের টাইলস লোড হবে না, তবে আশ্রয়কেন্দ্রের অবস্থান দেখা যাচ্ছে',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: ShongjogTheme.inkDark.withValues(alpha: 0.85),
-                  height: 1.3,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _nearestCard(List<RankedShelter> top3) {
-    return Material(
-      elevation: 8,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('নিকটতম ৩টি',
-                style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
-            const SizedBox(height: 4),
-            ...top3.map((r) => _shelterRow(r.shelter, r.km)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _shelterRow(Shelter s, double km) {
-    return InkWell(
-      onTap: () => _fetchRoute(s),
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Row(
-          children: [
-            Icon(Icons.shield_outlined,
-                color: Theme.of(context).colorScheme.primary, size: 20),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                s.nameBn.isNotEmpty ? s.nameBn : s.name,
-                style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.onSurface),
-              ),
-            ),
-            Text(
-              '${km.toStringAsFixed(1)} কিমি',
-              style: TextStyle(
-                  fontSize: 13,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -937,41 +523,6 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                   style: TextStyle(
                       fontSize: 15,
                       color: Theme.of(context).colorScheme.onSurface))),
-        ],
-      ),
-    );
-  }
-
-  Widget _gpsBanner() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4),
-        ],
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.location_off,
-            color: _gpsError != null
-                ? Theme.of(context).colorScheme.error
-                : Theme.of(context).colorScheme.onSurfaceVariant,
-            size: 18,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              _gpsError ??
-                  'সমগ্র বাংলাদেশ দেখানো হচ্ছে — GPS থেকে দূরত্ব নির্ণয় করা যাবে না',
-              style: TextStyle(
-                fontSize: 13,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-          ),
         ],
       ),
     );
