@@ -82,14 +82,16 @@ to navigate to doesn't exist yet in `router.dart`.
 
 ### Sehab — Simple content + small code (branch `feat/corpus-pipeline` → `feat/emergency-actions`)
 
-| Task | Done when |
-|---|---|
-| Phase 2.1 corpus authoring | `tools/corpus.json` has 23 chunks across all required topics; every chunk has source attribution; draft-quality Bangla (Ahnaf edits) |
-| Phase 2.2 `build_kb.py` | Script runs locally; produces `assets/kb/corpus.json` + `vectors.bin`; dimensions `[N, 768]` |
-| Phase 2.3 `verify_kb.py` | 7 test queries return correct topic; no `BAD` lines in output |
-| Phase 4.4 emergency dial | 999 tap opens dialer on device |
-| Phase 4.5 SOS SMS template | `sos_sms_template_test.dart` green; SMS body contains name + phone + coords |
-| About / sources page | A static screen listing all corpus sources (WHO, BDRCS, MoDMR, CDC) with a one-line credit each |
+| Task | Done when | Status |
+|---|---|---|
+| Phase 2.1 corpus authoring | `tools/corpus.json` has 23 chunks across all required topics; every chunk has source attribution; draft-quality Bangla (Ahnaf edits) | ✅ DONE |
+| Phase 2.2 `build_kb.py` | Script runs locally; produces `assets/kb/corpus.json` + `vectors.bin`; dimensions `[N, 768]` | ❌ Ahnaf owns |
+| Phase 2.3 `verify_kb.py` | 7 test queries return correct topic; no `BAD` lines in output | ❌ Ahnaf owns |
+| Phase 4.4 emergency dial | 999 tap opens dialer on device | ✅ DONE |
+| Phase 4.5 SOS SMS template | `sos_sms_template_test.dart` green; SMS body contains name + phone + coords | ✅ DONE |
+| About / sources page | A static screen listing all corpus sources (WHO, BDRCS, MoDMR, CDC) with a one-line credit each | ✅ DONE |
+
+**Sehab deliverables complete.** Waiting on Ahnaf for build pipeline (Phase 2.2-2.3) and IC-2 integration.
 
 **Owns:** `tools/corpus.json`, `tools/build_kb.py`, `tools/verify_kb.py`,
 `lib/features/emergency/`, the about/sources screen.
@@ -220,4 +222,7 @@ Append significant decisions here as they happen, so the team has a shared recor
 | Day 0 | Demo: live airplane-mode + 60s prerecorded fallback | Hedge against live-demo flakiness |
 | Day 0 | Roles: Ahnaf (Lead/critical path), Maruf (UI/Map), Sehab (Content/Data) | Skill fit; Ahnaf owns Bangla review |
 | Day 1 | Redistribution: Ahnaf owns all critical + tough + skeleton UI; Maruf & Sehab own only simple tasks | Concentrate risk on the lead; keep teammates unblocked with self-contained simple slices |
+| Day X | Sehab corpus authoring complete: 23 chunks across 10 topics | tools/corpus.json ready for Ahnaf review + build pipeline |
+| Day X | Sehab emergency features complete: dial, SOS SMS, about page | All Phase 4.4, 4.5, and about tasks done |
+| Day X | Quick cards text contrast fix: added ShongjogTheme.ink color | Readability fix — dark text on white card background |
 | _ | _ | _(add rows as decisions are made)_ |
