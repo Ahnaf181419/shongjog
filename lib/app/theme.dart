@@ -142,6 +142,71 @@ class ShongjogTheme {
     );
   }
 
+  /// Drenched hero panel — soft linear gradient + low elevation.
+  ///
+  /// Used for the AI entry card on Home. Both gradient stops live in the
+  /// locked sky family (~205°); ~10-15% lightness variation, no hue drift.
+  /// The drench comes from gradient + scale + composition, never from glow.
+  static BoxDecoration heroPanel(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isLight = cs.brightness == Brightness.light;
+    final gradient = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: isLight
+          ? const [Color(0xFF0284C7), Color(0xFF075985)] // sky-600 → sky-800
+          : const [Color(0xFF38BDF8), Color(0xFF0369A1)], // sky-400 → sky-700
+    );
+    return BoxDecoration(
+      gradient: gradient,
+      borderRadius: BorderRadius.circular(radiusLg),
+      boxShadow: [
+        BoxShadow(
+          color: cs.primary.withValues(alpha: isLight ? 0.25 : 0.40),
+          offset: const Offset(0, 8),
+          blurRadius: 16,
+        ),
+      ],
+    );
+  }
+
+  /// Recessed mic well — soft tinted container that holds the mic icon on
+  /// the drenched hero. Reads as "contained object," not "light source."
+  static BoxDecoration micWell(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isLight = cs.brightness == Brightness.light;
+    return BoxDecoration(
+      color: cs.onPrimary.withValues(alpha: isLight ? 0.18 : 0.22),
+      borderRadius: BorderRadius.circular(16),
+    );
+  }
+
+  /// Bangla numeral chip — small bordered square on drenched panels, used
+  /// for secondary state markers (model-ready, alert count, etc.).
+  static BoxDecoration numeralChip(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return BoxDecoration(
+      color: cs.onPrimary.withValues(alpha: 0.12),
+      borderRadius: BorderRadius.circular(8),
+      border: Border.all(
+        color: cs.onPrimary.withValues(alpha: 0.30),
+        width: 1,
+      ),
+    );
+  }
+
+  /// Status chip — hairline pill for inline status lines on the body.
+  /// Sits on the scaffold; uses `surfaceContainerHighest` so it lifts off
+  /// the bg subtly without screaming for attention.
+  static BoxDecoration statusChip(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return BoxDecoration(
+      color: cs.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: cs.outlineVariant),
+    );
+  }
+
   /// Adaptive hairline border color (slate-200 in light, surfaceContainerHighest
   /// outline in dark).
   static Color hairline(BuildContext c) =>

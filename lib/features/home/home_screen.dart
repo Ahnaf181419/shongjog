@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../app/main_shell.dart';
 import '../../app/router.dart';
 import '../../app/theme.dart';
+import '../../core/connectivity_provider.dart';
+import '../../core/haptics.dart';
 import '../weather/weather_tile.dart';
 
 /// Home tab — the informative main menu.
@@ -38,13 +40,14 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 14),
           // ── Hero card: the moment. Voice-first AI entry point. ──
           _HeroAskCard(onTap: () => onNavigateToTab?.call(1)),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           // ── 3 emergency tiles: cards / shelter / 999 ──
           _EmergencyTriad(),
-          const SizedBox(height: 14),
-          // ── Live weather (real data via Open-Meteo, neutral on error) ──
+          const SizedBox(height: 12),
+          _OfflineMessageTile(),
+          const SizedBox(height: 12),
           const WeatherTile(),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
           // ── Contextual tip ──
           const _TipCard(),
         ],
@@ -57,47 +60,99 @@ class HomeScreen extends StatelessWidget {
 //  Status strip — single grounded line
 // ════════════════════════════════════════════════════════════════
 
-class _StatusStrip extends StatelessWidget {
+class _StatusStrip extends StatefulWidget {
   const _StatusStrip();
+
+  @override
+  State<_StatusStrip> createState() => _StatusStripState();
+}
+
+class _StatusStripState extends State<_StatusStrip> {
+  @override
+  void initState() {
+    super.initState();
+    connectivityProvider.addListener(_onChange);
+  }
+
+  @override
+  void dispose() {
+    connectivityProvider.removeListener(_onChange);
+    super.dispose();
+  }
+
+  void _onChange() {
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final isOnline = connectivityProvider.isOnline;
     return Row(
       children: [
-        // Calm offline dot with breathing pulse (design.md §11.6)
-        _OfflineDot(color: cs.primary),
+        _StatusChip(
+          leading: isOnline
+              ? _LiveDot(color: cs.primary)
+              : _OfflineDot(color: cs.primary),
+          label: isOnline ? 'অনলাইনে চলছে' : 'অফলাইনে চলে',
+        ),
         const SizedBox(width: 8),
-        Text(
-          'অফলাইনে চলে',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: cs.onSurface,
-          ),
-        ),
-        const SizedBox(width: 16),
-        Container(
-          width: 4,
-          height: 4,
-          decoration: BoxDecoration(
-            color: cs.outlineVariant,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 16),
-        Icon(Icons.check_circle_rounded,
-            size: 16, color: ShongjogTheme.success),
-        const SizedBox(width: 6),
-        Text(
-          'তথ্য প্রস্তুত',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: cs.onSurface,
-          ),
+        _StatusChip(
+          leading: Icon(Icons.check_circle_rounded,
+              size: 14, color: ShongjogTheme.success),
+          label: 'তথ্য প্রস্তুত',
         ),
       ],
+    );
+  }
+}
+
+/// Static dot used when the device is online — solid, no pulse. Keeps the
+/// strip calm when nothing is wrong.
+class _LiveDot extends StatelessWidget {
+  final Color color;
+  const _LiveDot({required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 10,
+      height: 10,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+      ),
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  final Widget leading;
+  final String label;
+  const _StatusChip({required this.leading, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: ShongjogTheme.statusChip(context),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          leading,
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: cs.onSurface,
+              height: 1.2,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -113,6 +168,7 @@ class _OfflineDot extends StatefulWidget {
 class _OfflineDotState extends State<_OfflineDot>
     with SingleTickerProviderStateMixin {
   late final AnimationController _c;
+  bool _started = false;
 
   @override
   void initState() {
@@ -120,7 +176,20 @@ class _OfflineDotState extends State<_OfflineDot>
     _c = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
-    )..repeat(reverse: true);
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_started) {
+      // Respect the system reduced-motion preference. The dot still renders
+      // at full alpha when motion is disabled — only the breathing stops.
+      if (!MediaQuery.of(context).disableAnimations) {
+        _c.repeat(reverse: true);
+      }
+      _started = true;
+    }
   }
 
   @override
@@ -151,78 +220,126 @@ class _OfflineDotState extends State<_OfflineDot>
 //  Hero — voice-first entry to AI
 // ════════════════════════════════════════════════════════════════
 
-class _HeroAskCard extends StatelessWidget {
+class _HeroAskCard extends StatefulWidget {
   final VoidCallback onTap;
   const _HeroAskCard({required this.onTap});
 
   @override
+  State<_HeroAskCard> createState() => _HeroAskCardState();
+}
+
+class _HeroAskCardState extends State<_HeroAskCard> {
+  // Tracks the InkWell highlight so we can run a press-scale animation
+  // alongside the default ripple. Both are required: ripple alone is
+  // subtle on a saturated gradient panel.
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Material(
-      color: cs.primary,
-      borderRadius: BorderRadius.circular(ShongjogTheme.radiusLg),
-      clipBehavior: Clip.antiAlias,
-      elevation: 4,
-      shadowColor: cs.primary.withValues(alpha: 0.4),
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 22, 18, 22),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  // Theme-aware scrim on the brand surface: white-tinted in
-                  // light mode, slate-tinted in dark mode (so it reads on
-                  // sky-400).
-                  color: cs.onPrimary.withValues(alpha: 0.18),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.mic_rounded,
-                  color: cs.onPrimary,
-                  size: 28,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'প্রশ্ন করুন',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
-                        color: cs.onPrimary,
-                        height: 1.2,
-                      ),
+    // Honour reduced-motion: skip the 0.98 press-scale when the user has
+    // asked the OS to reduce motion. The InkWell ripple still fires either
+    // way, so press feedback survives — only the lift animation is gated.
+    final reduceMotion = MediaQuery.of(context).disableAnimations;
+    return AnimatedScale(
+      scale: (!reduceMotion && _pressed) ? 0.98 : 1.0,
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.easeOutQuart,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(ShongjogTheme.radiusLg),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: widget.onTap,
+          onHighlightChanged: (pressed) {
+            setState(() => _pressed = pressed);
+          },
+          child: Ink(
+            decoration: ShongjogTheme.heroPanel(context),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 22, 18, 22),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Recessed mic well — contained object, not a glow source.
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: ShongjogTheme.micWell(context),
+                    child: Icon(
+                      Icons.mic_rounded,
+                      color: cs.onPrimary,
+                      size: 30,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'বাংলায় ভয়েসে জিজ্ঞাসা করুন — অফলাইনেই উত্তর',
-                      style: TextStyle(
-                        fontSize: 14,
-                        // Same-onPrimary at 85% opacity — readable on both
-                        // ocean (light, white text) and oceanBright (dark,
-                        // slate-900 text).
-                        color: cs.onPrimary.withValues(alpha: 0.85),
-                        height: 1.4,
-                      ),
+                  ),
+                  const SizedBox(width: 18),
+                  // Middle: oversized Bangla display + caption.
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'প্রশ্ন করুন',
+                          style: TextStyle(
+                            fontSize: 44,
+                            fontWeight: FontWeight.w600,
+                            color: cs.onPrimary,
+                            height: 1.10,
+                            letterSpacing: -0.01,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'অফলাইনে বাংলায় ভয়েসে উত্তর',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: cs.onPrimary.withValues(alpha: 0.85),
+                            height: 1.35,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Right: quiet secondary status + Bangla numeral chip.
+                  // Breaks the SaaS "icon-left, copy-left, arrow-right"
+                  // pattern; anchors the panel in real product state.
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                        Text(
+                          '২৪/৭ সক্রিয়',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: cs.onPrimary.withValues(alpha: 0.85),
+                            height: 1.1,
+                            letterSpacing: 0.02,
+                          ),
+                        ),
+                      const SizedBox(height: 8),
+                      Container(
+                        width: 34,
+                        height: 34,
+                        alignment: Alignment.center,
+                        decoration: ShongjogTheme.numeralChip(context),
+                        child: Text(
+                          '১',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: cs.onPrimary,
+                            height: 1.0,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              Icon(
-                Icons.arrow_forward_rounded,
-                color: cs.onPrimary.withValues(alpha: 0.8),
-                size: 24,
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -286,16 +403,12 @@ class _TriadTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Material(
-      color: cs.surface,
-      borderRadius: BorderRadius.circular(ShongjogTheme.radius),
-      clipBehavior: Clip.antiAlias,
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(ShongjogTheme.radius),
         child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(ShongjogTheme.radius),
-            border: Border.all(color: cs.outlineVariant),
-          ),
+          decoration: ShongjogTheme.cardDecoration(context),
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -303,11 +416,8 @@ class _TriadTile extends StatelessWidget {
               Container(
                 width: 44,
                 height: 44,
-                decoration: BoxDecoration(
-                  color: cs.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: cs.primary, size: 24),
+                decoration: ShongjogTheme.iconBadge(context),
+                child: Icon(icon, color: cs.primary, size: 22),
               ),
               const SizedBox(height: 14),
               Text(
@@ -395,6 +505,71 @@ class _EmergencyHeroTile extends StatelessWidget {
               ),
               Icon(Icons.arrow_forward_rounded,
                   color: cs.onError, size: 22),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  Offline message tile — Bluetooth mesh P2P
+// ════════════════════════════════════════════════════════════════
+
+class _OfflineMessageTile extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          HapticService.lightTap();
+          pushNamedSafe(context, AppRoutes.meshRadar);
+        },
+        borderRadius: BorderRadius.circular(ShongjogTheme.radius),
+        child: Container(
+          decoration: ShongjogTheme.cardDecoration(context),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: ShongjogTheme.iconBadge(context),
+                child: Icon(Icons.bluetooth_audio_rounded,
+                    color: cs.primary, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'অফলাইন মেসেজ',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurface,
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'ব্লুটুথ দিয়ে কাছের মানুষদের সাথে কথা বলুন',
+                      style: TextStyle(
+                        fontSize: 14,
+                        height: 1.4,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.arrow_forward_rounded,
+                  color: cs.onSurfaceVariant, size: 22),
             ],
           ),
         ),

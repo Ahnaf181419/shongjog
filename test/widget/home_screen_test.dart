@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shongjog/core/connectivity_provider.dart';
 import 'package:shongjog/features/home/home_screen.dart';
 
 void main() {
@@ -45,10 +46,38 @@ void main() {
     });
 
     testWidgets('renders status line', (tester) async {
+      // Force offline branch so this test deterministically exercises the
+      // label the rest of the test file was written against.
+      connectivityProvider.debugSetOnline(false);
+      addTearDown(() => connectivityProvider.debugSetOnline(true));
       await tester.pumpWidget(wrapHome());
       await pumpOnce(tester);
       expect(find.text('অফলাইনে চলে'), findsOneWidget);
       expect(find.text('তথ্য প্রস্তুত'), findsOneWidget);
+    });
+
+    testWidgets('status line shows online label when provider reports online',
+        (tester) async {
+      connectivityProvider.debugSetOnline(true);
+      addTearDown(() => connectivityProvider.debugSetOnline(false));
+      await tester.pumpWidget(wrapHome());
+      await pumpOnce(tester);
+      expect(find.text('অনলাইনে চলছে'), findsOneWidget);
+      expect(find.text('তথ্য প্রস্তুত'), findsOneWidget);
+      expect(find.text('অফলাইনে চলে'), findsNothing);
+    });
+
+    testWidgets('status line flips when connectivity changes', (tester) async {
+      connectivityProvider.debugSetOnline(true);
+      addTearDown(() => connectivityProvider.debugSetOnline(false));
+      await tester.pumpWidget(wrapHome());
+      await pumpOnce(tester);
+      expect(find.text('অনলাইনে চলছে'), findsOneWidget);
+
+      connectivityProvider.debugSetOnline(false);
+      await tester.pump();
+      expect(find.text('অফলাইনে চলে'), findsOneWidget);
+      expect(find.text('অনলাইনে চলছে'), findsNothing);
     });
 
     testWidgets('renders weather tile in some state', (tester) async {
@@ -80,6 +109,28 @@ void main() {
       await pumpOnce(tester);
       await tester.tap(find.text('প্রশ্ন করুন'));
       expect(tappedIndex, 1);
+    });
+
+    testWidgets('hero panel renders a gradient decoration', (tester) async {
+      await tester.pumpWidget(wrapHome());
+      await pumpOnce(tester);
+      // The drenched hero uses `Ink.decoration` with a `BoxDecoration`
+      // whose `gradient` is set. Find exactly one such widget in the tree.
+      final gradientInks = find.byWidgetPredicate((w) {
+        if (w is! Ink) return false;
+        final d = w.decoration;
+        if (d is! BoxDecoration) return false;
+        return d.gradient != null;
+      });
+      expect(gradientInks, findsOneWidget);
+    });
+
+    testWidgets('hero includes the Bangla numeral status chip', (tester) async {
+      await tester.pumpWidget(wrapHome());
+      await pumpOnce(tester);
+      // Asymmetric right-side marker — Bangla '১' inside a bordered chip.
+      expect(find.text('১'), findsOneWidget);
+      expect(find.text('২৪/৭ সক্রিয়'), findsOneWidget);
     });
   });
 }
