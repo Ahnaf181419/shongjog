@@ -4,11 +4,13 @@ import '../../app/theme.dart';
 import '../../core/model_manager.dart';
 import '../../knowledge/kb_loader.dart';
 import '../../rag/embedder.dart';
-import '../emergency/emergency_actions.dart';
+import '../audio/sound_service.dart';
+import '../emergency/emergency_sheet.dart';
+import '../voice/stt_service.dart';
+import '../voice/tts_service.dart';
 import 'chat_input.dart';
 import 'chat_repository.dart';
 import 'message_bubble.dart';
-import '../voice/tts_service.dart';
 
 /// Chat screen — voice-first Bangla emergency assistant.
 /// Reached from the hub. Boots ChatRepository in background.
@@ -22,12 +24,17 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<_Msg> _messages = [];
   final _tts = TtsService();
   final _model = ModelManager();
+  final _stt = SttService();
+  final _sound = SoundService();
+  final _inputKey = GlobalKey<ChatInputState>();
   ChatRepository? _repo;
   bool _busy = false;
+  bool _listening = false;
 
   @override
   void initState() {
     super.initState();
+    _sound.init();
     _bootstrap();
   }
 
@@ -37,9 +44,7 @@ class _ChatScreenState extends State<ChatScreen> {
       _repo = ChatRepository(
           kb: kb, embedder: EmbedderImpl(), modelManager: _model);
       if (mounted) setState(() {});
-    } catch (_) {
-      // KB load fails in test/no-asset env; surface nothing — UI still works.
-    }
+    } catch (_) {}
   }
 
   Future<void> _onSubmit(String q) async {
@@ -52,6 +57,7 @@ class _ChatScreenState extends State<ChatScreen> {
     try {
       final answer = await _repo!.ask(q);
       setState(() => _messages[0] = _Msg(answer, false));
+      _sound.knock();
       await _tts.speak(answer);
     } catch (_) {
       setState(() {
@@ -62,9 +68,24 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  void _onMicPressed() {
-    ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('ভয়েস ইনপুট শীঘ্রই আসছে')));
+  Future<void> _onMicPressed() async {
+    if (_listening) {
+      await _stt.stop();
+      setState(() => _listening = false);
+      return;
+    }
+    setState(() => _listening = true);
+    final transcript = await _stt.listen(localeId: 'bn_BD');
+    if (!mounted) return;
+    setState(() => _listening = false);
+    if (transcript != null && transcript.trim().isNotEmpty) {
+      _onSubmit(transcript.trim());
+    } else {
+      // Partial-only — copy whatever was last written into the field
+      // by the stt listener (none here without stream wiring). User can retry.
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('আবার চেষ্টা করুন')));
+    }
   }
 
   @override
@@ -76,7 +97,7 @@ class _ChatScreenState extends State<ChatScreen> {
           IconButton(
             tooltip: 'জরুরি কল',
             icon: const Icon(Icons.call, color: ShongjogTheme.alertRed),
-            onPressed: () => EmergencyActions.dial(EmergencyActions.police),
+            onPressed: () => EmergencySheet.show(context),
           ),
         ],
       ),
@@ -90,7 +111,12 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: _messages.isEmpty ? _emptyState() : _messageList(),
           ),
-          ChatInput(onSubmit: _onSubmit, onMicPressed: _onMicPressed),
+          ChatInput(
+            key: _inputKey,
+            onSubmit: _onSubmit,
+            onMicPressed: _onMicPressed,
+            isListening: _listening,
+          ),
         ],
       ),
     );
@@ -126,28 +152,35 @@ class _ChatScreenState extends State<ChatScreen> {
                 color: ShongjogTheme.calmTeal.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.mic_none,
-                  size: 36, color: ShongjogTheme.calmTeal),
+              child: Icon(
+                _listening ? Icons.mic : Icons.mic_none,
+                size: 36,
+                color: _listening
+                    ? ShongjogTheme.alertRed
+                    : ShongjogTheme.calmTeal,
+              ),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'আপনার জরুরি প্রশ্ন বলুন বা লিখুন',
+            Text(
+              _listening ? 'শুনছি...' : 'আপনার জরুরি প্রশ্ন বলুন বা লিখুন',
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                   fontSize: ShongjogTheme.bodyLargeFloor,
                   fontWeight: FontWeight.w500),
             ),
-            const SizedBox(height: 24),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              alignment: WrapAlignment.center,
-              children: [
-                _suggestion('ORS কীভাবে বানাবো?'),
-                _suggestion('নিকটস্থ আশ্রয়কেন্দ্র'),
-                _suggestion('সাপে কামড়ালে কী করবো?'),
-              ],
-            ),
+            if (!_listening) ...[
+              const SizedBox(height: 24),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.center,
+                children: [
+                  _suggestion('ORS কীভাবে বানাবো?'),
+                  _suggestion('নিকটস্থ আশ্রয়কেন্দ্র'),
+                  _suggestion('সাপে কামড়ালে কী করবো?'),
+                ],
+              ),
+            ],
           ],
         ),
       ),

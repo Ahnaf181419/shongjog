@@ -40,6 +40,7 @@ dependencies:
   # Utilities
   collection: ^1.18.0
   vector_math: ^2.1.4
+  audioplayers: ^6.8.1
 
 dev_dependencies:
   flutter_test:
@@ -52,3 +53,16 @@ flutter:
     - assets/kb/
     - assets/shelter/
     - assets/vosk/
+    - assets/sound/chime.wav
+    - assets/sound/knock.wav
+  fonts:
+    - family: HindSiliguri
+      fonts:
+        - asset: assets/fonts/HindSiliguri-Light.ttf
+          weight: 300
+        - asset: assets/fonts/HindSiliguri-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/HindSiliguri-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/HindSiliguri-SemiBold.ttf
+          weight: 600

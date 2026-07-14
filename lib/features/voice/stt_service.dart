@@ -1,43 +1,77 @@
 import 'dart:async';
 
-/// Vosk-Bangla speech-to-text service. Fully offline (bundled model).
-///
-/// STATUS (skeleton phase): BLOCKED. The `vosk_flutter_service` 0.1.2
-/// plugin ships with `compileSdk 33` hardcoded in its pub-cache
-/// android/build.gradle, which AGP 9.x hard-rejects (its transitive
-/// androidx deps need compileSdk ≥ 34). The plugin was removed from
-/// pubspec.yaml at Phase 1.1 for this reason.
-///
-/// Resolution paths for Phase 4.1 (pick one at spike time):
-///   1. Fork vosk_flutter_service, bump its compileSdk to 36, publish /
-///      path-override.
-///   2. Edit the pub-cache build.gradle in place (fragile — lost on
-///      `flutter pub cache repair`).
-///   3. Use `speech_to_text` (already in pubspec) as a hybrid fallback —
-///      not truly offline on all OEM builds, but compiles today.
-///   4. Write a thin Flutter platform channel wrapping Vosk's Android AAR
-///      directly (com.alphacephei:vosk-android:0.3.75).
-///
-/// The chat screen's mic button is wired to a placeholder snackbar until
-/// this resolves (lib/features/chat/chat_screen.dart _onMicPressed).
-class SttService {
-  final _ready = false;
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
-  Future<void> init() async {
-    if (_ready) return;
-    // Implementation lands when the plugin blocker above is resolved.
-    throw UnimplementedError(
-      'Vosk STT not yet wired — see stt_service.dart doc comment for the '
-      'four resolution paths. The vosk_flutter_service plugin is blocked '
-      'on a compileSdk-33 vs AGP-9.x conflict.',
+/// Bangla speech-to-text service. Uses device STT (Android SpeechRecognizer
+/// via speech_to_text plugin). On most OEM builds this routes through
+/// Google's network STT — acceptable for the demo, not truly offline on
+/// every device. Phase 4.1 would replace with a true offline path if
+/// venue WiFi is unreliable.
+class SttService {
+  final _stt = stt.SpeechToText();
+  final _partialCtl = StreamController<String>.broadcast();
+  final _finalCtl = StreamController<String>.broadcast();
+  final _errorCtl = StreamController<String>.broadcast();
+  bool _ready = false;
+  bool _listening = false;
+
+  Future<bool> init() async {
+    if (_ready) return _ready;
+    _ready = await _stt.initialize(
+      onError: (e) => _errorCtl.add('stt-error'),
+      onStatus: (_) {},
+    );
+    return _ready;
+  }
+
+  bool get isListening => _listening;
+  Stream<String> get partials => _partialCtl.stream;
+  Stream<String> get finals => _finalCtl.stream;
+  Stream<String> get errors => _errorCtl.stream;
+
+  /// Start listening with bn_BD locale. Returns the final transcript when
+  /// the user stops speaking, or null on timeout/cancel.
+  Future<String?> listen({String localeId = 'bn_BD'}) async {
+    if (!_ready) {
+      final ok = await init();
+      if (!ok) return null;
+    }
+    if (_listening) return null;
+    _listening = true;
+
+    final completer = Completer<String?>();
+    _stt.listen(
+      onResult: (r) {
+        _partialCtl.add(r.recognizedWords);
+        if (r.finalResult) {
+          _finalCtl.add(r.recognizedWords);
+          if (!completer.isCompleted) {
+            _listening = false;
+            completer.complete(r.recognizedWords);
+          }
+        }
+      },
+      listenOptions: stt.SpeechListenOptions(
+        partialResults: true,
+        cancelOnError: true,
+        localeId: localeId,
+      ),
+    );
+    return completer.future.timeout(
+      const Duration(seconds: 30),
+      onTimeout: () {
+        if (!completer.isCompleted) {
+          _listening = false;
+          completer.complete(null);
+        }
+        return null;
+      },
     );
   }
 
-  /// Stream of partial + final transcripts. Hooked to the mic stream at
-  /// 16kHz mono PCM, fed into VoskRecognizer.acceptWaveform.
-  Stream<String> listen() async* {
-    // Yields nothing until init() succeeds.
+  Future<void> stop() async {
+    if (!_listening) return;
+    _listening = false;
+    await _stt.stop();
   }
-
-  Future<void> stop() async {}
 }

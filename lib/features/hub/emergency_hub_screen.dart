@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
-import '../../features/emergency/emergency_actions.dart';
+import '../emergency/emergency_sheet.dart';
 
 /// Home screen — the navigation hub. Three primary tiles + about link.
 /// Every tile is one tap to its destination. No dead ends.
@@ -84,7 +84,7 @@ class EmergencyHubScreen extends StatelessWidget {
             icon: Icons.call,
             titleBn: 'জরুরি কল (৯৯৯)',
             subtitleBn: 'এক ট্যাপে জরুরি সেবায় কল',
-            onTap: () => EmergencyActions.dial(EmergencyActions.police),
+            onTap: () => EmergencySheet.show(context),
             color: ShongjogTheme.alertRed,
           ),
         ],

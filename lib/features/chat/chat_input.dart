@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../app/theme.dart';
+
 /// Mic-first chat input. Mic button (left), text field (center), send
 /// button (right, visible when text present). Mic wiring lands in Phase 4.
 ///
@@ -8,11 +10,13 @@ import 'package:flutter/material.dart';
 class ChatInput extends StatefulWidget {
   final void Function(String) onSubmit;
   final VoidCallback onMicPressed;
+  final bool isListening;
 
   const ChatInput({
     super.key,
     required this.onSubmit,
     required this.onMicPressed,
+    this.isListening = false,
   });
 
   @override
@@ -34,6 +38,9 @@ class ChatInputState extends State<ChatInput> {
     setState(() {});
   }
 
+  /// Currently displayed text.
+  String get text => _ctrl.text;
+
   void _submit() {
     final v = _ctrl.text.trim();
     if (v.isEmpty) return;
@@ -52,8 +59,13 @@ class ChatInputState extends State<ChatInput> {
             IconButton.filled(
               iconSize: 32,
               onPressed: widget.onMicPressed,
-              icon: const Icon(Icons.mic),
-              tooltip: 'প্রশ্ন বলুন',
+              style: IconButton.styleFrom(
+                backgroundColor: widget.isListening
+                    ? ShongjogTheme.alertRed
+                    : ShongjogTheme.calmTeal,
+              ),
+              icon: Icon(widget.isListening ? Icons.stop : Icons.mic),
+              tooltip: widget.isListening ? 'শুনছি, থামাতে আবার চাপুন' : 'প্রশ্ন বলুন',
             ),
             const SizedBox(width: 8),
             Expanded(
