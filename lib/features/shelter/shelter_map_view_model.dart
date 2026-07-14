@@ -7,6 +7,7 @@ import 'package:latlong2/latlong.dart';
 import '../../core/connectivity_provider.dart';
 import 'nearest_shelter.dart';
 import 'osrm_route_service.dart';
+import 'shelter_constants.dart';
 import 'shelter_model.dart';
 import 'shelter_repository.dart';
 
@@ -110,7 +111,7 @@ class ShelterMapViewModel extends ChangeNotifier {
     try {
       userPosition = await _resolvePosition(
         accuracy: LocationAccuracy.high,
-        timeLimit: const Duration(seconds: 10),
+        timeLimit: ShelterConstants.gpsTimeout,
       );
     } catch (_) {
       gpsError = 'GPS পাওয়া যায়নি';

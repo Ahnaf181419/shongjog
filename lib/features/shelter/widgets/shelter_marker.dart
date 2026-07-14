@@ -3,12 +3,14 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../../app/theme.dart';
+import '../shelter_constants.dart';
 import '../shelter_model.dart';
 
 /// Builds a marker for a single shelter on the map. Renders a
-/// 44×44 teal-green shield by default and a 60×60 alert-red shield
-/// when [isSelected] (matches the shelter the route is currently
-/// drawn to).
+/// [ShelterConstants.markerSmall]-sized teal-green shield by
+/// default and a [ShelterConstants.markerLarge]-sized alert-red
+/// shield when [isSelected] (matches the shelter the route is
+/// currently drawn to).
 ///
 /// [onTap] is invoked when the user taps the marker (the parent
 /// uses this to start a route).
@@ -17,7 +19,11 @@ Marker buildShelterMarker(
   bool isSelected,
   VoidCallback onTap,
 ) {
-  final size = isSelected ? 60.0 : 44.0;
+  final size =
+      isSelected ? ShelterConstants.markerLarge : ShelterConstants.markerSmall;
+  final iconSize = isSelected
+      ? ShelterConstants.shelterIconLarge
+      : ShelterConstants.shelterIconSmall;
   return Marker(
     point: LatLng(shelter.lat, shelter.lon),
     width: size,
@@ -47,7 +53,7 @@ Marker buildShelterMarker(
           child: Icon(
             Icons.shield_rounded,
             color: Colors.white,
-            size: isSelected ? 32 : 24,
+            size: iconSize,
           ),
         ),
       ),

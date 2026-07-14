@@ -7,6 +7,7 @@ import 'package:latlong2/latlong.dart';
 import '../../app/theme.dart';
 import 'cached_tile_provider.dart';
 import 'nearest_shelter.dart';
+import 'shelter_constants.dart';
 import 'shelter_map_view_model.dart';
 import 'shelter_model.dart';
 import 'widgets/gps_banner.dart';
@@ -46,7 +47,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
   // to the TickerProvider's mount lifecycle), not in the VM.
   late final AnimationController _pulse = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 1400),
+    duration: ShelterConstants.pulseDuration,
   )..repeat(reverse: true);
 
   StreamSubscription<bool>? _connSub;
@@ -83,7 +84,10 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
       _lastFittedRouteLength = _vm.routePoints.length;
       final bounds = LatLngBounds.fromPoints(_vm.routePoints);
       _mapController.fitCamera(
-        CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(60)),
+        CameraFit.bounds(
+          bounds: bounds,
+          padding: const EdgeInsets.all(ShelterConstants.mapFitPadding),
+        ),
       );
     } else if (_vm.routePoints.isEmpty) {
       _lastFittedRouteLength = 0;
@@ -123,7 +127,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                         color: Theme.of(context)
                             .colorScheme
                             .onSurface
-                            .withValues(alpha: 0.06),
+                            .withValues(alpha: ShelterConstants.bannerBgAlpha),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -133,7 +137,9 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                               color: Theme.of(context)
                                   .colorScheme
                                   .onSurface
-                                  .withValues(alpha: 0.7),
+                                  .withValues(
+                                      alpha:
+                                          ShelterConstants.bannerFgAlpha),
                               size: 16),
                           const SizedBox(width: 6),
                           const Expanded(
@@ -220,7 +226,9 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                 ? LatLng(
                     _vm.userPosition!.latitude, _vm.userPosition!.longitude)
                 : const LatLng(23.8, 90.4),
-            initialZoom: _vm.userPosition != null ? 11 : 8,
+            initialZoom: _vm.userPosition != null
+                ? ShelterConstants.zoomWithUser
+                : ShelterConstants.zoomWithoutUser,
             backgroundColor: _vm.isOnline
                 ? Theme.of(context).colorScheme.surface
                 : Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -237,9 +245,9 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                 polylines: [
                   Polyline(
                     points: _vm.routePoints,
-                    color: ShongjogTheme.ocean,
-                    strokeWidth: 5,
-                  ),
+                color: ShongjogTheme.ocean,
+                strokeWidth: ShelterConstants.routeStrokeWidth,
+              ),
                 ],
               ),
             MarkerLayer(
