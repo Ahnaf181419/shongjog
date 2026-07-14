@@ -19,23 +19,25 @@ Companion docs: product scope in `docs/prd.md`; build tasks in
 [User: voice or text, in Bangla]
         |
         v
-Speech-to-text (Vosk-Bangla, fully offline; typed input as fallback)
+Speech-to-text (SttProvider: speech_to_text online, Vosk offline stub; typed input fallback)
         |
         v
-Query ──> EmbeddingGemma 300M ──> vector ──> brute-force cosine search
-        |                                         |
-        |                      top-3 verified emergency chunks
-        v                                         |
+Query ──> KeywordRetriever (primary, offline) ──> top-3 verified emergency chunks
+         |   [if embedder API lands: EmbeddingGemma 300M → cosine search as secondary]
+         |                                         |
+         |                      top-3 verified emergency chunks
+         v                                         |
 Gemma 4 E2B  <──── retrieved context + Bangla system prompt
-        |
-        +──> grounded step-by-step Bangla answer ──> screen + TTS (read aloud)
-        |
-        +──> function call ──> [nearest shelter map] / [prepare SOS SMS]
-        |
-        +──> (low confidence) ──> canned "call 999 / talk to a human" response
+  (or Cloud AI fallback: Gemini 3.5-flash → 3.1-flash-lite, when online)
+         |
+         +──> grounded step-by-step Bangla answer ──> screen (typewriter reveal) + TTS (read aloud)
+         |
+         +──> function call ──> [nearest shelter map/list] / [prepare SOS SMS]
+         |
+         +──> (low confidence) ──> canned "call 999 / talk to a human" response
 
-===================== everything above requires NO network =====================
-                                                                                 |
+===================== everything above requires NO network (except Cloud AI fallback) ====================
+                                                                                  |
 Calls (tel:999) and SOS SMS (sms:999?body=...) use the cellular voice channel  <-+
 which frequently survives when mobile data is down.
 ```
@@ -49,7 +51,7 @@ which frequently survives when mobile data is down.
 | Framework | Flutter 3.x, Dart 3.12+ | Single codebase, strong typing, mature widget toolkit; Android-first, iOS-capable |
 | Generation model | Gemma 4 E2B (4-bit, thinking off, GPU) | Smallest Gemma 4 that still grounds well in Bangla; fits ~2GB RAM |
 | On-device runtime | `flutter_gemma` (LiteRT-LM) | Only mature Flutter binding for Gemma on Android arm64; validated by Phase 0 spike A |
-| Retrieval / embeddings | `flutter_gemma` embedder API, EmbeddingGemma 300M (768-dim) | Same runtime family as the generator; one integration surface |
+| Retrieval / embeddings | `KeywordRetriever` (primary); `BruteForceRetriever` over mpnet 768-dim vectors (secondary) | Offline-first: keyword scoring with cosine hybrid. `flutter_gemma` embedder API (EmbeddingGemma 300M) bypassed in 0.5.1 — see §6 |
 | Voice in | Vosk + bundled `vosk-model-small-bn-*` | True offline; Google STT (`speech_to_text`) needs network on many Androids — unacceptable for the offline thesis |
 | Voice out | `flutter_tts` (`bn-BD`, `bn-IN` fallback) | Built into the platform; no extra download |
 | Location | `geolocator` | Standard, well-maintained |
@@ -57,7 +59,7 @@ which frequently survives when mobile data is down.
 | Actions | `url_launcher` (`tel:`, `sms:`) | Uses the cellular voice channel that survives data outages |
 | Model management | `background_downloader`, `path_provider`, `shared_preferences` | 1.5GB one-time download; resume on failure; persist local path |
 | Retrieval index | brute-force cosine (no HNSW) | N≈23 vectors; brute force is faster and simpler than a real ANN index |
-| Build pipeline | Python 3 + `sentence-transformers` | EmbeddingGemma via HF `transformers`; runs on a dev laptop, ships vectors as a binary asset |
+| Build pipeline | Python 3 + `sentence-transformers` | `paraphrase-multilingual-mpnet-base-v2` via HF; runs on a dev laptop, ships vectors as a binary asset. EmbeddingGemma (on-device) deferred — see §6 |
 
 ### Why not alternatives
 
@@ -107,48 +109,74 @@ math are untouched.
 ```
 lib/
 ├── app/                      Presentation shell
-│   ├── app.dart              MaterialApp, theme, routing
+│   ├── app.dart              MaterialApp, theme, _StartupGate (onboarding vs main)
 │   ├── theme.dart            Bangla-first calm palette, type scale
-│   └── router.dart           Route table
-├── core/                     Cross-cutting, no Flutter deps in pure parts
-│   ├── model_manager.dart    Adapter: Gemma download/load lifecycle
-│   ├── connectivity.dart     Online/offline indicator
-│   ├── errors.dart           AppError sealed hierarchy
-│   └── result.dart           Result<T, E> type
+│   ├── router.dart           Route table
+│   └── main_shell.dart       Bottom nav scaffold (4 tabs)
+├── core/                     Cross-cutting singletons + state
+│   ├── model_manager.dart    Singleton: Gemma download/load (ChangeNotifier)
+│   └── theme_controller.dart 3-way theme toggle (System/Light/Dark)
 ├── features/
 │   ├── chat/
-│   │   ├── chat_repository.dart   Application: RAG + Gemma call
-│   │   ├── chat_screen.dart       Presentation
+│   │   ├── chat_repository.dart   Application: RAG + Gemma/Cloud fallback chain
+│   │   ├── chat_screen.dart       Presentation (voice prefs, error retry, suggestions)
 │   │   ├── chat_input.dart        Presentation
-│   │   └── message_bubble.dart    Presentation
+│   │   ├── chat_store.dart        Persistence: JSON messages, load/save/clear
+│   │   ├── message_bubble.dart    Presentation (animate param for typewriter)
+│   │   └── typewriter_text.dart   Presentation: char-by-char reveal
 │   ├── voice/
-│   │   ├── stt_service.dart       Adapter: Vosk Bangla
-│   │   └── tts_service.dart       Adapter: flutter_tts
+│   │   ├── stt_provider.dart           Abstract STT interface
+│   │   ├── speech_to_text_provider.dart Online STT impl (active)
+│   │   ├── vosk_stt_provider.dart     Offline STT stub (blocked)
+│   │   ├── stt_service.dart            Auto-picks best provider
+│   │   └── tts_service.dart            Adapter: flutter_tts Bangla
 │   ├── shelter/
 │   │   ├── shelter_repository.dart Adapter: loads bundled GeoJSON
 │   │   ├── shelter_model.dart     Domain: Shelter value object
-│   │   ├── shelter_map_screen.dart Presentation
+│   │   ├── shelter_map_screen.dart Presentation: map/list toggle
+│   │   ├── cached_tile_provider.dart  ConnectivityHelper for offline tiles
 │   │   └── nearest_shelter.dart   Domain: haversine ranking (pure)
 │   ├── quick_cards/
-│   │   ├── cards_data.dart        Domain: static Bangla cards (pure)
+│   │   ├── cards_data.dart        Domain: 8 static Bangla cards (pure)
 │   │   └── quick_cards_screen.dart Presentation
-│   └── emergency/
-│       ├── emergency_actions.dart Adapter: url_launcher dial
-│       └── sos_sms_template.dart  Domain: SMS body builder (pure)
-├── rag/                      Retrieval core (pure, except embedder)
-│   ├── embedder.dart         Adapter: EmbeddingGemma client
+│   ├── emergency/
+│   │   ├── emergency_actions.dart Adapter: url_launcher dial + SOS SMS
+│   │   ├── emergency_sheet.dart   Presentation: slide-to-confirm (real GPS)
+│   │   └── sos_sms_template.dart  Domain: SMS body builder (pure)
+│   ├── onboarding/
+│   │   └── onboarding_screen.dart 3-page first-run flow
+│   ├── settings/
+│   │   └── settings_screen.dart    Model download card, voice prefs, clear-cache
+│   ├── home/
+│   │   └── home_screen.dart        Home tab with feature tiles
+│   ├── about/
+│   │   └── about_screen.dart       Sources attribution page
+│   ├── cloud_ai/
+│   │   └── cloud_ai_service.dart   Gemini 3.5-flash + 3.1-flash-lite fallback
+│   ├── mesh_comm/
+│   │   ├── mesh_service.dart       nearby_connections P2P adapter
+│   │   └── mesh_radar_screen.dart  Radar + peer-to-peer chat
+│   ├── contacts/
+│   │   ├── contact_model.dart           Domain: Contact value object
+│   │   ├── contacts_repository.dart     Persistence: load/save contacts
+│   │   └── emergency_contacts_screen.dart Presentation
+│   └── audio/
+│       └── sound_service.dart      Chime/knock sounds
+├── rag/                      Retrieval core
+│   ├── embedder.dart         Adapter: EmbeddingGemma client (bypassed)
+│   ├── keyword_retriever.dart Domain: keyword scoring + cosine hybrid (pure, primary)
 │   ├── retriever.dart        Domain: BruteForceRetriever (pure)
 │   ├── prompt_builder.dart   Domain: system + context assembly (pure)
 │   └── types.dart            Domain: Chunk, RetrievalHit
 └── knowledge/                On-device KB
-    ├── kb_loader.dart        Adapter: rootBundle → in-memory index
-    └── kb_index.dart         Domain: wraps retriever + chunks
+    └── kb_loader.dart        Adapter: rootBundle → in-memory index
 ```
 
 **Pure (no Flutter / no package deps):** `lib/rag/retriever.dart`,
-`lib/rag/prompt_builder.dart`, `lib/rag/types.dart`,
+`lib/rag/keyword_retriever.dart`, `lib/rag/prompt_builder.dart`, `lib/rag/types.dart`,
 `lib/features/shelter/nearest_shelter.dart`, `lib/features/shelter/shelter_model.dart`,
-`lib/features/emergency/sos_sms_template.dart`, `lib/features/quick_cards/cards_data.dart`.
+`lib/features/emergency/sos_sms_template.dart`, `lib/features/quick_cards/cards_data.dart`,
+`lib/features/contacts/contact_model.dart`.
 
 These are the unit-testable correctness core.
 
@@ -160,27 +188,37 @@ These are the unit-testable correctness core.
 First run:
   ModelManager.ensureModel()
     ├── if File(modelPath).exists() && size > 100MB → skip download
-    └── else → background_downloader fetches .task, persists to app docs dir
+    └── else → HTTP Range-resume download, persists to app docs dir
+        └── check 206 status; if 200, truncate + restart from offset 0
 
 Per query:
   ChatRepository.ask(userQuery)
-    1. qVec = embedder.embed(userQuery)               [EmbeddingGemma 300M]
-    2. hits  = kb.retriever.topK(qVec, k:3, floor:0.35)
-    3. if hits.isEmpty → return canned low-confidence response
+    1. hits = KeywordRetriever.topK(query, k:3)       [offline-first, no embedder needed]
+       (BruteForceRetriever available as fallback if embedder API lands)
+    2. if hits.isEmpty → try Cloud AI fallback (if online)
+    3. if Cloud AI unavailable → return canned low-confidence response
     4. prompt = buildPrompt(query, hits)              [system + context + query]
-    5. gemma  = modelManager.initialize()             [lazy, cached]
-    6. session = gemma.createSession()
-    7. return session.getResponse(prompt)
-    8. (UI) ttsService.speak(answer)                  [bn-BD]
+    5. answer = local Gemma session OR cloud AI
+    6. (UI) TypewriterText reveals answer char-by-char
+    7. (UI) TtsService.speak(answer) if auto-read on  [bn-BD]
+    8. (Persistence) ChatStore.save() persists messages to JSON
 ```
 
-**Session reuse:** `FlutterGemma.instance` is initialized once and cached in
-`ModelManager`. `createSession()` may be called per query or reused; we reuse one session
-and inject context per turn to keep memory flat.
+**Retrieval strategy:** `KeywordRetriever` (BM25-lite + cosine hybrid using pre-computed
+vectors) is the primary path — fully offline, no model dependency, fast. `BruteForceRetriever`
+using live embeddings is the future path if `flutter_gemma` exposes an embedder API.
+
+**Session reuse:** `FlutterGemma.instance` is initialized once and cached in the
+`modelManager` singleton. `createSession()` may be called per query or reused; we reuse
+one session and inject context per turn to keep memory flat.
+
+**Cloud fallback chain:** when offline retrieval produces no confident hits AND
+`connectivity_plus` reports online, `ChatRepository` tries Cloud AI (Gemini 3.5-flash →
+3.1-flash-lite fallback chain) before falling back to canned low-confidence response.
 
 **Cold start:** first `initialize()` loads the model into RAM — expect 3–10s depending on
-device. The UI must surface "AI প্রস্তুত হচ্ছে..." during this window. See `docs/design.md`
-§Microinteractions.
+device. The UI surfaces "AI প্রস্তুত হচ্ছে..." during this window via the reactive
+`modelManager` `ChangeNotifier`. See `docs/design.md` §Microinteractions.
 
 ---
 
@@ -194,8 +232,8 @@ tools/corpus.json   (authored, reviewed, signed off)
         |
         v
 tools/build_kb.py
-        |   loads EmbeddingGemma 300M via sentence-transformers
-        |   embeds (text + keywords_bn) per chunk, L2-normalized
+        |   loads paraphrase-multilingual-mpnet-base-v2 via sentence-transformers
+        |   embeds (text + keywords_bn + topic prefix) per chunk, L2-normalized
         v
 assets/kb/corpus.json    (copy of source, shipped as-is for transparency)
 assets/kb/vectors.bin    (float32 [N, 768], row-major)
@@ -203,6 +241,13 @@ assets/kb/vectors.bin    (float32 [N, 768], row-major)
         v
 Flutter bundle (rootBundle.load) at runtime
 ```
+
+**Embedder choice:** `paraphrase-multilingual-mpnet-base-v2` is used for build-time
+embedding (handles Bangla well, mature model, 768-dim). The on-device runtime embedder
+(EmbeddingGemma 300M via `flutter_gemma`) is bypassed in favor of `KeywordRetriever`
+(see §5) because `flutter_gemma 0.5.1` has no embedder API. When `flutter_gemma` ships an
+embedder API, `KeywordRetriever` and `BruteForceRetriever` (already implemented) both
+remain usable.
 
 **Why build-time:** the corpus is small and authoritative; shipping it inside the APK
 guarantees the KB is present in airplane mode with no first-run network step. A real
@@ -363,14 +408,20 @@ answer?").
 
 ---
 
-## 13. Open Questions (to resolve during execution)
+## 13. Open Questions (resolved during execution)
 
 1. Does `flutter_gemma`'s embedder API expose EmbeddingGemma 300M cleanly, or do we need
-   a separate model file path? Resolved in Phase 0 spike A.
+   a separate model file path? **Resolved:** `flutter_gemma 0.5.1` has no embedder API.
+   We're using `KeywordRetriever` (offline BM25-lite) as the primary path. mpnet is used
+   for build-time vectors only.
 2. Does Vosk's small Bangla model handle our 10 spike utterances at acceptable WER?
-   Resolved in Phase 0 spike B.
+   **Resolved (blocked):** `vosk_flutter` plugin has a `compileSdk` incompatibility with
+   AGP 9.x. The `VoskSttProvider` stub is in place; `SpeechToTextProvider` (online) is the
+   active fallback. Device spike pending.
 3. Can we bundle MBTiles for the whole Bangladesh bounding box, or only coastal districts
-   (Khulna, Barisal, Chittagong)? Resolved in Phase 4.2.
+   (Khulna, Barisal, Chittagong)? **Resolved:** bundled MBTiles were deprioritized in favor
+   of online OSM tiles with `ConnectivityHelper` fallback to styled background + offline
+   markers + banner. Shelter list toggle is available offline without tiles.
 4. Should the chat session persist across app restarts (so the user's last question is
-   visible on relaunch)? Lean: yes, via `shared_preferences` for the message list only
-   (never model state).
+   visible on relaunch)? **Resolved:** YES — `ChatStore` (JSON-based) persists messages to
+   the app docs dir. Loads on relaunch, clears via Settings → Clear cache.

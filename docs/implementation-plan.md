@@ -6,7 +6,7 @@
 
 **Architecture:** Feature-first Flutter app with light repository/service seams. On-device Gemma 4 E2B (4-bit, thinking off) generates answers, EmbeddingGemma 300M retrieves from a build-time-embedded verified Bangla corpus, Vosk-Bangla handles STT, `flutter_tts` handles Bangla TTS. RAG over ~25 vetted chunks grounds every answer; static quick cards remain available even if the model fails to load. Only the cellular voice channel (dial / SMS) leaves the device.
 
-**Tech Stack:** Flutter 3.x (Dart 3.12+), `flutter_gemma` (LiteRT-LM), `speech_to_text` + Vosk-Bangla model, `flutter_tts` (bn-BD), `geolocator`, `flutter_map` + bundled MBTiles, `url_launcher` (tel:/sms:), `background_downloader`, `path_provider`, `shared_preferences`. Build pipeline: Python 3 + EmbeddingGemma 300M via Hugging Face `transformers`/`sentence-transformers`.
+**Tech Stack:** Flutter 3.x (Dart 3.12+), `flutter_gemma` (LiteRT-LM), `speech_to_text` + Vosk-Bangla model, `flutter_tts` (bn-BD), `geolocator`, `flutter_map` + bundled MBTiles, `url_launcher` (tel:/sms:), `background_downloader`, `path_provider`, `shared_preferences`, `nearby_connections` (mesh), `connectivity_plus`, `google_generative_ai` (Cloud AI fallback). Build pipeline: Python 3 + `paraphrase-multilingual-mpnet-base-v2` via `sentence-transformers`; runtime retrieval uses `KeywordRetriever` (BM25-lite + cosine hybrid).
 
 **Project root:** `/home/frostflux/Ahnaf_Shafin/Hackathon/shongjog`
 
@@ -33,76 +33,119 @@
 shongjog/
 ├── lib/
 │   ├── app/
-│   │   ├── app.dart                  # MaterialApp, theme, routing
+│   │   ├── app.dart                  # MaterialApp, _StartupGate (onboarding vs main shell)
 │   │   ├── theme.dart                # Bangla-first calm palette, type scale
-│   │   └── router.dart               # Route table
+│   │   ├── router.dart               # Route table
+│   │   └── main_shell.dart           # Bottom nav scaffold (Home/AI/Cards/Shelter tabs)
 │   ├── core/
-│   │   ├── model_manager.dart        # Gemma download/load lifecycle
-│   │   ├── connectivity.dart         # Online/offline indicator
-│   │   ├── errors.dart               # AppError sealed hierarchy
-│   │   └── result.dart               # Result<T, E> type
+│   │   ├── model_manager.dart        # Gemma download/load singleton (ChangeNotifier)
+│   │   └── theme_controller.dart     # 3-way theme toggle (System/Light/Dark)
 │   ├── features/
 │   │   ├── chat/
-│   │   │   ├── chat_repository.dart  # RAG + Gemma call
-│   │   │   ├── chat_screen.dart      # Main chat UI
+│   │   │   ├── chat_repository.dart  # RAG + Gemma/Cloud fallback
+│   │   │   ├── chat_screen.dart      # Main chat UI (voice prefs, error retry, suggestions)
 │   │   │   ├── chat_input.dart       # Text + mic button
-│   │   │   └── message_bubble.dart
+│   │   │   ├── chat_store.dart       # JSON message persistence (load/save/clear)
+│   │   │   ├── message_bubble.dart   # Bubble with typewriter animation + speak button
+│   │   │   └── typewriter_text.dart  # Char-by-char text reveal widget
 │   │   ├── voice/
-│   │   │   ├── stt_service.dart      # Vosk Bangla STT wrapper
+│   │   │   ├── stt_provider.dart     # Abstract SttProvider interface
+│   │   │   ├── speech_to_text_provider.dart  # Online STT impl
+│   │   │   ├── vosk_stt_provider.dart        # Offline STT stub (blocked)
+│   │   │   ├── stt_service.dart      # Auto-picks best provider
 │   │   │   └── tts_service.dart      # flutter_tts Bangla
 │   │   ├── shelter/
 │   │   │   ├── shelter_repository.dart  # Loads bundled GeoJSON
 │   │   │   ├── shelter_model.dart    # Shelter data class
-│   │   │   ├── shelter_map_screen.dart
+│   │   │   ├── shelter_map_screen.dart # Map/list toggle, connectivity-aware tiles
+│   │   │   ├── cached_tile_provider.dart  # ConnectivityHelper for offline tiles
 │   │   │   └── nearest_shelter.dart  # GPS haversine ranking
 │   │   ├── quick_cards/
-│   │   │   ├── cards_data.dart       # Static Bangla cards
+│   │   │   ├── cards_data.dart       # Static Bangla cards (8 cards)
 │   │   │   └── quick_cards_screen.dart
-│   │   └── emergency/
-│   │       ├── emergency_actions.dart # dial/SMS via url_launcher
-│   │       └── sos_sms_template.dart
+│   │   ├── emergency/
+│   │   │   ├── emergency_actions.dart # dial/SMS via url_launcher
+│   │   │   ├── emergency_sheet.dart   # Slide-to-confirm (single GestureDetector, real GPS)
+│   │   │   └── sos_sms_template.dart  # SMS body builder
+│   │   ├── onboarding/
+│   │   │   └── onboarding_screen.dart # 3-page first-run flow
+│   │   ├── settings/
+│   │   │   └── settings_screen.dart   # Model download card, voice prefs, clear-cache
+│   │   ├── home/
+│   │   │   └── home_screen.dart       # Home tab with feature tiles
+│   │   ├── about/
+│   │   │   └── about_screen.dart      # Sources attribution page
+│   │   ├── cloud_ai/
+│   │   │   └── cloud_ai_service.dart  # Gemini Cloud fallback
+│   │   ├── mesh_comm/
+│   │   │   ├── mesh_service.dart      # nearby_connections P2P
+│   │   │   └── mesh_radar_screen.dart # Peer discovery + chat
+│   │   ├── contacts/
+│   │   │   ├── contact_model.dart     # Contact data class
+│   │   │   ├── contacts_repository.dart # Load/save contacts
+│   │   │   └── emergency_contacts_screen.dart
+│   │   └── audio/
+│   │       └── sound_service.dart     # Chime/knock sounds
 │   ├── rag/
-│   │   ├── embedder.dart             # EmbeddingGemma client
-│   │   ├── retriever.dart            # Cosine top-k
-│   │   ├── prompt_builder.dart       # System prompt + context
-│   │   └── types.dart                # Chunk, RetrievalResult
+│   │   ├── embedder.dart             # EmbeddingGemma client (bypassed)
+│   │   ├── keyword_retriever.dart     # Primary offline retrieval
+│   │   ├── retriever.dart            # BruteForceRetriever (cosine top-k)
+│   │   ├── prompt_builder.dart       # System prompt + context assembly
+│   │   └── types.dart                # Chunk, RetrievalHit
 │   └── knowledge/
-│       ├── kb_loader.dart            # Load corpus.json + vectors.bin from assets
-│       └── kb_index.dart             # In-memory index
+│       └── kb_loader.dart            # Load corpus.json + vectors.bin from assets
 ├── assets/
 │   ├── kb/
-│   │   ├── corpus.json               # Built by tools/build_kb.py
-│   │   └── vectors.bin               # Built by tools/build_kb.py
-│   ├── shelter/
-│   │   └── cyclone_shelters.geojson  # Bundled
-│   └── vosk/
-│       └── vosk-model-small-bn-*/    # Bundled (~50MB)
+│   │   ├── corpus.json               # 23 chunks (built by tools/build_kb.py)
+│   │   ├── vectors.bin               # float32 [23, 768] (built by tools/build_kb.py)
+│   │   └── meta.json                 # Build metadata
+│   └── shelter/
+│       └── cyclone_shelters.geojson  # Bundled
 ├── tools/
-│   ├── build_kb.py                   # Corpus → EmbeddingGemma → vectors.bin
+│   ├── build_kb.py                   # Corpus → mpnet embeddings → vectors.bin
+│   ├── verify_kb.py                  # Spot-check retrieval quality
 │   ├── corpus.json                   # Source Bangla chunks (authored)
-│   └── verify_kb.py                  # Spot-check retrieval quality
+│   └── requirements.txt              # sentence-transformers, torch, numpy
 ├── test/
-│   ├── unit/
-│   │   ├── retriever_test.dart       # Cosine top-k correctness
-│   │   ├── kb_loader_test.dart       # Asset parsing
-│   │   ├── prompt_builder_test.dart  # System prompt assembly
-│   │   ├── nearest_shelter_test.dart # Haversine
+│   ├── unit/                         # 9 test files
+│   │   ├── retriever_test.dart
+│   │   ├── keyword_retriever_test.dart
+│   │   ├── prompt_builder_test.dart
+│   │   ├── model_manager_test.dart
+│   │   ├── chat_repository_test.dart
+│   │   ├── chat_store_test.dart
+│   │   ├── nearest_shelter_test.dart
+│   │   ├── stt_provider_test.dart
 │   │   └── sos_sms_template_test.dart
-│   └── widget/
-│       ├── quick_cards_screen_test.dart
-│       └── chat_input_test.dart
+│   ├── widget/                       # 7 test files
+│   │   ├── home_screen_test.dart
+│   │   ├── quick_cards_screen_test.dart
+│   │   ├── emergency_sheet_test.dart
+│   │   ├── settings_screen_test.dart
+│   │   ├── typewriter_text_test.dart
+│   │   ├── onboarding_screen_test.dart
+│   │   └── widget_test.dart
+│   └── integration_test/
+│       └── demo_flow_test.dart       # Demo E2E (needs device)
+├── integration_test/
+│   └── demo_flow_test.dart           # Demo E2E (needs device)
 ├── android/app/build.gradle.kts      # abiFilters arm64-v8a
 ├── pubspec.yaml
 └── docs/
-    ├── plan.md                       # Original hackathon pitch
-    └── implementation-plan.md        # This file
+    ├── prd.md                        # Product requirements
+    ├── architecture.md               # Technical architecture
+    ├── design.md                     # UX/UI design
+    ├── implementation-plan.md        # This file
+    ├── team.md                       # Work division
+    ├── corpus.md                     # KB corpus guide
+    └── demo.md                       # Demo runbook
 ```
 
 ---
 
 ## Implementation Status (Live)
 
-> Updated: Day X. This table supersedes per-task checkboxes below for tracking.
+> Updated: Day 5+. This table supersedes per-task checkboxes below for tracking.
 
 | Phase | Task | Status | Notes |
 |---|---|---|---|
@@ -110,32 +153,36 @@ shongjog/
 | 0.2 | Vosk Bangla spike | 🔴 DEVICE NEEDED | Compile plugin, test WER |
 | 0.3 | Shelter GeoJSON | 🟡 PARTIAL | File committed, spot-check pending |
 | 1.1 | Scaffold + ABI filter | ✅ DONE | `arm64-v8a` added, `flutter analyze` clean |
-| 1.2 | Theme + navigation | ✅ DONE | 4-tab bottom nav, 3-way theme, routes |
-| 1.3 | TDD skeleton | ✅ DONE | 46 tests pass, 1 skipped |
+| 1.2 | Theme + navigation | ✅ DONE | 4-tab bottom nav (Home/AI/Cards/Shelter), 3-way theme toggle, routes, MainShell |
+| 1.3 | TDD skeleton + quick cards | ✅ DONE | 8 cards, expandable, tested; 81 tests pass, 1 skipped |
 | 2.1 | Corpus authored | ✅ DONE | 23 chunks, 10 topics, Sehab authored |
 | 2.2 | build_kb.py | ✅ DONE | mpnet 768-dim, topic-prefix enrichment |
 | 2.3 | verify_kb.py | ✅ DONE | 7/7 retrieval queries pass |
 | 2.4 | KB loader (Dart) | ✅ DONE | Keyword + cosine retriever, graceful degradation |
-| 3.1 | Model manager | ✅ DONE | ChangeNotifier, Range-resume download, status labels |
-| 3.2 | Prompt builder + RAG | ✅ DONE | Keyword retrieval → prompt → Cloud/Gemma/chunk fallback |
+| 3.1 | Model manager | ✅ DONE | App-wide singleton (`modelManager`), ChangeNotifier, Range-resume w/ 206-vs-200 check, `markReadyIfOnDisk()`, status labels |
+| 3.2 | Prompt builder + RAG | ✅ DONE | Keyword-first retrieval → prompt → Cloud/Gemma/chunk fallback chain |
 | 3.3 | Embedder | ⚠️ BYPASSED | KeywordRetriever substitutes; deferred until embedder API lands |
-| 3.4 | Chat UI + TTS | ✅ DONE | Cold-start polish, quick-cards fallback, STT provider status |
-| 4.1 | STT (Vosk) | 🟡 PARTIAL | Provider abstraction ready; uses speech_to_text (online); Vosk stub coded |
-| 4.2 | Shelter map | ✅ DONE | Connectivity-aware: online tiles / offline markers + banner |
+| 3.4 | Chat UI + TTS | ✅ DONE | ChatStore persistence, typewriter effect, error bubble w/ retry + 999, voice prefs, suggestion chips, auto-read toggle |
+| 4.1 | STT (Vosk) | 🟡 PARTIAL | `SttProvider` abstraction ready; `SpeechToTextProvider` (online) active; `VoskSttProvider` stub coded — plugin compileSdk incompatible |
+| 4.2 | Shelter map | ✅ DONE | Map/list toggle (SegmentedButton), connectivity-aware tiles, offline markers + banner, distance-ranked list |
 | 4.3 | Quick cards | ✅ DONE | 8 cards, expandable, tested |
-| 4.4 | Emergency dial | ✅ DONE | Slide-to-confirm, reduced-motion fallback |
-| 4.5 | SOS SMS | ✅ DONE | Template with GPS link, tested |
+| 4.4 | Emergency dial | ✅ DONE | Slide-to-confirm (single GestureDetector), reduced-motion fallback, real GPS via Geolocator |
+| 4.5 | SOS SMS | ✅ DONE | Template with GPS link, reads user name/phone from prefs, tested |
 | 4.6 | Cloud AI fallback | ✅ DONE | Gemini 3.5-flash + 3.1-flash-lite fallback chain |
 | 4.7 | Mesh comm | ✅ DONE | nearby_connections P2P, radar screen |
+| — | Onboarding | ✅ DONE | 3-page first-run flow (welcome → permissions → model download), gated by `pref_has_onboarded` |
+| — | ChatStore | ✅ DONE | JSON-based message persistence (survives app restart), clear-cache wired |
+| — | Settings rework | ✅ DONE | ModelManager download card (reactive progress bar), voice toggles, clear-cache → ChatStore.clear() |
+| — | Emergency contacts | ✅ DONE | Add/list/call emergency contacts |
 | 5.1 | Airplane-mode E2E | 🔴 DEVICE NEEDED | 5 scenarios to run |
-| 5.2 | Cold-start polish | ✅ DONE | Loading overlay, STT status, quick-cards link |
+| 5.2 | Cold-start polish | ✅ DONE | Loading overlay, STT status, quick-cards link, onboarding gate |
 | 5.3 | Fallback video | 🔴 PENDING | Record 60s demo video |
 
 ### Summary
-- **✅ Done:** 16 tasks
+- **✅ Done:** 22 tasks
 - **🟡 Partial:** 3 tasks (need device or plugin fix)
 - **🔴 Blocked:** 4 tasks (all require physical arm64 Android device)
-- **Tests:** 46 pass, 1 skipped, `flutter analyze` clean
+- **Tests:** 81 pass, 1 skipped, `flutter analyze` clean
 
 ---
 

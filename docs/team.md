@@ -51,14 +51,21 @@ Done-criteria are explicit so slices ship without ambiguity. Reference
 | **Phase 1.1 + 1.2 scaffolding + skeleton UI** | ✅ DONE — `flutter pub get` + `flutter analyze` clean; theme applied; bottom nav + routes resolve. IC-1 met. |
 | Phase 2.4 KB loader | ✅ DONE — `KnowledgeBase.load()` works with keyword + cosine retriever; tests green |
 | Phase 2.2-2.3 KB build pipeline | ✅ DONE — `build_kb.py` + `verify_kb.py` written; 23 chunks embedded; all 7 verify queries pass |
-| Phase 3.1 model manager | ✅ DONE — `ModelManager` is `ChangeNotifier`, Range-resume download, status labels in Bangla |
+| Phase 3.1 model manager | ✅ DONE — `modelManager` app-wide singleton, `ChangeNotifier`, Range-resume w/ 206-vs-200 check, `markReadyIfOnDisk()`, status labels in Bangla |
 | Phase 3.2 prompt builder + ChatRepository | ✅ DONE — `prompt_builder_test.dart` green; `ChatRepository.ask()` wired with keyword RAG + Cloud AI + local fallback |
 | Phase 3.3 embedder | ⚠️ BYPASSED — Keyword retriever substitutes; embedder deferred until flutter_gemma exposes API or alt package found |
-| Phase 3.4 chat UI + TTS | ✅ DONE — Cold-start polish, loading overlay, STT provider status in app bar, quick-cards fallback link |
+| Phase 3.4 chat UI + TTS | ✅ DONE — ChatStore persistence, typewriter effect, error bubble w/ retry + 999, voice prefs, auto-read toggle, suggestion chips |
 | Phase 4.1 Vosk STT | 🟡 PARTIAL — `SttProvider` abstraction with Vosk stub + speech_to_text fallback; needs Vosk plugin fix for true offline |
-| Phase 4.2 shelter map | ✅ DONE — Connectivity-aware: online OSM tiles / offline styled background + markers. All theming responsive |
+| Phase 4.2 shelter map | ✅ DONE — Map/list toggle (SegmentedButton), connectivity-aware tiles, offline markers + banner, distance-ranked list |
+| Onboarding | ✅ DONE — 3-page first-run flow (welcome → permissions → model download), gated by `pref_has_onboarded` |
+| ChatStore | ✅ DONE — JSON-based message persistence (load/save/clear), survives app restart |
+| Typewriter effect | ✅ DONE — Character-by-character reveal for AI responses, `animate` flag |
+| Settings rework | ✅ DONE — ModelManager download card (reactive progress), voice toggles, clear-cache → `ChatStore.clear()` |
+| Emergency bug fixes | ✅ DONE — Single GestureDetector (removed duplicate), real GPS via Geolocator, reads user name/phone from prefs |
+| Emergency contacts | ✅ DONE — Add/list/call emergency contacts |
+| ModelManager singleton | ✅ DONE — App-wide `modelManager` instance, reactive UI via `ListenableBuilder` |
 | Phase 5.1 airplane-mode E2E | 5 scenarios pass, timings recorded |
-| Phase 5.2 cold-start polish | "AI প্রস্তুত হচ্ছে..." overlay + quick-cards fallback link |
+| Phase 5.2 cold-start polish | ✅ DONE — Onboarding gate, loading overlay, STT status, quick-cards link |
 | Phase 5.3 fallback video | 60s video on demo device, playable offline |
 
 **Ahnaf also owns:** all merges into `main`, `pubspec.yaml`, Bangla review of Sehab's
@@ -229,4 +236,14 @@ Append significant decisions here as they happen, so the team has a shared recor
 | Day X | KB build pipeline complete (Phase 2.2-2.3): build_kb.py + verify_kb.py | 23 chunks embedded with mpnet, all 7 verify queries pass |
 | Day X | Keyword retriever (Phase 3.3 unblock): offline-first retrieval without embedder | flutter_gemma 0.5.1 has no embedder API; keyword matching unblocks RAG pipeline now |
 | Day X | arm64-v8a ABI filter added to build.gradle.kts | Required for Gemma LiteRT-LM on-device |
+| Day X | ModelManager promoted to app-wide singleton (`modelManager`) | Needed for reactive UI in Settings, ChatScreen, and future screens; avoids per-widget state desync |
+| Day X | ModelManager resume: added 206-vs-200 status check | Prevents file corruption when server ignores Range header (truncates + restarts) |
+| Day X | ChatStore: JSON-based message persistence added | Users see prior conversation on relaunch; `shared_preferences` not suited for message lists; JSON file in app docs dir |
+| Day X | Onboarding: 3-page first-run flow gated by `pref_has_onboarded` | Users need permissions rationale + model download hint before first chat; `_StartupGate` in `app.dart` |
+| Day X | Typewriter effect for AI responses (`TypewriterText`) | Premium feel — character-by-character reveal with cursor; `animate` flag controls per-message |
+| Day X | Emergency slide knob: removed duplicate overlapping GestureDetectors | Single `AnimatedPositioned` + drag handler; eliminated unresponsive/broken drag behavior |
+| Day X | SOS SMS: hardcoded GPS (0,0) replaced with real Geolocator | Previously sent null-island coordinates; now pulls real GPS + user name/phone from prefs |
+| Day X | Shelter map: added map/list toggle via SegmentedButton | List view shows distance-ranked shelters; map not always practical (offline tiles missing) |
+| Day X | Settings rework: clear-cache was a no-op → wired to ChatStore.clear() | Previously displayed success without deleting anything; now actually clears JSON file |
+| Day X | ChatScreen: voice prefs (auto-read, voice-input) now consumed | Were stored in prefs but never read; now ChatScreen respects them |
 | _ | _ | _(add rows as decisions are made)_ |

@@ -41,8 +41,8 @@ budget.
 ### Scenario 1 — Static quick cards work with no model (20s)
 - **Say:** "Before the AI even loads, the app is already useful — verified emergency
   cards."
-- **Tap:** cards icon in AppBar.
-- **Expect:** list of 6 cards renders instantly. Tap "ORS তৈরি" — expands with numbered
+- **Tap:** cards tab in bottom nav (or the cards icon in AppBar on chat).
+- **Expect:** list of 8 cards renders instantly. Tap "ORS তৈরি" — expands with numbered
   Bangla steps.
 - **Why it matters:** proves the safety net. Even if the model failed, the app works.
 
@@ -73,11 +73,12 @@ budget.
   triggered an app action using offline data.
 
 ### Scenario 5 — One-tap emergency + SOS (25s)
-- **Say:** "And when it's truly critical — one tap to 999."
-- **Tap:** phone icon in AppBar → "৯৯৯ এ কল করুন".
-- **Expect:** confirm sheet; on হ্যাঁ, system dialer opens with 999 prefilled. Cancel
-  before actually calling (unless the venue is OK with it). Mention: "SMS works on the
-  voice channel even when data is down — SOS sends GPS to 999."
+- **Say:** "And when it's truly critical — one deliberate slide to dial 999."
+- **Tap:** phone icon in AppBar → slide-to-confirm takes over the screen with "জরুরি কল"
+  and large ৯৯৯.
+- **Expect:** slide knob right to ≥90% of track → haptic feedback → system dialer opens
+  with 999 prefilled. Cancel before actually calling (unless the venue is OK with it).
+  Alternative path: "পরিবর্তে SOS পাঠান" link sends pre-drafted SMS with real GPS to 999.
 - **Why it matters:** closes the loop from "information" to "action."
 
 ---

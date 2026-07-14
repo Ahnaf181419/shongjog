@@ -211,8 +211,11 @@ These are the product-level decisions; technical rationale lives in
 
 - **Framework:** Flutter (Android-first; iOS-capable but not prioritized for the demo).
 - **Generation model:** Gemma 4 E2B, 4-bit, thinking **off**, GPU backend.
-- **Retrieval:** EmbeddingGemma 300M (768-dim); brute-force cosine over ~23 vectors
-  shipped at build time (no HNSW dependency at this scale).
+- **Retrieval:** `paraphrase-multilingual-mpnet-base-v2` (768-dim) embedded at build time
+  into `assets/kb/vectors.bin`; runtime uses `KeywordRetriever` (BM25-lite + cosine
+  hybrid) for offline-first top-k. Brute-force cosine over ~23 vectors, no HNSW at this
+  scale. EmbeddingGemma 300M is the planned on-device embedder once `flutter_gemma`
+  exposes that API (see `docs/architecture.md` §5).
 - **Voice in:** Vosk-Bangla model bundled in assets (true offline, no Google STT
   dependency). See `docs/architecture.md` §Voice for the tradeoffs.
 - **Voice out:** `flutter_tts` with `bn-BD` locale; `bn-IN` fallback.
