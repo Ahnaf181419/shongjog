@@ -5,7 +5,7 @@ import 'dart:io';
 /// Open-Meteo weather client.
 ///
 /// Open-Meteo is free, no API key required, CC-BY licensed. We use it to
-/// power the optional "আবহাওয়া" tile on the home screen — never as a
+/// power the optional "আবহাওয়া" card on the home screen — never as a
 /// primary affordance, never as a lie (design.md §2: no fake-precise
 /// numbers; numbers must come from real data or be absent).
 ///
@@ -15,9 +15,9 @@ class WeatherService {
   /// we don't want weather fetches to delay the rest.
   static const _timeout = Duration(seconds: 10);
 
-  /// Fetch current weather + 1-day forecast for [lat], [lon].
+  /// Fetch current weather + 4-day forecast (today + next 3) for [lat], [lon].
   /// Returns null on any network failure (silently — the home screen
-  /// falls back to a neutral "tap to refresh" state).
+  /// falls back to a neutral "tap to refresh" affordance).
   static Future<WeatherSnapshot?> fetch({
     required double lat,
     required double lon,
@@ -31,7 +31,7 @@ class WeatherService {
       '&daily=temperature_2m_max,temperature_2m_min,'
       'precipitation_probability_max,weather_code'
       '&timezone=Asia/Dhaka'
-      '&forecast_days=1',
+      '&forecast_days=4',
     );
     try {
       final client = HttpClient();
@@ -55,17 +55,41 @@ class WeatherService {
   }
 }
 
-/// A single weather observation + 1-day forecast, normalized for UI.
-/// All values are real Open-Meteo numbers — no synthesis, no interpolation.
+/// A single day of forecast. Used for the today row's hi/lo and the 3-day
+/// strip cells. All values are real Open-Meteo numbers — no synthesis, no
+/// interpolation.
+class DailyForecast {
+  final DateTime date;
+  final double maxC;
+  final double minC;
+  final int weatherCode;
+  final int precipProbabilityPct;
+
+  const DailyForecast({
+    required this.date,
+    required this.maxC,
+    required this.minC,
+    required this.weatherCode,
+    required this.precipProbabilityPct,
+  });
+}
+
+/// Current observation + 4-day forecast (today + 3), normalized for UI.
 class WeatherSnapshot {
   final double tempC;
   final int humidityPct;
   final double precipitationMm;
   final int weatherCode;
   final double windKph;
+
+  /// The first day's hi / lo / precip. Mirrored from `daily[0]` so legacy
+  /// callers (and the today-row) can read them without indexing.
   final double tempMaxC;
   final double tempMinC;
   final int precipProbabilityPct;
+
+  /// Up to 4 days: today + 3 ahead. Empty if the API didn't return any.
+  final List<DailyForecast> daily;
 
   const WeatherSnapshot({
     required this.tempC,
@@ -76,11 +100,33 @@ class WeatherSnapshot {
     required this.tempMaxC,
     required this.tempMinC,
     required this.precipProbabilityPct,
+    required this.daily,
   });
 
   factory WeatherSnapshot.fromOpenMeteo(Map<String, dynamic> json) {
     final current = json['current'] as Map<String, dynamic>? ?? const {};
     final daily = json['daily'] as Map<String, dynamic>? ?? const {};
+
+    final times = (daily['time'] as List?)?.cast<String>() ?? const <String>[];
+    final maxes = (daily['temperature_2m_max'] as List?) ?? const [];
+    final mins = (daily['temperature_2m_min'] as List?) ?? const [];
+    final codes = (daily['weather_code'] as List?) ?? const [];
+    final precips = (daily['precipitation_probability_max'] as List?) ?? const [];
+
+    final List<DailyForecast> dailyList = [];
+    for (var i = 0; i < times.length; i++) {
+      dailyList.add(
+        DailyForecast(
+          date: DateTime.parse(times[i]),
+          maxC: (maxes[i] as num?)?.toDouble() ?? 0,
+          minC: (mins[i] as num?)?.toDouble() ?? 0,
+          weatherCode: (codes[i] as num?)?.toInt() ?? 0,
+          precipProbabilityPct: (precips[i] as num?)?.toInt() ?? 0,
+        ),
+      );
+    }
+
+    final first = dailyList.isNotEmpty ? dailyList.first : null;
     return WeatherSnapshot(
       tempC: (current['temperature_2m'] as num?)?.toDouble() ?? 0,
       humidityPct: (current['relative_humidity_2m'] as num?)?.toInt() ?? 0,
@@ -88,16 +134,10 @@ class WeatherSnapshot {
           (current['precipitation'] as num?)?.toDouble() ?? 0,
       weatherCode: (current['weather_code'] as num?)?.toInt() ?? 0,
       windKph: (current['wind_speed_10m'] as num?)?.toDouble() ?? 0,
-      tempMaxC: ((daily['temperature_2m_max'] as List?)?.first as num?)
-              ?.toDouble() ??
-          0,
-      tempMinC: ((daily['temperature_2m_min'] as List?)?.first as num?)
-              ?.toDouble() ??
-          0,
-      precipProbabilityPct:
-          ((daily['precipitation_probability_max'] as List?)?.first as num?)
-                  ?.toInt() ??
-              0,
+      tempMaxC: first?.maxC ?? 0,
+      tempMinC: first?.minC ?? 0,
+      precipProbabilityPct: first?.precipProbabilityPct ?? 0,
+      daily: dailyList,
     );
   }
 
