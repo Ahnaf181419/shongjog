@@ -1,54 +1,55 @@
 {
   "type": "FeatureCollection",
   "features": [
-    {
-      "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [89.55, 22.85] },
-      "properties": {
-        "name": "Khulna Shelter A",
-        "name_bn": "খুলনা শেল্টার এ",
-        "capacity": 1200,
-        "source": "MoDMR"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [90.40, 22.70] },
-      "properties": {
-        "name": "Barisal Cyclone Shelter",
-        "name_bn": "বরিশাল সাইক্লোন শেল্টার",
-        "capacity": 800,
-        "source": "MoDMR"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [91.82, 22.33] },
-      "properties": {
-        "name": "Chittagong Shelter C",
-        "name_bn": "চট্টগ্রাম শেল্টার সি",
-        "capacity": 1500,
-        "source": "BDRCS"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [89.25, 23.92] },
-      "properties": {
-        "name": "Pabna Shelter",
-        "name_bn": "পাবনা শেল্টার",
-        "capacity": 600,
-        "source": "OSM"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [90.36, 23.75] },
-      "properties": {
-        "name": "Dhaka Emergency Shelter",
-        "name_bn": "ঢাকা জরুরি শেল্টার",
-        "source": "OSM"
-      }
-    }
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [89.55, 22.85] },
+      "properties": { "name": "Khulna Shelter A", "name_bn": "খুলনা শেল্টার এ", "capacity": 1200, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.40, 22.70] },
+      "properties": { "name": "Barisal Cyclone Shelter", "name_bn": "বরিশাল সাইক্লোন শেল্টার", "capacity": 800, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [91.82, 22.33] },
+      "properties": { "name": "Chittagong Shelter C", "name_bn": "চট্টগ্রাম শেল্টার সি", "capacity": 1500, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [89.25, 23.92] },
+      "properties": { "name": "Pabna Shelter", "name_bn": "পাবনা শেল্টার", "capacity": 600, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.36, 23.75] },
+      "properties": { "name": "Dhaka Emergency Shelter", "name_bn": "ঢাকা জরুরি শেল্টার", "capacity": 900, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [91.97, 21.45] },
+      "properties": { "name": "Cox's Bazar Shelter 1", "name_bn": "কক্সবাজার শেল্টার ১", "capacity": 1100, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [92.30, 21.15] },
+      "properties": { "name": "Teknaf Coastal Shelter", "name_bn": "টেকনাফ উপকূলীয় শেল্টার", "capacity": 700, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.65, 22.68] },
+      "properties": { "name": "Bhola Shelter North", "name_bn": "ভোলা শেল্টার উত্তর", "capacity": 950, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.55, 22.15] },
+      "properties": { "name": "Bhola Shelter South", "name_bn": "ভোলা শেল্টার দক্ষিণ", "capacity": 850, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.32, 21.95] },
+      "properties": { "name": "Patuakhali Coastal Shelter", "name_bn": "পটুয়াখালী উপকূলীয় শেল্টার", "capacity": 1000, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.11, 22.09] },
+      "properties": { "name": "Kuakata Shelter", "name_bn": "কুয়াকাটা শেল্টার", "capacity": 650, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.11, 22.10] },
+      "properties": { "name": "Barguna Shelter A", "name_bn": "বরগুনা শেল্টার এ", "capacity": 780, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [91.10, 22.82] },
+      "properties": { "name": "Noakhali Shelter A", "name_bn": "নোয়াখালী শেল্টার এ", "capacity": 1050, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [91.10, 22.45] },
+      "properties": { "name": "Hatiya Island Shelter", "name_bn": "হাতিয়া দ্বীপ শেল্টার", "capacity": 500, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [91.68, 22.20] },
+      "properties": { "name": "Sandwip Shelter", "name_bn": "সন্দ্বীপ শেল্টার", "capacity": 550, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [89.10, 22.35] },
+      "properties": { "name": "Satkhira Shelter A", "name_bn": "সাতক্ষীরা শেল্টার এ", "capacity": 900, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [89.42, 22.20] },
+      "properties": { "name": "Shyamnagar Shelter", "name_bn": "শ্যামনগর শেল্টার", "capacity": 620, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [89.58, 21.97] },
+      "properties": { "name": "Sundarbans Edge Shelter", "name_bn": "সুন্দরবন প্রান্ত শেল্টার", "capacity": 400, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [91.87, 22.68] },
+      "properties": { "name": "Chittagong Shelter D", "name_bn": "চট্টগ্রাম শেল্টার ডি", "capacity": 1300, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [91.79, 21.44] },
+      "properties": { "name": "Moheshkhali Shelter", "name_bn": "মহেশখালী শেল্টার", "capacity": 720, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.20, 22.60] },
+      "properties": { "name": "Barisal Shelter B", "name_bn": "বরিশাল শেল্টার বি", "capacity": 830, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.55, 24.90] },
+      "properties": { "name": "Sylhet Emergency Shelter", "name_bn": "সিলেট জরুরি শেল্টার", "capacity": 500, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [88.60, 24.37] },
+      "properties": { "name": "Rajshahi Shelter A", "name_bn": "রাজশাহী শেল্টার এ", "capacity": 450, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [89.20, 25.75] },
+      "properties": { "name": "Rangpur Shelter A", "name_bn": "রংপুর শেল্টার এ", "capacity": 400, "source": "SAMPLE_DATA" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [91.10, 24.90] },
+      "properties": { "name": "Mymensingh Shelter A", "name_bn": "ময়মনসিংহ শেল্টার এ", "capacity": 480, "source": "SAMPLE_DATA" } }
   ]
 }
