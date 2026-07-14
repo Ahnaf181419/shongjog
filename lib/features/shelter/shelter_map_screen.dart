@@ -2,15 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../app/theme.dart';
 import 'cached_tile_provider.dart';
 import 'nearest_shelter.dart';
-import 'osrm_route_service.dart';
+import 'shelter_map_view_model.dart';
 import 'shelter_model.dart';
-import 'shelter_repository.dart';
 import 'widgets/gps_banner.dart';
 import 'widgets/nearest_card.dart';
 import 'widgets/offline_banner.dart';
@@ -23,14 +21,9 @@ import 'widgets/user_marker.dart' show buildUserMarker;
 /// Shelter map with GPS-based nearest ranking, interactive routing, search,
 /// and offline-aware tile rendering.
 ///
-/// Connectivity-aware: when online, renders full OSM tiles and offers
-/// driving-route navigation via OSRM. When offline, marker positions and
-/// search lists still work (haversine distance), but routing falls back
-/// to a straight line and tiles may not render.
-///
-/// Map/list view toggles via the AppBar SegmentedButton. Search is a
-/// full-screen overlay. Routing fires only when online; offline taps
-/// draw a straight line immediately so the user still sees the path.
+/// All state and behaviour is held by [ShelterMapViewModel]; this screen
+/// is a thin view that wires AppBar actions, AppBar.bottom offline pill,
+/// and the body's Stack overlays to the VM.
 class ShelterMapScreen extends StatefulWidget {
   const ShelterMapScreen({super.key});
   @override
@@ -39,195 +32,63 @@ class ShelterMapScreen extends StatefulWidget {
 
 class _ShelterMapScreenState extends State<ShelterMapScreen>
     with TickerProviderStateMixin {
-  late Future<List<Shelter>> _sheltersFuture;
-  Position? _userPosition;
-  String? _gpsError;
-  bool _isOnline = true;
-  bool _showMap = true;
-  StreamSubscription<bool>? _connSub;
   final MapController _mapController = MapController();
+  // Tracks the last routePoints length we fitted the camera to. When
+  // the VM's routePoints change, we re-fit. Keeps the VM free of any
+  // MapController dependency.
+  int _lastFittedRouteLength = 0;
 
-  // Slow breathing pulse on the user-location dot. 1.4s opacity 0.5↔1.0
-  // per design.md §7.3 — the one piece of liveliness on a static map.
-  late final AnimationController _pulse;
+  late final ShelterMapViewModel _vm = ShelterMapViewModel();
 
-  // Route state (added from sehab's branch). Route is computed by OSRM
-  // when online, or by haversine straight-line fallback when offline.
-  Shelter? _selectedShelter;
-  List<LatLng> _routePoints = const [];
-  double? _routeDistanceKm;
-  bool _loadingRoute = false;
+  // Slow breathing pulse on the user-location dot. 1.4s opacity
+  // 0.5↔1.0 per design.md §7.3 — the one piece of liveliness on an
+  // otherwise static map. Animations belong in the widget layer (close
+  // to the TickerProvider's mount lifecycle), not in the VM.
+  late final AnimationController _pulse = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1400),
+  )..repeat(reverse: true);
 
-  // Search state (added from sehab's branch). When true, the full-screen
-  // search overlay is shown with a text-filtered list ranked by
-  // distance from the user.
-  bool _showSearchPanel = false;
-  List<RankedShelter> _rankedShelters = const [];
-
-  // OSRM HTTP client wrapper. Replaced by the ViewModel in the
-  // upcoming arch refactor; for now lives here with explicit dispose.
-  late final OsrmRouteService _routeService = OsrmRouteService();
+  StreamSubscription<bool>? _connSub;
 
   @override
   void initState() {
     super.initState();
-    _pulse = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1400),
-    )..repeat(reverse: true);
-    _sheltersFuture = ShelterRepository().loadAll();
-    _resolveGps();
-    _initConnectivity();
-  }
-
-  Future<void> _initConnectivity() async {
-    _isOnline = await ConnectivityHelper.isOnline();
-    if (mounted) setState(() {});
-    _connSub = ConnectivityHelper.onConnectivityChanged.listen((online) {
-      if (mounted) setState(() => _isOnline = online);
-    });
+    _vm.addListener(_onVmChanged);
+    _connSub = ConnectivityHelper.onConnectivityChanged.listen(_vm.setOnline);
+    // Seed the VM's online flag from the global connectivity singleton
+    // so the first frame correctly hides / shows the offline pill.
+    _vm.setOnline(_vm.connectivityIsOnline);
+    // Kick off async init (load shelters + GPS). Done without awaiting
+    // because the VM populates state and notifies.
+    _vm.init();
   }
 
   @override
   void dispose() {
     _pulse.dispose();
     _connSub?.cancel();
-    _routeService.dispose();
+    _vm.removeListener(_onVmChanged);
+    _vm.dispose();
     _mapController.dispose();
     super.dispose();
   }
 
-  Future<void> _resolveGps() async {
-    try {
-      var permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          setState(() => _gpsError = 'GPS অনুমতি নেই');
-          return;
-        }
-      }
-      if (permission == LocationPermission.deniedForever) {
-        setState(() => _gpsError = 'GPS অনুমতি চিরতরে নিষিদ্ধ');
-        return;
-      }
-      final pos = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-            // Bumped from medium to high — routing needs accurate
-            // start point so OSRM doesn't snap the user onto a road.
-            accuracy: LocationAccuracy.high,
-            timeLimit: Duration(seconds: 10)),
+  void _onVmChanged() {
+    // Re-fit the camera when a new route is drawn (routePoints length
+    // transitions from empty to non-empty). The VM doesn't know about
+    // the MapController; the screen owns this side-effect.
+    if (_vm.routePoints.length >= 2 &&
+        _vm.routePoints.length != _lastFittedRouteLength) {
+      _lastFittedRouteLength = _vm.routePoints.length;
+      final bounds = LatLngBounds.fromPoints(_vm.routePoints);
+      _mapController.fitCamera(
+        CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(60)),
       );
-      if (mounted) setState(() => _userPosition = pos);
-    } catch (e) {
-      if (mounted) setState(() => _gpsError = 'GPS পাওয়া যায়নি');
+    } else if (_vm.routePoints.isEmpty) {
+      _lastFittedRouteLength = 0;
     }
   }
-
-  // ─── Routing ──────────────────────────────────────────────────────
-  // Fetch a driving route from the user's GPS to the chosen shelter.
-  // Network-gated by _isOnline so offline taps fall through to
-  // _fallbackStraightLine immediately (no 8-s timeout for offline).
-  // HTTP/JSON parsing lives in [OsrmRouteService] so it is unit-
-  // testable without spinning up the widget tree.
-
-  Future<void> _fetchRoute(Shelter shelter) async {
-    if (_userPosition == null) return;
-
-    setState(() {
-      _loadingRoute = true;
-      _selectedShelter = shelter;
-    });
-
-    if (!_isOnline) {
-      _fallbackStraightLine(shelter);
-      return;
-    }
-
-    final route = await _routeService.fetchRoute(
-      from: LatLng(_userPosition!.latitude, _userPosition!.longitude),
-      to: LatLng(shelter.lat, shelter.lon),
-    );
-    if (!mounted) return;
-    if (route == null) {
-      _fallbackStraightLine(shelter);
-      return;
-    }
-    setState(() {
-      _routePoints = route.points;
-      _routeDistanceKm = route.distanceKm;
-      _loadingRoute = false;
-    });
-    _fitMapToRoute(route.points);
-  }
-
-  void _fallbackStraightLine(Shelter shelter) {
-    final userLatLng =
-        LatLng(_userPosition!.latitude, _userPosition!.longitude);
-    final shelterLatLng = LatLng(shelter.lat, shelter.lon);
-    final dist = haversineKm(
-      userLatLng.latitude,
-      userLatLng.longitude,
-      shelterLatLng.latitude,
-      shelterLatLng.longitude,
-    );
-    if (!mounted) return;
-    setState(() {
-      _routePoints = [userLatLng, shelterLatLng];
-      _routeDistanceKm = dist;
-      _loadingRoute = false;
-    });
-    _fitMapToRoute(_routePoints);
-  }
-
-  void _fitMapToRoute(List<LatLng> points) {
-    if (points.length < 2) return;
-    final bounds = LatLngBounds.fromPoints(points);
-    _mapController.fitCamera(
-      CameraFit.bounds(
-        bounds: bounds,
-        padding: const EdgeInsets.all(60),
-      ),
-    );
-  }
-
-  void _clearRoute() {
-    setState(() {
-      _selectedShelter = null;
-      _routePoints = const [];
-      _routeDistanceKm = null;
-    });
-  }
-
-  // ─── Search ───────────────────────────────────────────────────────
-
-  void _toggleSearchPanel() {
-    if (_showSearchPanel) {
-      setState(() => _showSearchPanel = false);
-      return;
-    }
-    _sheltersFuture.then((shelters) {
-      if (_userPosition != null && mounted) {
-        final ranked = nearestShelters(
-          lat: _userPosition!.latitude,
-          lon: _userPosition!.longitude,
-          all: shelters,
-          k: shelters.length,
-        );
-        setState(() {
-          _rankedShelters = ranked;
-          _showSearchPanel = true;
-        });
-      }
-    });
-  }
-
-  void _onSearchSelect(RankedShelter ranked) {
-    setState(() => _showSearchPanel = false);
-    _fetchRoute(ranked.shelter);
-  }
-
-  // ─── Build ────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -237,23 +98,14 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
         actions: [
           IconButton(
             tooltip: 'আশ্রয় খুঁজুন',
-            icon: Icon(_showSearchPanel ? Icons.close : Icons.search),
-            onPressed: _toggleSearchPanel,
+            icon: Icon(_vm.showSearchPanel ? Icons.close : Icons.search),
+            onPressed: _vm.toggleSearchPanel,
           ),
-          if (_selectedShelter != null)
+          if (_vm.selectedShelter != null)
             IconButton(
               tooltip: 'রুট মুছুন',
               icon: const Icon(Icons.alt_route),
-              onPressed: _clearRoute,
-            ),
-          if (_gpsError == null && _userPosition == null)
-            const Padding(
-              padding: EdgeInsets.only(right: 16),
-              child: SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
+              onPressed: _vm.clearRoute,
             ),
         ],
         bottom: PreferredSize(
@@ -262,7 +114,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
             padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
             child: Row(
               children: [
-                if (!_isOnline)
+                if (!_vm.isOnline)
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -284,16 +136,10 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                                   .withValues(alpha: 0.7),
                               size: 16),
                           const SizedBox(width: 6),
-                          Expanded(
+                          const Expanded(
                             child: Text(
                               'অফলাইন — টাইলস নেই, মার্কার আছে',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withValues(alpha: 0.7),
-                              ),
+                              style: TextStyle(fontSize: 13),
                             ),
                           ),
                         ],
@@ -317,71 +163,80 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                     ),
                   ],
                   selected: {_showMap},
-                  onSelectionChanged: (s) =>
-                      setState(() => _showMap = s.first),
+                  onSelectionChanged: (s) => setState(
+                      () => _showMap = s.first),
                 ),
               ],
             ),
           ),
         ),
       ),
-      body: FutureBuilder<List<Shelter>>(
-        future: _sheltersFuture,
-        builder: (_, snap) {
-          if (snap.hasError) return _errorState();
-          if (!snap.hasData) {
+      body: ListenableBuilder(
+        listenable: _vm,
+        builder: (_, _) {
+          if (_vm.shelters.isEmpty && _vm.gpsError == null) {
             return const Center(child: CircularProgressIndicator());
           }
-          final shelters = snap.data!;
-          final ranked = _userPosition != null
+          final ranked = _vm.userPosition != null
               ? nearestShelters(
-                  lat: _userPosition!.latitude,
-                  lon: _userPosition!.longitude,
-                  all: shelters,
-                  k: shelters.length,
+                  lat: _vm.userPosition!.latitude,
+                  lon: _vm.userPosition!.longitude,
+                  all: _vm.shelters,
+                  k: _vm.shelters.length,
                 )
               : null;
 
-          if (_showMap) {
-            return _mapView(shelters, ranked);
-          } else {
-            return ShelterListView(
-              shelters: ranked ??
-                  shelters.map((s) => RankedShelter(s, 0)).toList(),
-              onTap: (s) => _showShelterSheet(s as Shelter),
-            );
-          }
+          return Column(
+            children: [
+              if (_vm.gpsError == null && _vm.userPosition == null)
+                const LinearProgressIndicator(minHeight: 2),
+              Expanded(
+                child: _showMap
+                    ? _buildMap(_vm.shelters, ranked)
+                    : ShelterListView(
+                        shelters: ranked ??
+                            _vm.shelters
+                                .map((s) => RankedShelter(s, 0))
+                                .toList(),
+                        onTap: (s) => _showShelterSheet(s as Shelter),
+                      ),
+              ),
+            ],
+          );
         },
       ),
     );
   }
 
-  Widget _mapView(List<Shelter> shelters, List<RankedShelter>? ranked) {
+  bool _showMap = true;
+
+  Widget _buildMap(List<Shelter> shelters, List<RankedShelter>? ranked) {
     return Stack(
       children: [
         FlutterMap(
           mapController: _mapController,
           options: MapOptions(
-            initialCenter: _userPosition != null
-                ? LatLng(_userPosition!.latitude, _userPosition!.longitude)
+            initialCenter: _vm.userPosition != null
+                ? LatLng(
+                    _vm.userPosition!.latitude, _vm.userPosition!.longitude)
                 : const LatLng(23.8, 90.4),
-            initialZoom: _userPosition != null ? 11 : 8,
-            backgroundColor: _isOnline
+            initialZoom: _vm.userPosition != null ? 11 : 8,
+            backgroundColor: _vm.isOnline
                 ? Theme.of(context).colorScheme.surface
                 : Theme.of(context).colorScheme.surfaceContainerHighest,
           ),
           children: [
-            if (_isOnline)
+            if (_vm.isOnline)
               TileLayer(
                 urlTemplate:
                     'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.shongjog.app',
               ),
-            if (_routePoints.isNotEmpty)
+            if (_vm.routePoints.isNotEmpty)
               PolylineLayer(
                 polylines: [
                   Polyline(
-                    points: _routePoints,
+                    points: _vm.routePoints,
                     color: ShongjogTheme.ocean,
                     strokeWidth: 5,
                   ),
@@ -389,60 +244,60 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
               ),
             MarkerLayer(
               markers: [
-                if (_userPosition != null)
+                if (_vm.userPosition != null)
                   buildUserMarker(
-                    LatLng(
-                        _userPosition!.latitude, _userPosition!.longitude),
+                    LatLng(_vm.userPosition!.latitude,
+                        _vm.userPosition!.longitude),
                     _pulse,
                   ),
                 ...shelters.map((s) => buildShelterMarker(
                       s,
-                      _selectedShelter?.name == s.name,
-                      () => _fetchRoute(s),
+                      _vm.selectedShelter?.name == s.name,
+                      () => _vm.fetchRoute(s),
                     )),
               ],
             ),
           ],
         ),
-        if (!_isOnline) const OfflineBanner(),
-        if (_selectedShelter != null)
+        if (!_vm.isOnline) const OfflineBanner(),
+        if (_vm.selectedShelter != null)
           Positioned(
             left: 12,
             right: 12,
             bottom: 12,
             child: ShelterRouteInfoCard(
-              selected: _selectedShelter!,
-              loading: _loadingRoute,
-              distanceKm: _routeDistanceKm,
-              onCancel: _clearRoute,
-              onDetails: () => _showShelterSheet(_selectedShelter!),
+              selected: _vm.selectedShelter!,
+              loading: _vm.loadingRoute,
+              distanceKm: _vm.routeDistanceKm,
+              onCancel: _vm.clearRoute,
+              onDetails: () => _showShelterSheet(_vm.selectedShelter!),
             ),
           )
-        else if (ranked != null && ranked.isNotEmpty && !_showSearchPanel)
+        else if (ranked != null && ranked.isNotEmpty && !_vm.showSearchPanel)
           Positioned(
             left: 16,
             right: 16,
             bottom: 16,
             child: NearestCard(
               top3: ranked.take(3).toList(),
-              onTapRow: (s) => _fetchRoute(s as Shelter),
+              onTapRow: (s) => _vm.fetchRoute(s as Shelter),
             ),
           )
-        else if (_gpsError != null)
+        else if (_vm.gpsError != null)
           GpsBanner(
-            error: _gpsError,
-            stackedBelowOfflinePill: !_isOnline,
+            error: _vm.gpsError,
+            stackedBelowOfflinePill: !_vm.isOnline,
           ),
-        if (_showSearchPanel)
+        if (_vm.showSearchPanel)
           Positioned(
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
             child: ShelterSearchPanel(
-              ranked: _rankedShelters,
-              onSelect: _onSearchSelect,
-              onClose: _toggleSearchPanel,
+              ranked: _vm.rankedShelters,
+              onSelect: _vm.onSearchSelect,
+              onClose: _vm.toggleSearchPanel,
             ),
           ),
       ],
@@ -457,14 +312,12 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
             BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (_) {
-        // Prefer the routed distance (from OSRM or fallback) since
-        // it represents the actual travel distance once a route has
-        // been selected; fall back to the haversine great-circle.
-        final routedKm = _routeDistanceKm;
-        final fallbackKm = _userPosition == null
+        // Prefer the routed distance; fall back to haversine.
+        final routedKm = _vm.routeDistanceKm;
+        final fallbackKm = _vm.userPosition == null
             ? null
-            : haversineKm(_userPosition!.latitude, _userPosition!.longitude,
-                s.lat, s.lon);
+            : haversineKm(_vm.userPosition!.latitude,
+                _vm.userPosition!.longitude, s.lat, s.lon);
         final km = routedKm ?? fallbackKm;
         return Padding(
           padding: const EdgeInsets.all(20),
@@ -493,12 +346,12 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                         color:
                             Theme.of(context).colorScheme.onSurfaceVariant)),
               const SizedBox(height: 16),
-              if (km != null) _row('দূরত্ব', '${km.toStringAsFixed(1)} কিমি'),
+              if (km != null)
+                _row('দূরত্ব', '${km.toStringAsFixed(1)} কিমি'),
               if (s.capacity != null)
                 _row('ধারণক্ষমতা', '${s.capacity} জন'),
               _row('উৎস', s.source),
-              _row(
-                  'GPS',
+              _row('GPS',
                   '${s.lat.toStringAsFixed(4)}, ${s.lon.toStringAsFixed(4)}'),
             ],
           ),
@@ -524,24 +377,6 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                       fontSize: 15,
                       color: Theme.of(context).colorScheme.onSurface))),
         ],
-      ),
-    );
-  }
-
-  Widget _errorState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.map_outlined,
-                size: 56,
-                color: Theme.of(context).colorScheme.onSurfaceVariant),
-            const SizedBox(height: 16),
-            const Text('মানচিত্র লোড করা যায়নি'),
-          ],
-        ),
       ),
     );
   }
