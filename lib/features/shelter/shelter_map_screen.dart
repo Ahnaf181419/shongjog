@@ -16,6 +16,8 @@ import 'shelter_repository.dart';
 /// Connectivity-aware: when online, renders full OSM tiles. When offline,
 /// markers still render on a styled background (tiles from HTTP cache
 /// may also appear if previously viewed).
+///
+/// Toggle between map and list view via the AppBar SegmentedButton.
 class ShelterMapScreen extends StatefulWidget {
   const ShelterMapScreen({super.key});
   @override
@@ -27,6 +29,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
   Position? _userPosition;
   String? _gpsError;
   bool _isOnline = true;
+  bool _showMap = true;
   StreamSubscription<bool>? _connSub;
   final MapController _mapController = MapController();
 
@@ -80,7 +83,74 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('নিকটস্থ আশ্রয়কেন্দ্র')),
+      appBar: AppBar(
+        title: const Text('নিকটস্থ আশ্রয়কেন্দ্র'),
+        actions: [
+          if (_gpsError == null && _userPosition == null)
+            const Padding(
+              padding: EdgeInsets.only(right: 16),
+              child: SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(52),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
+            child: Row(
+              children: [
+                if (!_isOnline)
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: ShongjogTheme.alert.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.wifi_off_rounded,
+                              color: ShongjogTheme.alert, size: 16),
+                          SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'অফলাইন মোড',
+                              style: TextStyle(
+                                  fontSize: 12, color: ShongjogTheme.alert),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else
+                  const Spacer(),
+                const SizedBox(width: 8),
+                SegmentedButton<bool>(
+                  segments: const [
+                    ButtonSegment(
+                      value: true,
+                      icon: Icon(Icons.map_outlined, size: 20),
+                    ),
+                    ButtonSegment(
+                      value: false,
+                      icon: Icon(Icons.list_rounded, size: 20),
+                    ),
+                  ],
+                  selected: {_showMap},
+                  onSelectionChanged: (s) =>
+                      setState(() => _showMap = s.first),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
       body: FutureBuilder<List<Shelter>>(
         future: _sheltersFuture,
         builder: (_, snap) {
@@ -98,81 +168,139 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
                 )
               : null;
 
-          return Stack(
-            children: [
-              FlutterMap(
-                mapController: _mapController,
-                options: MapOptions(
-                  initialCenter: _userPosition != null
-                      ? LatLng(_userPosition!.latitude, _userPosition!.longitude)
-                      : const LatLng(23.8, 90.4),
-                  initialZoom: 8,
-                  backgroundColor: _isOnline
-                      ? Colors.white
-                      : Theme.of(context).colorScheme.surfaceContainerHighest,
-                ),
-                children: [
-                  if (_isOnline)
-                    TileLayer(
-                      urlTemplate:
-                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'com.shongjog.app',
-                    ),
-                  MarkerLayer(
-                    markers: [
-                      if (_userPosition != null)
-                        Marker(
-                          point: LatLng(_userPosition!.latitude,
-                              _userPosition!.longitude),
-                          width: 20,
-                          height: 20,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: ShongjogTheme.calmTeal,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                  color: Colors.white, width: 3),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.3),
-                                    blurRadius: 4),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ...shelters.map((s) => Marker(
-                            point: LatLng(s.lat, s.lon),
-                            width: 40,
-                            height: 40,
-                            child: IconButton(
-                              icon: const Icon(Icons.shield_outlined,
-                                  color: ShongjogTheme.calmTeal, size: 30),
-                              onPressed: () => _showShelterSheet(s),
-                            ),
-                          )),
-                    ],
-                  ),
-                ],
-              ),
-              if (!_isOnline) _offlineBanner(),
-              if (ranked != null && ranked.isNotEmpty)
-                Positioned(
-                  left: 16,
-                  right: 16,
-                  bottom: 16,
-                  child: _nearestCard(ranked.take(3).toList()),
-                )
-              else if (_gpsError == null)
-                Positioned(
-                  top: _isOnline ? 16 : 56,
-                  left: 16,
-                  right: 16,
-                  child: _gpsBanner(),
-                ),
-            ],
-          );
+          if (_showMap) {
+            return _mapView(shelters, ranked);
+          } else {
+            return _listView(ranked ??
+                shelters.map((s) => RankedShelter(s, 0)).toList());
+          }
         },
       ),
+    );
+  }
+
+  Widget _mapView(List<Shelter> shelters, List<RankedShelter>? ranked) {
+    return Stack(
+      children: [
+        FlutterMap(
+          mapController: _mapController,
+          options: MapOptions(
+            initialCenter: _userPosition != null
+                ? LatLng(_userPosition!.latitude, _userPosition!.longitude)
+                : const LatLng(23.8, 90.4),
+            initialZoom: 8,
+            backgroundColor: _isOnline
+                ? Colors.white
+                : Theme.of(context).colorScheme.surfaceContainerHighest,
+          ),
+          children: [
+            if (_isOnline)
+              TileLayer(
+                urlTemplate:
+                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.shongjog.app',
+              ),
+            MarkerLayer(
+              markers: [
+                if (_userPosition != null)
+                  Marker(
+                    point: LatLng(_userPosition!.latitude,
+                        _userPosition!.longitude),
+                    width: 20,
+                    height: 20,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: ShongjogTheme.ocean,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 3),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              blurRadius: 4),
+                        ],
+                      ),
+                    ),
+                  ),
+                ...shelters.map((s) => Marker(
+                      point: LatLng(s.lat, s.lon),
+                      width: 40,
+                      height: 40,
+                      child: IconButton(
+                        icon: Icon(Icons.shield_outlined,
+                            color: ShongjogTheme.ocean, size: 30),
+                        onPressed: () => _showShelterSheet(s),
+                      ),
+                    )),
+              ],
+            ),
+          ],
+        ),
+        if (!_isOnline) _offlineBanner(),
+        if (ranked != null && ranked.isNotEmpty)
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: 16,
+            child: _nearestCard(ranked.take(3).toList()),
+          )
+        else if (_gpsError != null)
+          Positioned(
+            top: _isOnline ? 16 : 56,
+            left: 16,
+            right: 16,
+            child: _gpsBanner(),
+          ),
+      ],
+    );
+  }
+
+  Widget _listView(List<RankedShelter> shelters) {
+    if (shelters.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.shield_outlined,
+                size: 56,
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
+            const SizedBox(height: 16),
+            const Text('কোনো আশ্রয়কেন্দ্রের তথ্য নেই'),
+          ],
+        ),
+      );
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      itemCount: shelters.length,
+      itemBuilder: (_, i) {
+        final r = shelters[i];
+        final s = r.shelter;
+        return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          child: ListTile(
+            leading: Container(
+              width: 40,
+              height: 40,
+              decoration: ShongjogTheme.iconBadge(context),
+              child: const Icon(Icons.shield_outlined, size: 22),
+            ),
+            title: Text(
+              s.nameBn.isNotEmpty ? s.nameBn : s.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: Text(
+              [
+                if (r.km > 0) '${r.km.toStringAsFixed(1)} কিমি',
+                if (s.capacity != null) 'ধারণক্ষমতা: ${s.capacity} জন',
+                if (r.km == 0 && s.capacity == null) s.source,
+              ].join(' • '),
+            ),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => _showShelterSheet(s),
+          ),
+        );
+      },
     );
   }
 
@@ -184,22 +312,22 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: ShongjogTheme.alertRed.withValues(alpha: 0.9),
+          color: ShongjogTheme.alert.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 6),
           ],
         ),
-        child: Row(
+        child: const Row(
           children: [
-            const Icon(Icons.wifi_off_rounded, color: Colors.white, size: 18),
-            const SizedBox(width: 8),
+            Icon(Icons.wifi_off_rounded, color: Colors.white, size: 18),
+            SizedBox(width: 8),
             Expanded(
               child: Text(
                 'অফলাইন মোড — মানচিত্রের টাইলস লোড হবে না, তবে আশ্রয়কেন্দ্রের অবস্থান দেখা যাচ্ছে',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.white.withValues(alpha: 0.95),
+                  color: Colors.white,
                   height: 1.3,
                 ),
               ),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/router.dart';
 import '../../app/theme.dart';
+import '../../core/model_manager.dart';
 import '../../knowledge/kb_loader.dart';
 import '../../rag/keyword_retriever.dart';
 import '../../rag/types.dart';
@@ -11,15 +13,18 @@ import '../voice/stt_service.dart';
 import '../voice/tts_service.dart';
 import 'chat_input.dart';
 import 'chat_repository.dart';
+import 'chat_store.dart';
 import 'message_bubble.dart';
 import '../cloud_ai/cloud_ai_service.dart';
 
 /// Chat screen — voice-first Bangla emergency assistant.
 ///
 /// Uses keyword-based RAG retrieval (always offline) to find relevant
-/// corpus chunks, then generates an answer via Cloud AI (when online)
-/// or on-device Gemma (when offline). Falls back to the matched chunk
-/// text if no model is available.
+/// corpus chunks, then generates an answer via on-device Gemma (preferred,
+/// fully offline) or Cloud AI (when online). Falls back to the matched
+/// chunk text if no model is available.
+///
+/// Messages are persisted via [ChatStore] and survive app restarts.
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
 
@@ -32,17 +37,21 @@ class _ChatScreenState extends State<ChatScreen> {
   final _tts = TtsService();
   final _stt = SttService();
   final _sound = SoundService();
+  final _store = ChatStore();
   final _inputKey = GlobalKey<ChatInputState>();
   ChatRepository? _repo;
   bool _busy = false;
   bool _listening = false;
   String? _sttProviderName;
+  bool _autoRead = true;
+  bool _voiceInputEnabled = true;
+  String? _lastQuery;
 
   @override
   void initState() {
     super.initState();
     _sound.init();
-    _bootstrap();
+    _loadPrefsAndBootstrap();
   }
 
   @override
@@ -51,7 +60,16 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
-  Future<void> _bootstrap() async {
+  Future<void> _loadPrefsAndBootstrap() async {
+    final prefs = await SharedPreferences.getInstance();
+    _autoRead = prefs.getBool('pref_auto_read') ?? true;
+    _voiceInputEnabled = prefs.getBool('pref_voice_input') ?? true;
+
+    final saved = await _store.load();
+    final restored = saved.reversed
+        .map((m) => _Msg(m.text, m.isUser))
+        .toList();
+
     KnowledgeBase? kb;
     try {
       kb = await KnowledgeBase.load();
@@ -79,7 +97,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
     if (mounted) {
       setState(() {
-        _repo = ChatRepository(kb: kb ?? _emptyKb(), cloudAi: cloudAi);
+        _messages.addAll(restored);
+        _repo = ChatRepository(
+          kb: kb ?? _emptyKb(),
+          modelManager: modelManager,
+          cloudAi: cloudAi,
+        );
         _sttProviderName = providerName;
       });
     }
@@ -101,33 +124,66 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _onSubmit(String q) async {
     if (_repo == null || _busy) return;
+    _lastQuery = q;
     setState(() {
       _busy = true;
       _messages.insert(0, _Msg(q, true));
-      _messages.insert(0, _Msg('ভাবছি...', false));
+      _messages.insert(0, _Msg('ভাবছি...', false, isThinking: true));
     });
+    await _tryGenerate();
+  }
+
+  Future<void> _retry() async {
+    if (_lastQuery == null || _busy) return;
+    setState(() {
+      _busy = true;
+      _messages.insert(0, _Msg('ভাবছি...', false, isThinking: true));
+    });
+    await _tryGenerate();
+  }
+
+  Future<void> _tryGenerate() async {
     try {
-      final answer = await _repo!.ask(q, onFallback: () {
+      final answer = await _repo!.ask(_lastQuery!, onFallback: () {
         if (mounted) {
-          setState(() => _messages[0] = _Msg('AI প্রস্তুত হচ্ছে...', false));
+          setState(() => _messages[0] =
+              _Msg('AI প্রস্তুত হচ্ছে...', false, isThinking: true));
         }
       });
       if (!mounted) return;
-      setState(() => _messages[0] = _Msg(answer, false));
+      setState(() => _messages[0] = _Msg(answer, false, animate: true));
       _sound.chime();
+      if (_autoRead) _tts.speak(answer);
+      _persist();
     } catch (e) {
-      debugPrint('ChatScreen _onSubmit error: $e');
+      debugPrint('ChatScreen _tryGenerate error: $e');
       if (!mounted) return;
       setState(() {
-        _messages[0] =
-            _Msg('ত্রুটি হয়েছে। অনুগ্রহ করে ৯৯৯ এ কল করুন।', false);
+        _messages[0] = _Msg(
+          'ত্রুটি হয়েছে। অনুগ্রহ করে ৯৯৯ এ কল করুন।',
+          false,
+          isError: true,
+        );
       });
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
 
+  void _persist() {
+    final storeMsgs = _messages.reversed
+        .map((m) => ChatMessage(text: m.text, isUser: m.isUser))
+        .toList();
+    _store.save(storeMsgs);
+  }
+
   Future<void> _onMicPressed() async {
+    if (!_voiceInputEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('সেটিংসে ভয়েস ইনপুট চালু করুন')),
+      );
+      return;
+    }
     if (_listening) {
       await _stt.stop();
       setState(() => _listening = false);
@@ -169,7 +225,7 @@ class _ChatScreenState extends State<ChatScreen> {
         actions: [
           IconButton(
             tooltip: 'জরুরি কল',
-            icon: const Icon(Icons.call, color: ShongjogTheme.alertRed),
+            icon: const Icon(Icons.call, color: ShongjogTheme.alert),
             onPressed: () => EmergencySheet.show(context),
           ),
         ],
@@ -225,12 +281,72 @@ class _ChatScreenState extends State<ChatScreen> {
       itemCount: _messages.length,
       itemBuilder: (_, i) {
         final m = _messages[i];
+        if (m.isError) {
+          return _errorBubble(m);
+        }
         return MessageBubble(
           text: m.text,
           isUser: m.isUser,
-          onSpeak: m.isUser ? null : () => _tts.speak(m.text),
+          animate: m.animate,
+          onSpeak: m.isUser || m.isThinking ? null : () => _tts.speak(m.text),
         );
       },
+    );
+  }
+
+  Widget _errorBubble(_Msg m) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        constraints:
+            BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.85),
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.errorContainer,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.error_outline,
+                    color: Theme.of(context).colorScheme.error, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    m.text,
+                    style: TextStyle(
+                      fontSize: ShongjogTheme.bodyFloor,
+                      color: Theme.of(context).colorScheme.onErrorContainer,
+                    ),
+                ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextButton.icon(
+                  onPressed: _retry,
+                  icon: const Icon(Icons.refresh, size: 18),
+                  label: const Text('আবার চেষ্টা করুন'),
+                ),
+                const SizedBox(width: 8),
+                TextButton.icon(
+                  onPressed: () => EmergencySheet.show(context),
+                  icon: const Icon(Icons.call,
+                      size: 18, color: ShongjogTheme.alert),
+                  label: const Text('৯৯৯ কল',
+                      style: TextStyle(color: ShongjogTheme.alert)),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -245,15 +361,15 @@ class _ChatScreenState extends State<ChatScreen> {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: ShongjogTheme.calmTeal.withValues(alpha: 0.1),
+                color: ShongjogTheme.ocean.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 _listening ? Icons.mic : Icons.mic_none,
                 size: 36,
                 color: _listening
-                    ? ShongjogTheme.alertRed
-                    : ShongjogTheme.calmTeal,
+                    ? ShongjogTheme.alert
+                    : ShongjogTheme.ocean,
               ),
             ),
             const SizedBox(height: 20),
@@ -300,5 +416,9 @@ class _ChatScreenState extends State<ChatScreen> {
 class _Msg {
   final String text;
   final bool isUser;
-  _Msg(this.text, this.isUser);
+  final bool isThinking;
+  final bool isError;
+  final bool animate;
+  _Msg(this.text, this.isUser,
+      {this.isThinking = false, this.isError = false, this.animate = false});
 }

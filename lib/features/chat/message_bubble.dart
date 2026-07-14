@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import 'typewriter_text.dart';
 
-/// A single chat message bubble. User bubbles right-aligned (calmTeal),
+/// A single chat message bubble. User bubbles right-aligned (ocean blue),
 /// assistant bubbles left-aligned (surface). Assistant bubbles carry a
-/// "পড়ুন" read-aloud button when [onSpeak] is provided.
+/// "পড়ুন" read-aloud button when [onSpeak] is provided and use a
+/// typewriter reveal effect for freshly generated responses.
 class MessageBubble extends StatelessWidget {
   final String text;
   final bool isUser;
   final VoidCallback? onSpeak;
+
+  /// If true, the text animates in with a typewriter effect.
+  /// Set to false for messages restored from persistence.
+  final bool animate;
 
   const MessageBubble({
     super.key,
     required this.text,
     required this.isUser,
     this.onSpeak,
+    this.animate = false,
   });
 
   @override
@@ -29,8 +36,8 @@ class MessageBubble extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
           color: isUser
-              ? ShongjogTheme.calmTeal
-              : (isDark ? ShongjogTheme.darkSurface : ShongjogTheme.surface),
+              ? ShongjogTheme.ocean
+              : (isDark ? ShongjogTheme.surfaceDark : ShongjogTheme.surface),
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
@@ -41,21 +48,31 @@ class MessageBubble extends StatelessWidget {
               ? null
               : Border.all(
                   color: isDark
-                      ? ShongjogTheme.darkBorder
+                      ? ShongjogTheme.borderDark
                       : ShongjogTheme.border,
                 ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              text,
-              style: TextStyle(
-                fontSize: ShongjogTheme.bodyFloor,
-                height: 1.5,
-                color: isUser ? ShongjogTheme.white : null,
+            if (!isUser && animate)
+              TypewriterText(
+                text: text,
+                style: TextStyle(
+                  fontSize: ShongjogTheme.bodyFloor,
+                  height: 1.5,
+                  color: isDark ? ShongjogTheme.inkDark : null,
+                ),
+              )
+            else
+              Text(
+                text,
+                style: TextStyle(
+                  fontSize: ShongjogTheme.bodyFloor,
+                  height: 1.5,
+                  color: isUser ? ShongjogTheme.white : null,
+                ),
               ),
-            ),
             if (!isUser && onSpeak != null) ...[
               const SizedBox(height: 8),
               Align(

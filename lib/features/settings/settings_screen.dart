@@ -3,10 +3,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/router.dart';
 import '../../app/theme.dart';
+import '../../core/model_manager.dart';
 import '../../core/theme_controller.dart';
+import '../chat/chat_store.dart';
+
+/// Settings screen.
 ///
-/// Sections: Appearance → Voice → Emergency → Diagnostics → Data → About.
+/// Sections: Appearance → Voice → Emergency → AI Model → Diagnostics → Data → About.
 /// Theme is a 3-way [SegmentedButton] (light/dark/system).
+/// Model download with live progress is wired via [modelManager].
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -18,7 +23,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _autoRead = true;
   bool _voiceInput = true;
   String _dialect = 'bn-BD';
-  String? _modelStatus;
   String? _kbVersion;
 
   @override
@@ -35,9 +39,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _voiceInput = prefs.getBool('pref_voice_input') ?? true;
         _dialect = prefs.getString('pref_dialect') ?? 'bn-BD';
         _kbVersion = prefs.getString('kb_version') ?? 'v1.0';
-        _modelStatus = prefs.getBool('model_downloaded') == true
-            ? 'প্রস্তুত'
-            : 'ডাউনলোড প্রয়োজন';
       });
     }
   }
@@ -106,18 +107,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 pushNamedSafe(context, AppRoutes.emergencyContacts),
           ),
           const _Divider(),
+          _SectionHeader('AI মডেল'),
+          _ModelDownloadCard(),
+          const _Divider(),
           _SectionHeader('ডায়াগনস্টিকস'),
-          ListTile(
-            leading: const Icon(Icons.memory_rounded),
-            title: const Text('AI মডেল'),
-            trailing: Text(
-              _modelStatus ?? '—',
-              style: TextStyle(
-                fontFamily: ShongjogTheme.fontFamily,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
           ListTile(
             leading: const Icon(Icons.menu_book_rounded),
             title: const Text('তথ্যকোষ সংস্করণ'),
@@ -167,10 +160,148 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
     );
-    if (confirmed == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('চ্যাট ইতিহাস মুছে ফেলা হয়েছে')),
-      );
+    if (confirmed == true) {
+      await ChatStore().clear();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('চ্যাট ইতিহাস মুছে ফেলা হয়েছে')),
+        );
+      }
+    }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  Model Download Card — reactive to ModelManager state
+// ════════════════════════════════════════════════════════════════
+
+class _ModelDownloadCard extends StatefulWidget {
+  @override
+  State<_ModelDownloadCard> createState() => _ModelDownloadCardState();
+}
+
+class _ModelDownloadCardState extends State<_ModelDownloadCard> {
+  @override
+  void initState() {
+    super.initState();
+    modelManager.addListener(_onModelChanged);
+    _checkInitialStatus();
+  }
+
+  Future<void> _checkInitialStatus() async {
+    final onDisk = await modelManager.isOnDisk();
+    if (onDisk && mounted) {
+      modelManager.markReadyIfOnDisk();
+    }
+  }
+
+  void _onModelChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    modelManager.removeListener(_onModelChanged);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = modelManager.state;
+    final progress = modelManager.downloadProgress;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                state == ModelState.ready
+                    ? Icons.check_circle
+                    : state == ModelState.downloading ||
+                            state == ModelState.loading
+                        ? Icons.downloading_rounded
+                        : state == ModelState.failed
+                            ? Icons.error_outline
+                            : Icons.download_rounded,
+                color: state == ModelState.ready
+                    ? ShongjogTheme.success
+                    : state == ModelState.failed
+                        ? ShongjogTheme.alert
+                        : Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Gemma 4 E2B',
+                        style: TextStyle(fontWeight: FontWeight.w500)),
+                    const SizedBox(height: 2),
+                    Text(
+                      modelManager.statusLabelBn,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (state == ModelState.notDownloaded ||
+                  state == ModelState.failed)
+                FilledButton.icon(
+                  onPressed: _startDownload,
+                  icon: const Icon(Icons.download, size: 20),
+                  label: const Text('ডাউনলোড'),
+                )
+              else if (state == ModelState.ready)
+                const Icon(Icons.check_circle,
+                    color: ShongjogTheme.success, size: 28)
+              else
+                const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+            ],
+          ),
+          if (state == ModelState.downloading && progress != null) ...[
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 8,
+                backgroundColor:
+                    Theme.of(context).colorScheme.surfaceContainerHighest,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${(progress * 100).round()}% • ~1.5 GB',
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Future<void> _startDownload() async {
+    try {
+      await modelManager.ensureModel();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('ডাউনলোড ব্যর্থ: $e')),
+        );
+      }
     }
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/theme.dart';
 import 'emergency_actions.dart';
@@ -125,8 +127,23 @@ class _EmergencySheetState extends State<EmergencySheet> {
               ),
               child: Stack(
                 children: [
-                  Positioned(
-                    left: 4,
+                  Center(
+                    child: Text(
+                      _dragProgress >= 0.9
+                          ? 'ছেড়ে দিন'
+                          : 'ডানে স্লাইড করুন',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white.withValues(alpha: 0.4),
+                      ),
+                    ),
+                  ),
+                  AnimatedPositioned(
+                    duration: _dragProgress == 0 || _dragProgress >= 0.9
+                        ? const Duration(milliseconds: 200)
+                        : Duration.zero,
+                    curve: Curves.easeOut,
+                    left: 4 + (_dragProgress * maxDrag),
                     top: 4,
                     child: GestureDetector(
                       onHorizontalDragUpdate: (d) {
@@ -153,40 +170,10 @@ class _EmergencySheetState extends State<EmergencySheet> {
                         child: Icon(
                           _dragProgress >= 0.9
                               ? Icons.phone
-                              : Icons.arrow_forward,
+                              : Icons.arrow_forward_rounded,
                           color: Colors.white,
+                          size: 26,
                         ),
-                      ),
-                    ),
-                  ),
-                  // Animated knob position
-                  AnimatedPositioned(
-                    duration: const Duration(milliseconds: 0),
-                    left: 4 + (_dragProgress * maxDrag),
-                    top: 4,
-                    child: GestureDetector(
-                      onHorizontalDragUpdate: (d) {
-                        setLocalState(() {
-                          _dragProgress =
-                              (_dragProgress + d.delta.dx / maxDrag)
-                                  .clamp(0.0, 1.0);
-                        });
-                      },
-                      onHorizontalDragEnd: (_) {
-                        if (_dragProgress >= 0.9) {
-                          _confirmDial();
-                        } else {
-                          setLocalState(() => _dragProgress = 0);
-                        }
-                      },
-                      child: Container(
-                        width: knobSize,
-                        height: knobSize,
-                        decoration: const BoxDecoration(
-                          color: ShongjogTheme.alertRedDark,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.phone, color: Colors.white),
                       ),
                     ),
                   ),
@@ -218,12 +205,36 @@ class _EmergencySheetState extends State<EmergencySheet> {
   }
 
   void _sendSos() async {
-    final body = sosSmsBody(
-      name: 'ব্যবহারকারী',
-      phone: 'অজানা',
-      lat: 0.0,
-      lon: 0.0,
-    );
+    double lat = 0.0;
+    double lon = 0.0;
+    String name = 'ব্যবহারকারী';
+    String phone = 'অজানা';
+
+    try {
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission != LocationPermission.denied &&
+          permission != LocationPermission.deniedForever) {
+        final pos = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.medium,
+            timeLimit: Duration(seconds: 5),
+          ),
+        );
+        lat = pos.latitude;
+        lon = pos.longitude;
+      }
+    } catch (_) {}
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      name = prefs.getString('user_name') ?? name;
+      phone = prefs.getString('user_phone') ?? phone;
+    } catch (_) {}
+
+    final body = sosSmsBody(name: name, phone: phone, lat: lat, lon: lon);
     await EmergencyActions.sendSos(body);
     if (mounted) Navigator.pop(context);
   }

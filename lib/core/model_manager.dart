@@ -50,6 +50,13 @@ class ModelManager extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Set state without the usual download flow (e.g. when discovering the
+  /// model is already on disk during settings screen init).
+  void markReadyIfOnDisk() {
+    _state = ModelState.ready;
+    notifyListeners();
+  }
+
   /// Path to the model file inside the app's documents directory.
   Future<String> modelPath() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -97,12 +104,26 @@ class ModelManager extends ChangeNotifier {
       }
 
       final resp = await req.close();
-      final expectedTotal = resp.contentLength > 0
-          ? resp.contentLength + existingBytes
-          : 0;
 
-      final sink = f.openWrite(mode: FileMode.append);
-      var received = existingBytes;
+      // Critical: if server returns 200 (not 206 Partial Content) despite
+      // our Range request, we must NOT append — that would corrupt the file.
+      // Truncate and restart from zero.
+      var received = 0;
+      IOSink sink;
+      if (existingBytes > 0 && resp.statusCode == 206) {
+        received = existingBytes;
+        sink = f.openWrite(mode: FileMode.append);
+      } else {
+        received = 0;
+        sink = f.openWrite(mode: FileMode.write);
+      }
+
+      final expectedTotal = resp.statusCode == 206
+          ? (resp.contentLength > 0
+              ? resp.contentLength + existingBytes
+              : 0)
+          : (resp.contentLength > 0 ? resp.contentLength : 0);
+
       await for (final chunk in resp) {
         sink.add(chunk);
         received += chunk.length;
@@ -171,8 +192,9 @@ class ModelManager extends ChangeNotifier {
     return model.getResponse(prompt: prompt);
   }
 
-  /// Whether the model is loaded and ready for generation.
-  bool get isReady => _model != null && _state == ModelState.ready;
+  /// Whether the model is downloaded and ready for generation.
+  /// Note: the model is loaded into RAM lazily by [generate].
+  bool get isReady => _state == ModelState.ready;
 
   /// Whether the model is currently loading (downloading or initializing).
   bool get isLoading =>
@@ -197,3 +219,6 @@ class ModelManager extends ChangeNotifier {
     }
   }
 }
+
+/// App-wide singleton. Use [modelManager] from anywhere.
+final ModelManager modelManager = ModelManager();
