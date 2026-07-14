@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,7 +26,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _autoRead = true;
   bool _voiceInput = true;
   bool _soundEnabled = true;
-  String _dialect = 'bn-BD';
   String? _kbVersion;
 
   @override
@@ -35,12 +36,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _loadPrefs() async {
     final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('pref_dialect');
     if (mounted) {
       setState(() {
         _autoRead = prefs.getBool('pref_auto_read') ?? true;
         _voiceInput = prefs.getBool('pref_voice_input') ?? true;
         _soundEnabled = prefs.getBool('pref_sound_enabled') ?? true;
-        _dialect = prefs.getString('pref_dialect') ?? 'bn-BD';
         _kbVersion = prefs.getString('kb_version') ?? 'v1.0';
       });
     }
@@ -92,24 +93,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               await prefs.setBool('pref_sound_enabled', v);
               SoundService.instance.setEnabled(v);
             },
-          ),
-          ListTile(
-            leading: const Icon(Icons.translate_rounded),
-            title: const Text('উপভাষা'),
-            trailing: DropdownButton<String>(
-              value: _dialect,
-              underline: const SizedBox(),
-              items: const [
-                DropdownMenuItem(value: 'bn-BD', child: Text('বাংলাদেশি')),
-                DropdownMenuItem(value: 'bn-IN', child: Text('ভারতীয়')),
-              ],
-              onChanged: (v) async {
-                if (v == null) return;
-                setState(() => _dialect = v);
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.setString('pref_dialect', v);
-              },
-            ),
           ),
           const _Divider(),
           _SectionHeader('জরুরি'),
@@ -224,100 +207,371 @@ class _ModelDownloadCardState extends State<_ModelDownloadCard> {
   Widget build(BuildContext context) {
     final state = modelManager.state;
     final progress = modelManager.downloadProgress;
+    final scheme = Theme.of(context).colorScheme;
+
+    final spec = _stateSpec(context, state);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(
-                state == ModelState.ready
-                    ? Icons.check_circle
-                    : state == ModelState.downloading ||
-                            state == ModelState.loading
-                        ? Icons.downloading_rounded
-                        : state == ModelState.failed
-                            ? Icons.error_outline
-                            : Icons.download_rounded,
-                color: state == ModelState.ready
-                    ? ShongjogTheme.success
-                    : state == ModelState.failed
-                        ? ShongjogTheme.alert
-                        : Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(width: 12),
+              _StateAvatar(icon: spec.icon, tint: spec.tint, state: state),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Gemma 4 E2B',
-                        style: TextStyle(fontWeight: FontWeight.w500)),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Gemma 4 E2B',
+                            style: TextStyle(
+                              fontFamily: ShongjogTheme.fontFamily,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: scheme.onSurface,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        _StatusPill(label: spec.pillLabel, tint: spec.tint),
+                      ],
+                    ),
                     const SizedBox(height: 2),
                     Text(
-                      modelManager.statusLabelBn,
+                      spec.subtitle,
                       style: TextStyle(
-                        fontSize: 14,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontFamily: ShongjogTheme.fontFamily,
+                        fontSize: 13,
+                        height: 1.35,
+                        color: scheme.onSurfaceVariant,
                       ),
                     ),
                   ],
                 ),
               ),
-              if (state == ModelState.notDownloaded ||
-                  state == ModelState.failed)
-                FilledButton.icon(
-                  onPressed: _startDownload,
-                  icon: const Icon(Icons.download, size: 20),
-                  label: const Text('ডাউনলোড'),
-                )
-              else if (state == ModelState.ready)
-                const Icon(Icons.check_circle,
-                    color: ShongjogTheme.success, size: 28)
-              else
-                const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
             ],
           ),
-          if (state == ModelState.downloading && progress != null) ...[
-            const SizedBox(height: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: LinearProgressIndicator(
-                value: progress,
-                minHeight: 8,
-                backgroundColor:
-                    Theme.of(context).colorScheme.surfaceContainerHighest,
-              ),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+            child: state == ModelState.downloading
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: _DownloadProgress(progress: progress ?? 0),
+                  )
+                : const SizedBox(width: double.infinity, height: 0),
+          ),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
+            child: _Actions(
+              state: state,
+              onDownload: _startDownload,
+              onPrime: _primeModel,
+              onDelete: _deleteModel,
             ),
-            const SizedBox(height: 4),
-            Text(
-              '${(progress * 100).round()}% • ~1.5 GB',
-              style: TextStyle(
-                fontSize: 12,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
+          ),
         ],
       ),
     );
+  }
+
+  _StateSpec _stateSpec(BuildContext context, ModelState state) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final ocean = isLight ? ShongjogTheme.ocean : ShongjogTheme.oceanBright;
+    final success =
+        isLight ? ShongjogTheme.success : ShongjogTheme.successBright;
+    final alert = isLight ? ShongjogTheme.alert : ShongjogTheme.alertBright;
+
+    switch (state) {
+      case ModelState.ready:
+        return _StateSpec(
+          icon: Icons.check_circle_rounded,
+          tint: success,
+          pillLabel: 'প্রস্তুত',
+          subtitle: 'ডিস্কে প্রস্তুত আছে — চ্যাটে ব্যবহার করুন',
+        );
+      case ModelState.downloading:
+        return _StateSpec(
+          icon: Icons.downloading_rounded,
+          tint: ocean,
+          pillLabel: 'ডাউনলোড হচ্ছে',
+          subtitle: 'int4 · ~১.৫ GB — সংযোগ রাখুন',
+        );
+      case ModelState.loading:
+        return _StateSpec(
+          icon: Icons.memory_rounded,
+          tint: ocean,
+          pillLabel: 'প্রস্তুত হচ্ছে…',
+          subtitle: 'মডেল RAM-এ লোড হচ্ছে',
+        );
+      case ModelState.failed:
+        return _StateSpec(
+          icon: Icons.error_outline_rounded,
+          tint: alert,
+          pillLabel: 'ব্যর্থ',
+          subtitle: 'পুনরায় চেষ্টা করতে নিচের বোতাম চাপুন',
+        );
+      case ModelState.notDownloaded:
+        return _StateSpec(
+          icon: Icons.psychology_rounded,
+          tint: ocean,
+          pillLabel: 'প্রস্তুত নয়',
+          subtitle: 'int4 · ~১.৫ GB — চ্যাটের জন্য ডাউনলোড প্রয়োজন',
+        );
+    }
   }
 
   Future<void> _startDownload() async {
     try {
       await modelManager.ensureModel();
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ডাউনলোড ব্যর্থ: $e')),
-        );
-      }
+      _toast('ডাউনলোড ব্যর্থ: $e');
     }
+  }
+
+  Future<void> _primeModel() async {
+    try {
+      await modelManager.initialize();
+    } catch (e) {
+      _toast('মডেল লোড ব্যর্থ: $e');
+    }
+  }
+
+  Future<void> _deleteModel() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('মডেল মুছে ফেলবেন?'),
+        content: const Text(
+          'ডাউনলোড করা মডেল ফাইল (~১.৫ GB) মুছে যাবে। পরে আবার ডাউনলোড করতে হবে।',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('বাতিল'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('মুছুন'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    try {
+      final path = await modelManager.modelPath();
+      final f = File(path);
+      if (await f.exists()) await f.delete();
+      modelManager.reset();
+      _toast('মডেল মুছে ফেলা হয়েছে');
+    } catch (e) {
+      _toast('মুছতে সমস্যা: $e');
+    }
+  }
+
+  void _toast(String msg) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+}
+
+class _StateSpec {
+  final IconData icon;
+  final Color tint;
+  final String pillLabel;
+  final String subtitle;
+
+  const _StateSpec({
+    required this.icon,
+    required this.tint,
+    required this.pillLabel,
+    required this.subtitle,
+  });
+}
+
+class _StateAvatar extends StatelessWidget {
+  final IconData icon;
+  final Color tint;
+  final ModelState state;
+
+  const _StateAvatar({
+    required this.icon,
+    required this.tint,
+    required this.state,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: tint.withValues(alpha: isLight ? 0.12 : 0.18),
+        borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
+      ),
+      alignment: Alignment.center,
+      child: state == ModelState.downloading || state == ModelState.loading
+          ? SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.4,
+                valueColor: AlwaysStoppedAnimation<Color>(tint),
+              ),
+            )
+          : Icon(icon, color: tint, size: 22),
+    );
+  }
+}
+
+class _StatusPill extends StatelessWidget {
+  final String label;
+  final Color tint;
+
+  const _StatusPill({required this.label, required this.tint});
+
+  @override
+  Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: tint.withValues(alpha: isLight ? 0.12 : 0.18),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontFamily: ShongjogTheme.fontFamily,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: tint,
+          height: 1.1,
+        ),
+      ),
+    );
+  }
+}
+
+class _DownloadProgress extends StatelessWidget {
+  final double progress;
+  const _DownloadProgress({required this.progress});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final pct = (progress * 100).round();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: LinearProgressIndicator(
+            value: progress.clamp(0.0, 1.0),
+            minHeight: 8,
+            backgroundColor: scheme.surfaceContainerHighest,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '$pct%',
+              style: TextStyle(
+                fontFamily: ShongjogTheme.fontFamily,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: scheme.onSurface,
+              ),
+            ),
+            Text(
+              '~১.৫ GB',
+              style: TextStyle(
+                fontFamily: ShongjogTheme.fontFamily,
+                fontSize: 12,
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _Actions extends StatelessWidget {
+  final ModelState state;
+  final VoidCallback onDownload;
+  final VoidCallback onPrime;
+  final VoidCallback onDelete;
+
+  const _Actions({
+    required this.state,
+    required this.onDownload,
+    required this.onPrime,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    Widget content;
+    switch (state) {
+      case ModelState.notDownloaded:
+      case ModelState.failed:
+        content = SizedBox(
+          width: double.infinity,
+          child: FilledButton.icon(
+            onPressed: onDownload,
+            icon: const Icon(Icons.download_rounded, size: 20),
+            label: const Text('ডাউনলোড'),
+          ),
+        );
+        break;
+      case ModelState.downloading:
+      case ModelState.loading:
+        content = const SizedBox(width: double.infinity, height: 0);
+        break;
+      case ModelState.ready:
+        content = Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: onDelete,
+                icon: const Icon(Icons.delete_outline_rounded, size: 20),
+                label: const Text('মুছে ফেলুন'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: ShongjogTheme.bodySecondary(context),
+                  side: BorderSide(color: ShongjogTheme.hairline(context)),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: FilledButton.icon(
+                onPressed: onPrime,
+                icon: const Icon(Icons.bolt_rounded, size: 20),
+                label: const Text('AI চালু করুন'),
+              ),
+            ),
+          ],
+        );
+        break;
+    }
+
+    return Padding(
+      padding: EdgeInsets.only(top: state == ModelState.ready ? 14 : 12),
+      child: content,
+    );
   }
 }
 

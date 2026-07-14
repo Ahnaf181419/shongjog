@@ -128,5 +128,18 @@ void main() {
       // Dialog should be dismissed
       expect(find.text('ক্যাশ মুছুন?'), findsNothing);
     });
+
+    testWidgets('AI model section shows model name, status pill, and download CTA',
+        (tester) async {
+      await tester.pumpWidget(wrapSettings());
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(find.text('AI মডেল'), 200);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Gemma 4 E2B'), findsOneWidget);
+      expect(find.text('প্রস্তুত নয়'), findsOneWidget);
+      expect(find.text('ডাউনলোড'), findsOneWidget);
+    });
   });
 }

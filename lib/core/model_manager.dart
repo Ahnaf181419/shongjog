@@ -29,12 +29,12 @@ enum ModelState {
 /// stdlib HttpClient (smaller APK; the size of the Gemma file means we
 /// need UI-level progress, not OS-level background continuation).
 class ModelManager extends ChangeNotifier {
-  static const _modelFileName = 'gemma4_e2b_int4.task';
+  static const _modelFileName = 'gemma-4-E2B-it-web.task';
 
-  /// Default model URL. Confirmed at Phase 0 spike A; substituted if the
-  /// spike pivots to Gemma 3 1B.
+  /// LiteRT-community mirror of Gemma 4 E2B IT (MediaPipe .task format,
+  /// int4 quantized). Verified accessible (HTTP 302 → CDN, no auth required).
   static const _defaultUrl =
-      'https://huggingface.co/google/gemma-4-e2b-it-litertlm/resolve/main/gemma4_e2b_int4.task';
+      'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it-web.task';
 
   ModelState _state = ModelState.notDownloaded;
   ModelState get state => _state;
@@ -196,6 +196,16 @@ class ModelManager extends ChangeNotifier {
   /// Whether the model is downloaded and ready for generation.
   /// Note: the model is loaded into RAM lazily by [generate].
   bool get isReady => _state == ModelState.ready;
+
+  /// Drop the in-memory session and return the manager to [ModelState.notDownloaded].
+  /// Does NOT delete the on-disk model file — pair with a [File.delete] on
+  /// [modelPath] if the caller wants a clean slate.
+  void reset() {
+    _model = null;
+    _initializing = false;
+    _downloadProgress = null;
+    _setState(ModelState.notDownloaded);
+  }
 
   /// Whether the model is currently loading (downloading or initializing).
   bool get isLoading =>
