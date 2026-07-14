@@ -2345,6 +2345,66 @@ git add lib/features/about/
 git commit -m "feat(about): sources attribution page"
 ```
 
+### Task 4.6: Double-layer AI Orchestrator (Maruf — Cloud AI Integration)
+
+**Files:**
+- Create: `lib/features/cloud_ai/cloud_ai_service.dart`
+- Modify: `lib/features/chat/chat_repository.dart`
+- Modify: `pubspec.yaml` (add `google_generative_ai: ^0.4.6`)
+
+- [ ] **Step 1: Add dependencies**
+
+Add `google_generative_ai` and `connectivity_plus` to `pubspec.yaml` to handle Gemini API and network state checks.
+
+- [ ] **Step 2: Implement Cloud AI Service**
+
+`lib/features/cloud_ai/cloud_ai_service.dart`: Create a wrapper around `GenerativeModel` using the API key. Implement error handling for token limits and network failures.
+
+- [ ] **Step 3: Update ChatRepository for Dual-Layer Fallback**
+
+Modify `ask(String userQuery)` to first check `Connectivity()`. If online, try Cloud AI. If it fails (token limit or timeout), catch the exception, show a toast "Powered by offline AI", and fall back to the local `ModelManager` and `flutter_gemma`.
+
+- [ ] **Step 4: Verify Fallback**
+
+Test by querying with Wi-Fi on (expect Cloud AI response). Then turn on Airplane mode and query again (expect toast + local response).
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add pubspec.yaml lib/features/cloud_ai/ lib/features/chat/
+git commit -m "feat(ai): double-layer ai orchestrator with local fallback"
+```
+
+### Task 4.7: Offline Mesh Communication (Maruf)
+
+**Files:**
+- Create: `lib/features/mesh_comm/mesh_service.dart`
+- Create: `lib/features/mesh_comm/mesh_radar_screen.dart`
+- Modify: `pubspec.yaml` (add `nearby_connections: ^3.1.2` or similar)
+
+- [ ] **Step 1: Add dependencies and permissions**
+
+Add mesh networking package. Add `BLUETOOTH`, `BLUETOOTH_ADMIN`, `ACCESS_WIFI_STATE`, `CHANGE_WIFI_STATE` permissions to AndroidManifest.
+
+- [ ] **Step 2: Implement Mesh Service**
+
+`lib/features/mesh_comm/mesh_service.dart`: Handle advertising and discovery. Maintain a list of discovered peers and established connections. Expose streams for incoming text messages.
+
+- [ ] **Step 3: Build Radar UI and Chat**
+
+`lib/features/mesh_comm/mesh_radar_screen.dart`: Show a radar-like UI listing discovered users. Tap a user to open a basic peer-to-peer text chat.
+
+- [ ] **Step 4: Verify Device-to-Device**
+
+Run on two physical devices with Wi-Fi and Bluetooth enabled but no internet. Ensure they discover each other and can send messages.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add pubspec.yaml lib/features/mesh_comm/ android/app/src/main/AndroidManifest.xml
+git commit -m "feat(mesh): offline peer-to-peer discovery and chat"
+```
+
 ---
 
 ## Phase 5 — Demo Hardening

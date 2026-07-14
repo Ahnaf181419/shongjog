@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
-import '../../core/model_manager.dart';
-import '../../knowledge/kb_loader.dart';
-import '../../rag/embedder.dart';
 import '../audio/sound_service.dart';
 import '../emergency/emergency_sheet.dart';
 import '../voice/stt_service.dart';
 import '../voice/tts_service.dart';
 import 'chat_input.dart';
-import 'chat_repository.dart';
 import 'message_bubble.dart';
+import '../cloud_ai/cloud_ai_service.dart';
 
 /// Chat screen — voice-first Bangla emergency assistant.
-/// Reached from the hub. Boots ChatRepository in background.
+/// Reached from the hub. Uses Cloud AI (Gemini API with gemma-4-31b-it)
+/// as primary, with a graceful error fallback message.
+///
+/// NOTE: The on-device RAG pipeline (KnowledgeBase + Embedder + ModelManager)
+/// is not functional on Flutter Web because:
+///   1. EmbedderImpl throws UnimplementedError (no embedder API in flutter_gemma)
+///   2. flutter_gemma requires native ARM — unavailable on Web
+///   3. KB assets (corpus.json, vectors.bin) are not bundled yet
+///
+/// For the hackathon demo, the chat goes directly to Cloud AI. On Android
+/// builds with the model downloaded, the full RAG pipeline can be re-enabled.
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
   @override
@@ -23,45 +30,67 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final List<_Msg> _messages = [];
   final _tts = TtsService();
-  final _model = ModelManager();
   final _stt = SttService();
   final _sound = SoundService();
   final _inputKey = GlobalKey<ChatInputState>();
-  ChatRepository? _repo;
+  CloudAiService? _cloudAi;
   bool _busy = false;
   bool _listening = false;
+  bool _ready = false;
 
   @override
   void initState() {
     super.initState();
     _sound.init();
-    _bootstrap();
-  }
-
-  Future<void> _bootstrap() async {
+    
+    // Initialize CloudAI synchronously without triggering a redundant setState
+    // that corrupts the layout pipeline on Flutter Web.
     try {
-      final kb = await KnowledgeBase.load();
-      _repo = ChatRepository(
-          kb: kb, embedder: EmbedderImpl(), modelManager: _model);
-      if (mounted) setState(() {});
-    } catch (_) {}
+      // Using your provided API key directly so it works out of the box
+      // without needing --dart-define compiler arguments.
+      const apiKey = String.fromEnvironment(
+        'GEMINI_API_KEY',
+        defaultValue: 'AQ.Ab8RN6I-fxGxIBHGuwbJljSNkaRxw8QfCx8waeaRkbJ7cpe_wg',
+      );
+      _cloudAi = CloudAiService(apiKey: apiKey);
+      _ready = true;
+    } catch (e) {
+      debugPrint('ChatScreen bootstrap error: $e');
+    }
   }
 
   Future<void> _onSubmit(String q) async {
-    if (_repo == null || _busy) return;
+    if (!_ready || _busy) return;
     setState(() {
       _busy = true;
       _messages.insert(0, _Msg(q, true));
       _messages.insert(0, _Msg('ভাবছি...', false));
     });
     try {
-      final answer = await _repo!.ask(q);
+      String answer;
+      final isOnline = await _cloudAi!.isOnline;
+      if (isOnline) {
+        try {
+          answer = await _cloudAi!.generate(q);
+        } catch (e) {
+          debugPrint('Cloud AI error: $e');
+          answer =
+              'ক্লাউড AI এর সাথে সংযোগ করতে পারিনি। '
+              'অনুগ্রহ করে ইন্টারনেট সংযোগ পরীক্ষা করুন বা ৯৯৯ এ কল করুন।';
+        }
+      } else {
+        answer =
+            'আপনি অফলাইনে আছেন। অনুগ্রহ করে ইন্টারনেটে সংযুক্ত হোন '
+            'অথবা জরুরি সাহায্যের জন্য ৯৯৯ এ কল করুন।';
+      }
       setState(() => _messages[0] = _Msg(answer, false));
-      _sound.knock();
-      await _tts.speak(answer);
-    } catch (_) {
+      // Removed _sound.knock() and _tts.speak() so it stays quiet automatically.
+      // Users can tap the 'পড়ুন' (Read) button on the message if they want to hear it.
+    } catch (e) {
+      debugPrint('ChatScreen _onSubmit error: $e');
       setState(() {
-        _messages[0] = _Msg('ত্রুটি হয়েছে। অনুগ্রহ করে ৯৯৯ এ কল করুন।', false);
+        _messages[0] =
+            _Msg('ত্রুটি হয়েছে। অনুগ্রহ করে ৯৯৯ এ কল করুন।', false);
       });
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -81,10 +110,8 @@ class _ChatScreenState extends State<ChatScreen> {
     if (transcript != null && transcript.trim().isNotEmpty) {
       _onSubmit(transcript.trim());
     } else {
-      // Partial-only — copy whatever was last written into the field
-      // by the stt listener (none here without stream wiring). User can retry.
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('আবার চেষ্টা করুন')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('আবার চেষ্টা করুন')));
     }
   }
 
@@ -103,7 +130,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
-          if (_repo == null && _messages.isEmpty)
+          if (!_ready && _messages.isEmpty)
             const Padding(
               padding: EdgeInsets.all(8),
               child: LinearProgressIndicator(),
