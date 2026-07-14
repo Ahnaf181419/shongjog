@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:nearby_connections/nearby_connections.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class MeshService {
   final Strategy strategy = Strategy.P2P_CLUSTER;
@@ -18,15 +19,17 @@ class MeshService {
   Stream<MeshMessage> get messages => _messagesController.stream;
 
   Future<bool> requestPermissions() async {
-    final b = await Nearby().checkBluetoothPermission();
-    if (!b) {
-      Nearby().askBluetoothPermission();
-    }
-    final l = await Nearby().checkLocationPermission();
-    if (!l) {
-      Nearby().askLocationPermission();
-    }
-    return await Nearby().checkBluetoothPermission() && await Nearby().checkLocationPermission();
+    final statuses = await [
+      Permission.bluetoothAdvertise,
+      Permission.bluetoothConnect,
+      Permission.bluetoothScan,
+      Permission.location,
+    ].request();
+
+    return statuses[Permission.bluetoothAdvertise]!.isGranted &&
+        statuses[Permission.bluetoothConnect]!.isGranted &&
+        statuses[Permission.bluetoothScan]!.isGranted &&
+        statuses[Permission.location]!.isGranted;
   }
 
   Future<void> start() async {
