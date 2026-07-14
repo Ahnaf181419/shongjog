@@ -1,77 +1,79 @@
 import 'dart:async';
 
-import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'speech_to_text_provider.dart';
+import 'stt_provider.dart';
+import 'vosk_stt_provider.dart';
 
-/// Bangla speech-to-text service. Uses device STT (Android SpeechRecognizer
-/// via speech_to_text plugin). On most OEM builds this routes through
-/// Google's network STT — acceptable for the demo, not truly offline on
-/// every device. Phase 4.1 would replace with a true offline path if
-/// venue WiFi is unreliable.
+/// Bangla speech-to-text service. Automatically picks the best available
+/// engine:
+///
+/// 1. **Vosk** (offline) — preferred when the plugin compiles and a model is
+///    bundled. Currently blocked by compileSdk incompatibility.
+/// 2. **speech_to_text** (online) — fallback using the device's built-in
+///    SpeechRecognizer. Works on most Android/iOS devices but requires
+///    network on some OEM builds.
+///
+/// The active provider is surfaced in diagnostics via [activeProviderName].
 class SttService {
-  final _stt = stt.SpeechToText();
+  SttProvider? _provider;
   final _partialCtl = StreamController<String>.broadcast();
   final _finalCtl = StreamController<String>.broadcast();
-  final _errorCtl = StreamController<String>.broadcast();
-  bool _ready = false;
-  bool _listening = false;
 
-  Future<bool> init() async {
-    if (_ready) return _ready;
-    _ready = await _stt.initialize(
-      onError: (e) => _errorCtl.add('stt-error'),
-      onStatus: (_) {},
-    );
-    return _ready;
-  }
-
-  bool get isListening => _listening;
   Stream<String> get partials => _partialCtl.stream;
   Stream<String> get finals => _finalCtl.stream;
-  Stream<String> get errors => _errorCtl.stream;
+
+  /// The name of the active provider, or null if not yet initialized.
+  String? get activeProviderName => _provider?.name;
+
+  /// Whether the active provider works fully offline.
+  bool get isOfflineCapable => _provider?.isOffline ?? false;
+
+  /// Lazily select and initialize the best available provider.
+  Future<SttProvider> _ensureProvider() async {
+    if (_provider != null) return _provider!;
+
+    // Try Vosk first (true offline).
+    if (await VoskSttProvider.isModelBundled()) {
+      final vosk = VoskSttProvider();
+      if (await vosk.init()) {
+        _provider = vosk;
+        return _provider!;
+      }
+    }
+
+    // Fall back to speech_to_text (online).
+    _provider = SpeechToTextProvider();
+    return _provider!;
+  }
+
+  /// Initialize the STT engine. Returns true if ready to listen.
+  Future<bool> init() async {
+    final p = await _ensureProvider();
+    if (!p.isInitialized) {
+      return await p.init();
+    }
+    return true;
+  }
 
   /// Start listening with bn_BD locale. Returns the final transcript when
   /// the user stops speaking, or null on timeout/cancel.
   Future<String?> listen({String localeId = 'bn_BD'}) async {
-    if (!_ready) {
-      final ok = await init();
-      if (!ok) return null;
-    }
-    if (_listening) return null;
-    _listening = true;
-
-    final completer = Completer<String?>();
-    _stt.listen(
-      onResult: (r) {
-        _partialCtl.add(r.recognizedWords);
-        if (r.finalResult) {
-          _finalCtl.add(r.recognizedWords);
-          if (!completer.isCompleted) {
-            _listening = false;
-            completer.complete(r.recognizedWords);
-          }
-        }
-      },
-      listenOptions: stt.SpeechListenOptions(
-        partialResults: true,
-        cancelOnError: true,
-        localeId: localeId,
-      ),
-    );
-    return completer.future.timeout(
-      const Duration(seconds: 30),
-      onTimeout: () {
-        if (!completer.isCompleted) {
-          _listening = false;
-          completer.complete(null);
-        }
-        return null;
-      },
+    final p = await _ensureProvider();
+    return p.listen(
+      localeId: localeId,
+      onPartial: (text) => _partialCtl.add(text),
     );
   }
 
+  /// Stop the current listening session.
   Future<void> stop() async {
-    if (!_listening) return;
-    _listening = false;
-    await _stt.stop();
+    await _provider?.stop();
+  }
+
+  /// Release all resources.
+  void dispose() {
+    _provider?.dispose();
+    _partialCtl.close();
+    _finalCtl.close();
   }
 }

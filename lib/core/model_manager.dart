@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -18,15 +19,15 @@ enum ModelState {
 /// behind INTERNET permission), persist to app docs dir, lazy-initialize
 /// into the LiteRT-LM runtime.
 ///
-/// Wraps flutter_gemma 0.5.x's real API surface:
-///   - `FlutterGemma.instance.modelManager.setModelPath(path)` to register
-///     the model file.
-///   - `FlutterGemma.instance.init(maxTokens, temperature, ...)` to load
-///     it into RAM and return an [InferenceModel].
-///   - `model.getResponse(prompt:)` for synchronous generation.
+/// Extends [ChangeNotifier] so the UI (ChatScreen, SettingsScreen) can
+/// react to model state transitions reactively. The cold-start window
+/// (3–10s on arm64) surfaces "AI প্রস্তুত হচ্ছে..." in the chat UI
+/// (docs/design.md §13.5).
 ///
-/// Source of truth: docs/architecture.md §5 (pipeline), §9 (failure modes).
-class ModelManager {
+/// Download uses [HttpClient] with resume support (Range header). The
+/// `background_downloader` package is in pubspec for a future swap to
+/// get OS-level background download + resume-on-network-change.
+class ModelManager extends ChangeNotifier {
   static const _modelFileName = 'gemma4_e2b_int4.task';
 
   /// Default model URL. Confirmed at Phase 0 spike A; substituted if the
@@ -37,8 +38,17 @@ class ModelManager {
   ModelState _state = ModelState.notDownloaded;
   ModelState get state => _state;
 
+  /// Download progress as a 0.0–1.0 fraction, or null when not downloading.
+  double? _downloadProgress;
+  double? get downloadProgress => _downloadProgress;
+
   InferenceModel? _model;
   bool _initializing = false;
+
+  void _setState(ModelState s) {
+    _state = s;
+    notifyListeners();
+  }
 
   /// Path to the model file inside the app's documents directory.
   Future<String> modelPath() async {
@@ -54,8 +64,8 @@ class ModelManager {
     return await f.length() > 100000000;
   }
 
-  /// Ensure the model file is on disk. Uses a plain [HttpClient] for the
-  /// spike; Phase 3 swaps in `background_downloader` for resume-on-failure.
+  /// Ensure the model file is on disk. Uses [HttpClient] with Range-based
+  /// resume support for reliability on flaky networks.
   ///
   /// [onProgress] reports a 0.0–1.0 fraction as bytes stream in.
   Future<void> ensureModel({
@@ -65,27 +75,58 @@ class ModelManager {
     final path = await modelPath();
     final f = File(path);
     if (await f.exists() && await f.length() > 100000000) {
-      _state = ModelState.ready;
+      _setState(ModelState.ready);
       return;
     }
-    _state = ModelState.downloading;
+
+    _setState(ModelState.downloading);
+    _downloadProgress = 0.0;
+    notifyListeners();
+
     final client = HttpClient();
     try {
+      // Resume support: send Range header for partial downloads.
+      var existingBytes = 0;
+      if (await f.exists()) {
+        existingBytes = await f.length();
+      }
+
       final req = await client.getUrl(Uri.parse(url));
+      if (existingBytes > 0) {
+        req.headers.set(HttpHeaders.rangeHeader, 'bytes=$existingBytes-');
+      }
+
       final resp = await req.close();
-      final sink = f.openWrite();
-      var received = 0;
-      final total = resp.contentLength;
+      final expectedTotal = resp.contentLength > 0
+          ? resp.contentLength + existingBytes
+          : 0;
+
+      final sink = f.openWrite(mode: FileMode.append);
+      var received = existingBytes;
       await for (final chunk in resp) {
         sink.add(chunk);
         received += chunk.length;
-        if (total > 0 && onProgress != null) onProgress(received / total);
+        if (expectedTotal > 0) {
+          final fraction = (received / expectedTotal).clamp(0.0, 1.0);
+          _downloadProgress = fraction;
+          if (onProgress != null) onProgress(fraction);
+          notifyListeners();
+        }
       }
       await sink.flush();
       await sink.close();
-      _state = ModelState.ready;
+
+      if (received > 100000000) {
+        _downloadProgress = null;
+        _setState(ModelState.ready);
+      } else {
+        _downloadProgress = null;
+        _setState(ModelState.failed);
+        throw Exception('Download incomplete: only $received bytes received');
+      }
     } catch (e) {
-      _state = ModelState.failed;
+      _downloadProgress = null;
+      _setState(ModelState.failed);
       rethrow;
     } finally {
       client.close();
@@ -103,11 +144,10 @@ class ModelManager {
   Future<InferenceModel> initialize() async {
     if (_model != null) return _model!;
     if (_initializing) {
-      // Guard against concurrent init calls from rapid taps.
       throw StateError('Model is already initializing');
     }
     _initializing = true;
-    _state = ModelState.loading;
+    _setState(ModelState.loading);
     try {
       final path = await modelPath();
       await FlutterGemmaPlugin.instance.modelManager.setModelPath(path);
@@ -115,10 +155,10 @@ class ModelManager {
         maxTokens: 512,
         temperature: 0.2,
       );
-      _state = ModelState.ready;
+      _setState(ModelState.ready);
       return _model!;
     } catch (e) {
-      _state = ModelState.failed;
+      _setState(ModelState.failed);
       rethrow;
     } finally {
       _initializing = false;
@@ -129,5 +169,31 @@ class ModelManager {
   Future<String> generate(String prompt) async {
     final model = await initialize();
     return model.getResponse(prompt: prompt);
+  }
+
+  /// Whether the model is loaded and ready for generation.
+  bool get isReady => _model != null && _state == ModelState.ready;
+
+  /// Whether the model is currently loading (downloading or initializing).
+  bool get isLoading =>
+      _state == ModelState.loading || _state == ModelState.downloading;
+
+  /// Human-readable Bangla status for diagnostics UI.
+  String get statusLabelBn {
+    switch (_state) {
+      case ModelState.notDownloaded:
+        return 'ডাউনলোড প্রয়োজন';
+      case ModelState.downloading:
+        final pct = _downloadProgress != null
+            ? '${(_downloadProgress! * 100).round()}%'
+            : '';
+        return 'ডাউনলোড হচ্ছে $pct';
+      case ModelState.ready:
+        return 'প্রস্তুত';
+      case ModelState.loading:
+        return 'প্রস্তুত হচ্ছে...';
+      case ModelState.failed:
+        return 'ব্যর্থ';
+    }
   }
 }

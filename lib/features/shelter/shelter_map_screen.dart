@@ -6,11 +6,16 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../app/theme.dart';
+import 'cached_tile_provider.dart';
 import 'nearest_shelter.dart';
 import 'shelter_model.dart';
 import 'shelter_repository.dart';
 
 /// Shelter map with GPS-based nearest ranking + bottom-sheet details.
+///
+/// Connectivity-aware: when online, renders full OSM tiles. When offline,
+/// markers still render on a styled background (tiles from HTTP cache
+/// may also appear if previously viewed).
 class ShelterMapScreen extends StatefulWidget {
   const ShelterMapScreen({super.key});
   @override
@@ -21,6 +26,8 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
   late Future<List<Shelter>> _sheltersFuture;
   Position? _userPosition;
   String? _gpsError;
+  bool _isOnline = true;
+  StreamSubscription<bool>? _connSub;
   final MapController _mapController = MapController();
 
   @override
@@ -28,6 +35,21 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
     super.initState();
     _sheltersFuture = ShelterRepository().loadAll();
     _resolveGps();
+    _initConnectivity();
+  }
+
+  Future<void> _initConnectivity() async {
+    _isOnline = await ConnectivityHelper.isOnline();
+    if (mounted) setState(() {});
+    _connSub = ConnectivityHelper.onConnectivityChanged.listen((online) {
+      if (mounted) setState(() => _isOnline = online);
+    });
+  }
+
+  @override
+  void dispose() {
+    _connSub?.cancel();
+    super.dispose();
   }
 
   Future<void> _resolveGps() async {
@@ -85,12 +107,17 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
                       ? LatLng(_userPosition!.latitude, _userPosition!.longitude)
                       : const LatLng(23.8, 90.4),
                   initialZoom: 8,
+                  backgroundColor: _isOnline
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.surfaceContainerHighest,
                 ),
                 children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  ),
+                  if (_isOnline)
+                    TileLayer(
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'com.shongjog.app',
+                    ),
                   MarkerLayer(
                     markers: [
                       if (_userPosition != null)
@@ -127,6 +154,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
                   ),
                 ],
               ),
+              if (!_isOnline) _offlineBanner(),
               if (ranked != null && ranked.isNotEmpty)
                 Positioned(
                   left: 16,
@@ -134,9 +162,9 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
                   bottom: 16,
                   child: _nearestCard(ranked.take(3).toList()),
                 )
-              else
+              else if (_gpsError == null)
                 Positioned(
-                  top: 16,
+                  top: _isOnline ? 16 : 56,
                   left: 16,
                   right: 16,
                   child: _gpsBanner(),
@@ -148,13 +176,47 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
     );
   }
 
+  Widget _offlineBanner() {
+    return Positioned(
+      top: 8,
+      left: 16,
+      right: 16,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: ShongjogTheme.alertRed.withValues(alpha: 0.9),
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 6),
+          ],
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.wifi_off_rounded, color: Colors.white, size: 18),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'অফলাইন মোড — মানচিত্রের টাইলস লোড হবে না, তবে আশ্রয়কেন্দ্রের অবস্থান দেখা যাচ্ছে',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.white.withValues(alpha: 0.95),
+                  height: 1.3,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _nearestCard(List<RankedShelter> top3) {
     return Material(
       elevation: 8,
       borderRadius: BorderRadius.circular(16),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -162,11 +224,11 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('নিকটতম ৩টি',
+            Text('নিকটতম ৩টি',
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: ShongjogTheme.inkSecondary)),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
             const SizedBox(height: 4),
             ...top3.map((r) => _shelterRow(r.shelter, r.km)),
           ],
@@ -183,20 +245,23 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: Row(
           children: [
-            const Icon(Icons.shield_outlined,
-                color: ShongjogTheme.calmTeal, size: 20),
+            Icon(Icons.shield_outlined,
+                color: Theme.of(context).colorScheme.primary, size: 20),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 s.nameBn.isNotEmpty ? s.nameBn : s.name,
-                style: const TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.onSurface),
               ),
             ),
             Text(
               '${km.toStringAsFixed(1)} কিমি',
               style: TextStyle(
-                  fontSize: 13, color: ShongjogTheme.inkSecondary),
+                  fontSize: 13,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ],
         ),
@@ -207,7 +272,6 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
   void _showShelterSheet(Shelter s) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(20)),
@@ -225,14 +289,13 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.shield_outlined,
-                      color: ShongjogTheme.calmTeal, size: 28),
+                  Icon(Icons.shield_outlined,
+                      color: Theme.of(context).colorScheme.primary, size: 28),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       s.nameBn.isNotEmpty ? s.nameBn : s.name,
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.w600),
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
                 ],
@@ -241,7 +304,8 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
               if (s.nameBn.isNotEmpty && s.name.isNotEmpty)
                 Text(s.name,
                     style: TextStyle(
-                        fontSize: 14, color: ShongjogTheme.inkSecondary)),
+                        fontSize: 14,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant)),
               const SizedBox(height: 16),
               if (km != null) _row('দূরত্ব', '${km.toStringAsFixed(1)} কিমি'),
               if (s.capacity != null)
@@ -266,9 +330,13 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
               width: 80,
               child: Text(k,
                   style: TextStyle(
-                      fontSize: 13, color: ShongjogTheme.inkSecondary))),
+                      fontSize: 13,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant))),
           Expanded(
-              child: Text(v, style: const TextStyle(fontSize: 15))),
+              child: Text(v,
+                  style: TextStyle(
+                      fontSize: 15,
+                      color: Theme.of(context).colorScheme.onSurface))),
         ],
       ),
     );
@@ -278,7 +346,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4),
@@ -289,8 +357,8 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
           Icon(
             Icons.location_off,
             color: _gpsError != null
-                ? ShongjogTheme.alertRed
-                : ShongjogTheme.inkSecondary,
+                ? Theme.of(context).colorScheme.error
+                : Theme.of(context).colorScheme.onSurfaceVariant,
             size: 18,
           ),
           const SizedBox(width: 8),
@@ -298,7 +366,10 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
             child: Text(
               _gpsError ??
                   'সমগ্র বাংলাদেশ দেখানো হচ্ছে — GPS থেকে দূরত্ব নির্ণয় করা যাবে না',
-              style: const TextStyle(fontSize: 13),
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
           ),
         ],
@@ -314,7 +385,8 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.map_outlined,
-                size: 56, color: ShongjogTheme.inkMuted),
+                size: 56,
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(height: 16),
             const Text('মানচিত্র লোড করা যায়নি'),
           ],

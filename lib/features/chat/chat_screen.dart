@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../knowledge/kb_loader.dart';
 import '../../rag/keyword_retriever.dart';
@@ -21,6 +22,7 @@ import '../cloud_ai/cloud_ai_service.dart';
 /// text if no model is available.
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
+
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
@@ -34,12 +36,19 @@ class _ChatScreenState extends State<ChatScreen> {
   ChatRepository? _repo;
   bool _busy = false;
   bool _listening = false;
+  String? _sttProviderName;
 
   @override
   void initState() {
     super.initState();
     _sound.init();
     _bootstrap();
+  }
+
+  @override
+  void dispose() {
+    _stt.dispose();
+    super.dispose();
   }
 
   Future<void> _bootstrap() async {
@@ -60,9 +69,18 @@ class _ChatScreenState extends State<ChatScreen> {
       debugPrint('CloudAI init error: $e');
     }
 
+    String? providerName;
+    try {
+      await _stt.init();
+      providerName = _stt.activeProviderName;
+    } catch (e) {
+      debugPrint('STT init error: $e');
+    }
+
     if (mounted) {
       setState(() {
         _repo = ChatRepository(kb: kb ?? _emptyKb(), cloudAi: cloudAi);
+        _sttProviderName = providerName;
       });
     }
   }
@@ -90,15 +108,13 @@ class _ChatScreenState extends State<ChatScreen> {
     });
     try {
       final answer = await _repo!.ask(q, onFallback: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('অফলাইন AI ব্যবহার করা হচ্ছে'),
-            duration: Duration(seconds: 1),
-          ),
-        );
+        if (mounted) {
+          setState(() => _messages[0] = _Msg('AI প্রস্তুত হচ্ছে...', false));
+        }
       });
       if (!mounted) return;
       setState(() => _messages[0] = _Msg(answer, false));
+      _sound.chime();
     } catch (e) {
       debugPrint('ChatScreen _onSubmit error: $e');
       if (!mounted) return;
@@ -133,7 +149,23 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('AI সহায়ক'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('AI সহায়ক'),
+            if (_sttProviderName != null)
+              Text(
+                _stt.isOfflineCapable ? 'অফলাইন ভয়েস' : 'অনলাইন ভয়েস',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w400,
+                  color: _stt.isOfflineCapable
+                      ? ShongjogTheme.success
+                      : ShongjogTheme.inkSecondary,
+                ),
+              ),
+          ],
+        ),
         actions: [
           IconButton(
             tooltip: 'জরুরি কল',
@@ -144,19 +176,42 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
-          if (_repo == null && _messages.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(8),
-              child: LinearProgressIndicator(),
-            ),
+          if (_repo == null && _messages.isEmpty) _loadingState(),
           Expanded(
-            child: _messages.isEmpty ? _emptyState() : _messageList(),
+            child: _messages.isEmpty && _repo != null
+                ? _emptyState()
+                : _repo == null
+                    ? const SizedBox.shrink()
+                    : _messageList(),
           ),
           ChatInput(
             key: _inputKey,
             onSubmit: _onSubmit,
             onMicPressed: _onMicPressed,
             isListening: _listening,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _loadingState() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      child: Row(
+        children: [
+          const SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            'তথ্য প্রস্তুত হচ্ছে...',
+            style: TextStyle(
+              fontSize: 13,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),
@@ -220,6 +275,12 @@ class _ChatScreenState extends State<ChatScreen> {
                   _suggestion('নিকটস্থ আশ্রয়কেন্দ্র'),
                   _suggestion('সাপে কামড়ালে কী করবো?'),
                 ],
+              ),
+              const SizedBox(height: 20),
+              TextButton.icon(
+                onPressed: () => pushNamedSafe(context, AppRoutes.settings),
+                icon: const Icon(Icons.style_outlined, size: 18),
+                label: const Text('দ্রুত নির্দেশিকা কার্ড দেখুন'),
               ),
             ],
           ],
