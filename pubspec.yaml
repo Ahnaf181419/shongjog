@@ -28,6 +28,7 @@ dependencies:
   geolocator: ^13.0.0
   flutter_map: ^7.0.0
   latlong2: ^0.9.1
+  http: ^1.2.0
 
   # Actions (tel:/sms: on the cellular voice channel)
   url_launcher: ^6.3.0
