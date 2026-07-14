@@ -59,7 +59,7 @@ class _MeshRadarScreenState extends State<MeshRadarScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            color: ShongjogTheme.calmTeal.withOpacity(0.1),
+            color: ShongjogTheme.calmTeal.withValues(alpha: 0.1),
             child: Row(
               children: [
                 const Icon(Icons.radar, color: ShongjogTheme.calmTeal),

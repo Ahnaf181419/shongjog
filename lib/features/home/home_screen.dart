@@ -23,8 +23,7 @@ class HomeScreen extends StatelessWidget {
           IconButton(
             tooltip: 'সেটিংস',
             icon: const Icon(Icons.settings_rounded),
-            onPressed: () =>
-                Navigator.pushNamed(context, AppRoutes.settings),
+            onPressed: () => pushNamedSafe(context, AppRoutes.settings),
           ),
         ],
       ),
@@ -32,9 +31,15 @@ class HomeScreen extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         children: [
           const _StatusStrip(),
-          const SizedBox(height: 16),
-          _HeroAiCard(
-            onTap: () => onNavigateToTab?.call(1),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              _ProsnoKorunCard(
+                onTap: () => onNavigateToTab?.call(1),
+              ),
+              const SizedBox(width: 10),
+              const _WeatherForecastCard(),
+            ],
           ),
           const SizedBox(height: 16),
           _BentoGrid(onNavigateToTab: onNavigateToTab),
@@ -113,94 +118,129 @@ class _StatusPill extends StatelessWidget {
 }
 
 // ════════════════════════════════════════════════════════════════
-//  Hero AI card — the one bold primary surface
+//  Top row — compact AI prompt + weather forecast
 // ════════════════════════════════════════════════════════════════
 
-class _HeroAiCard extends StatelessWidget {
+class _ProsnoKorunCard extends StatelessWidget {
   final VoidCallback onTap;
-  const _HeroAiCard({required this.onTap});
+  const _ProsnoKorunCard({required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Theme.of(context).colorScheme.primary,
-      borderRadius: BorderRadius.circular(ShongjogTheme.radiusLg),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.18),
-                        borderRadius:
-                            BorderRadius.circular(ShongjogTheme.radiusSm),
-                      ),
-                      child: const Icon(
-                        Icons.auto_awesome_rounded,
-                        color: Colors.white,
-                        size: 28,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'প্রশ্ন করুন',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: ShongjogTheme.fontFamily,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'AI সহায়ক বাংলায় উত্তর দেবে — সব অফলাইনে',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontFamily: ShongjogTheme.fontFamily,
-                        color: Colors.white.withValues(alpha: 0.85),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.18),
-                        borderRadius:
-                            BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'শুরু করুন',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: ShongjogTheme.fontFamily,
-                              color:
-                                  Theme.of(context).colorScheme.onPrimary,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          const Icon(Icons.arrow_forward_rounded,
-                              color: Colors.white, size: 18),
-                        ],
-                      ),
-                    ),
-                  ],
+    final cs = Theme.of(context).colorScheme;
+    return Expanded(
+      child: Material(
+        color: cs.primary,
+        borderRadius: BorderRadius.circular(ShongjogTheme.radius),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
+                  ),
+                  child: const Icon(
+                    Icons.auto_awesome_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'প্রশ্ন করুন',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: ShongjogTheme.fontFamily,
+                          color: cs.onPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'বাংলায় অফলাইনে উত্তর',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontFamily: ShongjogTheme.fontFamily,
+                          color: Colors.white.withValues(alpha: 0.8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: Colors.white.withValues(alpha: 0.7),
+                  size: 16,
+                ),
+              ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _WeatherForecastCard extends StatelessWidget {
+  const _WeatherForecastCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(ShongjogTheme.radius),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.cloud_rounded,
+              color: cs.primary,
+              size: 30,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'আবহাওয়া',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: ShongjogTheme.fontFamily,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '৩২°C বৃষ্টি সম্ভাবনা',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontFamily: ShongjogTheme.fontFamily,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -234,7 +274,7 @@ class _BentoGrid extends StatelessWidget {
                 icon: Icons.emergency_rounded,
                 titleBn: 'জরুরি কল',
                 subtitleBn: '৯৯৯, পরিচিতি — এক ট্যাপে',
-                onTap: () => Navigator.pushNamed(
+                onTap: () => pushNamedSafe(
                     context, AppRoutes.emergencyContacts),
                 isEmergency: true,
               ),
@@ -256,14 +296,14 @@ class _BentoGrid extends StatelessWidget {
                 icon: Icons.settings_rounded,
                 titleBn: 'সেটিংস',
                 subtitleBn: 'থিম, ভয়েস, তথ্যসূত্র',
-                onTap: () => Navigator.pushNamed(context, AppRoutes.settings),
+                onTap: () => pushNamedSafe(context, AppRoutes.settings),
               ),
               const SizedBox(height: 12),
               _BentoTile(
                 icon: Icons.radar,
                 titleBn: 'অফলাইন রাডার',
                 subtitleBn: 'আশেপাশের ডিভাইসে যোগাযোগ',
-                onTap: () => Navigator.pushNamed(context, AppRoutes.meshRadar),
+                onTap: () => pushNamedSafe(context, AppRoutes.meshRadar),
               ),
             ],
           ),

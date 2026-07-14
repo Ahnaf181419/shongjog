@@ -31,6 +31,14 @@ class ShongjogApp extends StatelessWidget {
             AppRoutes.about: (_) => const AboutScreen(),
             AppRoutes.meshRadar: (_) => const MeshRadarScreen(),
           },
+          onUnknownRoute: (settings) => MaterialPageRoute(
+            builder: (_) => Scaffold(
+              appBar: AppBar(title: const Text('পাওয়া যায়নি')),
+              body: const Center(
+                child: Text('এই পৃষ্ঠাটি পাওয়া যায়নি।'),
+              ),
+            ),
+          ),
           debugShowCheckedModeBanner: false,
         );
       },
