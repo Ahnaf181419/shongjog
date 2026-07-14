@@ -207,6 +207,22 @@ class ShongjogTheme {
     );
   }
 
+  /// Weather card surface — soft surface with hairline + diffuse shadow.
+  /// Used as the wrapper for the today row + 3-day strip.
+  static BoxDecoration weatherCard(BuildContext context) {
+    return cardDecoration(context);
+  }
+
+  /// Emergency pill — solid error fill, small radius, used in the AppBar
+  /// for the persistent "জরুরি কল" shortcut. Children paint in `onError`.
+  static BoxDecoration emergencyPill(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return BoxDecoration(
+      color: cs.error,
+      borderRadius: BorderRadius.circular(10),
+    );
+  }
+
   /// Adaptive hairline border color (slate-200 in light, surfaceContainerHighest
   /// outline in dark).
   static Color hairline(BuildContext c) =>
