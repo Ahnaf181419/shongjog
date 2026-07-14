@@ -157,10 +157,22 @@ class ShongjogTheme {
       scaffoldBackgroundColor: scaffoldBg,
       dividerColor: borderColor,
       textTheme: tt.copyWith(
-        bodyLarge: tt.bodyLarge?.copyWith(fontSize: bodyLargeFloor),
-        bodyMedium: tt.bodyMedium?.copyWith(fontSize: bodyFloor),
-        bodySmall:
-            tt.bodySmall?.copyWith(fontSize: 14, color: textSecondary),
+        // Enforce the body floor (17sp) and caption floor (14sp) globally.
+        // Anything below 14sp is a type-scale violation we want to catch in
+        // code review, not a value the designer gets to pick.
+        bodyLarge: tt.bodyLarge?.copyWith(
+          fontSize: bodyLargeFloor,
+          height: 1.45,
+        ),
+        bodyMedium: tt.bodyMedium?.copyWith(
+          fontSize: bodyFloor,
+          height: 1.45,
+        ),
+        bodySmall: tt.bodySmall?.copyWith(
+          fontSize: 14,
+          color: textSecondary,
+          height: 1.35,
+        ),
         titleLarge:
             tt.titleLarge?.copyWith(fontWeight: FontWeight.w600, color: textPrimary),
         titleMedium:
@@ -169,8 +181,16 @@ class ShongjogTheme {
             tt.headlineMedium?.copyWith(fontWeight: FontWeight.w600),
         labelLarge: tt.labelLarge?.copyWith(
           fontSize: 17,
+          height: 1.2,
           fontWeight: FontWeight.w600,
           fontFamily: fontFamily,
+        ),
+        labelMedium: tt.labelMedium?.copyWith(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          fontFamily: fontFamily,
+          color: textSecondary,
+          letterSpacing: 0.02,
         ),
       ),
       appBarTheme: AppBarTheme(

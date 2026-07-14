@@ -5,6 +5,7 @@ import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../core/model_manager.dart';
 import '../../core/theme_controller.dart';
+import '../audio/sound_service.dart';
 import '../chat/chat_store.dart';
 
 /// Settings screen.
@@ -22,6 +23,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _autoRead = true;
   bool _voiceInput = true;
+  bool _soundEnabled = true;
   String _dialect = 'bn-BD';
   String? _kbVersion;
 
@@ -37,6 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       setState(() {
         _autoRead = prefs.getBool('pref_auto_read') ?? true;
         _voiceInput = prefs.getBool('pref_voice_input') ?? true;
+        _soundEnabled = prefs.getBool('pref_sound_enabled') ?? true;
         _dialect = prefs.getString('pref_dialect') ?? 'bn-BD';
         _kbVersion = prefs.getString('kb_version') ?? 'v1.0';
       });
@@ -76,6 +79,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
               setState(() => _voiceInput = v);
               final prefs = await SharedPreferences.getInstance();
               await prefs.setBool('pref_voice_input', v);
+            },
+          ),
+          SwitchListTile(
+            secondary: const Icon(Icons.notifications_active_rounded),
+            title: const Text('শব্দ ইঙ্গিত'),
+            subtitle: const Text('AI উত্তর প্রস্তুত হলে চিম বাজবে'),
+            value: _soundEnabled,
+            onChanged: (v) async {
+              setState(() => _soundEnabled = v);
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setBool('pref_sound_enabled', v);
+              SoundService.instance.setEnabled(v);
             },
           ),
           ListTile(
@@ -316,15 +331,19 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Bold inline header — not an uppercase/tracked eyebrow (which design.md
+    // §2 explicitly bans as AI-grammar). Pairs with the title row inside
+    // each section to give a clear rhythm without screaming "kicker".
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 4),
+      padding: const EdgeInsets.fromLTRB(16, 22, 16, 6),
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 13,
+          fontSize: 18,
           fontWeight: FontWeight.w600,
+          letterSpacing: -0.01,
           fontFamily: ShongjogTheme.fontFamily,
-          color: Theme.of(context).colorScheme.primary,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
       ),
     );
@@ -336,9 +355,11 @@ class _Divider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Hairline divider, full-bleed. Hairline, not bold — keeps the list
+    // from looking like a Material "settings drawer" from 2014.
     return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Divider(),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Divider(height: 1, thickness: 0.5),
     );
   }
 }
@@ -369,6 +390,7 @@ class _ThemeSegmentedRow extends StatelessWidget {
                       'লাইট, ডার্ক, বা সিস্টেম অনুসরণ',
                       style: TextStyle(
                         fontSize: 14,
+                        height: 1.4,
                         fontFamily: ShongjogTheme.fontFamily,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),

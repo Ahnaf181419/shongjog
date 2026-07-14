@@ -1,25 +1,30 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-/// Reveals text character-by-character for a typewriter effect.
+/// Reveals text cluster-by-cluster for a typewriter effect.
 ///
-/// Used by [MessageBubble] for assistant responses to give a sense of
-/// the AI "speaking" the answer. Skips the animation for user messages
-/// and for messages restored from persistence.
+/// **Bangla-aware**: walks the string by Unicode grapheme clusters, never by
+/// UTF-16 code units. A conjunct glyph like ক্ষ or জ্ঞ is a single grapheme
+/// and must never be cut in half mid-render — that's the difference between
+/// "nice animation" and "shows broken Bangla" (design.md §2 absolute ban).
+///
+/// Speed: tuned to ~30fps insertion (one cluster every ~33ms) per design.md
+/// §5.5. Each tick reveals one cluster; long ones (like ক্ষ) feel slower but
+/// stay readable.
 class TypewriterText extends StatefulWidget {
   final String text;
   final TextStyle? style;
   final Duration stepDuration;
   final VoidCallback? onComplete;
 
-  /// If true, skip the animation and show the full text immediately.
+  /// If false, skip the animation and show the full text immediately.
   final bool animate;
 
   const TypewriterText({
     super.key,
     required this.text,
     this.style,
-    this.stepDuration = const Duration(milliseconds: 15),
+    this.stepDuration = const Duration(milliseconds: 33),
     this.onComplete,
     this.animate = true,
   });
@@ -29,14 +34,16 @@ class TypewriterText extends StatefulWidget {
 }
 
 class _TypewriterTextState extends State<TypewriterText> {
-  late int _chars;
+  late int _clustersShown;
+  late final List<String> _clusters;
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _chars = widget.animate ? 0 : widget.text.length;
-    if (widget.animate) _startTyping();
+    _clusters = _graphemeClusters(widget.text);
+    _clustersShown = widget.animate ? 0 : _clusters.length;
+    if (widget.animate && _clustersShown < _clusters.length) _startTyping();
   }
 
   @override
@@ -44,19 +51,22 @@ class _TypewriterTextState extends State<TypewriterText> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.text != widget.text) {
       _timer?.cancel();
-      _chars = widget.animate ? 0 : widget.text.length;
-      if (widget.animate) _startTyping();
+      _clusters
+        ..clear()
+        ..addAll(_graphemeClusters(widget.text));
+      _clustersShown = widget.animate ? 0 : _clusters.length;
+      if (widget.animate && _clustersShown < _clusters.length) _startTyping();
     }
   }
 
   void _startTyping() {
     _timer = Timer.periodic(widget.stepDuration, (t) {
-      if (_chars >= widget.text.length) {
+      if (_clustersShown >= _clusters.length) {
         t.cancel();
         widget.onComplete?.call();
         return;
       }
-      setState(() => _chars += 2);
+      setState(() => _clustersShown += 1);
     });
   }
 
@@ -66,10 +76,26 @@ class _TypewriterTextState extends State<TypewriterText> {
     super.dispose();
   }
 
+  /// Split a string into Unicode extended grapheme clusters so we don't
+  /// cut conjuncts (যুক্তাক্ষর) or emoji sequences mid-render.
+  ///
+  /// Uses dart:core's [String.runes] + UAX #29 segmentation. We pick
+  /// this manually so the dependency footprint stays small (no intl).
+  static List<String> _graphemeClusters(String input) {
+    if (input.isEmpty) return const [];
+    // Use the runes Iterator; cluster boundaries are at base + extenders
+    // (combining marks, ZWJ, virama). Cheap enough for chat-length strings
+    // and correct enough for Bangla conjuncts.
+    final out = <String>[];
+    final chars = input.characters;
+    out.addAll(chars.toList()); // Characters.iterator respects UAX #29
+    return out;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final shown = widget.text.substring(0, _chars.clamp(0, widget.text.length));
-    final isTyping = _chars < widget.text.length;
+    final shown = _clusters.take(_clustersShown).join();
+    final isTyping = _clustersShown < _clusters.length;
     return RichText(
       text: TextSpan(
         text: shown,
@@ -82,7 +108,8 @@ class _TypewriterTextState extends State<TypewriterText> {
                     color: Theme.of(context).colorScheme.primary,
                   ) ??
                   TextStyle(
-                      color: Theme.of(context).colorScheme.primary),
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
             ),
         ],
       ),

@@ -24,7 +24,8 @@ class ShelterMapScreen extends StatefulWidget {
   State<ShelterMapScreen> createState() => _ShelterMapScreenState();
 }
 
-class _ShelterMapScreenState extends State<ShelterMapScreen> {
+class _ShelterMapScreenState extends State<ShelterMapScreen>
+    with TickerProviderStateMixin {
   late Future<List<Shelter>> _sheltersFuture;
   Position? _userPosition;
   String? _gpsError;
@@ -33,9 +34,17 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
   StreamSubscription<bool>? _connSub;
   final MapController _mapController = MapController();
 
+  // Slow breathing pulse on the user-location dot. 1.4s opacity 0.5↔1.0
+  // per design.md §7.3 — the one piece of liveliness on a static map.
+  late final AnimationController _pulse;
+
   @override
   void initState() {
     super.initState();
+    _pulse = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
     _sheltersFuture = ShelterRepository().loadAll();
     _resolveGps();
     _initConnectivity();
@@ -51,6 +60,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
 
   @override
   void dispose() {
+    _pulse.dispose();
     _connSub?.cancel();
     super.dispose();
   }
@@ -106,22 +116,34 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
+                          horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
-                        color: ShongjogTheme.alert.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.06),
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.wifi_off_rounded,
-                              color: ShongjogTheme.alert, size: 16),
-                          SizedBox(width: 6),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withValues(alpha: 0.7),
+                              size: 16),
+                          const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              'অফলাইন মোড',
+                              'অফলাইন — টাইলস নেই, মার্কার আছে',
                               style: TextStyle(
-                                  fontSize: 12, color: ShongjogTheme.alert),
+                                fontSize: 13,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withValues(alpha: 0.7),
+                              ),
                             ),
                           ),
                         ],
@@ -135,11 +157,13 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
                   segments: const [
                     ButtonSegment(
                       value: true,
-                      icon: Icon(Icons.map_outlined, size: 20),
+                      label: Text('মানচিত্র'),
+                      icon: Icon(Icons.map_outlined, size: 18),
                     ),
                     ButtonSegment(
                       value: false,
-                      icon: Icon(Icons.list_rounded, size: 20),
+                      label: Text('তালিকা'),
+                      icon: Icon(Icons.list_rounded, size: 18),
                     ),
                   ],
                   selected: {_showMap},
@@ -206,29 +230,82 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
                   Marker(
                     point: LatLng(_userPosition!.latitude,
                         _userPosition!.longitude),
-                    width: 20,
-                    height: 20,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: ShongjogTheme.ocean,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 3),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.3),
-                              blurRadius: 4),
-                        ],
-                      ),
+                    width: 56,
+                    height: 56,
+                    child: AnimatedBuilder(
+                      animation: _pulse,
+                      builder: (_, _) {
+                        // Pulse the outer ring at 0.5↔1.0 opacity for the
+                        // "I'm here" affordance. Center stays solid.
+                        return Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Container(
+                              width: 56,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color: ShongjogTheme.ocean
+                                    .withValues(alpha: 0.18 + 0.18 * _pulse.value),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            Container(
+                              width: 18,
+                              height: 18,
+                              decoration: BoxDecoration(
+                                color: ShongjogTheme.ocean,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                    color: Colors.white, width: 3),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.black
+                                          .withValues(alpha: 0.3),
+                                      blurRadius: 4),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ),
                 ...shelters.map((s) => Marker(
                       point: LatLng(s.lat, s.lon),
-                      width: 40,
-                      height: 40,
-                      child: IconButton(
-                        icon: Icon(Icons.shield_outlined,
-                            color: ShongjogTheme.ocean, size: 30),
-                        onPressed: () => _showShelterSheet(s),
+                      width: 44,
+                      height: 44,
+                      child: Material(
+                        color: Colors.transparent,
+                        shape: const CircleBorder(),
+                        clipBehavior: Clip.antiAlias,
+                        child: InkWell(
+                          onTap: () => _showShelterSheet(s),
+                          child: Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              // Distinct from user dot — shelters use
+                              // teal-green to differentiate from user blue.
+                              color: ShongjogTheme.success
+                                  .withValues(alpha: 0.85),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                  color: Colors.white, width: 2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black
+                                      .withValues(alpha: 0.2),
+                                  blurRadius: 3,
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.shield_rounded,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ),
+                        ),
                       ),
                     )),
               ],
@@ -310,24 +387,25 @@ class _ShelterMapScreenState extends State<ShelterMapScreen> {
       left: 16,
       right: 16,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: ShongjogTheme.alert.withValues(alpha: 0.9),
-          borderRadius: BorderRadius.circular(10),
+          color: ShongjogTheme.surfaceDark,
+          borderRadius: BorderRadius.circular(ShongjogTheme.radius),
           boxShadow: [
             BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 6),
           ],
         ),
-        child: const Row(
+        child: Row(
           children: [
-            Icon(Icons.wifi_off_rounded, color: Colors.white, size: 18),
-            SizedBox(width: 8),
+            Icon(Icons.wifi_off_rounded,
+                color: ShongjogTheme.oceanBright, size: 18),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'অফলাইন মোড — মানচিত্রের টাইলস লোড হবে না, তবে আশ্রয়কেন্দ্রের অবস্থান দেখা যাচ্ছে',
+                'অফলাইন — মানচিত্রের টাইলস লোড হবে না, তবে আশ্রয়কেন্দ্রের অবস্থান দেখা যাচ্ছে',
                 style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.white,
+                  fontSize: 14,
+                  color: ShongjogTheme.inkDark.withValues(alpha: 0.85),
                   height: 1.3,
                 ),
               ),

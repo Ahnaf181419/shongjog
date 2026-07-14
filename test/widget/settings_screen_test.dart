@@ -48,6 +48,12 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('জরুরি'), findsOneWidget);
+      // 'জরুরি পরিচিতি' is below the fold — scroll to it.
+      await tester.scrollUntilVisible(
+        find.text('জরুরি পরিচিতি'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.text('জরুরি পরিচিতি'), findsOneWidget);
     });
 

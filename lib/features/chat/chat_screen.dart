@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../app/router.dart';
 import '../../app/theme.dart';
+import '../../app/main_shell.dart';
+import '../../core/haptics.dart';
 import '../../core/model_manager.dart';
 import '../../knowledge/kb_loader.dart';
 import '../../rag/keyword_retriever.dart';
@@ -36,7 +37,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<_Msg> _messages = [];
   final _tts = TtsService();
   final _stt = SttService();
-  final _sound = SoundService();
+  final _sound = SoundService.instance;
   final _store = ChatStore();
   final _inputKey = GlobalKey<ChatInputState>();
   ChatRepository? _repo;
@@ -152,6 +153,7 @@ class _ChatScreenState extends State<ChatScreen> {
       });
       if (!mounted) return;
       setState(() => _messages[0] = _Msg(answer, false, animate: true));
+      HapticService.success();
       _sound.chime();
       if (_autoRead) _tts.speak(answer);
       _persist();
@@ -185,10 +187,12 @@ class _ChatScreenState extends State<ChatScreen> {
       return;
     }
     if (_listening) {
+      HapticService.warn();
       await _stt.stop();
       setState(() => _listening = false);
       return;
     }
+    HapticService.lightTap();
     setState(() => _listening = true);
     final transcript = await _stt.listen(localeId: 'bn_BD');
     if (!mounted) return;
@@ -245,6 +249,7 @@ class _ChatScreenState extends State<ChatScreen> {
             onSubmit: _onSubmit,
             onMicPressed: _onMicPressed,
             isListening: _listening,
+            voiceInputEnabled: _voiceInputEnabled,
           ),
         ],
       ),
@@ -394,7 +399,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               const SizedBox(height: 20),
               TextButton.icon(
-                onPressed: () => pushNamedSafe(context, AppRoutes.settings),
+                onPressed: () => MainShell.goToTab(context, 2),
                 icon: const Icon(Icons.style_outlined, size: 18),
                 label: const Text('দ্রুত নির্দেশিকা কার্ড দেখুন'),
               ),
