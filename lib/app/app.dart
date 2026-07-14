@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../core/theme_controller.dart';
+import '../features/about/about_screen.dart';
+import '../features/contacts/emergency_contacts_screen.dart';
+import '../features/settings/settings_screen.dart';
+import 'main_shell.dart';
 import 'router.dart';
 import 'theme.dart';
 
@@ -9,14 +14,24 @@ class ShongjogApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Shongjog',
-      theme: ShongjogTheme.light(),
-      darkTheme: ShongjogTheme.dark(),
-      themeMode: ThemeMode.system,
-      initialRoute: AppRoutes.hub,
-      routes: AppRoutes.all(),
-      debugShowCheckedModeBanner: false,
+    return ListenableBuilder(
+      listenable: themeController,
+      builder: (context, _) {
+        return MaterialApp(
+          title: 'Shongjog',
+          theme: ShongjogTheme.light(),
+          darkTheme: ShongjogTheme.dark(),
+          themeMode: themeController.mode,
+          home: const MainShell(),
+          routes: {
+            AppRoutes.settings: (_) => const SettingsScreen(),
+            AppRoutes.emergencyContacts: (_) =>
+                const EmergencyContactsScreen(),
+            AppRoutes.about: (_) => const AboutScreen(),
+          },
+          debugShowCheckedModeBanner: false,
+        );
+      },
     );
   }
 }
