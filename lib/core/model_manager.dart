@@ -17,7 +17,7 @@ enum ModelState {
 
 /// Manages the on-device Gemma 4 E2B lifecycle: download (one-time, gated
 /// behind INTERNET permission), persist to app docs dir, lazy-initialize
-/// into the LiteRT-LM runtime.
+/// into the MediaPipe LlmInference runtime (via flutter_gemma).
 ///
 /// Extends [ChangeNotifier] so the UI (ChatScreen, SettingsScreen) can
 /// react to model state transitions reactively. The cold-start window
@@ -28,13 +28,35 @@ enum ModelState {
 /// `background_downloader` package was removed from pubspec in favour of
 /// stdlib HttpClient (smaller APK; the size of the Gemma file means we
 /// need UI-level progress, not OS-level background continuation).
+///
+/// **Filename constraint:** The file MUST be named `model.bin`. This is
+/// because `flutter_gemma` 0.5.1's `MobileModelManager.isModelLoaded`
+/// hard-checks for the constant `_modelPath = 'model.bin'` at the app
+/// docs directory — NOT the path passed to `setModelPath()`. If the file
+/// is named anything else, `init()` throws "Gemma Model is not loaded
+/// yet" even though the file is on disk and the path was set correctly.
 class ModelManager extends ChangeNotifier {
-  static const _modelFileName = 'gemma-4-E2B-it-web.task';
+  /// MUST be 'model.bin' — see class doc comment.
+  static const _modelFileName = 'model.bin';
+
+  /// Previous filename used before the flutter_gemma compatibility fix.
+  /// Used by [_migrateOldFilename] to rename existing downloads.
+  static const _legacyFileName = 'gemma-4-E2B-it-web.task';
 
   /// LiteRT-community mirror of Gemma 4 E2B IT (MediaPipe .task format,
   /// int4 quantized). Verified accessible (HTTP 302 → CDN, no auth required).
+  /// Actual file size: ~1.87 GB (2,003,697,664 bytes).
   static const _defaultUrl =
       'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it-web.task';
+
+  /// Known size of the model file (bytes). Used by [isOnDisk] to detect
+  /// partial downloads. Sourced from HF Content-Length header.
+  /// ~1.87 GB = 2,003,697,664 bytes.
+  static const _expectedModelSize = 2003697664;
+
+  /// Tolerance fraction for size check — file within 99% of expected is
+  /// considered complete (handles minor CDN re-encoding differences).
+  static const _sizeTolerance = 0.99;
 
   ModelState _state = ModelState.notDownloaded;
   ModelState get state => _state;
@@ -64,12 +86,15 @@ class ModelManager extends ChangeNotifier {
     return '${dir.path}/$_modelFileName';
   }
 
-  /// True if a model file >100MB is already on disk (heuristic — the .task
-  /// artifact is ~1.5GB; 100MB guards against partial downloads).
+  /// True if a model file matching the expected size is on disk.
+  /// Uses [_expectedModelSize] with 99% tolerance to detect partial
+  /// downloads — a file at 60% completion would be ~1.2 GB, well below
+  /// the 99% threshold (~1.98 GB), so it's correctly rejected.
   Future<bool> isOnDisk() async {
     final f = File(await modelPath());
     if (!await f.exists()) return false;
-    return await f.length() > 100000000;
+    final len = await f.length();
+    return len >= (_expectedModelSize * _sizeTolerance).round();
   }
 
   /// Ensure the model file is on disk. Uses [HttpClient] with Range-based
@@ -82,7 +107,8 @@ class ModelManager extends ChangeNotifier {
   }) async {
     final path = await modelPath();
     final f = File(path);
-    if (await f.exists() && await f.length() > 100000000) {
+    if (await f.exists() &&
+        await f.length() >= (_expectedModelSize * _sizeTolerance).round()) {
       _setState(ModelState.ready);
       return;
     }
@@ -91,7 +117,9 @@ class ModelManager extends ChangeNotifier {
     _downloadProgress = 0.0;
     notifyListeners();
 
-    final client = HttpClient();
+    final client = HttpClient()
+      ..connectionTimeout = const Duration(seconds: 30)
+      ..idleTimeout = const Duration(seconds: 60);
     try {
       // Resume support: send Range header for partial downloads.
       var existingBytes = 0;
@@ -125,6 +153,12 @@ class ModelManager extends ChangeNotifier {
               : 0)
           : (resp.contentLength > 0 ? resp.contentLength : 0);
 
+      // Throttle notifyListeners to avoid flooding the UI with rebuilds
+      // (~100k chunks for a 1.87 GB file). Notify at most once per second,
+      // plus on every whole-percent boundary for smooth progress bar.
+      var lastNotifyTime = DateTime.fromMillisecondsSinceEpoch(0);
+      var lastNotifiedPercent = -1;
+
       await for (final chunk in resp) {
         sink.add(chunk);
         received += chunk.length;
@@ -132,19 +166,29 @@ class ModelManager extends ChangeNotifier {
           final fraction = (received / expectedTotal).clamp(0.0, 1.0);
           _downloadProgress = fraction;
           if (onProgress != null) onProgress(fraction);
-          notifyListeners();
+
+          final now = DateTime.now();
+          final currentPercent = (fraction * 100).floor();
+          if (now.difference(lastNotifyTime) >= const Duration(seconds: 1) ||
+              currentPercent != lastNotifiedPercent) {
+            lastNotifyTime = now;
+            lastNotifiedPercent = currentPercent;
+            notifyListeners();
+          }
         }
       }
       await sink.flush();
       await sink.close();
 
-      if (received > 100000000) {
+      // Completion check: compare against expected size with tolerance.
+      if (received >= (_expectedModelSize * _sizeTolerance).round()) {
         _downloadProgress = null;
         _setState(ModelState.ready);
       } else {
         _downloadProgress = null;
         _setState(ModelState.failed);
-        throw Exception('Download incomplete: only $received bytes received');
+        throw Exception(
+            'Download incomplete: $received bytes (expected ~$_expectedModelSize)');
       }
     } catch (e) {
       _downloadProgress = null;
@@ -163,6 +207,10 @@ class ModelManager extends ChangeNotifier {
   ///
   /// Config per docs/prd.md §8: 4-bit, thinking off, maxTokens 512,
   /// temperature 0.2 for grounded-but-not-creative answers.
+  ///
+  /// On failure, the model file is deleted so the user can re-download
+  /// cleanly instead of getting stuck in a "ready → failed → ready" loop
+  /// with a corrupted/partial file.
   Future<InferenceModel> initialize() async {
     if (_model != null) return _model!;
     if (_initializing) {
@@ -171,6 +219,7 @@ class ModelManager extends ChangeNotifier {
     _initializing = true;
     _setState(ModelState.loading);
     try {
+      await _migrateOldFilename();
       final path = await modelPath();
       await FlutterGemmaPlugin.instance.modelManager.setModelPath(path);
       _model = await FlutterGemmaPlugin.instance.init(
@@ -180,10 +229,34 @@ class ModelManager extends ChangeNotifier {
       _setState(ModelState.ready);
       return _model!;
     } catch (e) {
+      // Delete the model file on failure so a corrupted/partial file
+      // doesn't cause a permanent "ready → failed" loop on every relaunch.
+      // The user will see "ডাউনলোড প্রয়োজন" and can re-download.
+      try {
+        final path = await modelPath();
+        final f = File(path);
+        if (await f.exists()) await f.delete();
+      } catch (_) {}
+      _model = null;
       _setState(ModelState.failed);
       rethrow;
     } finally {
       _initializing = false;
+    }
+  }
+
+  /// One-time migration: if a file under the legacy name exists, rename it
+  /// to the current [_modelFileName]. Handles devices that downloaded
+  /// before the filename fix.
+  Future<void> _migrateOldFilename() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final oldFile = File('${dir.path}/$_legacyFileName');
+    if (await oldFile.exists()) {
+      final newFile = File('${dir.path}/$_modelFileName');
+      if (await newFile.exists()) {
+        await newFile.delete();
+      }
+      await oldFile.rename('${dir.path}/$_modelFileName');
     }
   }
 

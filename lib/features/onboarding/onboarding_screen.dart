@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../app/router.dart';
 import '../../app/theme.dart';
 
 /// First-run onboarding: welcome → permissions rationale → model download hint.
@@ -35,14 +36,31 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      _finish();
+      _goToHome();
     }
   }
 
-  Future<void> _finish() async {
+  void _back() {
+    if (_page > 0) {
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  Future<void> _goToHome() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('pref_has_onboarded', true);
+    if (!mounted) return;
     widget.onComplete();
+  }
+
+  Future<void> _goToSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('pref_has_onboarded', true);
+    if (!mounted) return;
+    Navigator.pushReplacementNamed(context, AppRoutes.settings);
   }
 
   @override
@@ -236,31 +254,113 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _bottomBar() {
+    if (_page == _pages - 1) return _finalPageActions();
+    return _walkingActions();
+  }
+
+  Widget _walkingActions() {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Row(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          if (_page < _pages - 1)
-            TextButton(
-              onPressed: _finish,
-              child: const Text('স্কিপ'),
-            ),
-          const Spacer(),
-          if (_page > 0)
-            TextButton(
-              onPressed: () => _pageController.previousPage(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
+          _pageDots(activeColor: cs.primary, inactiveColor: cs.outlineVariant),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              TextButton(
+                onPressed: _goToHome,
+                child: const Text('স্কিপ'),
               ),
-              child: const Text('পূর্ববর্তী'),
-            ),
-          const SizedBox(width: 8),
-          FilledButton(
-            onPressed: _next,
-            child: Text(_page < _pages - 1 ? 'পরবর্তী' : 'শুরু করুন'),
+              if (_page > 0) ...[
+                const SizedBox(width: 8),
+                IconButton(
+                  tooltip: 'পূর্ববর্তী',
+                  onPressed: _back,
+                  icon: const Icon(Icons.arrow_back_rounded),
+                ),
+              ],
+              const Spacer(),
+              IconButton.filledTonal(
+                tooltip: 'পরবর্তী',
+                onPressed: _next,
+                icon: const Icon(Icons.arrow_forward_rounded),
+                iconSize: 24,
+              ),
+            ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _finalPageActions() {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _pageDots(activeColor: cs.primary, inactiveColor: cs.outlineVariant),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _goToSettings,
+                  icon: const Icon(Icons.settings_rounded),
+                  label: const Text('সেটিংস'),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(52),
+                    side: BorderSide(color: cs.outlineVariant),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: _goToHome,
+                  icon: const Icon(Icons.home_rounded),
+                  label: const Text('হোমে যান'),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: _back,
+              icon: const Icon(Icons.arrow_back_rounded, size: 18),
+              label: const Text('পূর্ববর্তী'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _pageDots({
+    required Color activeColor,
+    required Color inactiveColor,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(_pages, (i) {
+        final active = i == _page;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOut,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          width: active ? 24 : 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: active ? activeColor : inactiveColor,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        );
+      }),
     );
   }
 }

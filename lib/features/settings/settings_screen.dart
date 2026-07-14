@@ -302,7 +302,7 @@ class _ModelDownloadCardState extends State<_ModelDownloadCard> {
           icon: Icons.downloading_rounded,
           tint: ocean,
           pillLabel: 'ডাউনলোড হচ্ছে',
-          subtitle: 'int4 · ~১.৫ GB — সংযোগ রাখুন',
+          subtitle: 'int4 · ~১.৮৭ GB — সংযোগ রাখুন',
         );
       case ModelState.loading:
         return _StateSpec(
@@ -323,7 +323,7 @@ class _ModelDownloadCardState extends State<_ModelDownloadCard> {
           icon: Icons.psychology_rounded,
           tint: ocean,
           pillLabel: 'প্রস্তুত নয়',
-          subtitle: 'int4 · ~১.৫ GB — চ্যাটের জন্য ডাউনলোড প্রয়োজন',
+          subtitle: 'int4 · ~১.৮৭ GB — চ্যাটের জন্য ডাউনলোড প্রয়োজন',
         );
     }
   }
@@ -350,7 +350,7 @@ class _ModelDownloadCardState extends State<_ModelDownloadCard> {
       builder: (ctx) => AlertDialog(
         title: const Text('মডেল মুছে ফেলবেন?'),
         content: const Text(
-          'ডাউনলোড করা মডেল ফাইল (~১.৫ GB) মুছে যাবে। পরে আবার ডাউনলোড করতে হবে।',
+          'ডাউনলোড করা মডেল ফাইল (~১.৮৭ GB) মুছে যাবে। পরে আবার ডাউনলোড করতে হবে।',
         ),
         actions: [
           TextButton(
@@ -495,7 +495,7 @@ class _DownloadProgress extends StatelessWidget {
               ),
             ),
             Text(
-              '~১.৫ GB',
+              '~১.৮৭ GB',
               style: TextStyle(
                 fontFamily: ShongjogTheme.fontFamily,
                 fontSize: 12,
