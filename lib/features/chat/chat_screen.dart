@@ -1,26 +1,24 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import '../../knowledge/kb_loader.dart';
+import '../../rag/keyword_retriever.dart';
+import '../../rag/types.dart';
 import '../audio/sound_service.dart';
 import '../emergency/emergency_sheet.dart';
 import '../voice/stt_service.dart';
 import '../voice/tts_service.dart';
 import 'chat_input.dart';
+import 'chat_repository.dart';
 import 'message_bubble.dart';
 import '../cloud_ai/cloud_ai_service.dart';
 
 /// Chat screen — voice-first Bangla emergency assistant.
-/// Reached from the hub. Uses Cloud AI (Gemini API with gemma-4-31b-it)
-/// as primary, with a graceful error fallback message.
 ///
-/// NOTE: The on-device RAG pipeline (KnowledgeBase + Embedder + ModelManager)
-/// is not functional on Flutter Web because:
-///   1. EmbedderImpl throws UnimplementedError (no embedder API in flutter_gemma)
-///   2. flutter_gemma requires native ARM — unavailable on Web
-///   3. KB assets (corpus.json, vectors.bin) are not bundled yet
-///
-/// For the hackathon demo, the chat goes directly to Cloud AI. On Android
-/// builds with the model downloaded, the full RAG pipeline can be re-enabled.
+/// Uses keyword-based RAG retrieval (always offline) to find relevant
+/// corpus chunks, then generates an answer via Cloud AI (when online)
+/// or on-device Gemma (when offline). Falls back to the matched chunk
+/// text if no model is available.
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
   @override
@@ -33,61 +31,77 @@ class _ChatScreenState extends State<ChatScreen> {
   final _stt = SttService();
   final _sound = SoundService();
   final _inputKey = GlobalKey<ChatInputState>();
-  CloudAiService? _cloudAi;
+  ChatRepository? _repo;
   bool _busy = false;
   bool _listening = false;
-  bool _ready = false;
 
   @override
   void initState() {
     super.initState();
     _sound.init();
-    
-    // Initialize CloudAI synchronously without triggering a redundant setState
-    // that corrupts the layout pipeline on Flutter Web.
+    _bootstrap();
+  }
+
+  Future<void> _bootstrap() async {
+    KnowledgeBase? kb;
     try {
-      // Using your provided API key directly so it works out of the box
-      // without needing --dart-define compiler arguments.
-      const apiKey = String.fromEnvironment(
-        'GEMINI_API_KEY',
-        defaultValue: 'AQ.Ab8RN6I-fxGxIBHGuwbJljSNkaRxw8QfCx8waeaRkbJ7cpe_wg',
-      );
-      _cloudAi = CloudAiService(apiKey: apiKey);
-      _ready = true;
+      kb = await KnowledgeBase.load();
     } catch (e) {
-      debugPrint('ChatScreen bootstrap error: $e');
+      debugPrint('KB load error: $e');
+    }
+
+    CloudAiService? cloudAi;
+    try {
+      const apiKey = String.fromEnvironment('GEMINI_API_KEY');
+      if (apiKey.isNotEmpty) {
+        cloudAi = CloudAiService(apiKey: apiKey);
+      }
+    } catch (e) {
+      debugPrint('CloudAI init error: $e');
+    }
+
+    if (mounted) {
+      setState(() {
+        _repo = ChatRepository(kb: kb ?? _emptyKb(), cloudAi: cloudAi);
+      });
     }
   }
 
+  KnowledgeBase _emptyKb() {
+    const fallbackChunk = Chunk(
+      id: 'fallback',
+      topic: 'general',
+      source: 'Shongjog',
+      text: 'জরুরি সাহায্যের জন্য ৯৯৯ এ কল করুন।',
+      keywordsBn: ['জরুরি', 'সাহায্য', '999'],
+    );
+    return KnowledgeBase(
+      chunks: const [fallbackChunk],
+      keywordRetriever: const KeywordRetriever(chunks: [fallbackChunk]),
+    );
+  }
+
   Future<void> _onSubmit(String q) async {
-    if (!_ready || _busy) return;
+    if (_repo == null || _busy) return;
     setState(() {
       _busy = true;
       _messages.insert(0, _Msg(q, true));
       _messages.insert(0, _Msg('ভাবছি...', false));
     });
     try {
-      String answer;
-      final isOnline = await _cloudAi!.isOnline;
-      if (isOnline) {
-        try {
-          answer = await _cloudAi!.generate(q);
-        } catch (e) {
-          debugPrint('Cloud AI error: $e');
-          answer =
-              'ক্লাউড AI এর সাথে সংযোগ করতে পারিনি। '
-              'অনুগ্রহ করে ইন্টারনেট সংযোগ পরীক্ষা করুন বা ৯৯৯ এ কল করুন।';
-        }
-      } else {
-        answer =
-            'আপনি অফলাইনে আছেন। অনুগ্রহ করে ইন্টারনেটে সংযুক্ত হোন '
-            'অথবা জরুরি সাহায্যের জন্য ৯৯৯ এ কল করুন।';
-      }
+      final answer = await _repo!.ask(q, onFallback: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('অফলাইন AI ব্যবহার করা হচ্ছে'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      });
+      if (!mounted) return;
       setState(() => _messages[0] = _Msg(answer, false));
-      // Removed _sound.knock() and _tts.speak() so it stays quiet automatically.
-      // Users can tap the 'পড়ুন' (Read) button on the message if they want to hear it.
     } catch (e) {
       debugPrint('ChatScreen _onSubmit error: $e');
+      if (!mounted) return;
       setState(() {
         _messages[0] =
             _Msg('ত্রুটি হয়েছে। অনুগ্রহ করে ৯৯৯ এ কল করুন।', false);
@@ -130,7 +144,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
-          if (!_ready && _messages.isEmpty)
+          if (_repo == null && _messages.isEmpty)
             const Padding(
               padding: EdgeInsets.all(8),
               child: LinearProgressIndicator(),

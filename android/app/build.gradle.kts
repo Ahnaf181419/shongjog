@@ -29,6 +29,12 @@ android {
         targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // Restrict to arm64-v8a — required for on-device Gemma LiteRT-LM
+        // runtime and keeps APK size minimal for the hackathon demo.
+        ndk {
+            abiFilters += listOf("arm64-v8a")
+        }
     }
 
     buildTypes {
