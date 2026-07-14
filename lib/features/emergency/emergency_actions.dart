@@ -3,9 +3,9 @@ import 'package:url_launcher/url_launcher.dart';
 /// Emergency actions via the cellular voice channel (tel: and sms: URIs).
 /// Bangladesh emergency numbers.
 class EmergencyActions {
-  // National hotlines.
+  // National hotlines (verified against BTRC + government directories).
   static const police = '999';
-  static const fire = '999';
+  static const fire = '16163';
   static const ambulance = '999';
   static const disaster = '333';
   static const redCrescent = '966';

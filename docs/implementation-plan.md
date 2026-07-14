@@ -154,7 +154,7 @@ shongjog/
 | 0.3 | Shelter GeoJSON | 🟡 PARTIAL | File committed, spot-check pending |
 | 1.1 | Scaffold + ABI filter | ✅ DONE | `arm64-v8a` added, `flutter analyze` clean |
 | 1.2 | Theme + navigation | ✅ DONE | 4-tab bottom nav (Home/AI/Cards/Shelter), 3-way theme toggle, routes, MainShell |
-| 1.3 | TDD skeleton + quick cards | ✅ DONE | 8 cards, expandable, tested; 81 tests pass, 1 skipped |
+| 1.3 | TDD skeleton + quick cards | ✅ DONE | 8 cards, expandable, tested; 91 tests pass, 1 skipped |
 | 2.1 | Corpus authored | ✅ DONE | 23 chunks, 10 topics, Sehab authored |
 | 2.2 | build_kb.py | ✅ DONE | mpnet 768-dim, topic-prefix enrichment |
 | 2.3 | verify_kb.py | ✅ DONE | 7/7 retrieval queries pass |
@@ -165,15 +165,15 @@ shongjog/
 | 3.4 | Chat UI + TTS | ✅ DONE | ChatStore persistence, typewriter effect, error bubble w/ retry + 999, voice prefs, suggestion chips, auto-read toggle |
 | 4.1 | STT (Vosk) | 🟡 PARTIAL | `SttProvider` abstraction ready; `SpeechToTextProvider` (online) active; `VoskSttProvider` stub coded — plugin compileSdk incompatible |
 | 4.2 | Shelter map | ✅ DONE | Map/list toggle (SegmentedButton), connectivity-aware tiles, offline markers + banner, distance-ranked list |
-| 4.3 | Quick cards | ✅ DONE | 8 cards, expandable, tested |
+| 4.3 | Nearest-shelter list | ✅ DONE | Haversine sort, `nearest_shelter_test.dart` green; Maruf-owned per team.md |
 | 4.4 | Emergency dial | ✅ DONE | Slide-to-confirm (single GestureDetector), reduced-motion fallback, real GPS via Geolocator |
 | 4.5 | SOS SMS | ✅ DONE | Template with GPS link, reads user name/phone from prefs, tested |
-| 4.6 | Cloud AI fallback | ✅ DONE | Gemini 3.5-flash + 3.1-flash-lite fallback chain |
+| 4.6 | Cloud AI fallback | ✅ DONE | Gemini 2.5-flash primary + 2.0-flash-lite fallback (real model IDs) |
 | 4.7 | Mesh comm | ✅ DONE | nearby_connections P2P, radar screen |
 | — | Onboarding | ✅ DONE | 3-page first-run flow (welcome → permissions → model download), gated by `pref_has_onboarded` |
 | — | ChatStore | ✅ DONE | JSON-based message persistence (survives app restart), clear-cache wired |
 | — | Settings rework | ✅ DONE | ModelManager download card (reactive progress bar), voice toggles, clear-cache → ChatStore.clear() |
-| — | Emergency contacts | ✅ DONE | Add/list/call emergency contacts |
+| — | Emergency contacts | ✅ DONE | Add/list/call emergency contacts (national hotlines + custom) |
 | 5.1 | Airplane-mode E2E | 🔴 DEVICE NEEDED | 5 scenarios to run |
 | 5.2 | Cold-start polish | ✅ DONE | Loading overlay, STT status, quick-cards link, onboarding gate |
 | 5.3 | Fallback video | 🔴 PENDING | Record 60s demo video |
@@ -182,7 +182,7 @@ shongjog/
 - **✅ Done:** 22 tasks
 - **🟡 Partial:** 3 tasks (need device or plugin fix)
 - **🔴 Blocked:** 4 tasks (all require physical arm64 Android device)
-- **Tests:** 81 pass, 1 skipped, `flutter analyze` clean
+- **Tests:** 91 pass, 1 skipped, `flutter analyze` clean
 
 ---
 
@@ -2431,7 +2431,9 @@ git add lib/features/about/
 git commit -m "feat(about): sources attribution page"
 ```
 
-### Task 4.6: Double-layer AI Orchestrator (Maruf — Cloud AI Integration)
+### Task 4.8: Double-layer AI Orchestrator (Maruf — Cloud AI Integration)
+
+> Renumbered from 4.6 → 4.8 to avoid collision with the earlier 4.6 (Emergency hub) on line 2228.
 
 **Files:**
 - Create: `lib/features/cloud_ai/cloud_ai_service.dart`
@@ -2461,7 +2463,9 @@ git add pubspec.yaml lib/features/cloud_ai/ lib/features/chat/
 git commit -m "feat(ai): double-layer ai orchestrator with local fallback"
 ```
 
-### Task 4.7: Offline Mesh Communication (Maruf)
+### Task 4.9: Offline Mesh Communication (Maruf)
+
+> Renumbered from 4.7 → 4.9 to avoid collision with the earlier 4.7 (About / sources) on line 2351.
 
 **Files:**
 - Create: `lib/features/mesh_comm/mesh_service.dart`

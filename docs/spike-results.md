@@ -7,6 +7,19 @@
 Companion docs: build tasks in `docs/implementation-plan.md`; demo script in `docs/demo.md`;
 architecture in `docs/architecture.md`.
 
+> ⚠️ **STATUS (2026-07-14): No Phase 0 spikes or Phase 5 measurements have been recorded
+> yet — every section below is a TEMPLATE awaiting the first on-device run.**
+>
+> This is expected: the spikes require a physical arm64-v8a Android device, which
+> arrived later than the code-complete date. The templates are pre-built so that
+> the moment a device is in hand, every measurement can be filled in without
+> restructuring the doc.
+>
+> **Before the demo or hackathon submission, this file must contain real numbers.**
+> A submission with this file all-template is a submission that hasn't been
+> validated offline — the central thesis of Shongjog. See `docs/PRE-DEMO.md`
+> for the operational checklist that gates the demo on recorded numbers here.
+
 ---
 
 ## How to use this file

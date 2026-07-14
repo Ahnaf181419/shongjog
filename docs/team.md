@@ -234,7 +234,7 @@ Append significant decisions here as they happen, so the team has a shared recor
 | Day X | Sehab emergency features complete: dial, SOS SMS, about page | All Phase 4.4, 4.5, and about tasks done |
 | Day X | Quick cards text contrast fix: added ShongjogTheme.ink color | Readability fix — dark text on white card background |
 | Day X | KB build pipeline complete (Phase 2.2-2.3): build_kb.py + verify_kb.py | 23 chunks embedded with mpnet, all 7 verify queries pass |
-| Day X | Keyword retriever (Phase 3.3 unblock): offline-first retrieval without embedder | flutter_gemma 0.5.1 has no embedder API; keyword matching unblocks RAG pipeline now |
+| Day X | Keyword retriever (Phase 3.3 unblock): offline-first retrieval without embedder | flutter_gemma 0.5.0 has no embedder API; keyword matching unblocks RAG pipeline now |
 | Day X | arm64-v8a ABI filter added to build.gradle.kts | Required for Gemma LiteRT-LM on-device |
 | Day X | ModelManager promoted to app-wide singleton (`modelManager`) | Needed for reactive UI in Settings, ChatScreen, and future screens; avoids per-widget state desync |
 | Day X | ModelManager resume: added 206-vs-200 status check | Prevents file corruption when server ignores Range header (truncates + restarts) |

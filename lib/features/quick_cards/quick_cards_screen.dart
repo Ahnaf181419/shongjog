@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import 'cards_data.dart';
 
-/// Quick cards screen — 6 static Bangla emergency cards.
+/// Quick cards screen — 8 static Bangla emergency cards.
 /// Works with no model loaded (safety net, docs/prd.md M4).
 /// Per design.md §7.2: ExpansionTile, numbered Bangla steps, 12dp spacing.
 class QuickCardsScreen extends StatelessWidget {

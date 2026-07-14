@@ -67,19 +67,12 @@ class ChatRepository {
   /// by cosine similarity when an embedder is available.
   List<RetrievalHit> _retrieve(String query) {
     final keywordHits = kb.keywordRetriever.topK(query, k: 5);
-
-    if (embedder != null && kb.cosineRetriever != null) {
-      _reRankWithCosine(query, keywordHits);
-    }
-
+    // Cosine re-ranking is deferred: `flutter_gemma` 0.5.x has no embedder
+    // API, and we deliberately do not call a network embedder (offline
+    // thesis). When a local embed lands, replace the body of this branch
+    // with:  embed(query) → score each hit → re-sort by descending cosine.
+    // See docs/POST-HACKATHON.md §1 for the embedder roadmap.
     return keywordHits.take(3).toList();
-  }
-
-  /// Re-rank keyword hits by cosine similarity. Called asynchronously
-  /// when an embedder is available. For now, keyword order is preserved
-  /// since the embedder is not yet wired.
-  void _reRankWithCosine(String query, List<RetrievalHit> hits) {
-    // TODO: When embedder lands, embed query and re-sort by cosine.
   }
 }
 

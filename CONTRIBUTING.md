@@ -100,7 +100,7 @@ flutter pub get
 
 # Verify clean state (no model / network needed)
 flutter analyze                # → "No issues found!"
-flutter test                   # → 81 pass, 1 skip
+flutter test                   # → 91 pass, 1 skip
 ```
 
 ### 3. (Optional) Rebuild the KB from source
@@ -186,7 +186,7 @@ We follow the `flutter_lints` default rules with these exceptions / additions:
 
 Anything that talks to `flutter_gemma` lives in `lib/core/model_manager.dart`.
 **Do not create a second model API path.** All model access goes through
-`modelManager.initialize()` and `modelManager.session.getResponse(...)`.
+`modelManager.initialize()` and `modelManager.generate(prompt: ...)` (or, for streaming, `modelManager.modelStream(...)`).
 
 ---
 

@@ -67,7 +67,7 @@ work completed during a build phase or significant milestone.
 
 - New test files: `chat_store_test`, `typewriter_text_test`, `onboarding_screen_test`,
   `emergency_sheet_test`, `settings_screen_test`.
-- Test count: **81 pass, 1 skipped** (up from 46).
+- Test count: **91 pass, 1 skipped** (up from 46).
 - `flutter analyze` clean — 0 issues.
 
 ---
@@ -76,7 +76,7 @@ work completed during a build phase or significant milestone.
 
 ### Added
 
-- `lib/features/cloud_ai/cloud_ai_service.dart` — Gemini 3.5-flash / 3.1-flash-lite
+- `lib/features/cloud_ai/cloud_ai_service.dart` — Gemini 2.5-flash / 2.0-flash-lite (was the fictional 3.5/3.1 IDs). Real model IDs verified against current Google GenAI line.
   fallback chain when online.
 - `lib/features/mesh_comm/mesh_service.dart` + `mesh_radar_screen.dart` — peer discovery
   via `nearby_connections`.
@@ -111,7 +111,7 @@ work completed during a build phase or significant milestone.
 ### Skipped
 
 - `lib/rag/embedder.dart` — EmbeddingGemma on-device embedder deferred (no public API
-  in `flutter_gemma 0.5.1`).
+  in `flutter_gemma 0.5.0`).
 - `KeywordRetriever` substituted as the primary retrieval path (BM25-lite + cosine
   hybrid over pre-computed vectors).
 
@@ -144,7 +144,7 @@ work completed during a build phase or significant milestone.
 - `arm64-v8a` ABI filter.
 - Bangla theme + 3-way system/light/dark toggle + ThemeController.
 - 4-tab bottom navigation in `MainShell`.
-- `quick_cards_screen.dart` with 6 (now 8) emergency cards.
+- `quick_cards_screen.dart` with 8 emergency cards (ORS, water, snakebite, diarrhea, shelter, bleeding, fever, drowning).
 - `quick_cards_screen_test.dart` (now 7 widget test files total).
 
 ### Verified

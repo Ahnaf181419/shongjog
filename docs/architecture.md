@@ -28,7 +28,7 @@ Query ──> KeywordRetriever (primary, offline) ──> top-3 verified emergen
          |                      top-3 verified emergency chunks
          v                                         |
 Gemma 4 E2B  <──── retrieved context + Bangla system prompt
-  (or Cloud AI fallback: Gemini 3.5-flash → 3.1-flash-lite, when online)
+  (or Cloud AI fallback: Gemini 2.5-flash → 2.0-flash-lite, when online)
          |
          +──> grounded step-by-step Bangla answer ──> screen (typewriter reveal) + TTS (read aloud)
          |
@@ -51,7 +51,7 @@ which frequently survives when mobile data is down.
 | Framework | Flutter 3.x, Dart 3.12+ | Single codebase, strong typing, mature widget toolkit; Android-first, iOS-capable |
 | Generation model | Gemma 4 E2B (4-bit, thinking off, GPU) | Smallest Gemma 4 that still grounds well in Bangla; fits ~2GB RAM |
 | On-device runtime | `flutter_gemma` (LiteRT-LM) | Only mature Flutter binding for Gemma on Android arm64; validated by Phase 0 spike A |
-| Retrieval / embeddings | `KeywordRetriever` (primary); `BruteForceRetriever` over mpnet 768-dim vectors (secondary) | Offline-first: keyword scoring with cosine hybrid. `flutter_gemma` embedder API (EmbeddingGemma 300M) bypassed in 0.5.1 — see §6 |
+| Retrieval / embeddings | `KeywordRetriever` (primary); `BruteForceRetriever` over mpnet 768-dim vectors (secondary) | Offline-first: keyword scoring with cosine hybrid. `flutter_gemma` embedder API (EmbeddingGemma 300M) bypassed in 0.5.0 — see §6 |
 | Voice in | Vosk + bundled `vosk-model-small-bn-*` | True offline; Google STT (`speech_to_text`) needs network on many Androids — unacceptable for the offline thesis |
 | Voice out | `flutter_tts` (`bn-BD`, `bn-IN` fallback) | Built into the platform; no extra download |
 | Location | `geolocator` | Standard, well-maintained |
@@ -152,7 +152,7 @@ lib/
 │   ├── about/
 │   │   └── about_screen.dart       Sources attribution page
 │   ├── cloud_ai/
-│   │   └── cloud_ai_service.dart   Gemini 3.5-flash + 3.1-flash-lite fallback
+│   │   └── cloud_ai_service.dart   Gemini 2.5-flash + 2.0-flash-lite fallback
 │   ├── mesh_comm/
 │   │   ├── mesh_service.dart       nearby_connections P2P adapter
 │   │   └── mesh_radar_screen.dart  Radar + peer-to-peer chat
@@ -213,8 +213,8 @@ using live embeddings is the future path if `flutter_gemma` exposes an embedder 
 one session and inject context per turn to keep memory flat.
 
 **Cloud fallback chain:** when offline retrieval produces no confident hits AND
-`connectivity_plus` reports online, `ChatRepository` tries Cloud AI (Gemini 3.5-flash →
-3.1-flash-lite fallback chain) before falling back to canned low-confidence response.
+`connectivity_plus` reports online, `ChatRepository` tries Cloud AI (Gemini 2.5-flash →
+2.0-flash-lite fallback chain) before falling back to canned low-confidence response.
 
 **Cold start:** first `initialize()` loads the model into RAM — expect 3–10s depending on
 device. The UI surfaces "AI প্রস্তুত হচ্ছে..." during this window via the reactive
@@ -245,7 +245,7 @@ Flutter bundle (rootBundle.load) at runtime
 **Embedder choice:** `paraphrase-multilingual-mpnet-base-v2` is used for build-time
 embedding (handles Bangla well, mature model, 768-dim). The on-device runtime embedder
 (EmbeddingGemma 300M via `flutter_gemma`) is bypassed in favor of `KeywordRetriever`
-(see §5) because `flutter_gemma 0.5.1` has no embedder API. When `flutter_gemma` ships an
+(see §5) because `flutter_gemma 0.5.0` has no embedder API. When `flutter_gemma` ships an
 embedder API, `KeywordRetriever` and `BruteForceRetriever` (already implemented) both
 remain usable.
 
@@ -411,7 +411,7 @@ answer?").
 ## 13. Open Questions (resolved during execution)
 
 1. Does `flutter_gemma`'s embedder API expose EmbeddingGemma 300M cleanly, or do we need
-   a separate model file path? **Resolved:** `flutter_gemma 0.5.1` has no embedder API.
+   a separate model file path? **Resolved:** `flutter_gemma 0.5.0` has no embedder API.
    We're using `KeywordRetriever` (offline BM25-lite) as the primary path. mpnet is used
    for build-time vectors only.
 2. Does Vosk's small Bangla model handle our 10 spike utterances at acceptable WER?

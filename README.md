@@ -35,7 +35,7 @@ All project docs live in [`docs/`](./docs). Start there.
 ```bash
 flutter pub get
 flutter analyze          # zero issues
-flutter test             # 81 pass, 1 skip
+flutter test             # 91 pass, 1 skip
 flutter run -d <arm64-device-id> --release
 ```
 
@@ -52,7 +52,7 @@ flutter run -d <arm64-device-id> --release
 | First-run onboarding (3 pages: welcome → permissions → model download) | ✅ Done |
 | Static quick cards — 8 expandable Bangla emergency guides (no model needed) | ✅ Done |
 | RAG chat with keyword retrieval over 23-chunk verified Bangla corpus | ✅ Done |
-| Cloud AI fallback (Gemini 3.5-flash → 3.1-flash-lite) when online | ✅ Done |
+| Cloud AI fallback (Gemini 2.5-flash → 2.0-flash-lite) when online | ✅ Done |
 | On-device Gemma 4 E2B integration (ModelManager singleton, Range-resume download) | ✅ Done |
 | Chat persistence across app restarts (JSON-based ChatStore) | ✅ Done |
 | Typewriter text reveal for AI responses | ✅ Done |
@@ -70,6 +70,6 @@ flutter run -d <arm64-device-id> --release
 
 ## Status
 
-**Active development.** 16+ tasks complete, 81 tests passing, `flutter analyze` clean.
+**Active development.** 22 tasks complete, 91 tests passing, `flutter analyze` clean.
 Remaining work is device-dependent (Phase 0 spikes, Phase 5 demo hardening) — see
 [`docs/implementation-plan.md`](./docs/implementation-plan.md) for the full status table.

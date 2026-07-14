@@ -6,7 +6,7 @@
 > whole state.
 
 **Date of this report:** 2026-07-14  
-**Status:** 🟢 Code-complete. Tests green (89 pass, 1 skip). `flutter analyze` clean.  
+**Status:** 🟢 Code-complete. Tests green (91 pass, 1 skip). `flutter analyze` clean.  
 **Demo readiness:** Phase 0 (device spikes) and Phase 5 (live demo) are the only
 remaining work, both requiring a physical arm64-v8a Android device.
 
@@ -19,7 +19,7 @@ remaining work, both requiring a physical arm64-v8a Android device.
 | Tasks complete | 22 ✅ |
 | Tasks partial | 3 🟡 |
 | Tasks blocked on device | 4 🔴 |
-| Tests passing | 89 (1 skipped) |
+| Tests passing | 91 (1 skipped) |
 | `flutter analyze` | 0 issues |
 | Commits | 14+ during this build |
 | Files in `lib/` | 38 Dart files |
@@ -65,7 +65,7 @@ Everything below runs on the Android emulator and in `flutter test`:
 - **Voice prefs** consumed by ChatScreen and Settings:
   - `pref_auto_read` → auto TTS after render
   - `pref_voice_input` → blocks mic when off
-- **Cloud AI fallback** chain (Gemini 3.5-flash → 3.1-flash-lite) when online.
+- **Cloud AI fallback** chain (Gemini 2.5-flash → 2.0-flash-lite) when online.
 
 ### Emergency
 - **Slide-to-confirm dialer** for 999 — single GestureDetector, real GPS, real user
@@ -88,7 +88,7 @@ Everything below runs on the Android emulator and in `flutter test`:
 - **`HapticService`** (`lib/core/haptics.dart`) codified per design spec — 6 events.
 - **`SoundService`** (`lib/features/audio/sound_service.dart`) — chime + knock,
   5-second debounce, gated by prefs.
-- **Test suite** — 89 pass, 1 skip, organized into unit/widget/integration.
+- **Test suite** — 91 pass, 1 skip, organized into unit/widget/integration.
 
 ---
 

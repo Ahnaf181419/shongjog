@@ -18,7 +18,7 @@ Companion docs: `docs/demo.md` (live script), `docs/spike-results.md` (measureme
 ```bash
 flutter pub get
 flutter analyze                        # must report "No issues found"
-flutter test                           # must show 81 pass, 1 skip
+flutter test                           # must show 91 pass, 1 skip
 ```
 
 ### Build verification

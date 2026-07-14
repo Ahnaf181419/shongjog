@@ -3,7 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'contact_model.dart';
 
-/// National emergency numbers — fixed, always shown above user contacts.
+/// National emergency numbers (verified against BTRC directory) — always
+/// shown above user-added custom contacts so the user can reach a real
+/// hotline in one tap regardless of state.
 final List<Contact> nationalContacts = [
   const Contact(
     id: 'police',
@@ -14,7 +16,7 @@ final List<Contact> nationalContacts = [
   const Contact(
     id: 'fire',
     nameBn: 'ফায়ার সার্ভিস',
-    phone: '999',
+    phone: '16163',
     category: ContactCategory.fire,
   ),
   const Contact(

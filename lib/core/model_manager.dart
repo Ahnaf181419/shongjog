@@ -25,8 +25,9 @@ enum ModelState {
 /// (docs/design.md §13.5).
 ///
 /// Download uses [HttpClient] with resume support (Range header). The
-/// `background_downloader` package is in pubspec for a future swap to
-/// get OS-level background download + resume-on-network-change.
+/// `background_downloader` package was removed from pubspec in favour of
+/// stdlib HttpClient (smaller APK; the size of the Gemma file means we
+/// need UI-level progress, not OS-level background continuation).
 class ModelManager extends ChangeNotifier {
   static const _modelFileName = 'gemma4_e2b_int4.task';
 

@@ -205,18 +205,23 @@ class _EmergencySheetState extends State<EmergencySheet> {
   }
 
   void _sendSos() async {
-    double lat = 0.0;
-    double lon = 0.0;
+    double? lat;
+    double? lon;
     String name = 'ব্যবহারকারী';
     String phone = 'অজানা';
+    String? gpsWarning;
 
     try {
       var permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
-      if (permission != LocationPermission.denied &&
-          permission != LocationPermission.deniedForever) {
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        // Don't silently ship (0,0) — flag it so the SOS body + UI can be
+        // honest about where we are (responders can't search Atlantic Ocean).
+        gpsWarning = 'GPS অনুমতি দেওয়া হয়নি';
+      } else {
         final pos = await Geolocator.getCurrentPosition(
           locationSettings: const LocationSettings(
             accuracy: LocationAccuracy.medium,
@@ -226,7 +231,9 @@ class _EmergencySheetState extends State<EmergencySheet> {
         lat = pos.latitude;
         lon = pos.longitude;
       }
-    } catch (_) {}
+    } catch (_) {
+      gpsWarning = 'GPS পাওয়া যায়নি (স্যাটেলাইট সিগন্যাল নেই?)';
+    }
 
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -234,8 +241,27 @@ class _EmergencySheetState extends State<EmergencySheet> {
       phone = prefs.getString('user_phone') ?? phone;
     } catch (_) {}
 
-    final body = sosSmsBody(name: name, phone: phone, lat: lat, lon: lon);
+    final body = sosSmsBody(
+      name: name,
+      phone: phone,
+      lat: lat,
+      lon: lon,
+      gpsWarning: gpsWarning,
+    );
     await EmergencyActions.sendSos(body);
-    if (mounted) Navigator.pop(context);
+
+    if (!mounted) return;
+    if (gpsWarning != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$gpsWarning — $phone কে কল করুন বা ৯৯৯।'),
+          backgroundColor: ShongjogTheme.alertRedDark,
+          duration: const Duration(seconds: 5),
+        ),
+      );
+      // Don't auto-close: the user must see the warning and decide next step.
+      return;
+    }
+    Navigator.pop(context);
   }
 }
