@@ -11,6 +11,15 @@ import '../features/shelter/shelter_map_screen.dart';
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
 
+  /// Switch the bottom-nav tab from outside the shell (e.g. a CTA on the
+  /// chat empty state wanting to jump to the cards tab). The shell key is
+  /// stashed on the topmost [ScaffoldMessenger] ancestor; we look it up by
+  /// state type to keep this cheap and explicit.
+  static void goToTab(BuildContext context, int index) {
+    final state = context.findAncestorStateOfType<_MainShellState>();
+    state?._goToTab(index);
+  }
+
   @override
   State<MainShell> createState() => _MainShellState();
 }

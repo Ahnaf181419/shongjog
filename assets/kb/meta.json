@@ -1,0 +1,6 @@
+{
+  "model": "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
+  "num_chunks": 23,
+  "embedding_dim": 768,
+  "vectors_bytes": 70656
+}

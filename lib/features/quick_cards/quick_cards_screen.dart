@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import 'cards_data.dart';
 
-/// Quick cards screen — 6 static Bangla emergency cards.
+/// Quick cards screen — 8 static Bangla emergency cards.
 /// Works with no model loaded (safety net, docs/prd.md M4).
 /// Per design.md §7.2: ExpansionTile, numbered Bangla steps, 12dp spacing.
 class QuickCardsScreen extends StatelessWidget {
@@ -31,15 +31,16 @@ class _CardTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: ShongjogTheme.surface,
+        color: ShongjogTheme.cardSurface(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: ShongjogTheme.border),
+        border: Border.all(color: ShongjogTheme.hairline(context)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
           shape: const Border(),
+          collapsedShape: const Border(),
           leading: Container(
             width: 44,
             height: 44,
@@ -51,11 +52,14 @@ class _CardTile extends StatelessWidget {
           ),
           title: Text(
             card.titleBn,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
+              color: ShongjogTheme.body(context),
             ),
           ),
+          iconColor: ShongjogTheme.bodySecondary(context),
+          collapsedIconColor: ShongjogTheme.bodySecondary(context),
           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           children: [
             ...card.stepsBn.asMap().entries.map((e) => Padding(
@@ -88,7 +92,7 @@ class _CardTile extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 16,
                             height: 1.4,
-                            color: ShongjogTheme.ink,
+                            color: ShongjogTheme.body(context),
                           ),
                         ),
                       ),

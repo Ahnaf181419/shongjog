@@ -80,14 +80,45 @@ class ShongjogTheme {
 
   // ─── Helpers for custom widgets ───────────────────────────
 
+  /// Body text color that adapts to the current theme.
+  ///
+  /// `ShongjogTheme.ink` (slate-900) is correct only in light mode; on a
+  /// dark scaffold it would render dark-on-dark and be invisible. Same
+  /// for `inkSecondary`. These helpers route through Material 3's
+  /// [ColorScheme.onSurface] so text reads AAA on every background.
+  ///
+  /// Usage in production screens:
+  /// ```dart
+  /// color: ShongjogTheme.body(context),
+  /// color: ShongjogTheme.bodySecondary(context),
+  /// ```
+  static Color body(BuildContext c) => Theme.of(c).colorScheme.onSurface;
+
+  /// Secondary body color (captions, subtitles, helper text). Adapts.
+  static Color bodySecondary(BuildContext c) =>
+      Theme.of(c).colorScheme.onSurfaceVariant;
+
+  /// Card surface color that adapts — returns `surface` in light, the
+  /// mid-tone `surfaceContainerHighest` in dark. Avoids the "jarring
+  /// bright white card on dark scaffold" problem when widgets hardcode
+  /// `ShongjogTheme.surface`.
+  static Color cardSurface(BuildContext c) {
+    final cs = Theme.of(c).colorScheme;
+    return cs.brightness == Brightness.dark
+        ? cs.surfaceContainerHighest
+        : cs.surface;
+  }
+
   /// Soft-elevation card decoration — tinted surface, hairline border,
   /// diffuse shadow. The signature "clean and rich" surface.
   static BoxDecoration cardDecoration(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
     return BoxDecoration(
-      color: Theme.of(context).colorScheme.surface,
+      color: cardSurface(context),
       borderRadius: BorderRadius.circular(radius),
-      border: Border.all(color: isLight ? border : borderDark),
+      border: Border.all(
+        color: isLight ? border : Theme.of(context).colorScheme.outlineVariant,
+      ),
       boxShadow: [
         BoxShadow(
           color: isLight
@@ -110,6 +141,92 @@ class ShongjogTheme {
       borderRadius: BorderRadius.circular(radiusSm),
     );
   }
+
+  /// Drenched hero panel — soft linear gradient + low elevation.
+  ///
+  /// Used for the AI entry card on Home. Both gradient stops live in the
+  /// locked sky family (~205°); ~10-15% lightness variation, no hue drift.
+  /// The drench comes from gradient + scale + composition, never from glow.
+  static BoxDecoration heroPanel(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isLight = cs.brightness == Brightness.light;
+    final gradient = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: isLight
+          ? const [Color(0xFF0284C7), Color(0xFF075985)] // sky-600 → sky-800
+          : const [Color(0xFF38BDF8), Color(0xFF0369A1)], // sky-400 → sky-700
+    );
+    return BoxDecoration(
+      gradient: gradient,
+      borderRadius: BorderRadius.circular(radiusLg),
+      boxShadow: [
+        BoxShadow(
+          color: cs.primary.withValues(alpha: isLight ? 0.25 : 0.40),
+          offset: const Offset(0, 8),
+          blurRadius: 16,
+        ),
+      ],
+    );
+  }
+
+  /// Recessed mic well — soft tinted container that holds the mic icon on
+  /// the drenched hero. Reads as "contained object," not "light source."
+  static BoxDecoration micWell(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isLight = cs.brightness == Brightness.light;
+    return BoxDecoration(
+      color: cs.onPrimary.withValues(alpha: isLight ? 0.18 : 0.22),
+      borderRadius: BorderRadius.circular(16),
+    );
+  }
+
+  /// Bangla numeral chip — small bordered square on drenched panels, used
+  /// for secondary state markers (model-ready, alert count, etc.).
+  static BoxDecoration numeralChip(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return BoxDecoration(
+      color: cs.onPrimary.withValues(alpha: 0.12),
+      borderRadius: BorderRadius.circular(8),
+      border: Border.all(
+        color: cs.onPrimary.withValues(alpha: 0.30),
+        width: 1,
+      ),
+    );
+  }
+
+  /// Status chip — hairline pill for inline status lines on the body.
+  /// Sits on the scaffold; uses `surfaceContainerHighest` so it lifts off
+  /// the bg subtly without screaming for attention.
+  static BoxDecoration statusChip(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return BoxDecoration(
+      color: cs.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: cs.outlineVariant),
+    );
+  }
+
+  /// Weather card surface — soft surface with hairline + diffuse shadow.
+  /// Used as the wrapper for the today row + 3-day strip.
+  static BoxDecoration weatherCard(BuildContext context) {
+    return cardDecoration(context);
+  }
+
+  /// Emergency pill — solid error fill, small radius, used in the AppBar
+  /// for the persistent "জরুরি কল" shortcut. Children paint in `onError`.
+  static BoxDecoration emergencyPill(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return BoxDecoration(
+      color: cs.error,
+      borderRadius: BorderRadius.circular(10),
+    );
+  }
+
+  /// Adaptive hairline border color (slate-200 in light, surfaceContainerHighest
+  /// outline in dark).
+  static Color hairline(BuildContext c) =>
+      Theme.of(c).colorScheme.outlineVariant;
 
   // ─── Theme data builders ──────────────────────────────────
 
@@ -157,10 +274,22 @@ class ShongjogTheme {
       scaffoldBackgroundColor: scaffoldBg,
       dividerColor: borderColor,
       textTheme: tt.copyWith(
-        bodyLarge: tt.bodyLarge?.copyWith(fontSize: bodyLargeFloor),
-        bodyMedium: tt.bodyMedium?.copyWith(fontSize: bodyFloor),
-        bodySmall:
-            tt.bodySmall?.copyWith(fontSize: 14, color: textSecondary),
+        // Enforce the body floor (17sp) and caption floor (14sp) globally.
+        // Anything below 14sp is a type-scale violation we want to catch in
+        // code review, not a value the designer gets to pick.
+        bodyLarge: tt.bodyLarge?.copyWith(
+          fontSize: bodyLargeFloor,
+          height: 1.45,
+        ),
+        bodyMedium: tt.bodyMedium?.copyWith(
+          fontSize: bodyFloor,
+          height: 1.45,
+        ),
+        bodySmall: tt.bodySmall?.copyWith(
+          fontSize: 14,
+          color: textSecondary,
+          height: 1.35,
+        ),
         titleLarge:
             tt.titleLarge?.copyWith(fontWeight: FontWeight.w600, color: textPrimary),
         titleMedium:
@@ -169,8 +298,16 @@ class ShongjogTheme {
             tt.headlineMedium?.copyWith(fontWeight: FontWeight.w600),
         labelLarge: tt.labelLarge?.copyWith(
           fontSize: 17,
+          height: 1.2,
           fontWeight: FontWeight.w600,
           fontFamily: fontFamily,
+        ),
+        labelMedium: tt.labelMedium?.copyWith(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          fontFamily: fontFamily,
+          color: textSecondary,
+          letterSpacing: 0.02,
         ),
       ),
       appBarTheme: AppBarTheme(

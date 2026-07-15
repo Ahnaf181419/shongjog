@@ -22,7 +22,7 @@
     { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.32, 21.95] },
       "properties": { "name": "Patuakhali Coastal Shelter", "name_bn": "পটুয়াখালী উপকূলীয় শেল্টার", "capacity": 1000, "source": "MoDMR" } },
     { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.11, 22.09] },
-      "properties": { "name": "Kuakata Shelter", "name_bn": "কুয়াকাটা শেল্টার", "capacity": 650, "source": "OSM" } },
+      "properties": { "name": "Kuakata Sea Beach Shelter", "name_bn": "কুয়াকাটা সমুদ্র সৈকত শেল্টার", "capacity": 650, "source": "OSM" } },
     { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.11, 22.10] },
       "properties": { "name": "Barguna Shelter A", "name_bn": "বরগুনা শেল্টার এ", "capacity": 780, "source": "MoDMR" } },
     { "type": "Feature", "geometry": { "type": "Point", "coordinates": [91.10, 22.82] },

@@ -34,9 +34,9 @@ dependencies:
   url_launcher: ^6.3.0
 
   # Model management & state
-  background_downloader: ^9.0.0
   path_provider: ^2.1.0
   shared_preferences: ^2.3.0
+  background_downloader: ^9.0.0
 
   # Utilities
   collection: ^1.18.0
@@ -51,6 +51,8 @@ dependencies:
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
   flutter_lints: ^6.0.0
 

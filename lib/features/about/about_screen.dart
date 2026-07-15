@@ -4,6 +4,11 @@ import '../../app/theme.dart';
 
 /// About / sources page. Lists the corpus sources, building trust by
 /// showing guidance is attributable (docs/design.md §7.7).
+///
+/// Theme-aware: every color is derived from [ColorScheme] or the
+/// [ShongjogTheme] helpers so the page reads correctly in light AND dark
+/// mode (the previous version used hardcoded hex + deprecated aliases
+/// and lost contrast in dark).
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
@@ -24,32 +29,38 @@ class AboutScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: const Text('তথ্যসূত্র')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Brand header
+          // Brand header — primary-tinted card. White text on the brand
+          // surface in both modes (ocean in light, oceanBright in dark —
+          // both offer ≥5:1 with white).
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: ShongjogTheme.calmTeal,
+              color: cs.primary,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Column(
+            child: Column(
               children: [
                 Text(
                   'সংযোগ',
                   style: TextStyle(
-                    color: ShongjogTheme.white,
+                    color: cs.onPrimary,
                     fontSize: 28,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 Text(
                   'অফলাইন জরুরি সহায়তা — বাংলায়',
-                  style: TextStyle(color: Colors.white70, fontSize: 15),
+                  style: TextStyle(
+                    color: cs.onPrimary.withValues(alpha: 0.85),
+                    fontSize: 15,
+                  ),
                 ),
               ],
             ),
@@ -61,7 +72,7 @@ class AboutScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               height: 1.5,
-              color: ShongjogTheme.inkSecondary,
+              color: ShongjogTheme.bodySecondary(context),
             ),
           ),
           const SizedBox(height: 20),
@@ -70,9 +81,11 @@ class AboutScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: ShongjogTheme.surface,
+                    color: ShongjogTheme.cardSurface(context),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: ShongjogTheme.border),
+                    border: Border.all(
+                      color: ShongjogTheme.hairline(context),
+                    ),
                   ),
                   child: Row(
                     children: [
@@ -80,25 +93,33 @@ class AboutScreen extends StatelessWidget {
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: ShongjogTheme.calmTeal.withValues(alpha: 0.1),
+                          color: cs.primary.withValues(alpha: 0.10),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(Icons.verified_outlined,
-                            color: ShongjogTheme.calmTeal, size: 20),
+                        child: Icon(Icons.verified_outlined,
+                            color: cs.primary, size: 20),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(s.name,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w600, fontSize: 15)),
+                            Text(
+                              s.name,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                                color: ShongjogTheme.body(context),
+                              ),
+                            ),
                             const SizedBox(height: 2),
-                            Text(s.bn,
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    color: ShongjogTheme.inkSecondary)),
+                            Text(
+                              s.bn,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: ShongjogTheme.bodySecondary(context),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -107,22 +128,30 @@ class AboutScreen extends StatelessWidget {
                 ),
               )),
           const SizedBox(height: 20),
+          // 999 footer — emergency call-out, theme-adaptive error color.
+          // In light mode: red-600 surface (light variant). In dark mode:
+          // red-400 surface (brighter for dark contrast).
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: ShongjogTheme.alertRed.withValues(alpha: 0.08),
+              color: cs.error.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                  color: ShongjogTheme.alertRed.withValues(alpha: 0.2)),
+                color: cs.error.withValues(alpha: 0.30),
+              ),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.phone_in_talk, color: ShongjogTheme.alertRed),
-                SizedBox(width: 12),
+                Icon(Icons.phone_in_talk, color: cs.error),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'জরুরি হলে সর্বদা ৯৯৯ নম্বরে কল করুন বা নিকটস্থ হাসপাতালে যান।',
-                    style: TextStyle(fontSize: 15, height: 1.4),
+                    style: TextStyle(
+                      fontSize: 15,
+                      height: 1.4,
+                      color: cs.onSurface,
+                    ),
                   ),
                 ),
               ],

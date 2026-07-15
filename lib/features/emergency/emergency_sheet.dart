@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/theme.dart';
 import 'emergency_actions.dart';
@@ -43,10 +45,10 @@ class _EmergencySheetState extends State<EmergencySheet> {
     final reduceMotion = MediaQuery.of(context).disableAnimations;
 
     return Scaffold(
-      backgroundColor: ShongjogTheme.darkBg,
+      backgroundColor: ShongjogTheme.scaffoldDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        foregroundColor: ShongjogTheme.darkInk,
+        foregroundColor: ShongjogTheme.inkDark,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close),
@@ -62,22 +64,23 @@ class _EmergencySheetState extends State<EmergencySheet> {
             children: [
               const Spacer(),
               const Icon(Icons.phone_in_talk,
-                  size: 56, color: ShongjogTheme.alertRedDark),
+                  size: 56, color: ShongjogTheme.alertBright),
               const SizedBox(height: 16),
               const Text(
                 '৯৯৯',
                 style: TextStyle(
-                  fontSize: 80,
+                  fontSize: 96,
                   fontWeight: FontWeight.w600,
-                  color: ShongjogTheme.alertRedDark,
+                  color: ShongjogTheme.alertBright,
+                  letterSpacing: -0.02,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               Text(
                 'জরুরি সেবায় কল করতে ডানে স্লাইড করুন',
                 style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.white.withValues(alpha: 0.7),
+                  fontSize: ShongjogTheme.bodyFloor,
+                  color: ShongjogTheme.inkDark.withValues(alpha: 0.7),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -89,14 +92,14 @@ class _EmergencySheetState extends State<EmergencySheet> {
               const SizedBox(height: 24),
               TextButton(
                 onPressed: _sendSos,
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.message_outlined,
-                        color: ShongjogTheme.calmTealPlus),
-                    SizedBox(width: 8),
+                        color: ShongjogTheme.oceanBright),
+                    const SizedBox(width: 8),
                     Text('পরিবর্তে SOS পাঠান',
-                        style: TextStyle(color: ShongjogTheme.calmTealPlus)),
+                        style: TextStyle(color: ShongjogTheme.oceanBright)),
                   ],
                 ),
               ),
@@ -120,57 +123,43 @@ class _EmergencySheetState extends State<EmergencySheet> {
             return Container(
               height: knobSize + 8,
               decoration: BoxDecoration(
-                color: ShongjogTheme.darkSurface,
+                color: ShongjogTheme.surfaceDark,
                 borderRadius: BorderRadius.circular(knobSize),
               ),
               child: Stack(
                 children: [
-                  Positioned(
-                    left: 4,
-                    top: 4,
-                    child: GestureDetector(
-                      onHorizontalDragUpdate: (d) {
-                        setLocalState(() {
-                          _dragProgress =
-                              (_dragProgress + d.delta.dx / maxDrag)
-                                  .clamp(0.0, 1.0);
-                        });
-                      },
-                      onHorizontalDragEnd: (_) {
-                        if (_dragProgress >= 0.9) {
-                          _confirmDial();
-                        } else {
-                          setLocalState(() => _dragProgress = 0);
-                        }
-                      },
-                      child: Container(
-                        width: knobSize,
-                        height: knobSize,
-                        decoration: const BoxDecoration(
-                          color: ShongjogTheme.alertRedDark,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          _dragProgress >= 0.9
-                              ? Icons.phone
-                              : Icons.arrow_forward,
-                          color: Colors.white,
-                        ),
+                  Center(
+                    child: Text(
+                      _dragProgress >= 0.9
+                          ? 'ছেড়ে দিন'
+                          : 'ডানে স্লাইড করুন',
+                      style: TextStyle(
+                        fontSize: ShongjogTheme.bodyFloor,
+                        color: ShongjogTheme.inkDark.withValues(alpha: 0.4),
                       ),
                     ),
                   ),
-                  // Animated knob position
                   AnimatedPositioned(
-                    duration: const Duration(milliseconds: 0),
+                    duration: _dragProgress == 0 || _dragProgress >= 0.9
+                        ? const Duration(milliseconds: 240)
+                        : Duration.zero,
+                    curve: Curves.easeOutCubic,
                     left: 4 + (_dragProgress * maxDrag),
                     top: 4,
                     child: GestureDetector(
                       onHorizontalDragUpdate: (d) {
+                        final prev = _dragProgress;
                         setLocalState(() {
                           _dragProgress =
                               (_dragProgress + d.delta.dx / maxDrag)
                                   .clamp(0.0, 1.0);
                         });
+                        // Haptic tick when crossing the 50% and 90% thresholds,
+                        // so a shaking-hand user gets positional feedback.
+                        if ((prev < 0.5 && _dragProgress >= 0.5) ||
+                            (prev < 0.9 && _dragProgress >= 0.9)) {
+                          HapticFeedback.selectionClick();
+                        }
                       },
                       onHorizontalDragEnd: (_) {
                         if (_dragProgress >= 0.9) {
@@ -182,11 +171,25 @@ class _EmergencySheetState extends State<EmergencySheet> {
                       child: Container(
                         width: knobSize,
                         height: knobSize,
-                        decoration: const BoxDecoration(
-                          color: ShongjogTheme.alertRedDark,
+                        decoration: BoxDecoration(
+                          color: ShongjogTheme.alertBright,
                           shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: ShongjogTheme.alertBright
+                                  .withValues(alpha: 0.4),
+                              blurRadius: 12,
+                              spreadRadius: 1,
+                            ),
+                          ],
                         ),
-                        child: const Icon(Icons.phone, color: Colors.white),
+                        child: Icon(
+                          _dragProgress >= 0.9
+                              ? Icons.phone
+                              : Icons.arrow_forward_rounded,
+                          color: Colors.white,
+                          size: 26,
+                        ),
                       ),
                     ),
                   ),
@@ -218,13 +221,63 @@ class _EmergencySheetState extends State<EmergencySheet> {
   }
 
   void _sendSos() async {
+    double? lat;
+    double? lon;
+    String name = 'ব্যবহারকারী';
+    String phone = 'অজানা';
+    String? gpsWarning;
+
+    try {
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        // Don't silently ship (0,0) — flag it so the SOS body + UI can be
+        // honest about where we are (responders can't search Atlantic Ocean).
+        gpsWarning = 'GPS অনুমতি দেওয়া হয়নি';
+      } else {
+        final pos = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.medium,
+            timeLimit: Duration(seconds: 5),
+          ),
+        );
+        lat = pos.latitude;
+        lon = pos.longitude;
+      }
+    } catch (_) {
+      gpsWarning = 'GPS পাওয়া যায়নি (স্যাটেলাইট সিগন্যাল নেই?)';
+    }
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      name = prefs.getString('user_name') ?? name;
+      phone = prefs.getString('user_phone') ?? phone;
+    } catch (_) {}
+
     final body = sosSmsBody(
-      name: 'ব্যবহারকারী',
-      phone: 'অজানা',
-      lat: 0.0,
-      lon: 0.0,
+      name: name,
+      phone: phone,
+      lat: lat,
+      lon: lon,
+      gpsWarning: gpsWarning,
     );
     await EmergencyActions.sendSos(body);
-    if (mounted) Navigator.pop(context);
+
+    if (!mounted) return;
+    if (gpsWarning != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$gpsWarning — $phone কে কল করুন বা ৯৯৯।'),
+          backgroundColor: ShongjogTheme.alertBright,
+          duration: const Duration(seconds: 5),
+        ),
+      );
+      // Don't auto-close: the user must see the warning and decide next step.
+      return;
+    }
+    Navigator.pop(context);
   }
 }

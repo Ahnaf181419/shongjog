@@ -165,11 +165,13 @@ Commit to main at IC-2
 
 ### `tools/build_kb.py`
 
-Reads `tools/corpus.json`, embeds each chunk's `text + keywords_bn` with EmbeddingGemma
-300M (via `sentence-transformers`), L2-normalizes the vectors, and writes:
+Reads `tools/corpus.json`, embeds each chunk's `(text + topic prefix + keywords_bn)`
+with `paraphrase-multilingual-mpnet-base-v2` (via `sentence-transformers`), L2-normalizes
+the vectors, and writes:
 
 - `assets/kb/corpus.json` — a copy of the source (shipped for transparency).
 - `assets/kb/vectors.bin` — `float32`, row-major, shape `[N, 768]`.
+- `assets/kb/meta.json` — build metadata (chunk count, embed dim, build timestamp).
 
 Run from the `tools/` directory after activating the venv:
 
