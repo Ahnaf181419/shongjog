@@ -4,7 +4,7 @@ import 'package:shongjog/rag/types.dart';
 
 void main() {
   group('buildPrompt', () {
-    test('assembles system + context + query, always includes 999 reminder', () {
+    test('assembles persona + rules + context + query for emergency topic', () {
       final hits = [
         RetrievalHit(
           const Chunk(
@@ -19,22 +19,32 @@ void main() {
       ];
       final prompt = buildPrompt(query: 'বাচ্চার ডায়রিয়া', hits: hits);
 
-      // System prompt present.
-      expect(prompt, contains('তুমি শঙ্গ্যোগ, একজন বাংলা ভাষায়'));
+      // Persona present.
+      expect(prompt, contains('You are Shongjog'));
+      // Language matching rule present.
+      expect(prompt, contains('same language'));
       // Retrieved context present, with source bracket.
       expect(prompt, contains('[WHO] ORS রেসিপি'));
       // User query echoed.
       expect(prompt, contains('বাচ্চার ডায়রিয়া'));
-      // The 999 escalation cue must ALWAYS be in the assembled prompt.
-      expect(prompt, contains('999'));
+      // 999 escalation present for emergency query (Bengali numerals).
+      expect(prompt, contains('৯৯৯'));
     });
 
-    test('empty hits still assembles a valid prompt', () {
-      final prompt = buildPrompt(query: 'অজানা প্রশ্ন', hits: const []);
-      expect(prompt, contains('অজানা প্রশ্ন'));
-      expect(prompt, contains('999'));
-      // The system prompt's no-context fallback line should appear.
-      expect(prompt, contains('কোনো প্রসঙ্গ'));
+    test('empty hits omits context section entirely', () {
+      final prompt = buildPrompt(query: 'তোমার নাম কি', hits: const []);
+      expect(prompt, contains('তোমার নাম কি'));
+      // No context section when hits are empty.
+      expect(prompt, isNot(contains('Verified context')));
+      expect(prompt, isNot(contains('প্রসঙ্গ')));
+      // No 999 for non-emergency query.
+      expect(prompt, isNot(contains('৯৯৯')));
+    });
+
+    test('999 only appended for emergency queries', () {
+      final prompt =
+          buildPrompt(query: 'বাচ্চার জ্বর কমাতে কি করবো', hits: const []);
+      expect(prompt, contains('৯৯৯'));
     });
 
     test('multiple hits are joined with source brackets', () {
@@ -57,6 +67,12 @@ void main() {
       final prompt = buildPrompt(query: 'q', hits: hits);
       expect(prompt, contains('[WHO] AAA'));
       expect(prompt, contains('[CDC] BBB'));
+    });
+
+    test('isEmergencyQuery detects Bangla and English keywords', () {
+      expect(isEmergencyQuery('জরুরি সাহায্য দরকার'), isTrue);
+      expect(isEmergencyQuery('I have chest pain'), isTrue);
+      expect(isEmergencyQuery('what is the weather'), isFalse);
     });
   });
 }

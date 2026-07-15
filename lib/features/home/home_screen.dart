@@ -5,6 +5,8 @@ import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../core/connectivity_provider.dart';
 import '../../core/haptics.dart';
+import '../intelligence/intelligence_engine.dart';
+import '../intelligence/notification_service.dart';
 import '../quick_cards/cards_data.dart';
 import '../weather/weather_card.dart';
 
@@ -56,8 +58,7 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 12),
           _OfflineMessageTile(),
           const SizedBox(height: 12),
-          // ── Contextual tip ──
-          const _TipCard(),
+          const _InsightsList(),
         ],
       ),
     );
@@ -565,12 +566,51 @@ class _OfflineMessageTile extends StatelessWidget {
   }
 }
 
-// ════════════════════════════════════════════════════════════════
-//  Tip card — contextual guidance
-// ════════════════════════════════════════════════════════════════
+class _InsightsList extends StatefulWidget {
+  const _InsightsList();
 
-class _TipCard extends StatelessWidget {
-  const _TipCard();
+  @override
+  State<_InsightsList> createState() => _InsightsListState();
+}
+
+class _InsightsListState extends State<_InsightsList> {
+  @override
+  void initState() {
+    super.initState();
+    intelligenceEngine.addListener(_onChange);
+    intelligenceEngine.analyzeBehavior();
+  }
+
+  @override
+  void dispose() {
+    intelligenceEngine.removeListener(_onChange);
+    super.dispose();
+  }
+
+  void _onChange() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final insights = NotificationService.generateInsights(intelligenceEngine.profile);
+    if (insights.isEmpty) return const SizedBox.shrink();
+
+    // Just show the top 2 insights to avoid clutter
+    final displayInsights = insights.take(2).toList();
+
+    return Column(
+      children: displayInsights.map((insight) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: _InsightCard(insight: insight),
+      )).toList(),
+    );
+  }
+}
+
+class _InsightCard extends StatelessWidget {
+  final ProactiveInsight insight;
+  const _InsightCard({required this.insight});
 
   @override
   Widget build(BuildContext context) {
@@ -603,7 +643,7 @@ class _TipCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'আজকের পরামর্শ',
+                  insight.title,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -613,7 +653,7 @@ class _TipCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'বন্যা মৌসুমে পানি অন্তত ১ মিনিট ফুটিয়ে পান। পানিবাহিত রোগ প্রতিরোধে ORS মজুত রাখুন।',
+                  insight.message,
                   style: TextStyle(
                     fontSize: ShongjogTheme.bodyFloor,
                     height: 1.5,
@@ -623,6 +663,14 @@ class _TipCard extends StatelessWidget {
               ],
             ),
           ),
+          if (insight.route != '/')
+            IconButton(
+              icon: Icon(Icons.arrow_forward_ios_rounded, size: 16, color: cs.primary),
+              onPressed: () {
+                if (insight.route == '/shelter') MainShellRoute.goTo(context, 3);
+                if (insight.route == '/cards') MainShellRoute.goTo(context, 2);
+              },
+            ),
         ],
       ),
     );

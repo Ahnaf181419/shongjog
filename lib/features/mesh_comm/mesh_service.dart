@@ -5,36 +5,43 @@ import 'package:flutter/foundation.dart';
 import 'package:nearby_connections/nearby_connections.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import 'mesh_models.dart';
+
+/// Service ID isolates Shongjog peers from other Nearby Connections apps.
+const _kServiceId = 'com.shongjog.mesh';
+
+/// Reconnection constants.
+const _kMaxReconnectAttempts = 5;
+const _kReconnectBaseDelay = Duration(seconds: 2);
+
 /// App-wide singleton Bluetooth-mesh messaging service using Google Nearby
-/// Connections (P2P_CLUSTER strategy). Lets users exchange short text
-/// messages with nearby devices when there is no internet — the core
-/// "it works when the internet doesn't" thesis for the companion app.
+/// Connections (P2P_CLUSTER strategy).
 ///
-/// Usage:
-///   await meshService.start();           // begin advertising + discovery
-///   meshService.peers.listen(...);       // stream of connected peer lists
-///   meshService.messages.listen(...);    // stream of incoming messages
-///   meshService.sendMessage('হ্যালো');   // broadcast to all peers
-///   await meshService.stop();            // stop advertising + discovery
+/// Lifecycle: started once after onboarding in `_StartupGate`, runs until app
+/// termination. The radar screen and chat screen are pure UI layers that
+/// connect to this service's streams.
 class MeshService {
   final Strategy strategy = Strategy.P2P_CLUSTER;
   final String userName;
 
-  final _peersController = StreamController<List<String>>.broadcast();
+  final _peersController = StreamController<List<MeshPeer>>.broadcast();
   final _messagesController = StreamController<MeshMessage>.broadcast();
 
-  final Set<String> _connectedPeers = {};
+  final Map<String, MeshPeer> _peers = {};
+  final Map<String, Completer<void>> _reconnectTimers = {};
 
-  Stream<List<String>> get peers => _peersController.stream;
+  Stream<List<MeshPeer>> get peers => _peersController.stream;
   Stream<MeshMessage> get messages => _messagesController.stream;
 
-  List<String> get connectedPeerList => _connectedPeers.toList();
+  List<MeshPeer> get peerList => _peers.values.toList();
+  int get peerCount => _peers.length;
 
   MeshService._({required this.userName});
 
-  /// Whether [start] has been called and [stop] has not.
   bool _running = false;
   bool get isRunning => _running;
+
+  // ─── Permissions & Hardware Checks ───────────────────────────────
 
   /// Request the Bluetooth + Location permissions required by Nearby
   /// Connections. Returns `true` only if **all** permissions are granted.
@@ -52,113 +59,270 @@ class MeshService {
         statuses[Permission.location]!.isGranted;
   }
 
-  /// Begin advertising + discovery. Returns `false` (and does nothing) if
-  /// permissions are denied.
+  // ─── Lifecycle ───────────────────────────────────────────────────
+
+  /// Begin advertising + discovery. Returns `false` if permissions denied
+  /// or both advertising and discovery fail.
   Future<bool> start() async {
     if (_running) return true;
+
     final granted = await requestPermissions();
     if (!granted) {
       debugPrint('MeshService: permissions denied — not starting');
       return false;
     }
 
+    bool advertisingOk = false;
+    bool discoveryOk = false;
+
+    try {
+      advertisingOk = await Nearby().startAdvertising(
+        userName,
+        strategy,
+        serviceId: _kServiceId,
+        onConnectionInitiated: _onConnectionInitiated,
+        onConnectionResult: _onConnectionResult,
+        onDisconnected: _onDisconnected,
+      );
+    } catch (e) {
+      debugPrint('MeshService: startAdvertising failed: $e');
+    }
+
+    try {
+      discoveryOk = await Nearby().startDiscovery(
+        userName,
+        strategy,
+        serviceId: _kServiceId,
+        onEndpointFound: _onEndpointFound,
+        onEndpointLost: _onEndpointLost,
+      );
+    } catch (e) {
+      debugPrint('MeshService: startDiscovery failed: $e');
+    }
+
+    if (!advertisingOk && !discoveryOk) {
+      debugPrint('MeshService: both advertising and discovery failed');
+      return false;
+    }
+
     _running = true;
-
-    // ── Advertising ──
-    await Nearby().startAdvertising(
-      userName,
-      strategy,
-      onConnectionInitiated: _acceptConnection,
-      onConnectionResult: _onConnectionResult,
-      onDisconnected: _onDisconnected,
-    );
-
-    // ── Discovery ──
-    await Nearby().startDiscovery(
-      userName,
-      strategy,
-      onEndpointFound: (id, name, serviceId) {
-        Nearby().requestConnection(
-          userName,
-          id,
-          onConnectionInitiated: _acceptConnection,
-          onConnectionResult: _onConnectionResult,
-          onDisconnected: _onDisconnected,
-        );
-      },
-      onEndpointLost: (id) {
-        if (id != null) _onDisconnected(id);
-      },
-    );
-
+    _peersController.add(peerList);
     return true;
   }
 
-  /// Shared callback: accept the incoming connection and register a
-  /// payload listener. Deduplicated from the three places that previously
-  /// duplicated this logic (advertising + discovery + manual request).
-  void _acceptConnection(String id, ConnectionInfo info) {
-    Nearby().acceptConnection(
-      id,
-      onPayLoadRecieved: (endid, payload) {
-        if (payload.type == PayloadType.BYTES) {
-          final bytes = payload.bytes!;
-          final text = utf8.decode(bytes, allowMalformed: true);
-          _messagesController.add(MeshMessage(senderId: endid, text: text));
-        }
-      },
-    );
-  }
-
-  /// Shared callback: add peer to the set on successful connection.
-  void _onConnectionResult(String id, Status status) {
-    if (status == Status.CONNECTED) {
-      final wasNew = _connectedPeers.add(id);
-      if (wasNew) _peersController.add(connectedPeerList);
+  /// Restart discovery (e.g., after app resumes from background).
+  /// Advertising continues uninterrupted.
+  Future<void> restartDiscovery() async {
+    if (!_running) return;
+    try {
+      await Nearby().stopDiscovery();
+      await Nearby().startDiscovery(
+        userName,
+        strategy,
+        serviceId: _kServiceId,
+        onEndpointFound: _onEndpointFound,
+        onEndpointLost: _onEndpointLost,
+      );
+    } catch (e) {
+      debugPrint('MeshService: restartDiscovery failed: $e');
     }
   }
 
-  /// Shared callback: remove peer on disconnect.
-  void _onDisconnected(String id) {
-    final removed = _connectedPeers.remove(id);
-    if (removed) _peersController.add(connectedPeerList);
-  }
-
-  /// Stop all Nearby Connections activity and clear the peer set.
+  /// Stop all Nearby Connections activity. Only called on app termination.
   Future<void> stop() async {
     _running = false;
+    for (final timer in _reconnectTimers.values) {
+      timer.complete();
+    }
+    _reconnectTimers.clear();
     await Nearby().stopAdvertising();
     await Nearby().stopDiscovery();
     await Nearby().stopAllEndpoints();
-    _connectedPeers.clear();
-    _peersController.add(connectedPeerList);
+    _peers.clear();
+    _peersController.add(peerList);
   }
 
-  /// Broadcast a UTF-8 text message to all connected peers.
-  void sendMessage(String text) {
-    if (_connectedPeers.isEmpty) return;
-    final bytes = Uint8List.fromList(utf8.encode(text));
-    for (final peer in _connectedPeers) {
-      Nearby().sendBytesPayload(peer, bytes);
-    }
-  }
-
-  /// Close the stream controllers. Only call when the service is being
-  /// permanently destroyed (not on screen-pop — use [stop] for that).
   void dispose() {
     _peersController.close();
     _messagesController.close();
   }
+
+  // ─── Discovery Callbacks ─────────────────────────────────────────
+
+  void _onEndpointFound(String id, String name, String serviceId) {
+    // Filter: only connect to Shongjog peers.
+    if (!name.startsWith('Shongjog-')) {
+      debugPrint('MeshService: ignoring non-Shongjog endpoint "$name"');
+      return;
+    }
+
+    debugPrint('MeshService: found Shongjog peer "$name" ($id)');
+    Nearby().requestConnection(
+      userName,
+      id,
+      onConnectionInitiated: _onConnectionInitiated,
+      onConnectionResult: _onConnectionResult,
+      onDisconnected: _onDisconnected,
+    );
+  }
+
+  void _onEndpointLost(String? id) {
+    if (id == null) return;
+    debugPrint('MeshService: endpoint lost: $id');
+    // Don't immediately remove — start reconnection grace period.
+    final peer = _peers[id];
+    if (peer != null) {
+      _peers[id] = peer.copyWith(
+        status: PeerStatus.reconnecting,
+        reconnectAttempts: 0,
+      );
+      _peersController.add(peerList);
+      _startReconnect(id);
+    }
+  }
+
+  // ─── Connection Callbacks ────────────────────────────────────────
+
+  void _onConnectionInitiated(String id, ConnectionInfo info) {
+    debugPrint(
+        'MeshService: connection initiated with "${info.endpointName}" ($id)');
+    Nearby().acceptConnection(
+      id,
+      onPayLoadRecieved: _onPayloadReceived,
+    );
+  }
+
+  void _onConnectionResult(String id, Status status) {
+    if (status == Status.CONNECTED) {
+      debugPrint('MeshService: connected to $id');
+      final existing = _peers[id];
+      final peer = MeshPeer(
+        endpointId: id,
+        name: existing?.name ?? id,
+        status: PeerStatus.connected,
+      );
+      _peers[id] = peer;
+      _reconnectTimers.remove(id)?.complete();
+      _peersController.add(peerList);
+    } else {
+      debugPrint('MeshService: connection to $id failed (${status.name})');
+      _peers.remove(id);
+      _peersController.add(peerList);
+    }
+  }
+
+  void _onDisconnected(String id) {
+    debugPrint('MeshService: disconnected from $id');
+    final peer = _peers.remove(id);
+    if (peer != null) {
+      _peersController.add(peerList);
+      // Start reconnection attempts instead of giving up.
+      _startReconnect(id);
+    }
+  }
+
+  // ─── Reconnection ────────────────────────────────────────────────
+
+  void _startReconnect(String endpointId) {
+    if (_reconnectTimers.containsKey(endpointId)) return;
+    _reconnectAttempt(endpointId, 0);
+  }
+
+  void _reconnectAttempt(String endpointId, int attempt) {
+    if (attempt >= _kMaxReconnectAttempts || !_running) {
+      debugPrint(
+          'MeshService: giving up reconnection for $endpointId after $_kMaxReconnectAttempts attempts');
+      _reconnectTimers.remove(endpointId);
+      _peers.remove(endpointId);
+      _peersController.add(peerList);
+      return;
+    }
+
+    final delay = _kReconnectBaseDelay * (1 << attempt); // exponential backoff
+    final completer = Completer<void>();
+    _reconnectTimers[endpointId] = completer;
+
+    Future.delayed(delay, () async {
+      if (completer.isCompleted || !_running) return;
+      debugPrint(
+          'MeshService: reconnect attempt ${attempt + 1} for $endpointId');
+      // Nearby Connections doesn't expose a direct reconnect API.
+      // Reconnection happens naturally through continued advertising + discovery.
+      _reconnectAttempt(endpointId, attempt + 1);
+    });
+  }
+
+  // ─── Payload Handling ────────────────────────────────────────────
+
+  void _onPayloadReceived(String endpointId, Payload payload) {
+    if (payload.type == PayloadType.BYTES) {
+      final bytes = payload.bytes;
+      if (bytes == null) return;
+      final text = utf8.decode(bytes, allowMalformed: true);
+      final peerName = _peers[endpointId]?.name ?? endpointId;
+      _messagesController.add(MeshMessage(
+        senderId: endpointId,
+        senderName: peerName,
+        text: text,
+        type: MessageType.text,
+      ));
+    } else if (payload.type == PayloadType.FILE) {
+      final uri = payload.uri;
+      if (uri == null) return;
+      final peerName = _peers[endpointId]?.name ?? endpointId;
+      _messagesController.add(MeshMessage(
+        senderId: endpointId,
+        senderName: peerName,
+        text: '',
+        type: MessageType.voice,
+        filePath: uri,
+      ));
+    }
+  }
+
+  // ─── Sending ─────────────────────────────────────────────────────
+
+  /// Broadcast a UTF-8 text message to all connected peers.
+  void sendMessage(String text) {
+    if (_peers.isEmpty) return;
+    final bytes = Uint8List.fromList(utf8.encode(text));
+    for (final peer in _peers.values) {
+      try {
+        Nearby().sendBytesPayload(peer.endpointId, bytes);
+      } catch (e) {
+        debugPrint('MeshService: failed to send text to ${peer.name}: $e');
+      }
+    }
+    // Add to local message history.
+    _messagesController.add(MeshMessage(
+      senderId: 'me',
+      senderName: 'Me',
+      text: text,
+      type: MessageType.text,
+    ));
+  }
+
+  /// Send a voice file to all connected peers.
+  void sendVoiceMessage(String filePath) {
+    if (_peers.isEmpty) return;
+    for (final peer in _peers.values) {
+      try {
+        Nearby().sendFilePayload(peer.endpointId, filePath);
+      } catch (e) {
+        debugPrint('MeshService: failed to send voice to ${peer.name}: $e');
+      }
+    }
+    _messagesController.add(MeshMessage(
+      senderId: 'me',
+      senderName: 'Me',
+      text: '',
+      type: MessageType.voice,
+      filePath: filePath,
+    ));
+  }
 }
 
-class MeshMessage {
-  final String senderId;
-  final String text;
-  const MeshMessage({required this.senderId, required this.text});
-}
-
-/// App-wide singleton. User name is a short stable identifier so peers
-/// can recognise each other on the radar screen.
+/// App-wide singleton.
 final meshService = MeshService._(
   userName: 'Shongjog-${DateTime.now().millisecondsSinceEpoch % 10000}',
 );

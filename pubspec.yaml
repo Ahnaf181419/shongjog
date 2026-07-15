@@ -47,7 +47,12 @@ dependencies:
   google_generative_ai: ^0.4.6
   connectivity_plus: ^6.1.1
   nearby_connections: ^4.3.0
+  record: ^6.1.0
   permission_handler: ^11.3.1
+  device_info_plus: ^13.2.0
+
+  # Secure storage (API keys, sensitive preferences)
+  flutter_secure_storage: ^10.3.1
 
 dev_dependencies:
   flutter_test:
@@ -61,7 +66,6 @@ flutter:
   assets:
     - assets/kb/
     - assets/shelter/
-    - assets/vosk/
     - assets/sound/chime.wav
     - assets/sound/knock.wav
   fonts:

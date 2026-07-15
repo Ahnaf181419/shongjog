@@ -4,9 +4,10 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-/// Lifecycle state of the on-device Gemma model, surfaced in the UI as the
-/// AppBar subtitle (docs/design.md §13.14).
+import 'device_capability.dart';
+
 enum ModelState {
   notDownloaded,
   downloading,
@@ -15,128 +16,114 @@ enum ModelState {
   failed,
 }
 
-/// Manages the on-device Gemma 4 E2B lifecycle: download (one-time, gated
-/// behind INTERNET permission), persist to app docs dir, lazy-initialize
-/// into the MediaPipe LlmInference runtime (via flutter_gemma).
-///
-/// Extends [ChangeNotifier] so the UI (ChatScreen, SettingsScreen) can
-/// react to model state transitions reactively. The cold-start window
-/// (3–10s on arm64) surfaces "AI প্রস্তুত হচ্ছে..." in the chat UI
-/// (docs/design.md §13.5).
-///
-/// Download uses [HttpClient] with resume support (Range header). The
-/// `background_downloader` package was removed from pubspec in favour of
-/// stdlib HttpClient (smaller APK; the size of the Gemma file means we
-/// need UI-level progress, not OS-level background continuation).
-///
-/// **Filename constraint:** The file MUST be named `model.bin`. This is
-/// because `flutter_gemma` 0.5.1's `MobileModelManager.isModelLoaded`
-/// hard-checks for the constant `_modelPath = 'model.bin'` at the app
-/// docs directory — NOT the path passed to `setModelPath()`. If the file
-/// is named anything else, `init()` throws "Gemma Model is not loaded
-/// yet" even though the file is on disk and the path was set correctly.
 class ModelManager extends ChangeNotifier {
-  /// MUST be 'model.bin' — see class doc comment.
   static const _modelFileName = 'model.bin';
-
-  /// Previous filename used before the flutter_gemma compatibility fix.
-  /// Used by [_migrateOldFilename] to rename existing downloads.
   static const _legacyFileName = 'gemma-4-E2B-it-web.task';
-
-  /// LiteRT-community mirror of Gemma 4 E2B IT (MediaPipe .task format,
-  /// int4 quantized). Verified accessible (HTTP 302 → CDN, no auth required).
-  /// Actual file size: ~1.87 GB (2,003,697,664 bytes).
-  static const _defaultUrl =
-      'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it-web.task';
-
-  /// Known size of the model file (bytes). Used by [isOnDisk] to detect
-  /// partial downloads. Sourced from HF Content-Length header.
-  /// ~1.87 GB = 2,003,697,664 bytes.
-  static const _expectedModelSize = 2003697664;
-
-  /// Tolerance fraction for size check — file within 99% of expected is
-  /// considered complete (handles minor CDN re-encoding differences).
   static const _sizeTolerance = 0.99;
 
-  ModelState _state = ModelState.notDownloaded;
-  ModelState get state => _state;
+  ModelVariant _activeVariant = ModelVariant.e2b;
+  ModelVariant get activeVariant => _activeVariant;
 
-  /// Download progress as a 0.0–1.0 fraction, or null when not downloading.
-  double? _downloadProgress;
-  double? get downloadProgress => _downloadProgress;
+  final Map<ModelVariant, ModelState> _states = {
+    ModelVariant.e2b: ModelState.notDownloaded,
+    ModelVariant.e4b: ModelState.notDownloaded,
+    ModelVariant.twelveb: ModelState.notDownloaded,
+  };
+
+  final Map<ModelVariant, double?> _progress = {
+    ModelVariant.e2b: null,
+    ModelVariant.e4b: null,
+    ModelVariant.twelveb: null,
+  };
 
   InferenceModel? _model;
   bool _initializing = false;
 
-  void _setState(ModelState s) {
-    _state = s;
+  ModelState get state => _states[_activeVariant]!;
+  double? get downloadProgress => _progress[_activeVariant];
+
+  ModelState getState(ModelVariant v) => _states[v]!;
+  double? getProgress(ModelVariant v) => _progress[v];
+
+  void _setState(ModelVariant v, ModelState s) {
+    _states[v] = s;
     notifyListeners();
   }
 
-  /// Set state without the usual download flow (e.g. when discovering the
-  /// model is already on disk during settings screen init).
-  void markReadyIfOnDisk() {
-    _state = ModelState.ready;
+  void _setProgress(ModelVariant v, double? p) {
+    _progress[v] = p;
     notifyListeners();
   }
 
-  /// Path to the model file inside the app's documents directory.
-  Future<String> modelPath() async {
+  /// Since flutter_gemma hardcodes 'model.bin', the active model is named 'model.bin'.
+  /// Inactive downloaded models are named 'model_${variant.name}.bin'.
+  Future<String> _pathForVariant(ModelVariant v) async {
+    final dir = await getApplicationDocumentsDirectory();
+    return '${dir.path}/model_${v.name}.bin';
+  }
+
+  Future<String> _activeModelPath() async {
     final dir = await getApplicationDocumentsDirectory();
     return '${dir.path}/$_modelFileName';
   }
 
-  /// True if a model file matching the expected size is on disk.
-  /// Uses [_expectedModelSize] with 99% tolerance to detect partial
-  /// downloads — a file at 60% completion would be ~1.2 GB, well below
-  /// the 99% threshold (~1.98 GB), so it's correctly rejected.
-  Future<bool> isOnDisk() async {
-    final f = File(await modelPath());
-    if (!await f.exists()) return false;
-    final len = await f.length();
-    return len >= (_expectedModelSize * _sizeTolerance).round();
+  void markReadyIfOnDisk(ModelVariant v) {
+    _setState(v, ModelState.ready);
   }
 
-  /// Ensure the model file is on disk. Uses [HttpClient] with Range-based
-  /// resume support for reliability on flaky networks.
-  ///
-  /// [onProgress] reports a 0.0–1.0 fraction as bytes stream in.
+  Future<bool> isOnDisk(ModelVariant v) async {
+    final path = await _pathForVariant(v);
+    final f = File(path);
+    if (!await f.exists()) return false;
+    
+    final recs = await DeviceCapability.getRecommendations();
+    final rec = recs.firstWhere((r) => r.variant == v);
+    
+    final len = await f.length();
+    return len >= (rec.sizeBytes * _sizeTolerance).round();
+  }
+  
+  Future<bool> isAnyOnDisk() async {
+    for (final v in ModelVariant.values) {
+      if (await isOnDisk(v)) return true;
+    }
+    return false;
+  }
+
   Future<void> ensureModel({
-    String url = _defaultUrl,
+    ModelVariant? variant,
     void Function(double)? onProgress,
   }) async {
-    final path = await modelPath();
+    final v = variant ?? _activeVariant;
+    final recs = await DeviceCapability.getRecommendations();
+    final rec = recs.firstWhere((r) => r.variant == v);
+
+    final path = await _pathForVariant(v);
     final f = File(path);
-    if (await f.exists() &&
-        await f.length() >= (_expectedModelSize * _sizeTolerance).round()) {
-      _setState(ModelState.ready);
+    if (await f.exists() && await f.length() >= (rec.sizeBytes * _sizeTolerance).round()) {
+      _setState(v, ModelState.ready);
       return;
     }
 
-    _setState(ModelState.downloading);
-    _downloadProgress = 0.0;
-    notifyListeners();
+    _setState(v, ModelState.downloading);
+    _setProgress(v, 0.0);
 
     final client = HttpClient()
       ..connectionTimeout = const Duration(seconds: 30)
       ..idleTimeout = const Duration(seconds: 60);
     try {
-      // Resume support: send Range header for partial downloads.
       var existingBytes = 0;
       if (await f.exists()) {
         existingBytes = await f.length();
       }
 
-      final req = await client.getUrl(Uri.parse(url));
+      final req = await client.getUrl(Uri.parse(rec.downloadUrl));
       if (existingBytes > 0) {
         req.headers.set(HttpHeaders.rangeHeader, 'bytes=$existingBytes-');
       }
 
       final resp = await req.close();
 
-      // Critical: if server returns 200 (not 206 Partial Content) despite
-      // our Range request, we must NOT append — that would corrupt the file.
-      // Truncate and restart from zero.
       var received = 0;
       IOSink sink;
       if (existingBytes > 0 && resp.statusCode == 206) {
@@ -148,14 +135,9 @@ class ModelManager extends ChangeNotifier {
       }
 
       final expectedTotal = resp.statusCode == 206
-          ? (resp.contentLength > 0
-              ? resp.contentLength + existingBytes
-              : 0)
+          ? (resp.contentLength > 0 ? resp.contentLength + existingBytes : 0)
           : (resp.contentLength > 0 ? resp.contentLength : 0);
 
-      // Throttle notifyListeners to avoid flooding the UI with rebuilds
-      // (~100k chunks for a 1.87 GB file). Notify at most once per second,
-      // plus on every whole-percent boundary for smooth progress bar.
       var lastNotifyTime = DateTime.fromMillisecondsSinceEpoch(0);
       var lastNotifiedPercent = -1;
 
@@ -164,7 +146,7 @@ class ModelManager extends ChangeNotifier {
         received += chunk.length;
         if (expectedTotal > 0) {
           final fraction = (received / expectedTotal).clamp(0.0, 1.0);
-          _downloadProgress = fraction;
+          _setProgress(v, fraction);
           if (onProgress != null) onProgress(fraction);
 
           final now = DateTime.now();
@@ -180,118 +162,233 @@ class ModelManager extends ChangeNotifier {
       await sink.flush();
       await sink.close();
 
-      // Completion check: compare against expected size with tolerance.
-      if (received >= (_expectedModelSize * _sizeTolerance).round()) {
-        _downloadProgress = null;
-        _setState(ModelState.ready);
+      if (received >= (rec.sizeBytes * _sizeTolerance).round()) {
+        _setProgress(v, null);
+        _setState(v, ModelState.ready);
       } else {
-        _downloadProgress = null;
-        _setState(ModelState.failed);
-        throw Exception(
-            'Download incomplete: $received bytes (expected ~$_expectedModelSize)');
+        _setProgress(v, null);
+        _setState(v, ModelState.failed);
+        throw Exception('Download incomplete: $received bytes (expected ~${rec.sizeBytes})');
       }
     } catch (e) {
-      _downloadProgress = null;
-      _setState(ModelState.failed);
+      _setProgress(v, null);
+      _setState(v, ModelState.failed);
       rethrow;
     } finally {
       client.close();
     }
   }
 
-  /// Lazily initialize the model into RAM and cache the [InferenceModel].
-  ///
-  /// Cold start loads the model into RAM — expect 3–10s on a real arm64
-  /// device. The UI must surface "AI প্রস্তুত হচ্ছে..." during this window
-  /// (docs/design.md §13.5).
-  ///
-  /// Config per docs/prd.md §8: 4-bit, thinking off, maxTokens 512,
-  /// temperature 0.2 for grounded-but-not-creative answers.
-  ///
-  /// On failure, the model file is deleted so the user can re-download
-  /// cleanly instead of getting stuck in a "ready → failed → ready" loop
-  /// with a corrupted/partial file.
   Future<InferenceModel> initialize() async {
     if (_model != null) return _model!;
     if (_initializing) {
       throw StateError('Model is already initializing');
     }
+    
+    final v = _activeVariant;
+    if (!await isOnDisk(v)) {
+      throw Exception('Active variant ${v.name} is not downloaded fully.');
+    }
+    
     _initializing = true;
-    _setState(ModelState.loading);
+    _setState(v, ModelState.loading);
     try {
       await _migrateOldFilename();
-      final path = await modelPath();
-      await FlutterGemmaPlugin.instance.modelManager.setModelPath(path);
+      
+      final variantPath = await _pathForVariant(v);
+      final activePath = await _activeModelPath();
+      
+      // Copy the specific variant to the required model.bin path if it's different
+      final variantFile = File(variantPath);
+      final activeFile = File(activePath);
+      
+      // We check size so we don't copy unnecessarily if it's already the same
+      bool needsCopy = true;
+      if (await activeFile.exists()) {
+        if (await activeFile.length() == await variantFile.length()) {
+          needsCopy = false;
+        }
+      }
+      
+      if (needsCopy) {
+        if (await activeFile.exists()) await activeFile.delete();
+        // Rename (move) is faster than copy. Since we want it accessible as model.bin.
+        // Wait, if we switch back and forth, we need the original file. 
+        // A copy is safest, even though it takes disk space. Let's try copy.
+        await variantFile.copy(activePath);
+      }
+      
+      await FlutterGemmaPlugin.instance.modelManager.setModelPath(activePath);
       _model = await FlutterGemmaPlugin.instance.init(
-        maxTokens: 512,
-        temperature: 0.2,
+        maxTokens: 1024,
+        temperature: 0.7,
       );
-      _setState(ModelState.ready);
+      _setState(v, ModelState.ready);
       return _model!;
     } catch (e) {
-      // Delete the model file on failure so a corrupted/partial file
-      // doesn't cause a permanent "ready → failed" loop on every relaunch.
-      // The user will see "ডাউনলোড প্রয়োজন" and can re-download.
-      try {
-        final path = await modelPath();
-        final f = File(path);
-        if (await f.exists()) await f.delete();
-      } catch (_) {}
       _model = null;
-      _setState(ModelState.failed);
+      _setState(v, ModelState.failed);
       rethrow;
     } finally {
       _initializing = false;
     }
   }
 
-  /// One-time migration: if a file under the legacy name exists, rename it
-  /// to the current [_modelFileName]. Handles devices that downloaded
-  /// before the filename fix.
   Future<void> _migrateOldFilename() async {
     final dir = await getApplicationDocumentsDirectory();
     final oldFile = File('${dir.path}/$_legacyFileName');
     if (await oldFile.exists()) {
-      final newFile = File('${dir.path}/$_modelFileName');
+      // Migrate it as the E2B variant
+      final e2bPath = await _pathForVariant(ModelVariant.e2b);
+      final newFile = File(e2bPath);
       if (await newFile.exists()) {
         await newFile.delete();
       }
-      await oldFile.rename('${dir.path}/$_modelFileName');
+      await oldFile.rename(e2bPath);
     }
   }
 
-  /// Generate a response for [prompt]. Initializes the model on first call.
   Future<String> generate(String prompt) async {
     final model = await initialize();
     return model.getResponse(prompt: prompt);
   }
 
-  /// Whether the model is downloaded and ready for generation.
-  /// Note: the model is loaded into RAM lazily by [generate].
-  bool get isReady => _state == ModelState.ready;
+  bool get isReady => state == ModelState.ready;
 
-  /// Drop the in-memory session and return the manager to [ModelState.notDownloaded].
-  /// Does NOT delete the on-disk model file — pair with a [File.delete] on
-  /// [modelPath] if the caller wants a clean slate.
-  void reset() {
+  void resetSession() {
     _model = null;
     _initializing = false;
-    _downloadProgress = null;
-    _setState(ModelState.notDownloaded);
+    // Don't reset states of downloaded files
   }
 
-  /// Whether the model is currently loading (downloading or initializing).
-  bool get isLoading =>
-      _state == ModelState.loading || _state == ModelState.downloading;
+  void reset() {
+    resetSession();
+    _states[_activeVariant] = ModelState.notDownloaded;
+    notifyListeners();
+  }
 
-  /// Human-readable Bangla status for diagnostics UI.
+  Future<void> deleteVariant(ModelVariant v) async {
+    try {
+      final path = await _pathForVariant(v);
+      final f = File(path);
+      if (await f.exists()) await f.delete();
+      
+      if (_activeVariant == v) {
+         final activePath = await _activeModelPath();
+         final activeFile = File(activePath);
+         if (await activeFile.exists()) await activeFile.delete();
+         resetSession();
+      }
+      
+      _setState(v, ModelState.notDownloaded);
+    } catch (e) {
+      debugPrint('Failed to delete variant: $e');
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  Auto-select & initialization
+  // ════════════════════════════════════════════════════════════════
+
+  /// Auto-select the best model for this device on first run.
+  ///
+  /// Checks SharedPreferences for a previously saved variant preference.
+  /// If none, selects the recommended variant based on hardware tier.
+  /// If the recommended model is already on disk, marks it ready.
+  Future<void> autoSelectBestModel() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedIndex = prefs.getInt('active_model_variant');
+
+    if (savedIndex != null && savedIndex < ModelVariant.values.length) {
+      final saved = ModelVariant.values[savedIndex];
+      if (await isOnDisk(saved)) {
+        _activeVariant = saved;
+        _setState(saved, ModelState.ready);
+        return;
+      }
+    }
+
+    // First run or saved model deleted — auto-select recommended
+    final recommended = await DeviceCapability.getRecommendedVariant();
+    _activeVariant = recommended;
+    if (await isOnDisk(recommended)) {
+      _setState(recommended, ModelState.ready);
+    }
+    notifyListeners();
+  }
+
+  /// Save the current active variant to SharedPreferences.
+  Future<void> _saveActiveVariant() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('active_model_variant', _activeVariant.index);
+  }
+
+  void setActiveVariant(ModelVariant v) {
+    if (_activeVariant == v) return;
+    resetSession();
+    _activeVariant = v;
+    _saveActiveVariant();
+    notifyListeners();
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  Storage management
+  // ════════════════════════════════════════════════════════════════
+
+  /// Get total bytes used by all downloaded model files.
+  Future<int> getStorageUsedBytes() async {
+    int total = 0;
+    for (final v in ModelVariant.values) {
+      try {
+        final path = await _pathForVariant(v);
+        final f = File(path);
+        if (await f.exists()) {
+          total += await f.length();
+        }
+      } catch (_) {}
+    }
+    // Also count the active model.bin copy
+    try {
+      final activePath = await _activeModelPath();
+      final activeFile = File(activePath);
+      if (await activeFile.exists()) {
+        total += await activeFile.length();
+      }
+    } catch (_) {}
+    return total;
+  }
+
+  /// Get which variants are currently downloaded on disk.
+  Future<List<ModelVariant>> getDownloadedVariants() async {
+    final downloaded = <ModelVariant>[];
+    for (final v in ModelVariant.values) {
+      if (await isOnDisk(v)) {
+        downloaded.add(v);
+      }
+    }
+    return downloaded;
+  }
+
+  /// Get the size of a specific variant on disk (0 if not downloaded).
+  Future<int> getVariantSizeBytes(ModelVariant v) async {
+    try {
+      final path = await _pathForVariant(v);
+      final f = File(path);
+      if (await f.exists()) return await f.length();
+    } catch (_) {}
+    return 0;
+  }
+
+  bool get isLoading =>
+      state == ModelState.loading || state == ModelState.downloading;
+
   String get statusLabelBn {
-    switch (_state) {
+    switch (state) {
       case ModelState.notDownloaded:
         return 'ডাউনলোড প্রয়োজন';
       case ModelState.downloading:
-        final pct = _downloadProgress != null
-            ? '${(_downloadProgress! * 100).round()}%'
+        final pct = downloadProgress != null
+            ? '${(downloadProgress! * 100).round()}%'
             : '';
         return 'ডাউনলোড হচ্ছে $pct';
       case ModelState.ready:
@@ -304,5 +401,4 @@ class ModelManager extends ChangeNotifier {
   }
 }
 
-/// App-wide singleton. Use [modelManager] from anywhere.
 final ModelManager modelManager = ModelManager();

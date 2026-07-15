@@ -38,24 +38,38 @@ class _TypewriterTextState extends State<TypewriterText> {
   late final List<String> _clusters;
   Timer? _timer;
 
+  /// Tracks whether the animation has already completed for this text.
+  /// Prevents re-animation when the parent rebuilds (e.g. after a new
+  /// message arrives and setState fires on ChatScreen). Without this,
+  /// every setState would recreate TypewriterText with animate=true,
+  /// restarting the typewriter from scratch on ALL visible messages.
+  bool _hasCompleted = false;
+
   @override
   void initState() {
     super.initState();
     _clusters = _graphemeClusters(widget.text);
-    _clustersShown = widget.animate ? 0 : _clusters.length;
-    if (widget.animate && _clustersShown < _clusters.length) _startTyping();
+    if (widget.animate && !_hasCompleted) {
+      _clustersShown = 0;
+      _startTyping();
+    } else {
+      _clustersShown = _clusters.length;
+    }
   }
 
   @override
   void didUpdateWidget(TypewriterText oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.text != widget.text) {
+      _hasCompleted = false;
       _timer?.cancel();
       _clusters
         ..clear()
         ..addAll(_graphemeClusters(widget.text));
-      _clustersShown = widget.animate ? 0 : _clusters.length;
-      if (widget.animate && _clustersShown < _clusters.length) _startTyping();
+      _clustersShown = widget.animate && !_hasCompleted ? 0 : _clusters.length;
+      if (widget.animate && !_hasCompleted && _clustersShown < _clusters.length) {
+        _startTyping();
+      }
     }
   }
 
@@ -63,6 +77,7 @@ class _TypewriterTextState extends State<TypewriterText> {
     _timer = Timer.periodic(widget.stepDuration, (t) {
       if (_clustersShown >= _clusters.length) {
         t.cancel();
+        _hasCompleted = true;
         widget.onComplete?.call();
         return;
       }
