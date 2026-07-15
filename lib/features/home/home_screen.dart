@@ -5,6 +5,7 @@ import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../core/connectivity_provider.dart';
 import '../../core/haptics.dart';
+import '../quick_cards/cards_data.dart';
 import '../weather/weather_card.dart';
 
 /// Home tab — context-first dashboard.
@@ -407,15 +408,21 @@ class _HeroAskCardState extends State<_HeroAskCard> {
 // ════════════════════════════════════════════════════════════════
 
 class _EmergencyTriad extends StatelessWidget {
+  String _bnNum(int n) {
+    const digits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+    return n.toString().split('').map((d) => digits[int.parse(d)]).join();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final countBn = _bnNum(kQuickCards.length);
     return Row(
       children: [
         Expanded(
           child: _TriadTile(
             icon: Icons.style_rounded,
             titleBn: 'জরুরি কার্ড',
-            subtitleBn: '৮টি দ্রুত নির্দেশিকা',
+            subtitleBn: '$countBnটি দ্রুত নির্দেশিকা',
             onTap: () => MainShellRoute.goTo(context, 2),
           ),
         ),

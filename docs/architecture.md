@@ -291,9 +291,21 @@ class Shelter {
   final double lat;
   final double lon;
   final int? capacity;     // nullable — not all sources carry it
-  final String source;     // 'OSM' | 'MoDMR' | 'BDRCS'
+  final String source;     // Data provenance — see source taxonomy below
 }
 ```
+
+**Source taxonomy** (used in `cyclone_shelters.geojson` and displayed in UI):
+
+| Source | Meaning | Typical count |
+|--------|---------|---------------|
+| `MoDMR` | Ministry of Disaster Management and Relief — official government shelters | majority |
+| `UNDP_BD` | UNDP Bangladesh — UN-funded shelters | coastal & disaster-prone areas |
+| `BRAC` | BRAC NGO — community shelters | rural / coastal |
+| `DMB` | Disaster Management Bureau — govt agency shelters | major cities |
+| `OSM` | OpenStreetMap community-sourced — may lack official verification | sparse areas |
+
+All source values are user-visible in the shelter detail bottom sheet and search panel.
 
 ### `RankedShelter`
 
@@ -326,6 +338,8 @@ class RankedShelter {
 
 Coordinates are `[lon, lat]` per the GeoJSON spec — the loader maps them to
 `Shelter(lat: coords[1], lon: coords[0])`.
+
+**Current shelter count:**25 (across Bangladesh: coastal, major cities, northern districts)
 
 ---
 
