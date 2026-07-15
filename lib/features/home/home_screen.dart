@@ -6,6 +6,8 @@ import '../../app/theme.dart';
 import '../../core/connectivity_provider.dart';
 import '../../core/haptics.dart';
 import '../weather/weather_card.dart';
+import '../mesh_comm/mesh_service.dart';
+import '../mesh_comm/mesh_models.dart';
 
 /// Home tab — context-first dashboard.
 ///
@@ -501,59 +503,93 @@ class _OfflineMessageTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () {
-          HapticService.lightTap();
-          pushNamedSafe(context, AppRoutes.meshRadar);
-        },
-        borderRadius: BorderRadius.circular(ShongjogTheme.radius),
-        child: Container(
-          decoration: ShongjogTheme.cardDecoration(context),
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: ShongjogTheme.iconBadge(context),
-                child: Icon(Icons.bluetooth_audio_rounded,
-                    color: cs.primary, size: 22),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'অফলাইন মেসেজ',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                        color: cs.onSurface,
-                        height: 1.2,
+    return StreamBuilder<List<MeshPeer>>(
+      stream: meshService.peers,
+      initialData: const [],
+      builder: (context, snapshot) {
+        final peerCount = snapshot.data?.length ?? 0;
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              HapticService.lightTap();
+              pushNamedSafe(context, AppRoutes.meshRadar);
+            },
+            borderRadius: BorderRadius.circular(ShongjogTheme.radius),
+            child: Container(
+              decoration: ShongjogTheme.cardDecoration(context),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+              child: Row(
+                children: [
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: ShongjogTheme.iconBadge(context),
+                        child: Icon(Icons.bluetooth_audio_rounded,
+                            color: cs.primary, size: 22),
                       ),
+                      if (peerCount > 0)
+                        Positioned(
+                          top: -4,
+                          right: -4,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              '$peerCount',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'অফলাইন মেসেজ',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                            color: cs.onSurface,
+                            height: 1.2,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          peerCount > 0
+                              ? '$peerCount ডিভাইস সংযুক্ত — ব্লুটুথ দিয়ে কথা বলুন'
+                              : 'ব্লুটুথ দিয়ে কাছের মানুষদের সাথে কথা বলুন',
+                          style: TextStyle(
+                            fontSize: 14,
+                            height: 1.4,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'ব্লুটুথ দিয়ে কাছের মানুষদের সাথে কথা বলুন',
-                      style: TextStyle(
-                        fontSize: 14,
-                        height: 1.4,
-                        color: cs.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                  Icon(Icons.arrow_forward_rounded,
+                      color: cs.onSurfaceVariant, size: 22),
+                ],
               ),
-              Icon(Icons.arrow_forward_rounded,
-                  color: cs.onSurfaceVariant, size: 22),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
