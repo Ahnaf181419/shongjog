@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:nearby_connections/nearby_connections.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/theme_controller.dart';
 import '../features/about/about_screen.dart';
 import '../features/contacts/emergency_contacts_screen.dart';
+import '../features/mesh_comm/mesh_radar_screen.dart';
+import '../features/mesh_comm/mesh_service.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/settings/settings_screen.dart';
-import '../features/mesh_comm/mesh_radar_screen.dart';
 import 'main_shell.dart';
 import 'router.dart';
 import 'theme.dart';
@@ -58,11 +60,20 @@ class _StartupGate extends StatefulWidget {
 
 class _StartupGateState extends State<_StartupGate> {
   bool? _hasOnboarded;
+  bool _meshStarted = false;
+  static final _lifecycleObserver = _MeshLifecycleObserver();
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(_lifecycleObserver);
     _checkOnboarding();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(_lifecycleObserver);
+    super.dispose();
   }
 
   Future<void> _checkOnboarding() async {
@@ -104,6 +115,33 @@ class _StartupGateState extends State<_StartupGate> {
       );
     }
 
+    // Start mesh service once after onboarding (idempotent).
+    if (!_meshStarted) {
+      _meshStarted = true;
+      meshService.start().then((ok) {
+        if (!ok) debugPrint('StartupGate: mesh failed to start');
+      });
+    }
+
     return const MainShell();
+  }
+}
+
+/// Pauses mesh discovery when app backgrounds, resumes on foreground.
+class _MeshLifecycleObserver extends WidgetsBindingObserver {
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      // App going to background — stop discovery to save battery.
+      // Keep advertising so other peers can still find us.
+      try {
+        Nearby().stopDiscovery();
+      } catch (_) {}
+    } else if (state == AppLifecycleState.resumed) {
+      // App coming to foreground — restart discovery.
+      if (meshService.isRunning) {
+        meshService.restartDiscovery();
+      }
+    }
   }
 }
