@@ -1,41 +1,110 @@
 import 'types.dart';
 
-/// The system prompt that turns Gemma 4 E2B into Shongjog — a Bangla
-/// emergency triage assistant that grounds every answer in the retrieved
-/// corpus and never freelances medical advice.
-///
-/// Source of truth: docs/prd.md §4 (Grounding & Safety guardrails),
-/// docs/corpus.md §4 (authoring checklist escalation cue).
-const String kBanglaSystemPrompt = '''
-তুমি শঙ্গ্যোগ, একজন বাংলা ভাষায় কথা বলা জরুরি সহায়তা সহকারী। তুমি শুধু নিচের প্রসঙ্গ ব্যবহার করে সাধারণ বাংলায় উত্তর দেবে।
+/// Persona block — identity + voice rules combined for strong adherence.
+const String _kPersona = '''
+You are Shongjog — a genuinely warm, lively, and helpful Bangladeshi AI companion.
+You talk like a real friend, not an assistant. Be natural, be human.
 
-নিয়ম:
-- কখনো রোগ নির্ণয় করবে না বা ওষুধ লিখে দেবে না
-- পরিষ্কার ধাপে ধাপে (৩-৬ ধাপ) উত্তর দেবে
-- প্রতিটি উত্তরের শেষে "জরুরি হলে 999 নম্বরে কল করুন" বাক্যটি যোগ করবে
-- প্রসঙ্গে না থাকলে সরাসরি বলবে "আমার কাছে এই তথ্য নেই, অনুগ্রহ করে স্বাস্থ্যকর্মী বা 999 এ যোগাযোগ করুন"
-- সংক্ষেপে লিখবে, বড় সংখ্যা বা ইংরেজি এড়িয়ে চলবে
+Voice rules:
+- Use contractions, natural rhythm, and real warmth — not corporate politeness or robotic disclaimers.
+- Sound like a knowledgeable friend who genuinely cares, not a textbook or a help desk.
+- Never start with "As an AI…" or "Here is…" or "Sure, I can help with that!" — just answer directly.
+- Never end with generic sign-offs like "Let me know if you have more questions!" — end naturally, like a real conversation.
+- Concise by default. Warmer and more detailed when the person seems stressed or needs support.
+- For casual chat, be light and friendly. For emergencies, be calm and clear — still warm, but focused.
+- Match the user's energy: if they're casual, be casual. If they're worried, be reassuring.
 ''';
 
-/// Assemble the full RAG prompt: system instructions + retrieved context
-/// (each chunk bracketed with its source for traceability) + the user's
-/// query.
+/// Behavioural rules — language and content guidelines.
+const String _kRules = '''
+Rules:
+- Always reply in the same language the user used — Bangla, English, or Banglish. Match their language and tone naturally.
+- Keep responses concise and conversational. Use bullet points or numbered steps ONLY when the user is asking for step-by-step emergency or health safety instructions. For casual chat, reply in natural flowing text.
+- Use verified knowledge-base information when available. If no context is provided, answer from general knowledge.
+- Never fabricate medical dosages or treatment steps not in the provided context. If unsure, say so plainly instead of guessing.
+''';
+
+/// Combined system instruction for cloud AI (persona + rules).
+/// Used by CloudAiService as the `systemInstruction` parameter.
+const String kSystemInstruction = '$_kPersona\n$_kRules';
+
+/// Emergency keywords used to decide whether to append the 999 escalation line.
+const List<String> _kEmergencyKeywords = [
+  'জরুরি', 'স্বাস্থ্য', 'রোগ', 'চিকিৎসা', 'বিপদ', 'আঘাত', 'ক্ষতি',
+  'জ্বর', 'পেটে', 'বমি', 'ডায়রিয়া', 'রক্ত', 'শ্বাস', 'বুকে',
+  'মাথা', 'ব্যথা', 'কাশি', 'সর্দি', 'এলার্জি', 'পোড়া', 'কাটা',
+  'দুর্ঘটনা', 'প্রাণ', 'মৃত্যু', '999',
+  'emergency', 'health', 'doctor', 'hospital', 'pain', 'fever', 'bleeding',
+  'accident', 'allergic', 'breathing', 'chest', 'stroke', 'poison',
+];
+
+/// Returns true if the user query is likely about an emergency or health topic.
+bool isEmergencyQuery(String query) {
+  final q = query.toLowerCase();
+  return _kEmergencyKeywords.any((kw) => q.contains(kw));
+}
+
+/// Builds the user-facing message with optional RAG context and emergency line.
 ///
-/// The 999 escalation cue lives in the system prompt so it is ALWAYS
-/// present, even when [hits] is empty (low-confidence path).
+/// This is used by ChatRepository for the cloud AI path where the system
+/// instruction is sent separately via `systemInstruction`.
+String buildUserMessage({
+  required String query,
+  required List<RetrievalHit> hits,
+}) {
+  final buf = StringBuffer();
+
+  if (hits.isNotEmpty) {
+    buf
+      ..writeln('=== Verified context ===')
+      ..writeln(hits.map((h) => '[${h.chunk.source}] ${h.chunk.text}').join('\n\n'))
+      ..writeln();
+  }
+
+  buf.write(query);
+
+  if (isEmergencyQuery(query)) {
+    buf
+      ..writeln()
+      ..writeln()
+      ..write('দরকার হলে ৯৯৯ এ কল করুন।');
+  }
+
+  return buf.toString();
+}
+
+/// Builds the full prompt sent to the on-device LLM.
+///
+/// When [hits] is empty, the context section is omitted entirely — this
+/// prevents the model from adopting a stiff "citing a source" register for
+/// general knowledge answers.
+///
+/// The 999 escalation line is appended only for emergency/health queries.
 String buildPrompt({required String query, required List<RetrievalHit> hits}) {
-  final ctx = hits.isEmpty
-      ? '(কোনো প্রসঙ্গ পাওয়া যায়নি)'
-      : hits.map((h) => '[${h.chunk.source}] ${h.chunk.text}').join('\n\n');
-  return '''
-$kBanglaSystemPrompt
+  final buf = StringBuffer()
+    ..writeln(_kPersona)
+    ..writeln(_kRules)
+    ..writeln();
 
-=== প্রসঙ্গ (যাচাইকৃত তথ্য) ===
-$ctx
+  // Context section — only when there are actual KB hits.
+  if (hits.isNotEmpty) {
+    buf
+      ..writeln('=== Verified context ===')
+      ..writeln(hits.map((h) => '[${h.chunk.source}] ${h.chunk.text}').join('\n\n'))
+      ..writeln();
+  }
 
-=== প্রশ্ন ===
-$query
+  buf
+    ..writeln('User: $query')
+    ..write('Assistant:');
 
-=== উত্তর ===
-''';
+  // Emergency escalation — only for health/safety queries.
+  if (isEmergencyQuery(query)) {
+    buf
+      ..writeln()
+      ..writeln()
+      ..write('দরকার হলে ৯৯৯ এ কল করুন।');
+  }
+
+  return buf.toString();
 }

@@ -65,4 +65,53 @@ void main() {
     )));
     expect(find.text('ক্লাউড'), findsNothing);
   });
+
+  testWidgets('calls onAnimateComplete when typewriter finishes', (tester) async {
+    var completed = false;
+    await tester.pumpWidget(wrap(MessageBubble(
+      text: 'ABC',
+      isUser: false,
+      animate: true,
+      onAnimateComplete: () => completed = true,
+    )));
+    // 3 clusters × 33ms default = 99ms; pump enough to let the timer fire
+    await tester.pump(const Duration(milliseconds: 150));
+    expect(completed, isTrue);
+  });
+
+  testWidgets('does not re-animate on parent rebuild', (tester) async {
+    var animationCount = 0;
+
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: StatefulBuilder(
+          builder: (context, setState) {
+            return Column(
+              children: [
+                MessageBubble(
+                  text: 'Hello',
+                  isUser: false,
+                  animate: true,
+                  onAnimateComplete: () => animationCount++,
+                ),
+                ElevatedButton(
+                  onPressed: () => setState(() {}),
+                  child: const Text('Rebuild'),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    ));
+
+    // Let initial animation complete (5 clusters × 33ms = 165ms)
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(animationCount, 1);
+
+    // Trigger parent rebuild — _hasCompleted should prevent re-animation
+    await tester.tap(find.text('Rebuild'));
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(animationCount, 1);
+  });
 }

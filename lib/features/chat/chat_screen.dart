@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/theme.dart';
 import '../../app/main_shell.dart';
+import '../../core/api_key_store.dart';
+import '../../core/connectivity_provider.dart';
 import '../../core/haptics.dart';
 import '../../core/model_manager.dart';
 import '../../knowledge/kb_loader.dart';
@@ -38,7 +40,7 @@ class _Msg {
   final bool isUser;
   final bool isThinking;
   final bool isError;
-  final bool animate;
+  bool animate;
   final GenerationPath? path;
   _Msg(this.text, this.isUser,
       {this.isThinking = false,
@@ -78,7 +80,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _loadPrefsAndBootstrap() async {
     final prefs = await SharedPreferences.getInstance();
-    _autoRead = prefs.getBool('pref_auto_read') ?? true;
+    _autoRead = prefs.getBool('pref_auto_read') ?? false;
     _voiceInputEnabled = prefs.getBool('pref_voice_input') ?? true;
 
     final saved = await _store.load();
@@ -95,7 +97,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
     CloudAiService? cloudAi;
     try {
-      const apiKey = String.fromEnvironment('GEMINI_API_KEY');
+      // Try runtime API key first (from secure storage), then fall back to compile-time
+      final keyStore = ApiKeyStore();
+      var apiKey = await keyStore.getKey();
+      if (apiKey == null || apiKey.isEmpty) {
+        apiKey = const String.fromEnvironment('GEMINI_API_KEY');
+      }
       if (apiKey.isNotEmpty) {
         cloudAi = CloudAiService(apiKey: apiKey);
       }
@@ -160,14 +167,18 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _tryGenerate() async {
     try {
+      // Build conversation history for cloud AI (prior turns only, oldest first).
+      final history = <ChatTurn>[];
+      for (var i = _messages.length - 1; i >= 2; i--) {
+        final m = _messages[i];
+        if (!m.isThinking) {
+          history.add(ChatTurn(text: m.text, isUser: m.isUser));
+        }
+      }
+
       final answer = await _repo!.ask(
         _lastQuery!,
-        onFallback: () {
-          if (mounted) {
-            setState(() => _messages[0] =
-                _Msg('AI প্রস্তুত হচ্ছে...', false, isThinking: true));
-          }
-        },
+        history: history,
         onPath: (path) {
           _lastPath = path;
         },
@@ -199,6 +210,14 @@ class _ChatScreenState extends State<ChatScreen> {
         .map((m) => ChatMessage(text: m.text, isUser: m.isUser))
         .toList();
     _store.save(storeMsgs);
+  }
+
+  /// Called when TypewriterText finishes its animation for message at [index].
+  /// Sets animate=false so subsequent setState calls don't re-trigger it.
+  void _markAnimated(int index) {
+    if (index >= 0 && index < _messages.length && mounted) {
+      setState(() => _messages[index].animate = false);
+    }
   }
 
   Future<void> _onMicPressed() async {
@@ -235,22 +254,28 @@ class _ChatScreenState extends State<ChatScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('AI সহায়ক'),
-            if (_sttProviderName != null)
-              Builder(builder: (context) {
-                final isDark = Theme.of(context).brightness == Brightness.dark;
-                return Text(
-                  _stt.isOfflineCapable ? 'অফলাইন ভয়েস' : 'অনলাইন ভয়েস',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w400,
-                    color: _stt.isOfflineCapable
-                        ? (isDark
-                            ? ShongjogTheme.successBright
-                            : ShongjogTheme.success)
-                        : ShongjogTheme.bodySecondary(context),
-                  ),
-                );
-              }),
+            Builder(builder: (context) {
+              final isDark = Theme.of(context).brightness == Brightness.dark;
+              final hasCloud = _repo?.cloudAi != null && connectivityProvider.isOnline;
+              final hasLocal = modelManager.isReady;
+              
+              String status = 'অফলাইন (তথ্যকোষ)';
+              if (hasCloud) status = 'ক্লাউড এআই (Gemma 4)';
+              else if (hasLocal) status = 'অফলাইন এআই (Gemma 4)';
+
+              return Text(
+                status,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w400,
+                  color: hasCloud || hasLocal
+                      ? (isDark
+                          ? ShongjogTheme.successBright
+                          : ShongjogTheme.success)
+                      : ShongjogTheme.bodySecondary(context),
+                ),
+              );
+            }),
           ],
         ),
         actions: [
@@ -317,11 +342,15 @@ class _ChatScreenState extends State<ChatScreen> {
           return _errorBubble(m);
         }
         return MessageBubble(
+          key: ValueKey('${m.text.hashCode}_${m.isUser}_$i'),
           text: m.text,
           isUser: m.isUser,
           animate: m.animate,
           path: m.path,
           onSpeak: m.isUser || m.isThinking ? null : () => _tts.speak(m.text),
+          onAnimateComplete: m.animate && !m.isUser
+              ? () => _markAnimated(i)
+              : null,
         );
       },
     );

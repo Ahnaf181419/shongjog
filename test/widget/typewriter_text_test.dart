@@ -78,5 +78,46 @@ void main() {
       await tester.pumpAndSettle();
       expect(completed, isTrue);
     });
+
+    testWidgets('does not re-animate after completion when parent rebuilds', (tester) async {
+      var animationCount = 0;
+
+      // Use a StatefulWidget parent that can trigger rebuilds
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: StatefulBuilder(
+              builder: (context, setState) {
+                return Column(
+                  children: [
+                    TypewriterText(
+                      text: 'Hello',
+                      animate: true,
+                      stepDuration: const Duration(milliseconds: 5),
+                      onComplete: () => animationCount++,
+                    ),
+                    ElevatedButton(
+                      onPressed: () => setState(() {}),
+                      child: const Text('Rebuild'),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      // Let initial animation complete
+      await tester.pumpAndSettle();
+      expect(animationCount, 1);
+
+      // Trigger parent rebuild
+      await tester.tap(find.text('Rebuild'));
+      await tester.pumpAndSettle();
+
+      // Animation should NOT have run again
+      expect(animationCount, 1);
+    });
   });
 }

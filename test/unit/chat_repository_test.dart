@@ -61,7 +61,7 @@ void main() {
     test('returns "no answer" message when retrieval finds nothing', () async {
       final repo = ChatRepository(kb: testKb);
       final answer = await repo.ask('আবহাওয়া কেমন');
-      expect(answer, contains('999'));
+      expect(answer, contains('৯৯৯'));
     });
   });
 
@@ -73,7 +73,7 @@ void main() {
       );
       final repo = ChatRepository(kb: emptyKb);
       final answer = await repo.ask('কিছু জিজ্ঞাসা');
-      expect(answer, contains('999'));
+      expect(answer, contains('৯৯৯'));
     });
   });
 }

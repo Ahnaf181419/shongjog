@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shongjog/core/device_capability.dart';
 import 'package:shongjog/core/model_manager.dart';
 
 void main() {
@@ -38,29 +39,29 @@ void main() {
 
   group('ModelManager markReadyIfOnDisk', () {
     test('transitions to ready state', () {
-      final mgr = ModelManager();
-      expect(mgr.state, ModelState.notDownloaded);
-
-      mgr.markReadyIfOnDisk();
-      expect(mgr.state, ModelState.ready);
-      expect(mgr.isReady, isTrue);
+      final manager = ModelManager();
+      expect(manager.state, ModelState.notDownloaded);
+      manager.markReadyIfOnDisk(ModelVariant.e2b);
+      expect(manager.state, ModelState.ready);
+      expect(manager.isReady, isTrue);
     });
 
     test('notifies listeners', () {
       final mgr = ModelManager();
-      var notifyCount = 0;
-      mgr.addListener(() => notifyCount++);
-
-      mgr.markReadyIfOnDisk();
-      expect(notifyCount, 1);
+      var notified = false;
+      mgr.addListener(() => notified = true);
+      expect(notified, isFalse);
+      mgr.markReadyIfOnDisk(ModelVariant.e2b);
+      expect(notified, isTrue);
     });
   });
 
   group('ModelManager statusLabelBn', () {
     test('ready state shows "প্রস্তুত"', () {
-      final mgr = ModelManager();
-      mgr.markReadyIfOnDisk();
-      expect(mgr.statusLabelBn, 'প্রস্তুত');
+      final manager = ModelManager();
+      expect(manager.statusLabelBn, 'ডাউনলোড প্রয়োজন');
+      manager.markReadyIfOnDisk(ModelVariant.e2b);
+      expect(manager.statusLabelBn, 'প্রস্তুত');
     });
 
     test('downloading with progress shows percentage format', () {

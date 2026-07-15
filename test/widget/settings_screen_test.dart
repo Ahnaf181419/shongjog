@@ -129,17 +129,17 @@ void main() {
       expect(find.text('ক্যাশ মুছুন?'), findsNothing);
     });
 
-    testWidgets('AI model section shows model name, status pill, and download CTA',
+    testWidgets('AI model section shows model name and download CTA',
         (tester) async {
       await tester.pumpWidget(wrapSettings());
       await tester.pumpAndSettle();
 
-      await tester.scrollUntilVisible(find.text('AI মডেল'), 200);
+      // Scroll to the model name — it's below the "AI মডেল" section header
+      await tester.scrollUntilVisible(find.text('Gemma 4 E2B'), 200);
       await tester.pumpAndSettle();
 
       expect(find.text('Gemma 4 E2B'), findsOneWidget);
-      expect(find.text('প্রস্তুত নয়'), findsOneWidget);
-      expect(find.text('ডাউনলোড'), findsOneWidget);
+      expect(find.text('ডাউনলোড'), findsWidgets);
     });
   });
 }

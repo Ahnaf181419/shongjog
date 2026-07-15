@@ -60,6 +60,7 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
   void dispose() {
     _peerSub?.cancel();
     _radarAnim.dispose();
+    // NOTE: Do NOT call meshService.stop() — it runs at app level.
     super.dispose();
   }
 
@@ -98,6 +99,7 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
       ),
       body: Column(
         children: [
+          // Radar animation strip
           Container(
             height: 120,
             color: cs.primary.withValues(alpha: 0.06),
@@ -118,6 +120,7 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
             ),
           ),
 
+          // Peer list
           if (!_started)
             const Expanded(
               child: Center(
@@ -179,12 +182,14 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
               ),
             ),
 
+          // Bottom input bar
           if (_started)
             SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
+                    // Voice record button
                     IconButton.filled(
                       onPressed: _toggleRecording,
                       icon: Icon(
@@ -197,6 +202,7 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
                       ),
                     ),
                     const SizedBox(width: 8),
+                    // Quick text input
                     Expanded(
                       child: TextField(
                         decoration: const InputDecoration(
@@ -241,6 +247,7 @@ class _PeerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final statusColor = switch (peer.status) {
       PeerStatus.connected => Colors.green,
       PeerStatus.reconnecting => Colors.orange,
@@ -285,6 +292,7 @@ class _RadarPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final maxRadius = size.width / 2;
 
+    // Draw concentric rings.
     final ringPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
@@ -294,6 +302,7 @@ class _RadarPainter extends CustomPainter {
       canvas.drawCircle(center, maxRadius * i / 3, ringPaint);
     }
 
+    // Draw sweep line.
     final sweepAngle = progress * 2 * pi;
     final sweepPaint = Paint()
       ..color = color.withValues(alpha: 0.6)
@@ -307,6 +316,7 @@ class _RadarPainter extends CustomPainter {
       sweepPaint,
     );
 
+    // Draw peer dots.
     if (peerCount > 0) {
       final dotPaint = Paint()..color = color;
       for (int i = 0; i < peerCount && i < 8; i++) {

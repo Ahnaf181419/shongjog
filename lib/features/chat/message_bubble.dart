@@ -23,6 +23,11 @@ class MessageBubble extends StatelessWidget {
   /// Gemma, raw corpus, or the canned 999 fallback answered).
   final GenerationPath? path;
 
+  /// Called once when the typewriter animation finishes (or immediately
+  /// if animate is false). Used by ChatScreen to mark the _Msg.animate
+  /// flag as false so subsequent rebuilds don't re-trigger the animation.
+  final VoidCallback? onAnimateComplete;
+
   const MessageBubble({
     super.key,
     required this.text,
@@ -30,6 +35,7 @@ class MessageBubble extends StatelessWidget {
     this.onSpeak,
     this.animate = false,
     this.path,
+    this.onAnimateComplete,
   });
 
   @override
@@ -74,6 +80,7 @@ class MessageBubble extends StatelessWidget {
                   height: 1.5,
                   color: isDark ? ShongjogTheme.inkDark : ShongjogTheme.ink,
                 ),
+                onComplete: onAnimateComplete,
               )
             else
               Text(

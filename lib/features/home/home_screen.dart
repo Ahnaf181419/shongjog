@@ -5,9 +5,9 @@ import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../core/connectivity_provider.dart';
 import '../../core/haptics.dart';
+import '../intelligence/intelligence_engine.dart';
+import '../intelligence/notification_service.dart';
 import '../weather/weather_card.dart';
-import '../mesh_comm/mesh_service.dart';
-import '../mesh_comm/mesh_models.dart';
 
 /// Home tab — context-first dashboard.
 ///
@@ -57,8 +57,7 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 12),
           _OfflineMessageTile(),
           const SizedBox(height: 12),
-          // ── Contextual tip ──
-          const _TipCard(),
+          const _InsightsList(),
         ],
       ),
     );
@@ -503,103 +502,108 @@ class _OfflineMessageTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return StreamBuilder<List<MeshPeer>>(
-      stream: meshService.peers,
-      initialData: const [],
-      builder: (context, snapshot) {
-        final peerCount = snapshot.data?.length ?? 0;
-        return Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () {
-              HapticService.lightTap();
-              pushNamedSafe(context, AppRoutes.meshRadar);
-            },
-            borderRadius: BorderRadius.circular(ShongjogTheme.radius),
-            child: Container(
-              decoration: ShongjogTheme.cardDecoration(context),
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-              child: Row(
-                children: [
-                  Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: ShongjogTheme.iconBadge(context),
-                        child: Icon(Icons.bluetooth_audio_rounded,
-                            color: cs.primary, size: 22),
-                      ),
-                      if (peerCount > 0)
-                        Positioned(
-                          top: -4,
-                          right: -4,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: Colors.green,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Text(
-                              '$peerCount',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'অফলাইন মেসেজ',
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                            color: cs.onSurface,
-                            height: 1.2,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          peerCount > 0
-                              ? '$peerCount ডিভাইস সংযুক্ত — ব্লুটুথ দিয়ে কথা বলুন'
-                              : 'ব্লুটুথ দিয়ে কাছের মানুষদের সাথে কথা বলুন',
-                          style: TextStyle(
-                            fontSize: 14,
-                            height: 1.4,
-                            color: cs.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(Icons.arrow_forward_rounded,
-                      color: cs.onSurfaceVariant, size: 22),
-                ],
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          HapticService.lightTap();
+          pushNamedSafe(context, AppRoutes.meshRadar);
+        },
+        borderRadius: BorderRadius.circular(ShongjogTheme.radius),
+        child: Container(
+          decoration: ShongjogTheme.cardDecoration(context),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: ShongjogTheme.iconBadge(context),
+                child: Icon(Icons.bluetooth_audio_rounded,
+                    color: cs.primary, size: 22),
               ),
-            ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'অফলাইন মেসেজ',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurface,
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'ব্লুটুথ দিয়ে কাছের মানুষদের সাথে কথা বলুন',
+                      style: TextStyle(
+                        fontSize: 14,
+                        height: 1.4,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.arrow_forward_rounded,
+                  color: cs.onSurfaceVariant, size: 22),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
 
-// ════════════════════════════════════════════════════════════════
-//  Tip card — contextual guidance
-// ════════════════════════════════════════════════════════════════
+class _InsightsList extends StatefulWidget {
+  const _InsightsList();
 
-class _TipCard extends StatelessWidget {
-  const _TipCard();
+  @override
+  State<_InsightsList> createState() => _InsightsListState();
+}
+
+class _InsightsListState extends State<_InsightsList> {
+  @override
+  void initState() {
+    super.initState();
+    intelligenceEngine.addListener(_onChange);
+    intelligenceEngine.analyzeBehavior();
+  }
+
+  @override
+  void dispose() {
+    intelligenceEngine.removeListener(_onChange);
+    super.dispose();
+  }
+
+  void _onChange() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final insights = NotificationService.generateInsights(intelligenceEngine.profile);
+    if (insights.isEmpty) return const SizedBox.shrink();
+
+    // Just show the top 2 insights to avoid clutter
+    final displayInsights = insights.take(2).toList();
+
+    return Column(
+      children: displayInsights.map((insight) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: _InsightCard(insight: insight),
+      )).toList(),
+    );
+  }
+}
+
+class _InsightCard extends StatelessWidget {
+  final ProactiveInsight insight;
+  const _InsightCard({required this.insight});
 
   @override
   Widget build(BuildContext context) {
@@ -632,7 +636,7 @@ class _TipCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'আজকের পরামর্শ',
+                  insight.title,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -642,7 +646,7 @@ class _TipCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'বন্যা মৌসুমে পানি অন্তত ১ মিনিট ফুটিয়ে পান। পানিবাহিত রোগ প্রতিরোধে ORS মজুত রাখুন।',
+                  insight.message,
                   style: TextStyle(
                     fontSize: ShongjogTheme.bodyFloor,
                     height: 1.5,
@@ -652,6 +656,14 @@ class _TipCard extends StatelessWidget {
               ],
             ),
           ),
+          if (insight.route != '/')
+            IconButton(
+              icon: Icon(Icons.arrow_forward_ios_rounded, size: 16, color: cs.primary),
+              onPressed: () {
+                if (insight.route == '/shelter') MainShellRoute.goTo(context, 3);
+                if (insight.route == '/cards') MainShellRoute.goTo(context, 2);
+              },
+            ),
         ],
       ),
     );
