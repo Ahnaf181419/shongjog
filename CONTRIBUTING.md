@@ -135,6 +135,28 @@ flutter build apk --release --target-platform android-arm64
 flutter build appbundle --release
 ```
 
+### 6. Build with the optional cloud AI key
+
+The Cloud AI fallback (Gemini 2.5-flash → 2.0-flash-lite) is gated behind a
+`GEMINI_API_KEY` compile-time constant. Without it, the chat path is fully offline
+(keyword retrieval → on-device Gemma → corpus text). **The demo-submission APK
+must be built WITHOUT a key** — it keeps the "zero network calls in the core loop"
+claim airtight and avoids shipping a billable credential inside a public APK.
+
+To build **with** the key (for online development / testing only):
+
+```bash
+cp .env.example .env          # one-time; .env is gitignored
+# edit .env → replace YOUR_GOOGLE_AI_STUDIO_KEY_HERE with a real key
+bash scripts/build_release.sh # macOS / Linux
+# .\scripts\build_release.ps1 # Windows
+```
+
+The script reads `.env` (or a `GEMINI_API_KEY` env var), and falls through to a
+plain offline `flutter build apk --release` if the key is absent or still the
+placeholder. Never hardcode the key in any committed file; never pass it on the
+command line in a shared terminal (it lands in shell history).
+
 ---
 
 ## Code conventions
