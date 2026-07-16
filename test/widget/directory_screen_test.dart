@@ -42,7 +42,7 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.text('জাতীয় জরুরি'), findsOneWidget);
-    expect(find.text('999'), findsOneWidget);
+    expect(find.text('৯৯৯'), findsOneWidget);
     expect(find.text('ঢাকা হাসপাতাল'), findsOneWidget);
     expect(find.text('চট্টগ্রাম হাসপাতাল'), findsOneWidget);
   });

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/connectivity_provider.dart';
@@ -7,6 +8,16 @@ import '../emergency/emergency_actions.dart';
 import '../mesh_comm/mesh_service.dart';
 import 'safe_beacon_payload.dart';
 import 'sms_queue.dart';
+
+/// Convert Latin digits to Bengali numerals for UI strings.
+/// AGENTS.md: Bangla numerals (০-৯) in user-facing strings.
+String _bn(int n) {
+  const map = {
+    '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
+    '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯',
+  };
+  return n.toString().split('').map((c) => map[c] ?? c).join();
+}
 
 /// "I'm safe" beacon — one giant Bangla button.
 ///
@@ -87,17 +98,28 @@ class _SafeBeaconScreenState extends State<SafeBeaconScreen> {
       final name = prefs.getString('user_name') ?? 'একজন ব্যবহারকারী';
       final phone = prefs.getString('user_phone') ?? '';
 
-      // Use last-known location if available; otherwise 0,0.
-      // A real implementation would call geolocator here; for the
-      // demo, defer to the GPS coords if the user has used
-      // shelter map before, else omit.
+      // Get current GPS position via Geolocator (same pattern as
+      // emergency_sheet.dart). Falls back gracefully if denied.
       double? lat;
       double? lon;
-      final savedLat = prefs.getDouble('last_known_lat');
-      final savedLon = prefs.getDouble('last_known_lon');
-      if (savedLat != null && savedLon != null) {
-        lat = savedLat;
-        lon = savedLon;
+      try {
+        var permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied) {
+          permission = await Geolocator.requestPermission();
+        }
+        if (permission != LocationPermission.denied &&
+            permission != LocationPermission.deniedForever) {
+          final pos = await Geolocator.getCurrentPosition(
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.medium,
+              timeLimit: Duration(seconds: 5),
+            ),
+          );
+          lat = pos.latitude;
+          lon = pos.longitude;
+        }
+      } catch (_) {
+        // GPS unavailable — beacon still works, just without location.
       }
 
       final body = _safeMessage(
@@ -141,10 +163,10 @@ class _SafeBeaconScreenState extends State<SafeBeaconScreen> {
           SnackBar(
             content: Text(
               phones.isEmpty
-                  ? 'বিড়ালাল-বার্তা পাঠানো হয়েছে। ${_queue.pending}টি অপেক্ষমান।'
+                  ? 'বীকন পাঠানো হয়েছে। ${_bn(_queue.pending)}টি অপেক্ষমান।'
                   : sent > 0
-                      ? '$sentটি এসএমএস পাঠানো হয়েছে।'
-                      : '${phones.length}জনকে জানানো হবে সংযোগ ফিরলে।',
+                      ? '${_bn(sent)}টি এসএমএস পাঠানো হয়েছে।'
+                      : '${_bn(phones.length)}জনকে জানানো হবে সংযোগ ফিরলে।',
             ),
             duration: const Duration(seconds: 3),
           ),
@@ -212,14 +234,14 @@ class _SafeBeaconScreenState extends State<SafeBeaconScreen> {
               const SizedBox(height: 24),
               if (_lastSentCount > 0)
                 Text(
-                  'শেষ পাঠানো: $_lastSentCountটি',
+                  'শেষ পাঠানো: ${_bn(_lastSentCount)}টি',
                   style: TextStyle(color: cs.onSurfaceVariant),
                 ),
               if (_queue.pending > 0)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
-                    '${_queue.pending}টি অপেক্ষমান — সংযোগ ফিরলে পাঠানো হবে',
+                    '${_bn(_queue.pending)}টি অপেক্ষমান — সংযোগ ফিরলে পাঠানো হবে',
                     style: TextStyle(color: cs.onSurfaceVariant),
                   ),
                 ),
