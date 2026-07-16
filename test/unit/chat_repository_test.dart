@@ -27,6 +27,9 @@ class _FakeLlm implements LocalLlm {
   Future<bool> isAnyOnDisk() async => onDisk;
 
   @override
+  void setThinkingMode(bool? enable) {}
+
+  @override
   Future<String> generate(String prompt) async {
     if (generateError != null) throw generateError!;
     return generateResult ?? 'fake-answer';

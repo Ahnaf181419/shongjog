@@ -75,6 +75,18 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
   InferenceModel? _model;
   Future<InferenceModel>? _initFuture;
 
+  /// Optional LoRA adapter path. When set, `createSession` passes it to
+  /// the SDK via `loraPath:`. Hot-swappable — see [setLoraAdapter] /
+  /// [clearLoraAdapter]. Stored per-session so it can be toggled without
+  /// reloading the 2.5 GB base model.
+  String? _loraPath;
+  String? get loraPath => _loraPath;
+
+  /// Per-query thinking mode override. When non-null, `createSession`
+  /// receives `enableThinking: _enableThinking`. Used by the urgency
+  /// classifier (Phase 3) to route reflex vs. deliberation.
+  bool? _enableThinking;
+
   /// Why the last on-device load failed, or null if it never has.
   ///
   /// Tier 2 degrades silently to corpus answers by design, which makes a
@@ -390,6 +402,29 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
     }
   }
 
+  /// Set a LoRA adapter path. Subsequent [generate] calls will pass it
+  /// to `createSession(loraPath: ...)`. Does NOT reload the base model —
+  /// the adapter is lightweight and applied per-session.
+  void setLoraAdapter(String path) {
+    _loraPath = path;
+    notifyListeners();
+  }
+
+  /// Remove the LoRA adapter. Reverts to base model behavior.
+  void clearLoraAdapter() {
+    _loraPath = null;
+    notifyListeners();
+  }
+
+  /// Override the thinking mode for the next [generate] call. Set to
+  /// null to use the SDK default (thinking off). Used by the urgency
+  /// classifier — critical queries get thinking=false (reflex), complex
+  /// queries get thinking=true (deliberation).
+  @override
+  void setThinkingMode(bool? enable) {
+    _enableThinking = enable;
+  }
+
   @override
   Future<String> generate(String prompt) async {
     final model = await initialize();
@@ -403,6 +438,11 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
       // `.litertlm` requires to stay >= 1024. Preserves the short-answer
       // intent of the documented run config (docs/prd.md §8).
       maxOutputTokens: _kMaxOutputTokens,
+      // LoRA adapter — null means base model only.
+      loraPath: _loraPath,
+      // Thinking mode — only override when explicitly set; SDK default
+      // is thinking off.
+      enableThinking: _enableThinking ?? false,
     );
     try {
       await session.addQueryChunk(Message.text(text: prompt, isUser: true));

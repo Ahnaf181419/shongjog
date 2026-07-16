@@ -2,7 +2,9 @@ import 'package:flutter/foundation.dart';
 
 import '../../knowledge/kb_loader.dart';
 import '../../rag/prompt_builder.dart';
+import '../../rag/rumour_checker.dart';
 import '../../rag/types.dart';
+import '../../rag/urgency_classifier.dart';
 import '../cloud_ai/cloud_ai_service.dart';
 import 'local_llm.dart';
 
@@ -64,7 +66,19 @@ class ChatRepository {
     }
 
     // TIER 2: Local LLM (offline)
-    final prompt = buildPrompt(query: userQuery, hits: hits);
+    // Route rumour-check queries through a dedicated prompt that asks
+    // the model to verify the claim against the corpus.
+    final isRumour = isRumourQuery(userQuery);
+    final prompt = isRumour
+        ? buildRumourCheckPrompt(query: userQuery, hits: hits)
+        : buildPrompt(query: userQuery, hits: hits);
+
+    // Adaptive thinking mode — classify urgency before generation.
+    // Critical emergencies get thinking OFF (reflex, max speed); complex
+    // queries get thinking ON (deliberation).
+    final urgency = UrgencyClassifier.classify(userQuery);
+    model?.setThinkingMode(urgency.enableThinking);
+
     if (model != null) {
       // Tagged logging for runtime triage — `debugPrint` is filtered out
       // in release by default; consumers can enable `-v` or wire

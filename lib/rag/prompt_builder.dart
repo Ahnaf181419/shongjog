@@ -106,10 +106,11 @@ String buildPrompt({required String query, required List<RetrievalHit> hits}) {
     ..writeln();
 
   // Context section — only when there are actual KB hits.
+  // Include source attribution so the model can cite provenance.
   if (hits.isNotEmpty) {
     buf
-      ..writeln('=== Verified context ===')
-      ..writeln(hits.map((h) => '[${h.chunk.source}] ${h.chunk.text}').join('\n\n'))
+      ..writeln('=== Verified context (cite the source in your answer) ===')
+      ..writeln(hits.map((h) => '[Source: ${h.chunk.source}] ${h.chunk.text}').join('\n\n'))
       ..writeln();
   }
 

@@ -28,4 +28,10 @@ abstract class LocalLlm {
   /// repository decides how to recover (and [ChatRepository] surfaces
   /// the failure to the UI rather than silently masking it).
   Future<String> generate(String prompt);
+
+  /// Override the model's thinking mode for the next [generate] call.
+  /// Set to null to use the SDK default. Used by the urgency classifier
+  /// to route reflex (critical) vs. deliberation (complex) queries.
+  /// Default implementation is a no-op for test fakes that don't care.
+  void setThinkingMode(bool? enable) {}
 }

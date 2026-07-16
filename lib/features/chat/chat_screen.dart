@@ -529,6 +529,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   _suggestion('ORS কীভাবে বানাবো?'),
                   _suggestion('নিকটস্থ আশ্রয়কেন্দ্র'),
                   _suggestion('সাপে কামড়ালে কী করবো?'),
+                  _suggestion('গুজব: সাপে কামড়ালে কেটে ফেলা ঠিক?'),
                 ],
               ),
               const SizedBox(height: 20),
