@@ -303,6 +303,20 @@ class MeshService {
     ));
   }
 
+  /// Send raw bytes to all connected peers. Used by the SOS relay
+  /// listener to forward decoded payloads. Does NOT add to the
+  /// local message history (the listener handles that for SOS).
+  void sendBytesToAll(Uint8List bytes) {
+    if (_peers.isEmpty) return;
+    for (final peer in _peers.values) {
+      try {
+        Nearby().sendBytesPayload(peer.endpointId, bytes);
+      } catch (e) {
+        debugPrint('MeshService: failed to send bytes to ${peer.name}: $e');
+      }
+    }
+  }
+
   /// Send a voice file to all connected peers.
   void sendVoiceMessage(String filePath) {
     if (_peers.isEmpty) return;
