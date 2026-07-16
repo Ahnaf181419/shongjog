@@ -3,6 +3,7 @@ import 'package:flutter_gemma/flutter_gemma.dart';
 import 'package:flutter_gemma_litertlm/flutter_gemma_litertlm.dart';
 
 import 'app/app.dart';
+import 'core/admin_broadcast_service.dart';
 import 'core/connectivity_provider.dart';
 import 'core/model_manager.dart';
 
@@ -27,6 +28,11 @@ Future<void> main() async {
     await connectivityProvider.initialize();
   } catch (e) {
     debugPrint('Connectivity init failed: $e');
+  }
+  try {
+    await adminBroadcastService.initialize();
+  } catch (e) {
+    debugPrint('AdminBroadcastService init failed: $e');
   }
   try {
     await modelManager.autoSelectBestModel();

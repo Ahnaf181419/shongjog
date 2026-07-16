@@ -10,6 +10,9 @@ class AppRoutes {
   static const triage = '/triage';
   static const safeBeacon = '/safe-beacon';
   static const directory = '/directory';
+  static const adminLogin = '/admin-login';
+  static const adminPanel = '/admin-panel';
+  static const notifications = '/notifications';
 }
 
 /// Push a named route only if the current route is not already that route.

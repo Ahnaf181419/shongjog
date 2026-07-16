@@ -9,6 +9,7 @@ import '../../core/theme_controller.dart';
 import '../audio/sound_service.dart';
 import '../chat/chat_store.dart';
 import 'model_picker_section.dart';
+import '../../core/admin_broadcast_service.dart';
 
 /// Settings screen.
 ///
@@ -180,6 +181,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => pushNamedSafe(context, AppRoutes.about),
           ),
+          ListTile(
+            leading: const Icon(Icons.admin_panel_settings_rounded),
+            title: const Text('অ্যাডমিন লগইন'),
+            subtitle: const Text('বার্তা ব্রডকাস্ট এবং ব্যবস্থাপনা'),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => pushNamedSafe(context, AppRoutes.adminLogin),
+          ),
         ],
       ),
     );
@@ -205,9 +213,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
     if (confirmed == true) {
       await ChatStore().clear();
+      await adminBroadcastService.clear();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('চ্যাট ইতিহাস মুছে ফেলা হয়েছে')),
+          const SnackBar(content: Text('ক্যাশ মুছে ফেলা হয়েছে')),
         );
       }
     }

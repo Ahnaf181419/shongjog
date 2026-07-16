@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../app/main_shell.dart';
 import '../../app/router.dart';
 import '../../app/theme.dart';
+import '../../core/admin_broadcast_service.dart';
 import '../../core/connectivity_provider.dart';
 import '../../core/device_capability.dart';
 import '../../core/haptics.dart';
@@ -35,6 +36,8 @@ class HomeScreen extends StatelessWidget {
         title: const Text('সংযোগ'),
         actions: [
           const _EmergencyCallPill(),
+          const SizedBox(width: 4),
+          const _NotificationBell(),
           const SizedBox(width: 4),
           IconButton(
             tooltip: 'সেটিংস',
@@ -123,6 +126,76 @@ class _EmergencyCallPill extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  AppBar notification bell — unread badge
+// ════════════════════════════════════════════════════════════════
+
+class _NotificationBell extends StatefulWidget {
+  const _NotificationBell();
+
+  @override
+  State<_NotificationBell> createState() => _NotificationBellState();
+}
+
+class _NotificationBellState extends State<_NotificationBell> {
+  static const _bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+
+  @override
+  void initState() {
+    super.initState();
+    adminBroadcastService.addListener(_onChange);
+  }
+
+  @override
+  void dispose() {
+    adminBroadcastService.removeListener(_onChange);
+    super.dispose();
+  }
+
+  void _onChange() {
+    if (mounted) setState(() {});
+  }
+
+  String _bnNum(int n) =>
+      n.toString().split('').map((d) => _bnDigits[int.parse(d)]).join();
+
+  @override
+  Widget build(BuildContext context) {
+    final count = adminBroadcastService.unreadCount;
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        IconButton(
+          tooltip: 'বিজ্ঞপ্তি',
+          icon: const Icon(Icons.notifications_rounded),
+          onPressed: () => pushNamedSafe(context, AppRoutes.notifications),
+        ),
+        if (count > 0)
+          Positioned(
+            right: 4,
+            top: 4,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.error,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                _bnNum(count),
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onError,
+                  height: 1.2,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
