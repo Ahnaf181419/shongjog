@@ -1,0 +1,91 @@
+# Eval Report: base
+
+Generated: 2026-07-16T22:23:27.598603
+
+## Aggregate Metrics
+
+| Metric | Value |
+|---|---|
+| Total queries | 50 |
+| Recall@1 | 44.0% |
+| Recall@3 | 58.0% |
+| Retrieval rate (any hit) | 94.0% |
+
+## By Category
+
+| Category | Count | Recall@1 | Recall@3 |
+|---|---|---|---|
+| cross_hazard | 10 | 40.0% | 50.0% |
+| follow_up | 10 | 60.0% | 90.0% |
+| myth | 10 | 50.0% | 70.0% |
+| out_of_scope | 10 | 0.0% | 0.0% |
+| standard | 10 | 70.0% | 80.0% |
+
+## Per-Query Details
+
+| ID | Category | Query (first 40 chars) | Expected | Retrieved topics | R@1 | R@3 |
+|---|---|---|---|---|---|---|
+| q01 | standard | আমার বাচ্চার ডায়রিয়া হয়েছে, পরিষ্কার … | ors | ors, diarrhea, water | ✅ | ✅ |
+| q02 | standard | সাপে কামড়েছে, কি করবো? | snakebite | snakebite, snakebite, water | ✅ | ✅ |
+| q03 | standard | পানি পরিষ্কার করবে কিভাবে? | water | water, cyclone, ors | ✅ | ✅ |
+| q04 | standard | শিশু পুকুরে ডুবে গেছে, পানি থেকে তুলেছি,… | drowning | drowning, drowning, ors | ✅ | ✅ |
+| q05 | standard | হাত কেটে গেছে, রক্ত পড়ছে, কী করবো? | bleeding | diarrhea, infant, ors | ❌ | ❌ |
+| q06 | standard | বাচ্চার অনেক জ্বর, কী করবো? | fever | fever, fever, ors | ✅ | ✅ |
+| q07 | standard | ঘূর্ণিঝড়ের পর আশ্রয়কেন্দ্রে কী করণীয়? | cyclone | cyclone, cyclone, ors | ✅ | ✅ |
+| q08 | standard | বন্যার পানি পান করা কি নিরাপদ? | water | cyclone, water, bleeding | ❌ | ✅ |
+| q09 | standard | বমি হচ্ছে, কী খাবো? | ors | ors, diarrhea, ors | ✅ | ✅ |
+| q10 | standard | শ্বাসকষ্ট হচ্ছে, কী করবো? | breathing | drowning, drowning, emotional | ❌ | ❌ |
+| q11 | cross_hazard | বন্যার পর পানি দূষিত, বাচ্চার পেটের সমস্… | water | cyclone, diarrhea, bleeding | ❌ | ❌ |
+| q12 | cross_hazard | ঘূর্ণিঝড়ের পর ক্ষতস্থানে সংক্রমণ, কীভাব… | bleeding | bleeding, cyclone, cyclone | ✅ | ✅ |
+| q13 | cross_hazard | বন্যায় সাপের ভয় বেশি, কামড়ালে প্রথমে … | snakebite | snakebite, snakebite, cyclone | ✅ | ✅ |
+| q14 | cross_hazard | ডুবে যাওয়ার পর শ্বাস নিতে পারছে না, CPR… | drowning | drowning, drowning, emotional | ✅ | ✅ |
+| q15 | cross_hazard | বন্যার পর অনেক দিন জ্বর যাচ্ছে না, কী কর… | fever | cyclone, fever, fever | ❌ | ✅ |
+| q16 | cross_hazard | গর্ভবতী মহিলা বন্যায় আটকে আছে, পেটে ব্য… | pregnancy | cyclone, fever, bleeding | ❌ | ❌ |
+| q17 | cross_hazard | বন্যার পর খাবার নেই, শিশুকে কী খাওয়াবো? | infant | infant, infant, cyclone | ✅ | ✅ |
+| q18 | cross_hazard | বৃদ্ধ ব্যক্তি ঘূর্ণিঝড়ে আটকে আছে, ঠান্ড… | elderly | cyclone, cyclone, emotional | ❌ | ❌ |
+| q19 | cross_hazard | বন্যায় বিদ্যুৎের তার ভেঙে পড়েছে, কেউ শ… | electrical | cyclone, cyclone, ors | ❌ | ❌ |
+| q20 | cross_hazard | পানি ছাড়ার পর বাড়িতে ছাঁচ পড়েছে, পরিষ… | mold | ors, water, bleeding | ❌ | ❌ |
+| q21 | myth | সাপে কামড়ালে কেটে ফেলা উচিত, তাই না? | snakebite | snakebite, snakebite, ors | ✅ | ✅ |
+| q22 | myth | কেউ বললো সাপে কামড়ালে পাথর দিয়ে কাটতে … | snakebite | snakebite, snakebite, water | ✅ | ✅ |
+| q23 | myth | ডায়রিয়া হলে পানি খাওয়া উচিত নয়, শুনে… | ors | diarrhea, ors, diarrhea | ❌ | ✅ |
+| q24 | myth | গুজব: কলেরা হলে পানি খাওয়া মৃত্যুর কারণ… | ors | diarrhea, diarrhea, bleeding | ❌ | ❌ |
+| q25 | myth | শুনেছি পুকুরে ডুবে যাওয়ার পর মাটিতে পুঁ… | drowning | drowning, drowning, ors | ✅ | ✅ |
+| q26 | myth | জ্বর হলে ভেজা কাপড় দিলে আরও খারাপ হয়, … | fever | fever, bleeding, fever | ✅ | ✅ |
+| q27 | myth | রক্ত পড়লে তুলসী পাতা দিলে বন্ধ হয়, শুন… | bleeding | bleeding, diarrhea, snakebite | ✅ | ✅ |
+| q28 | myth | গুজব: বন্যার পানিতে নুন দিলে পান করা নির… | water | cyclone, drowning, water | ❌ | ✅ |
+| q29 | myth | শুনেছি শক খেলে পানি ছিটিয়ে দিলে সেরে যা… | electrical | water, bleeding, cyclone | ❌ | ❌ |
+| q30 | myth | গর্ভবতী মহিলার জ্বর হলে যেকোনো ওষুধ খেতে… | pregnancy | fever, cyclone, fever | ❌ | ❌ |
+| q31 | out_of_scope | আমার মাথাব্যথা কী কারণে হয়? | — | fever, ors, water | ❌ | ❌ |
+| q32 | out_of_scope | বিয়ের জন্য কোন তারিখ ভালো? | — | ors, ors, water | ❌ | ❌ |
+| q33 | out_of_scope | আমার ফোনের ব্যাটারি কেন দ্রুত শেষ হয়? | — | ors, ors, water | ❌ | ❌ |
+| q34 | out_of_scope | ক্রিকেট খেলার নিয়ম কী? | — | ors | ❌ | ❌ |
+| q35 | out_of_scope | আমার স্বপ্নের অর্থ কী? | — | — | ❌ | ❌ |
+| q36 | out_of_scope | কোন ক্যারিয়ার ভালো হবে আমার জন্য? | — | water, ors, ors | ❌ | ❌ |
+| q37 | out_of_scope | রান্নার রেসিপি জানতে চাই | — | — | ❌ | ❌ |
+| q38 | out_of_scope | কোথায় ভালো রেস্তোরাঁ আছে? | — | ors, water, diarrhea | ❌ | ❌ |
+| q39 | out_of_scope | আবহাওয়া আগামীকাল কেমন থাকবে? | — | — | ❌ | ❌ |
+| q40 | out_of_scope | আমার নামের অর্থ কী? | — | emotional | ❌ | ❌ |
+| q41 | follow_up | ORS খাওয়ার পরও ডায়রিয়া থামছে না, তারপ… | ors | ors, diarrhea, diarrhea | ✅ | ✅ |
+| q42 | follow_up | সাপের বিষ কাটানোর পরেও ব্যথা আছে, এখন কী… | snakebite | fever, snakebite, snakebite | ❌ | ✅ |
+| q43 | follow_up | পানি ফুটিয়েছি, কতক্ষণ পর খাবো? | water | ors, water, water | ❌ | ✅ |
+| q44 | follow_up | CPR দিচ্ছি কিন্তু শ্বাস ফিরছে না, আরও কত… | drowning | drowning, drowning, emotional | ✅ | ✅ |
+| q45 | follow_up | রক্ত বন্ধ হয়েছে কিন্তু ক্ষতস্থান দেখতে … | bleeding | bleeding, bleeding, fever | ✅ | ✅ |
+| q46 | follow_up | জ্বর কমেছে কিন্তু দুর্বল লাগছে, খাবার কী… | fever | cyclone, fever, fever | ❌ | ✅ |
+| q47 | follow_up | ঘূর্ণিঝড়ের পর বাড়ি ফিরে গেলে কী নিরাপদ… | cyclone | cyclone, cyclone, cyclone | ✅ | ✅ |
+| q48 | follow_up | বন্যার পানি নামার পর পানি পান করা কি এখন… | water | cyclone, bleeding, ors | ❌ | ❌ |
+| q49 | follow_up | শিশুকে ORS দিচ্ছি কিন্তু বমি করছে, কীভাব… | ors | ors, diarrhea, infant | ✅ | ✅ |
+| q50 | follow_up | সাপে কামড়ানো ব্যক্তিকে হাসপাতালে নিয়ে … | snakebite | snakebite, snakebite, diarrhea | ✅ | ✅ |
+
+## Retrieval Failures (11 queries with expected topic not in top-3)
+
+- **q05** (standard): expected `bleeding`, got `diarrhea, infant, ors`
+- **q10** (standard): expected `breathing`, got `drowning, drowning, emotional`
+- **q11** (cross_hazard): expected `water`, got `cyclone, diarrhea, bleeding`
+- **q16** (cross_hazard): expected `pregnancy`, got `cyclone, fever, bleeding`
+- **q18** (cross_hazard): expected `elderly`, got `cyclone, cyclone, emotional`
+- **q19** (cross_hazard): expected `electrical`, got `cyclone, cyclone, ors`
+- **q20** (cross_hazard): expected `mold`, got `ors, water, bleeding`
+- **q24** (myth): expected `ors`, got `diarrhea, diarrhea, bleeding`
+- **q29** (myth): expected `electrical`, got `water, bleeding, cyclone`
+- **q30** (myth): expected `pregnancy`, got `fever, cyclone, fever`
+- **q48** (follow_up): expected `water`, got `cyclone, bleeding, ors`
