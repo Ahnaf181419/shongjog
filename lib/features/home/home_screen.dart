@@ -456,7 +456,68 @@ class _EmergencyTriad extends StatelessWidget {
         _TriageTile(
           onTap: () => pushNamedSafe(context, AppRoutes.triage),
         ),
+        const SizedBox(height: 12),
+        _SafeBeaconTile(
+          onTap: () => pushNamedSafe(context, AppRoutes.safeBeacon),
+        ),
       ],
+    );
+  }
+}
+
+class _SafeBeaconTile extends StatelessWidget {
+  final VoidCallback onTap;
+  const _SafeBeaconTile({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(ShongjogTheme.radius),
+        child: Container(
+          decoration: BoxDecoration(
+            color: cs.tertiaryContainer,
+            borderRadius: BorderRadius.circular(ShongjogTheme.radius),
+            border: Border.all(color: cs.tertiary, width: 1),
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Icon(Icons.check_circle_outline_rounded,
+                  color: cs.tertiary, size: 28),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'আমি নিরাপদ আছি',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: cs.onTertiaryContainer,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'পরিবারকে মেশ ও এসএমএস দিয়ে জানান',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: cs.onTertiaryContainer.withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.arrow_forward_ios_rounded,
+                  size: 14, color: cs.onTertiaryContainer),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

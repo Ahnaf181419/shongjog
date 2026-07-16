@@ -8,6 +8,7 @@ class AppRoutes {
   static const about = '/about';
   static const meshRadar = '/mesh-radar';
   static const triage = '/triage';
+  static const safeBeacon = '/safe-beacon';
 }
 
 /// Push a named route only if the current route is not already that route.
