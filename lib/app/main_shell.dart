@@ -54,20 +54,26 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: _index,
-        children: [
-          HomeScreen(onNavigateToTab: _goToTab),
-          const ChatScreen(),
-          const QuickCardsScreen(),
-          const ShelterMapScreen(),
-        ],
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: _goToTab,
-        destinations: _destinations,
+    return PopScope(
+      canPop: _index == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) setState(() => _index = 0);
+      },
+      child: Scaffold(
+        body: IndexedStack(
+          index: _index,
+          children: [
+            HomeScreen(onNavigateToTab: _goToTab),
+            const ChatScreen(),
+            const QuickCardsScreen(),
+            const ShelterMapScreen(),
+          ],
+        ),
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: _index,
+          onDestinationSelected: _goToTab,
+          destinations: _destinations,
+        ),
       ),
     );
   }
