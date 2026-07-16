@@ -32,6 +32,15 @@ class _DirectoryScreenState extends State<DirectoryScreen> {
   List<EmergencyEntry>? _entries;
   bool _loading = true;
 
+  /// Convert Latin digits to Bengali numerals (AGENTS.md).
+  String _bn(String s) {
+    const map = {
+      '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
+      '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯',
+    };
+    return s.split('').map((c) => map[c] ?? c).join();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -125,7 +134,7 @@ class _DirectoryScreenState extends State<DirectoryScreen> {
                               child: Icon(_iconFor(e.type)),
                             ),
                             title: Text(e.nameBn),
-                            subtitle: Text(e.phone),
+                            subtitle: Text(_bn(e.phone)),
                             trailing: IconButton(
                               tooltip: 'কল করুন',
                               icon: const Icon(Icons.call_rounded),

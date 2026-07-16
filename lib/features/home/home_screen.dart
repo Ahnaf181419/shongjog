@@ -460,7 +460,63 @@ class _EmergencyTriad extends StatelessWidget {
         _SafeBeaconTile(
           onTap: () => pushNamedSafe(context, AppRoutes.safeBeacon),
         ),
+        const SizedBox(height: 12),
+        _DirectoryTile(
+          onTap: () => pushNamedSafe(context, AppRoutes.directory),
+        ),
       ],
+    );
+  }
+}
+
+class _DirectoryTile extends StatelessWidget {
+  final VoidCallback onTap;
+  const _DirectoryTile({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(ShongjogTheme.radius),
+        child: Container(
+          decoration: ShongjogTheme.cardDecoration(context),
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Icon(Icons.contact_phone_rounded, color: cs.primary, size: 28),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'জরুরি নম্বর',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'অফলাইন ডিরেক্টরি — জাতীয় ও বিভাগীয় হটলাইন',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.arrow_forward_ios_rounded,
+                  size: 14, color: cs.onSurfaceVariant),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
