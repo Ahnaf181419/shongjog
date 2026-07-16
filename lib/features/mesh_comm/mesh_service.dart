@@ -7,6 +7,9 @@ import 'package:nearby_connections/nearby_connections.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'mesh_models.dart';
+import 'sos_payload.dart';
+import 'sos_relay.dart';
+import 'sos_relay_listener.dart';
 
 /// Service ID isolates Shongjog peers from other Nearby Connections apps.
 const _kServiceId = 'com.shongjog.mesh';
@@ -30,6 +33,11 @@ class MeshService {
 
   final Map<String, MeshPeer> _peers = {};
   final Map<String, Completer<void>> _reconnectTimers = {};
+
+  /// Multi-hop SOS relay engine. Wired lazily — the listener is
+  /// attached to the messages stream on first [start]().
+  SosRelayEngine? _relayEngine;
+  SosRelayListener? _relayListener;
 
   Stream<List<MeshPeer>> get peers => _peersController.stream;
   Stream<MeshMessage> get messages => _messagesController.stream;
@@ -261,12 +269,20 @@ class MeshService {
       if (bytes == null) return;
       final text = utf8.decode(bytes, allowMalformed: true);
       final peerName = _peers[endpointId]?.name ?? endpointId;
-      _messagesController.add(MeshMessage(
+      final msg = MeshMessage(
         senderId: endpointId,
         senderName: peerName,
         text: text,
         type: MessageType.text,
-      ));
+      );
+      // Run through the relay engine if wired. The listener handles
+      // emission back to the controller so we don't double-emit.
+      final listener = _relayListener;
+      if (listener != null) {
+        listener.onIncoming(msg, rawBytes: bytes);
+      } else {
+        _messagesController.add(msg);
+      }
     } else if (payload.type == PayloadType.FILE) {
       final uri = payload.uri;
       if (uri == null) return;
@@ -303,6 +319,17 @@ class MeshService {
     ));
   }
 
+  /// Lazily wire the SOS relay engine. Idempotent — call from app
+  /// startup. Returns the same listener on subsequent calls.
+  SosRelayListener ensureRelayEngine() {
+    final engine = _relayEngine ??= SosRelayEngine(localDevice: userName);
+    return _relayListener ??= SosRelayListener(
+      engine: engine,
+      sendToAll: (Uint8List bytes) async => sendBytesToAll(bytes),
+      emit: _messagesController.add,
+    );
+  }
+
   /// Send raw bytes to all connected peers. Used by the SOS relay
   /// listener to forward decoded payloads. Does NOT add to the
   /// local message history (the listener handles that for SOS).
@@ -315,6 +342,20 @@ class MeshService {
         debugPrint('MeshService: failed to send bytes to ${peer.name}: $e');
       }
     }
+  }
+
+  /// Broadcast a SOS payload over the mesh and add a local copy
+  /// to the chat history with hopCount: 0.
+  void broadcastSos(SosPayload payload) {
+    final encoded = utf8.encode(payload.encode());
+    sendBytesToAll(Uint8List.fromList(encoded));
+    _messagesController.add(MeshMessage(
+      senderId: kMeshSelfId,
+      senderName: 'Me',
+      text: payload.message,
+      type: MessageType.text,
+      hopCount: 0,
+    ));
   }
 
   /// Send a voice file to all connected peers.
