@@ -8,6 +8,7 @@ import '../features/contacts/emergency_contacts_screen.dart';
 import '../features/mesh_comm/mesh_radar_screen.dart';
 import '../features/mesh_comm/mesh_service.dart';
 import '../features/onboarding/onboarding_screen.dart';
+import '../features/safe_beacon/safe_beacon_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/triage/triage_wizard_screen.dart';
 import '../main.dart';
@@ -38,6 +39,7 @@ class ShongjogApp extends StatelessWidget {
             AppRoutes.about: (_) => const AboutScreen(),
             AppRoutes.meshRadar: (_) => const MeshRadarScreen(),
             AppRoutes.triage: (_) => const TriageWizardScreen(),
+            AppRoutes.safeBeacon: (_) => const SafeBeaconScreen(),
           },
           onUnknownRoute: (settings) => MaterialPageRoute(
             builder: (_) => Scaffold(
@@ -124,6 +126,9 @@ class _StartupGateState extends State<_StartupGate> {
       _meshStarted = true;
       meshService.start().then((ok) {
         if (!ok) debugPrint('StartupGate: mesh failed to start');
+        // Wire the SOS relay engine once the mesh is up. The
+        // listener is idempotent so subsequent calls are safe.
+        meshService.ensureRelayEngine();
       });
     }
 
