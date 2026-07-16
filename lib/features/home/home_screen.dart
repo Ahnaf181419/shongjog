@@ -429,26 +429,90 @@ class _EmergencyTriad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final countBn = _bnNum(kQuickCards.length);
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: _TriadTile(
-            icon: Icons.style_rounded,
-            titleBn: 'জরুরি কার্ড',
-            subtitleBn: '$countBnটি দ্রুত নির্দেশিকা',
-            onTap: () => MainShellRoute.goTo(context, 2),
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: _TriadTile(
+                icon: Icons.style_rounded,
+                titleBn: 'জরুরি কার্ড',
+                subtitleBn: '$countBnটি দ্রুত নির্দেশিকা',
+                onTap: () => MainShellRoute.goTo(context, 2),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _TriadTile(
+                icon: Icons.shield_rounded,
+                titleBn: 'নিকটস্থ আশ্রয়',
+                subtitleBn: 'GPS থেকে শেল্টার',
+                onTap: () => MainShellRoute.goTo(context, 3),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _TriadTile(
-            icon: Icons.shield_rounded,
-            titleBn: 'নিকটস্থ আশ্রয়',
-            subtitleBn: 'GPS থেকে শেল্টার',
-            onTap: () => MainShellRoute.goTo(context, 3),
-          ),
+        const SizedBox(height: 12),
+        _TriageTile(
+          onTap: () => pushNamedSafe(context, AppRoutes.triage),
         ),
       ],
+    );
+  }
+}
+
+class _TriageTile extends StatelessWidget {
+  final VoidCallback onTap;
+  const _TriageTile({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(ShongjogTheme.radius),
+        child: Container(
+          decoration: BoxDecoration(
+            color: cs.errorContainer,
+            borderRadius: BorderRadius.circular(ShongjogTheme.radius),
+            border: Border.all(color: cs.error, width: 1),
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Icon(Icons.medical_services_rounded, color: cs.error, size: 28),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ট্রায়াজ উইজার্ড',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: cs.onErrorContainer,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'এলএলএম ছাড়াই প্রাথমিক চিকিৎসা — প্রশ্নের উত্তর দিন',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: cs.onErrorContainer.withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.arrow_forward_ios_rounded,
+                  size: 14, color: cs.onErrorContainer),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
