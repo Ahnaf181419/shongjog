@@ -23,8 +23,8 @@ void main() {
       expect(prompt, contains('You are Shongjog'));
       // Language matching rule present.
       expect(prompt, contains('same language'));
-      // Retrieved context present, with source bracket.
-      expect(prompt, contains('[WHO] ORS রেসিপি'));
+      // Retrieved context present, with source attribution.
+      expect(prompt, contains('[Source: WHO] ORS রেসিপি'));
       // User query echoed.
       expect(prompt, contains('বাচ্চার ডায়রিয়া'));
       // 999 escalation present for emergency query (Bengali numerals).
@@ -65,8 +65,8 @@ void main() {
         ),
       ];
       final prompt = buildPrompt(query: 'q', hits: hits);
-      expect(prompt, contains('[WHO] AAA'));
-      expect(prompt, contains('[CDC] BBB'));
+      expect(prompt, contains('[Source: WHO] AAA'));
+      expect(prompt, contains('[Source: CDC] BBB'));
     });
 
     test('isEmergencyQuery detects Bangla and English keywords', () async {
