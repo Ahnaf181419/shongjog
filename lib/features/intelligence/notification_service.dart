@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-import 'intelligence_engine.dart';
 import 'user_profile.dart';
 
 class ProactiveInsight {

@@ -37,6 +37,25 @@ android {
         }
     }
 
+    // abiFilters above only constrains NDK-built output. Prebuilt .so files
+    // inside plugin AARs (libdartjni.so, libdatastore_shared_counter.so) slip
+    // past it, and `--target-platform android-arm64` prunes only Flutter's own
+    // libs — so a lib/x86_64/ directory survives in the APK. That is enough for
+    // Android to select x86_64 at install time on a build whose LiteRT-LM
+    // engine and libflutter.so exist for arm64 ONLY. Exclude them at packaging
+    // so the APK is honestly arm64-v8a (AGENTS.md §"Hard constraints").
+    packaging {
+        jniLibs {
+            excludes += setOf(
+                "lib/armeabi-v7a/**",
+                "lib/armeabi/**",
+                "lib/x86/**",
+                "lib/x86_64/**",
+                "lib/mips/**",
+            )
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.

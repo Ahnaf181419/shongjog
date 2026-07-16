@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../core/model_manager.dart';
 import '../../core/device_capability.dart';
+import '../../main.dart';
 
 class ModelPickerSection extends StatefulWidget {
   const ModelPickerSection({super.key});
@@ -37,13 +38,7 @@ class _ModelPickerSectionState extends State<ModelPickerSection> {
         int total = 0;
         final usage = <ModelVariant, int>{};
         for (final rec in recs) {
-          try {
-            if (await modelManager.isOnDisk(rec.variant)) {
-              modelManager.markReadyIfOnDisk(rec.variant);
-            }
-          } catch (_) {
-            // isOnDisk uses dart:io File — unsupported on web
-          }
+          await modelManager.markReadyIfOnDisk(rec.variant);
           try {
             final size = await modelManager.getVariantSizeBytes(rec.variant);
             usage[rec.variant] = size;
@@ -82,7 +77,7 @@ class _ModelPickerSectionState extends State<ModelPickerSection> {
     }
 
     final cs = Theme.of(context).colorScheme;
-    
+
     // Convert tier to user-friendly string
     String ramText = '';
     String tierBadge = '';
@@ -108,11 +103,17 @@ class _ModelPickerSectionState extends State<ModelPickerSection> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('আপনার RAM: $ramText', style: TextStyle(
-                fontFamily: ShongjogTheme.fontFamily,
-                color: cs.onSurfaceVariant,
-                fontWeight: FontWeight.w500,
-              )),
+              // Flexible: the label is long Bangla text and the badge is
+              // fixed-width, so on a narrow phone (or with a large system
+              // text scale) an unconstrained Text overflows the row.
+              Flexible(
+                child: Text('আপনার RAM: $ramText', style: TextStyle(
+                  fontFamily: ShongjogTheme.fontFamily,
+                  color: cs.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                )),
+              ),
+              const SizedBox(width: 8),
               _TierBadge(tierBadge),
             ],
           ),
@@ -129,7 +130,8 @@ class _ModelPickerSectionState extends State<ModelPickerSection> {
               ),
             ),
           ),
-        ..._recommendations!.map((r) => _ModelCard(
+        // Unverified variants (broken URL / guessed size) are not offered.
+        ..._recommendations!.where((r) => r.available).map((r) => _ModelCard(
           rec: r,
           storageUsage: _storageUsage[r.variant] ?? 0,
         )),
@@ -166,6 +168,17 @@ class _ModelCard extends StatelessWidget {
   final int storageUsage;
   const _ModelCard({required this.rec, required this.storageUsage});
 
+  /// The app-wide `filledButtonTheme` sets `minimumSize: Size.fromHeight(52)`
+  /// — a full-width CTA default, where the width is `double.infinity`. A Row
+  /// offers its non-flex children unbounded width, so inheriting that default
+  /// inside this card's button row throws "BoxConstraints forces an infinite
+  /// width" and silently kills the whole card's layout. In-row buttons must
+  /// therefore declare a finite minimum.
+  static final ButtonStyle _inRowButtonStyle = FilledButton.styleFrom(
+    visualDensity: VisualDensity.compact,
+    minimumSize: const Size(0, 40),
+  );
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -189,7 +202,15 @@ class _ModelCard extends StatelessWidget {
           ),
         ] : null,
       ),
-      child: Padding(
+      // The radio reads as selectable, so the whole card must be tappable —
+      // an already-downloaded variant is switched by tapping it, not only via
+      // the button below.
+      child: InkWell(
+        onTap: state == ModelState.ready && !isActive
+            ? () => modelManager.setActiveVariant(rec.variant)
+            : null,
+        borderRadius: BorderRadius.circular(ShongjogTheme.radius),
+        child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -206,14 +227,18 @@ class _ModelCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                      // Wrap, not Row: on a 360dp phone (with the system text
+                      // scale bumped) the label + badge overflow a Row.
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           Text(rec.label, style: const TextStyle(
                             fontFamily: ShongjogTheme.fontFamily,
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
                           )),
-                          const SizedBox(width: 8),
                           if (rec.recommended && !rec.advancedOnly)
                             _Badge('✅ প্রত্যাশিত', isLight ? ShongjogTheme.success : ShongjogTheme.successBright)
                           else if (rec.advancedOnly)
@@ -257,18 +282,19 @@ class _ModelCard extends StatelessWidget {
                 children: [
                   if (state == ModelState.notDownloaded || state == ModelState.failed)
                     FilledButton.icon(
-                      onPressed: () => modelManager.ensureModel(variant: rec.variant),
+                      onPressed: () => _download(context),
                       icon: const Icon(Icons.download, size: 18),
-                      label: const Text('ডাউনলোড'),
-                      style: FilledButton.styleFrom(visualDensity: VisualDensity.compact),
+                      label: Text(
+                          state == ModelState.failed ? 'আবার চেষ্টা করুন' : 'ডাউনলোড'),
+                      style: _inRowButtonStyle,
                     ),
-                  
+
                   if (state == ModelState.ready && !isActive)
                     FilledButton.icon(
                       onPressed: () => modelManager.setActiveVariant(rec.variant),
                       icon: const Icon(Icons.check, size: 18),
                       label: const Text('সক্রিয় করুন'),
-                      style: FilledButton.styleFrom(visualDensity: VisualDensity.compact),
+                      style: _inRowButtonStyle,
                     ),
                     
                   if (state == ModelState.ready && isActive)
@@ -307,6 +333,23 @@ class _ModelCard extends StatelessWidget {
             )
           ],
         ),
+        ),
+      ),
+    );
+  }
+
+  /// Start the download in the background. The user can navigate away —
+  /// progress is surfaced via [modelManager]'s ChangeNotifier on the Home
+  /// AppBar chip. Completion / failure snackbars fire from the Home screen
+  /// listener so they work even if this widget is long disposed.
+  void _download(BuildContext context) {
+    modelManager.ensureModel(variant: rec.variant).catchError((e) {
+      debugPrint('Model download failed (${rec.variant.name}): $e');
+    });
+    scaffoldMessengerKey.currentState?.showSnackBar(
+      SnackBar(
+        content: Text('${rec.label} ডাউনলোড শুরু হয়েছে — পটভূমিতে চলবে।'),
+        duration: const Duration(seconds: 3),
       ),
     );
   }

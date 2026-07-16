@@ -70,7 +70,11 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
       await meshVoiceService.stopRecordingAndSend();
       if (mounted) setState(() => _recording = false);
     } else {
-      final ok = await meshVoiceService.startRecording();
+      final ok = await meshVoiceService.startRecording(
+        onAutoStop: () {
+          if (mounted) setState(() => _recording = false);
+        },
+      );
       if (ok && mounted) setState(() => _recording = true);
     }
   }
@@ -247,7 +251,6 @@ class _PeerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final statusColor = switch (peer.status) {
       PeerStatus.connected => Colors.green,
       PeerStatus.reconnecting => Colors.orange,

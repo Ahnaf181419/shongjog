@@ -69,7 +69,7 @@ void main() {
       expect(prompt, contains('[CDC] BBB'));
     });
 
-    test('isEmergencyQuery detects Bangla and English keywords', () {
+    test('isEmergencyQuery detects Bangla and English keywords', () async {
       expect(isEmergencyQuery('জরুরি সাহায্য দরকার'), isTrue);
       expect(isEmergencyQuery('I have chest pain'), isTrue);
       expect(isEmergencyQuery('what is the weather'), isFalse);

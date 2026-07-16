@@ -75,11 +75,30 @@ String buildUserMessage({
 
 /// Builds the full prompt sent to the on-device LLM.
 ///
-/// When [hits] is empty, the context section is omitted entirely — this
-/// prevents the model from adopting a stiff "citing a source" register for
-/// general knowledge answers.
+/// When [hits] is empty, the context section is omitted entirely —
+/// this prevents the model from adopting a stiff "citing a source"
+/// register for general knowledge answers.
 ///
-/// The 999 escalation line is appended only for emergency/health queries.
+/// The 999 escalation line is appended only for emergency/health
+/// queries.
+///
+/// **Note on chat template:** the on-device `.task` runtime is
+/// `com.google.mediapipe:tasks-genai:0.10.21`. Although the model
+/// file ships under the `litert-community/gemma-4-*` namespace,
+/// the HF Gemma 4 IT chat template (`<|turn>role\n` markers
+/// emitted by `chat_template.jinja`) is NOT the wire format the
+/// MediaPipe session expects. Earlier we attempted to drive the
+/// model directly with `<|turn>` markers and bypassed the SDK's
+/// `isChat:true` wrap, but this produced a hard exception on a
+/// real device ("ত্রুটি হয়েছে" error bubble). The SDK's built-in
+/// `transformToChatPrompt` uses `<start_of_turn>user\n…` and is
+/// what the bundled `.task` was benchmarked against. We therefore
+/// leave the legacy `User:` / `Assistant:` formatting inside the
+/// body and let the SDK wrap it with the working `<start_of_turn>`
+/// markers via `getResponse(prompt: ..., isChat: true)` in
+/// `ModelManager.generate`. The `User:` / `Assistant:` literals
+/// inside the body are decoration only; if the SDK exposes a
+/// future flag to control them, we'll switch then.
 String buildPrompt({required String query, required List<RetrievalHit> hits}) {
   final buf = StringBuffer()
     ..writeln(_kPersona)

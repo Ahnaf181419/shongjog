@@ -9,6 +9,7 @@ import '../features/mesh_comm/mesh_radar_screen.dart';
 import '../features/mesh_comm/mesh_service.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/settings/settings_screen.dart';
+import '../main.dart';
 import 'main_shell.dart';
 import 'router.dart';
 import 'theme.dart';
@@ -24,6 +25,7 @@ class ShongjogApp extends StatelessWidget {
       builder: (context, _) {
         return MaterialApp(
           title: 'Shongjog',
+          scaffoldMessengerKey: scaffoldMessengerKey,
           theme: ShongjogTheme.light(),
           darkTheme: ShongjogTheme.dark(),
           themeMode: themeController.mode,

@@ -47,8 +47,14 @@ void main() {
       await tester.pumpWidget(wrapSettings());
       await tester.pumpAndSettle();
 
+      // The whole section sits below the fold in the lazy ListView —
+      // scroll each target into view before asserting.
+      await tester.scrollUntilVisible(
+        find.text('জরুরি'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.text('জরুরি'), findsOneWidget);
-      // 'জরুরি পরিচিতি' is below the fold — scroll to it.
       await tester.scrollUntilVisible(
         find.text('জরুরি পরিচিতি'),
         200,

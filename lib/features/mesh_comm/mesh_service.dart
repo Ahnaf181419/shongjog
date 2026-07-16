@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:nearby_connections/nearby_connections.dart';
@@ -151,7 +152,7 @@ class MeshService {
 
   void _onEndpointFound(String id, String name, String serviceId) {
     // Filter: only connect to Shongjog peers.
-    if (!name.startsWith('Shongjog-')) {
+    if (!name.startsWith(kMeshPeerPrefix)) {
       debugPrint('MeshService: ignoring non-Shongjog endpoint "$name"');
       return;
     }
@@ -295,7 +296,7 @@ class MeshService {
     }
     // Add to local message history.
     _messagesController.add(MeshMessage(
-      senderId: 'me',
+      senderId: kMeshSelfId,
       senderName: 'Me',
       text: text,
       type: MessageType.text,
@@ -313,7 +314,7 @@ class MeshService {
       }
     }
     _messagesController.add(MeshMessage(
-      senderId: 'me',
+      senderId: kMeshSelfId,
       senderName: 'Me',
       text: '',
       type: MessageType.voice,
@@ -322,7 +323,10 @@ class MeshService {
   }
 }
 
-/// App-wide singleton.
+/// App-wide singleton. The 24-bit random suffix (~16.7M values) keeps the
+/// collision chance negligible even in a dense shelter, unlike the previous
+/// `millisecondsSinceEpoch % 10000` (birthday collision at ~118 peers).
 final meshService = MeshService._(
-  userName: 'Shongjog-${DateTime.now().millisecondsSinceEpoch % 10000}',
+  userName:
+      '$kMeshPeerPrefix${Random.secure().nextInt(0x1000000).toRadixString(16).padLeft(6, '0')}',
 );

@@ -12,6 +12,10 @@ class ModelRecommendation {
   final int sizeBytes;
   final bool recommended;
   final bool advancedOnly;
+
+  /// False when the download URL or byte size has not been verified against
+  /// the live host. Unavailable variants must not be offered for download.
+  final bool available;
   final String downloadUrl;
   final String description;
 
@@ -22,16 +26,26 @@ class ModelRecommendation {
     required this.sizeBytes,
     required this.recommended,
     required this.advancedOnly,
+    this.available = true,
     required this.downloadUrl,
     required this.description,
   });
 }
 
 class DeviceCapability {
-  // Model file sizes in bytes
-  static const int _e2bBytes = 2003697664; // ~1.87 GB
-  static const int _e4bBytes = 4000000000; // ~3.7 GB (approx)
-  static const int _12bBytes = 10000000000; // ~9.3 GB (approx)
+  // Sizes are the exact Content-Length of each `.litertlm` reported by
+  // huggingface.co (verified 2026-07-16). isOnDisk() compares against these
+  // with a 99% floor, so a guessed value silently rejects a complete download
+  // — always re-check with `curl -sIL <url> | grep -i content-length`.
+  //
+  // These are the `.litertlm` builds, NOT the repo's `-web.task`. The `.task`
+  // file there is a raw-TFL3 WebAssembly build (magic `TFL3`, not the `PK`
+  // zip a MediaPipe bundle must be) documented only under the model card's
+  // "Running on Web with MediaPipe" section. Android has no `.task` for
+  // Gemma 4 at all; `.litertlm` + the LiteRT-LM engine is its only path.
+  static const int _e2bBytes = 2588147712; // ~2.47 GB (verified)
+  static const int _e4bBytes = 3659530240; // ~3.49 GB (verified)
+  static const int _twelveBBytes = 10000000000; // unverified — URL is 404
 
   static int? _cachedRamMb;
 
@@ -102,32 +116,36 @@ class DeviceCapability {
       ModelRecommendation(
         variant: ModelVariant.e2b,
         label: 'Gemma 4 E2B',
-        sizeBn: '~১-২ GB',
+        sizeBn: '~২.৫ GB',
         sizeBytes: _e2bBytes,
         recommended: true,
         advancedOnly: false,
         description: 'হালকা ও দ্রুত। সব ডিভাইসে কাজ করবে।',
         downloadUrl:
-            'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it-web.task',
+            'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it.litertlm',
       ),
       ModelRecommendation(
         variant: ModelVariant.e4b,
         label: 'Gemma 4 E4B',
-        sizeBn: '~২-৪ GB',
+        sizeBn: '~৩.৫ GB',
         sizeBytes: _e4bBytes,
         recommended: tier == DeviceTier.mid || tier == DeviceTier.high,
         advancedOnly: false,
         description: 'ভালো মানের উত্তর। ৬GB+ র‍্যাম প্রয়োজন।',
         downloadUrl:
-            'https://huggingface.co/litert-community/gemma-4-E4B-it-litert-lm/resolve/main/gemma-4-E4B-it-web.task',
+            'https://huggingface.co/litert-community/gemma-4-E4B-it-litert-lm/resolve/main/gemma-4-E4B-it.litertlm',
       ),
       ModelRecommendation(
         variant: ModelVariant.twelveb,
         label: 'Gemma 4 12B',
         sizeBn: '~৭-১০ GB',
-        sizeBytes: _12bBytes,
-        recommended: tier == DeviceTier.high,
+        sizeBytes: _twelveBBytes,
+        recommended: false,
         advancedOnly: true,
+        // URL returned 404 on 2026-07-15 and the size is a placeholder.
+        // Kept in the catalog so on-disk lookups stay total, but hidden
+        // from the picker until spike-tested (docs/spike-results.md).
+        available: false,
         description: 'সেরা মানের উত্তর। ১২GB+ র‍্যাম প্রয়োজন।',
         downloadUrl:
             'https://huggingface.co/litert-community/gemma-4-12B-it-litert-lm/resolve/main/gemma-4-12B-it-web.task',
@@ -136,15 +154,23 @@ class DeviceCapability {
   }
 
   /// Get the recommended model variant for this device.
+  ///
+  /// E2B is the default everywhere except high-RAM phones. It is the product's
+  /// documented target (AGENTS.md) and the model card measures it at ~1.7 GB
+  /// CPU / 0.7 GB GPU at runtime on top of a 2.5 GB download — comfortable on
+  /// the ৳15,000-class phones this app is for. E4B roughly doubles both, so on
+  /// a 6 GB device (which lands in `mid`) it risks the OOM that shows up as a
+  /// silent fall back to corpus answers. It stays one tap away in Settings for
+  /// anyone who wants it.
   static Future<ModelVariant> getRecommendedVariant() async {
     final tier = await detectTier();
     switch (tier) {
       case DeviceTier.low:
         return ModelVariant.e2b;
       case DeviceTier.mid:
-        return ModelVariant.e4b;
+        return ModelVariant.e2b;
       case DeviceTier.high:
-        return ModelVariant.e4b; // E4B is the sweet spot; 12B is opt-in
+        return ModelVariant.e4b; // 12B stays opt-in / unverified
     }
   }
 

@@ -26,6 +26,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _autoRead = true;
   bool _voiceInput = true;
   bool _soundEnabled = true;
+  bool _showInsights = true;
   String? _kbVersion;
 
   @override
@@ -42,6 +43,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _autoRead = prefs.getBool('pref_auto_read') ?? false;
         _voiceInput = prefs.getBool('pref_voice_input') ?? true;
         _soundEnabled = prefs.getBool('pref_sound_enabled') ?? true;
+        _showInsights = prefs.getBool('pref_show_insights') ?? true;
         _kbVersion = prefs.getString('kb_version') ?? 'v1.0';
       });
     }
@@ -94,6 +96,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SoundService.instance.setEnabled(v);
             },
           ),
+          SwitchListTile(
+            secondary: const Icon(Icons.lightbulb_rounded),
+            title: const Text('প্রস্তুতি পরামর্শ'),
+            subtitle: const Text('চ্যাট ইতিহাস অনুযায়ী হোম স্ক্রিনে পরামর্শ কার্ড'),
+            value: _showInsights,
+            onChanged: (v) async {
+              setState(() => _showInsights = v);
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setBool('pref_show_insights', v);
+            },
+          ),
           const _Divider(),
           _SectionHeader('জরুরি'),
           ListTile(
@@ -119,6 +132,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
+          ),
+          // Only shown once the on-device model has actually failed to load.
+          // Without it, a broken Tier 2 looks identical to a working one:
+          // the chat just quietly answers from the corpus.
+          ListenableBuilder(
+            listenable: modelManager,
+            builder: (context, _) {
+              final err = modelManager.lastInitError;
+              if (err == null) return const SizedBox.shrink();
+              return ListTile(
+                leading: Icon(Icons.error_outline_rounded,
+                    color: Theme.of(context).colorScheme.error),
+                title: const Text('অফলাইন AI চালু হয়নি'),
+                subtitle: Text(
+                  err,
+                  style: const TextStyle(fontSize: 11),
+                ),
+                onTap: () => showDialog<void>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('অফলাইন AI ত্রুটি'),
+                    content: SelectableText(err),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text('বন্ধ করুন'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
           const _Divider(),
           _SectionHeader('তথ্য'),

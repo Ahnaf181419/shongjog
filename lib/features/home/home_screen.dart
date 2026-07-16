@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/main_shell.dart';
 import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../core/connectivity_provider.dart';
+import '../../core/device_capability.dart';
 import '../../core/haptics.dart';
+import '../../core/model_manager.dart';
+import '../../main.dart';
 import '../intelligence/intelligence_engine.dart';
 import '../intelligence/notification_service.dart';
 import '../quick_cards/cards_data.dart';
@@ -39,26 +43,34 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      body: Column(
         children: [
-          const _StatusStrip(),
-          const SizedBox(height: 10),
-          // ── Weather card sits at the top: today's weather + 3-day strip.
-          //   Optional network feature — degrades to a tap-to-load affordance.
-          const WeatherCard(),
-          const SizedBox(height: 16),
-          // ── Hero: voice-first AI entry. Smaller (28 sp) than before; the
-          //   weather card now leads, so the hero is "one of several" CTAs.
-          _HeroAskCard(onTap: () => onNavigateToTab?.call(1)),
-          const SizedBox(height: 16),
-          // ── 2 emergency tiles (cards / shelter). The 999 entry point
-          //   lives in the AppBar pill — always reachable while scrolling.
-          _EmergencyTriad(),
-          const SizedBox(height: 12),
-          _OfflineMessageTile(),
-          const SizedBox(height: 12),
-          const _InsightsList(),
+          const _ModelDownloadBanner(),
+          const _DownloadCompletionListener(),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+              children: [
+                const _StatusStrip(),
+                const SizedBox(height: 10),
+                // ── Weather card sits at the top: today's weather + 3-day strip.
+                //   Optional network feature — degrades to a tap-to-load affordance.
+                const WeatherCard(),
+                const SizedBox(height: 16),
+                // ── Hero: voice-first AI entry. Smaller (28 sp) than before; the
+                //   weather card now leads, so the hero is "one of several" CTAs.
+                _HeroAskCard(onTap: () => onNavigateToTab?.call(1)),
+                const SizedBox(height: 16),
+                // ── 2 emergency tiles (cards / shelter). The 999 entry point
+                //   lives in the AppBar pill — always reachable while scrolling.
+                _EmergencyTriad(),
+                const SizedBox(height: 12),
+                _OfflineMessageTile(),
+                const SizedBox(height: 12),
+                const _InsightsList(),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -574,10 +586,26 @@ class _InsightsList extends StatefulWidget {
 }
 
 class _InsightsListState extends State<_InsightsList> {
+  /// Insight cards read local chat history — like auto-read TTS, unsolicited
+  /// behavior stays behind a pref. Default is on; Settings exposes a toggle.
+  bool _enabled = true;
+
   @override
   void initState() {
     super.initState();
     intelligenceEngine.addListener(_onChange);
+    _loadPrefAndAnalyze();
+  }
+
+  Future<void> _loadPrefAndAnalyze() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final enabled = prefs.getBool('pref_show_insights') ?? true;
+      if (mounted && enabled != _enabled) setState(() => _enabled = enabled);
+      if (!enabled) return;
+    } catch (_) {
+      // Prefs unavailable (tests) — keep the default.
+    }
     intelligenceEngine.analyzeBehavior();
   }
 
@@ -593,6 +621,7 @@ class _InsightsListState extends State<_InsightsList> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_enabled) return const SizedBox.shrink();
     final insights = NotificationService.generateInsights(intelligenceEngine.profile);
     if (insights.isEmpty) return const SizedBox.shrink();
 
@@ -682,4 +711,136 @@ class _InsightCard extends StatelessWidget {
 abstract class MainShellRoute {
   static void goTo(BuildContext context, int tab) =>
       MainShell.goToTab(context, tab);
+}
+
+// ════════════════════════════════════════════════════════════════
+//  Model download banner — thin strip under the AppBar
+// ════════════════════════════════════════════════════════════════
+
+/// Visible only while [modelManager] reports a variant downloading.
+/// Shows a [LinearProgressIndicator] + Bangla percentage label so the
+/// user can track the ~1.87 GB download after leaving Settings.
+class _ModelDownloadBanner extends StatelessWidget {
+  const _ModelDownloadBanner();
+
+  static const _bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+
+  String _bnPct(double? progress) {
+    if (progress == null) return '';
+    final pct = (progress * 100).round();
+    return '${pct.toString().split('').map((d) => _bnDigits[int.parse(d)]).join()}%';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: modelManager,
+      builder: (context, _) {
+        if (!modelManager.isAnyVariantDownloading) {
+          return const SizedBox.shrink();
+        }
+        final progress = modelManager.activeDownloadProgress;
+        final cs = Theme.of(context).colorScheme;
+        return Material(
+          color: cs.primary.withValues(alpha: 0.08),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              LinearProgressIndicator(value: progress, minHeight: 3),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                child: Row(
+                  children: [
+                    Icon(Icons.download_rounded, size: 14, color: cs.primary),
+                    const SizedBox(width: 6),
+                    Text(
+                      'মডেল ডাউনলোড ${_bnPct(progress)}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: cs.primary,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      'পটভূমিতে চলছে',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  Download completion listener — fires snackbar on transition
+// ════════════════════════════════════════════════════════════════
+
+/// Invisible widget that watches [modelManager] for the
+/// `downloading → not-downloading` transition and fires a snackbar via
+/// the global [scaffoldMessengerKey]. Lives in the Home tree so it's
+/// mounted whenever the user is on the Home tab.
+class _DownloadCompletionListener extends StatefulWidget {
+  const _DownloadCompletionListener();
+
+  @override
+  State<_DownloadCompletionListener> createState() =>
+      _DownloadCompletionListenerState();
+}
+
+class _DownloadCompletionListenerState
+    extends State<_DownloadCompletionListener> {
+  bool _wasDownloading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    modelManager.addListener(_onChange);
+    _wasDownloading = modelManager.isAnyVariantDownloading;
+  }
+
+  @override
+  void dispose() {
+    modelManager.removeListener(_onChange);
+    super.dispose();
+  }
+
+  void _onChange() {
+    final isDownloading = modelManager.isAnyVariantDownloading;
+    if (_wasDownloading && !isDownloading) {
+      final messenger = scaffoldMessengerKey.currentState;
+      if (messenger != null) {
+        final anyReady = ModelVariant.values.any(
+          (v) => modelManager.getState(v) == ModelState.ready,
+        );
+        if (anyReady) {
+          messenger.showSnackBar(
+            const SnackBar(
+              content: Text('মডেল প্রস্তুত — এখন অফলাইন এআই চালু।'),
+              duration: Duration(seconds: 4),
+            ),
+          );
+        } else {
+          messenger.showSnackBar(
+            const SnackBar(
+              content: Text('ডাউনলোড ব্যর্থ — সেটিংস থেকে আবার চেষ্টা করুন।'),
+              duration: Duration(seconds: 4),
+            ),
+          );
+        }
+      }
+    }
+    _wasDownloading = isDownloading;
+  }
+
+  @override
+  Widget build(BuildContext context) => const SizedBox.shrink();
 }

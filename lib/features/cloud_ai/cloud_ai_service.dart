@@ -35,6 +35,13 @@ class CloudAiService {
     required String userMessage,
     required List<ChatTurn> history,
   }) async {
+    // Defense in depth: ChatRepository already gates on connectivity, but a
+    // direct caller in airplane mode should fail fast, not after a 10s
+    // timeout per model in the chain.
+    if (!await isOnline) {
+      throw CloudAiUnavailableException('Device is offline');
+    }
+
     final contents = <Map<String, Object?>>[];
 
     for (final turn in history) {
@@ -106,7 +113,8 @@ class CloudAiService {
     }
 
     final json = jsonDecode(response.body) as Map<String, Object?>;
-    debugPrint('RAW[$modelId]: ${response.body}');
+    // Raw bodies can contain user medical queries — never log in release.
+    if (kDebugMode) debugPrint('RAW[$modelId]: ${response.body}');
 
     return _extractText(json);
   }

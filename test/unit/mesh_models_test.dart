@@ -56,6 +56,30 @@ void main() {
       expect(msg.isMe, isTrue);
     });
 
+    test('belongsToChatWith keeps own and that peer\'s messages only', () {
+      final mine = MeshMessage(
+        senderId: kMeshSelfId,
+        senderName: 'Me',
+        text: 'hi',
+        type: MessageType.text,
+      );
+      final fromPeerA = MeshMessage(
+        senderId: 'ep-A',
+        senderName: 'Shongjog-1111',
+        text: 'hello',
+        type: MessageType.text,
+      );
+      final fromPeerB = MeshMessage(
+        senderId: 'ep-B',
+        senderName: 'Shongjog-2222',
+        text: 'noise',
+        type: MessageType.text,
+      );
+      expect(mine.belongsToChatWith('ep-A'), isTrue);
+      expect(fromPeerA.belongsToChatWith('ep-A'), isTrue);
+      expect(fromPeerB.belongsToChatWith('ep-A'), isFalse);
+    });
+
     test('defaults timestamp to now when null', () {
       final before = DateTime.now();
       final msg = MeshMessage(

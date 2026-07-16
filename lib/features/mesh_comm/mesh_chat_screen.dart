@@ -30,7 +30,11 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
   @override
   void initState() {
     super.initState();
-    _msgSub = meshService.messages.listen((m) {
+    // 1-on-1 view: only this device's messages and this peer's. Without the
+    // filter, every connected peer's traffic appears in every open chat.
+    _msgSub = meshService.messages
+        .where((m) => m.belongsToChatWith(widget.peer.endpointId))
+        .listen((m) {
       if (mounted) {
         setState(() => _messages.add(m));
         _scrollToBottom();
@@ -73,7 +77,11 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
       await meshVoiceService.stopRecordingAndSend();
       if (mounted) setState(() => _recording = false);
     } else {
-      final ok = await meshVoiceService.startRecording();
+      final ok = await meshVoiceService.startRecording(
+        onAutoStop: () {
+          if (mounted) setState(() => _recording = false);
+        },
+      );
       if (ok && mounted) setState(() => _recording = true);
     }
   }

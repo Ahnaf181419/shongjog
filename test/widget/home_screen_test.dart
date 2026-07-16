@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/core/connectivity_provider.dart';
+import 'package:shongjog/core/device_capability.dart';
+import 'package:shongjog/core/model_manager.dart';
 import 'package:shongjog/features/home/home_screen.dart';
 import 'package:shongjog/features/weather/weather_card.dart';
+import 'package:shongjog/main.dart';
 
 void main() {
   Widget wrapHome({ValueChanged<int>? onNavigateToTab}) {
     return MaterialApp(
+      scaffoldMessengerKey: scaffoldMessengerKey,
       home: HomeScreen(onNavigateToTab: onNavigateToTab),
       routes: {
         '/settings': (_) => const Scaffold(body: Center(child: Text('Settings'))),
@@ -122,15 +126,17 @@ void main() {
       expect(hasBangla, isTrue);
     });
 
-    testWidgets('renders tip card after scrolling', (tester) async {
+    testWidgets('renders insight card after scrolling', (tester) async {
       await tester.pumpWidget(wrapHome());
       await pumpOnce(tester);
+      // With no chat history the intelligence engine yields the default
+      // insight, so its title is the stable thing to assert on.
       await tester.scrollUntilVisible(
-        find.text('আজকের পরামর্শ'),
+        find.text('অফলাইন AI প্রস্তুত'),
         200,
         scrollable: find.byType(Scrollable).first,
       );
-      expect(find.text('আজকের পরামর্শ'), findsOneWidget);
+      expect(find.text('অফলাইন AI প্রস্তুত'), findsOneWidget);
     });
 
     testWidgets('AI hero CTA triggers onNavigateToTab(1)', (tester) async {
@@ -163,6 +169,78 @@ void main() {
       // Asymmetric right-side marker — Bangla '১' inside a bordered chip.
       expect(find.text('১'), findsOneWidget);
       expect(find.text('২৪/৭ সক্রিয়'), findsOneWidget);
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════════
+  //  Download progress chip — visible on Home when modelManager reports
+  //  a variant downloading. Lets the user leave Settings mid-download.
+  // ════════════════════════════════════════════════════════════════
+  group('HomeScreen download progress chip', () {
+    setUp(() {
+      for (final v in ModelVariant.values) {
+        modelManager.debugClearDownloadingState(v);
+      }
+    });
+
+    tearDown(() {
+      for (final v in ModelVariant.values) {
+        modelManager.debugClearDownloadingState(v);
+      }
+    });
+
+    testWidgets('shows progress chip when a variant is downloading',
+        (tester) async {
+      modelManager.debugSetDownloadingState(ModelVariant.e2b, 0.45);
+      await tester.pumpWidget(wrapHome());
+      await pumpOnce(tester);
+      expect(find.textContaining('ডাউনলোড'), findsWidgets);
+      expect(find.textContaining('৪৫'), findsWidgets);
+    });
+
+    testWidgets('updates percentage when progress changes', (tester) async {
+      modelManager.debugSetDownloadingState(ModelVariant.e2b, 0.45);
+      await tester.pumpWidget(wrapHome());
+      await pumpOnce(tester);
+      expect(find.textContaining('৪৫'), findsWidgets);
+
+      modelManager.debugSetDownloadingState(ModelVariant.e2b, 0.80);
+      await tester.pump();
+      expect(find.textContaining('৮০'), findsWidgets);
+    });
+
+    testWidgets('hides progress chip when no download is active',
+        (tester) async {
+      await tester.pumpWidget(wrapHome());
+      await pumpOnce(tester);
+      // "মডেল ডাউনলোড" is the chip text — must not appear when idle.
+      expect(find.textContaining('মডেল ডাউনলোড'), findsNothing);
+    });
+
+    testWidgets('hides chip after download completes', (tester) async {
+      modelManager.debugSetDownloadingState(ModelVariant.e2b, 0.90);
+      await tester.pumpWidget(wrapHome());
+      await pumpOnce(tester);
+      expect(find.textContaining('ডাউনলোড'), findsWidgets);
+
+      modelManager.debugClearDownloadingState(ModelVariant.e2b);
+      await tester.pump();
+      expect(find.textContaining('মডেল ডাউনলোড'), findsNothing);
+    });
+
+    testWidgets('shows completion snackbar when download finishes',
+        (tester) async {
+      modelManager.debugSetDownloadingState(ModelVariant.e2b, 0.95);
+      await tester.pumpWidget(wrapHome());
+      await pumpOnce(tester);
+
+      // Simulate download completing: state goes downloading → not-downloaded.
+      modelManager.debugClearDownloadingState(ModelVariant.e2b);
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.textContaining('প্রস্তুত'), findsWidgets);
     });
   });
 }

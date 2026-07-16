@@ -12,9 +12,14 @@ import 'mesh_service.dart';
 /// Recording: captures audio as .m4a, returns the temp file path.
 /// Playback: sends the file path to [meshService.sendVoiceMessage].
 class MeshVoiceService {
+  /// Hard cap so a forgotten recording can't fill the temp dir. The `record`
+  /// package's RecordConfig has no duration option, so a Timer enforces it.
+  static const maxRecordingDuration = Duration(seconds: 60);
+
   final AudioRecorder _recorder = AudioRecorder();
   bool _isRecording = false;
   bool get isRecording => _isRecording;
+  Timer? _autoStopTimer;
 
   /// Check if microphone permission is available.
   Future<bool> hasPermission() async {
@@ -22,7 +27,10 @@ class MeshVoiceService {
   }
 
   /// Start recording audio. Returns when recording begins.
-  Future<bool> startRecording() async {
+  ///
+  /// Recording auto-stops (and sends) after [maxRecordingDuration];
+  /// [onAutoStop] lets the calling screen sync its recording indicator.
+  Future<bool> startRecording({void Function()? onAutoStop}) async {
     if (_isRecording) return false;
 
     final hasPerm = await hasPermission();
@@ -46,6 +54,12 @@ class MeshVoiceService {
     );
 
     _isRecording = true;
+    _autoStopTimer = Timer(maxRecordingDuration, () async {
+      if (_isRecording) {
+        await stopRecordingAndSend();
+        onAutoStop?.call();
+      }
+    });
     return true;
   }
 
@@ -54,6 +68,7 @@ class MeshVoiceService {
   Future<String?> stopRecordingAndSend() async {
     if (!_isRecording) return null;
 
+    _autoStopTimer?.cancel();
     final path = await _recorder.stop();
     _isRecording = false;
 
@@ -67,6 +82,7 @@ class MeshVoiceService {
   /// Stop recording without sending (e.g., user cancelled).
   Future<void> stopRecording() async {
     if (!_isRecording) return;
+    _autoStopTimer?.cancel();
     final path = await _recorder.stop();
     _isRecording = false;
 
@@ -79,6 +95,7 @@ class MeshVoiceService {
   }
 
   void dispose() {
+    _autoStopTimer?.cancel();
     _recorder.dispose();
   }
 }

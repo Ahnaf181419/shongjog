@@ -59,23 +59,39 @@ class _ChatScreenState extends State<ChatScreen> {
   ChatRepository? _repo;
   bool _busy = false;
   bool _listening = false;
-  String? _sttProviderName;
   bool _autoRead = true;
   bool _voiceInputEnabled = true;
   String? _lastQuery;
   GenerationPath? _lastPath;
+
+  /// Cached result of `modelManager.isAnyOnDisk()` evaluated once at
+  /// first app-bar build. Used so the chat-screen status chip can
+  /// reflect "a model file is here, even if initialize() hasn't run
+  /// yet" without triggering disk I/O on every rebuild.
+  bool? _hasLocalModelOnDisk;
 
   @override
   void initState() {
     super.initState();
     _sound.init();
     _loadPrefsAndBootstrap();
+    modelManager.addListener(_onModelManagerChanged);
   }
 
   @override
   void dispose() {
+    modelManager.removeListener(_onModelManagerChanged);
     _stt.dispose();
     super.dispose();
+  }
+
+  /// Invalidate the on-disk cache when ModelManager's state changes
+  /// (e.g. download completes, `isReady` flips). Without this the
+  /// appbar would show stale "অফলাইন (তথ্যকোষ)" until the widget is
+  /// rebuilt for some other reason.
+  void _onModelManagerChanged() {
+    _hasLocalModelOnDisk = null;
+    if (mounted) setState(() {});
   }
 
   Future<void> _loadPrefsAndBootstrap() async {
@@ -110,10 +126,8 @@ class _ChatScreenState extends State<ChatScreen> {
       debugPrint('CloudAI init error: $e');
     }
 
-    String? providerName;
     try {
       await _stt.init();
-      providerName = _stt.activeProviderName;
     } catch (e) {
       debugPrint('STT init error: $e');
     }
@@ -123,10 +137,9 @@ class _ChatScreenState extends State<ChatScreen> {
         _messages.addAll(restored);
         _repo = ChatRepository(
           kb: kb ?? _emptyKb(),
-          modelManager: modelManager,
+          model: modelManager,
           cloudAi: cloudAi,
         );
-        _sttProviderName = providerName;
       });
     }
   }
@@ -220,6 +233,30 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  /// True when a model file is on disk but `modelManager.isReady` has
+  /// not yet flipped — i.e. between cold-boot and the first successful
+  /// `initialize()`. Used by the app-bar status to show "অফলাইন এআই"
+  /// even when the model hasn't been initialized yet.
+  ///
+  /// The disk check is cached after the first call because
+  /// `isAnyOnDisk()` reads `File.length()` which we don't want running
+  /// on every widget rebuild. The cache is invalidated when the
+  /// model-manager fires `notifyListeners()` (see [_onModelChanged]).
+  bool _hasLocalFileAwaitingInit() {
+    final cached = _hasLocalModelOnDisk;
+    if (cached != null) return cached;
+    // Fire the async probe but return the optimistic default; the
+    // second rebuild after `_onModelChanged` fires will show the real
+    // result. We also early-return false when no widget is mounted
+    // (defensive).
+    if (!mounted) return false;
+    () async {
+      _hasLocalModelOnDisk = await modelManager.isAnyOnDisk();
+      if (mounted) setState(() {});
+    }();
+    return false; // First frame: assume no until probed.
+  }
+
   Future<void> _onMicPressed() async {
     if (!_voiceInputEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -257,11 +294,22 @@ class _ChatScreenState extends State<ChatScreen> {
             Builder(builder: (context) {
               final isDark = Theme.of(context).brightness == Brightness.dark;
               final hasCloud = _repo?.cloudAi != null && connectivityProvider.isOnline;
-              final hasLocal = modelManager.isReady;
-              
+              // Show "অফলাইন এআই" whenever the offline model is *available*,
+              // not only after initialize() has run. Before this fix, the
+              // appbar falsely showed "অফলাইন (তথ্যকোষ)" on a freshly-launched
+              // app where autoSelectBestModel hadn't yet promoted the on-disk
+              // variant — even though `isAnyOnDisk()` would say "yes, a model
+              // is here, just give it a moment to cold-start". The user
+              // assumed the offline model was broken.
+              final hasLocal =
+                  modelManager.isReady || _hasLocalFileAwaitingInit();
+
               String status = 'অফলাইন (তথ্যকোষ)';
-              if (hasCloud) status = 'ক্লাউড এআই (Gemma 4)';
-              else if (hasLocal) status = 'অফলাইন এআই (Gemma 4)';
+              if (hasCloud) {
+                status = 'ক্লাউড এআই (Gemma 4)';
+              } else if (hasLocal) {
+                status = 'অফলাইন এআই (Gemma 4)';
+              }
 
               return Text(
                 status,

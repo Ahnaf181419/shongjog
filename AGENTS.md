@@ -1,7 +1,7 @@
 # Shongjog — Agent Guide
 
 > Offline-first, Bangla, voice-first emergency-companion Flutter app. On-device
-> Gemma 4 E2B (MediaPipe via flutter_gemma), on-device RAG over a verified Bangla
+> Gemma 4 E2B (LiteRT-LM via flutter_gemma 1.x), on-device RAG over a verified Bangla
 > corpus, `flutter_map` shelter map, slide-to-confirm 999 dial + SOS SMS,
 > Bluetooth mesh messaging. Single sentence: **"it works when the internet doesn't."**
 
@@ -10,28 +10,61 @@ Read `docs/PROJECT-STATUS.md` first — it's the entry point. Then `docs/archite
 
 ## Hard constraints (will silently break the demo)
 
-- **arm64-v8a only.** The MediaPipe LlmInference runtime + `flutter_gemma` are arm64-only. An x86
-  Android emulator cannot run the model. The restriction is enforced in
-  `android/app/build.gradle.kts` via `ndk { abiFilters += "arm64-v8a" }`. Do not remove
-  this; see `CONTRIBUTING.md` §"What NOT to change".
+- **arm64-v8a only.** `flutter_gemma_litertlm` ships its native engine for
+  `android_arm64` alone, so **an x86_64 emulator can never run the model** — it
+  fails there exactly like a bug. Enforcement takes THREE things, because the
+  first two are each insufficient on their own: `ndk { abiFilters }` (NDK output
+  only), `--target-platform android-arm64` in `scripts/build_release.sh`
+  (Flutter's own libs only), and `packaging { jniLibs { excludes } }` in
+  `android/app/build.gradle.kts` — without that last one, prebuilt plugin `.so`s
+  leave a `lib/x86_64/` directory behind, which is enough for Android to pick
+  x86_64 at install and land on a build with no engine. Use `flutter run` for
+  emulator/UI work; the release APK is arm64-only by design.
 - **No network in the core chat loop.** The whole product thesis is offline. The only
-  network call paths are: (1) the one-time ~1.87 GB model download gated by `ModelManager`,
+  network call paths are: (1) the one-time ~2.5 GB model download gated by `ModelManager`,
   (2) the optional Cloud AI fallback when the user passes `--dart-define=GEMINI_API_KEY=…`
   AND `connectivity_plus` reports online, and (3) the optional Open-Meteo weather tile on
   the home screen (`lib/features/weather/weather_service.dart`). Everything else must
   work in airplane mode or it's a bug.
 - **Single model path.** All on-device LLM access goes through `modelManager`
   (`lib/core/model_manager.dart`) — the app-wide `final ModelManager modelManager`
-  singleton. Never instantiate a second `FlutterGemmaPlugin.instance.init(...)`
-  path; never branch around `ModelManager.initialize()` /
-  `ModelManager.generate()`.
-- **Model filename MUST be `model.bin`.** `flutter_gemma` 0.5.1's
-  `MobileModelManager.isModelLoaded` hard-checks for the constant string
-  `'model.bin'` at the app docs directory — it does NOT use the path passed to
-  `setModelPath()`. If `_modelFileName` is anything other than `'model.bin'`,
-  `init()` throws "Gemma Model is not loaded yet" even though the file is on disk.
-  There is a `_legacyFileName` migration in `initialize()` that renames old
-  `gemma-4-E2B-it-web.task` files to `model.bin` automatically.
+  singleton, which satisfies the `LocalLlm` contract the chat layer depends on.
+  Never call `FlutterGemma.getActiveModel(...)` from anywhere else; never branch
+  around `ModelManager.initialize()` / `ModelManager.generate()`.
+- **`.litertlm` + LiteRT-LM only — never the repo's `.task`.** Gemma 4 has **no
+  Android `.task`**. `litert-community/gemma-4-E2B-it-litert-lm` ships one
+  `.task` (`gemma-4-E2B-it-web.task`) and it is a **WebAssembly build**: its
+  magic bytes are `TFL3` (a raw TFLite flatbuffer), not the `PK` zip every
+  MediaPipe bundle is, and the model card lists it only under "Running on Web
+  with MediaPipe" (a route it calls "in maintenance mode"). Feeding it to a
+  native runtime cannot work. Download `gemma-4-E2B-it.litertlm` instead — the
+  card's Android/iOS/Desktop path — and run it through
+  `flutter_gemma_litertlm`. To sanity-check any candidate file:
+  `curl -sL -r 0-3 <url> | xxd` → must start with `PK` (MediaPipe) or
+  `LITERTLM`; `TFL3` means it is the web build.
+- **`flutter_gemma` 1.x is modular — the engine must be registered.** The core
+  registers **no** inference engine, so `main.dart` must call
+  `FlutterGemma.initialize(inferenceEngines: [LiteRtLmEngine()])` before any
+  `getActiveModel()`, or every call throws "add the engine package". The engine
+  lives in the separate `flutter_gemma_litertlm` package; adding
+  `flutter_gemma_mediapipe` is what would pull MediaPipe (and its R8 hazard)
+  back in.
+- **Context window >= 1024, and it is NOT the reply cap.**
+  `getActiveModel(maxTokens:)` is the CONTEXT WINDOW; `.litertlm` fails to
+  allocate tensors below 1024 (upstream #318), so the old MediaPipe-era
+  `maxTokens: 512` breaks outright. Cap reply length with
+  `createSession(maxOutputTokens: 512)` instead. See `_kContextTokens` /
+  `_kMaxOutputTokens` in `model_manager.dart`.
+- **Close the model before dropping it.** `resetSession()` must `await
+  model.close()`. Weights are mmap'd natively (2.5 GB E2B / 3.5 GB E4B) and
+  `close()` is also what resets flutter_gemma's core singleton bookkeeping.
+  Nulling the reference alone leaves the old variant resident while the next
+  one loads — an OOM on any phone. Same reason `deleteVariant()` closes before
+  unlinking.
+- **Sessions are per-query.** `generate()` creates a session, asks, and closes
+  it in a `finally`. Each live session holds its own KV cache (~100–500 MB) and
+  the `.litertlm` engine allows one live conversation anyway, so close+recreate
+  is the documented pattern for models this size.
 - **No medical/advice content from outside the whitelist.** Allowed sources: WHO, BDRCS,
   MoDMR, BMD, CDC, IFRC. See `docs/corpus.md` §5 and `tools/README.md`.
 - **No English in the user UI.** User surface is Bangla (HindSiliguri). English is only
@@ -80,7 +113,7 @@ directly. Messages are UTF-8 encoded (NOT `codeUnits` — that garbles Bangla).
 ```bash
 flutter pub get                            # standard
 flutter analyze                            # must report "No issues found!"
-flutter test                               # 160 pass, 1 skip — see note below
+flutter test                               # 210 pass, 1 skip — see note below
 flutter test test/unit/                    # only unit tests (fast)
 flutter test test/widget/                  # only widget tests
 flutter test integration_test/...          # REQUIRES a connected device
@@ -132,22 +165,37 @@ on-device embedder without coordinating with the model stack.
 - `ensureModel()` uses stdlib `HttpClient` with Range-resume; checks for `206` and
   truncates+restarts on `200` to avoid corrupting the file. Connection timeout 30s,
   idle timeout 60s. `notifyListeners()` is throttled to 1/sec + on percent-change to
-  avoid UI jank during the ~1.87 GB download.
-- `isOnDisk()` checks file size against `_expectedModelSize` (2,003,697,664 bytes)
-  with 99% tolerance — NOT the old 100MB floor (partial downloads >100MB were
-  incorrectly marked ready, causing permanent "ready → failed" loops).
-- `initialize()` auto-deletes the model file on failure so corrupted/partial files
-  don't cause a permanent stuck state. It also runs `_migrateOldFilename()` which
-  renames legacy `gemma-4-E2B-it-web.task` files to `model.bin`.
-- Cold start (`initialize()` → `FlutterGemmaPlugin.init`) is 3–10s on arm64. Surface
-  "AI প্রস্তুত হচ্ছে..." (`ModelState.loading` → `statusLabelBn`) during this window.
-- Generated model run config (per `docs/prd.md` §8): `maxTokens: 512`, `temperature: 0.2`,
-  4-bit, thinking off. Don't bump these casually — it risks OOM on low-RAM phones.
-- Model URL (`ModelManager._defaultUrl`) is a `litert-community` HF mirror of Gemma 4
-  E2B IT in MediaPipe `.task` format (~1.87 GB). The actual runtime is MediaPipe
-  `LlmInference` (`com.google.mediapipe:tasks-genai:0.10.21`), NOT LiteRT-LM — despite
-  the HF repo name. If you swap the model, also touch the matching TODO in
-  `_modelFileName` and the spike entry in `docs/spike-results.md`.
+  avoid UI jank during the ~2.5 GB download.
+- `isOnDisk(v)` checks the variant's file size against
+  `DeviceCapability.getRecommendations()[v].sizeBytes` with 99% tolerance — NOT a
+  flat floor (partial downloads were incorrectly marked ready, causing permanent
+  "ready → failed" loops). **Those byte counts are the live `Content-Length` of
+  each `.litertlm` file** (E2B 2,588,147,712; E4B 3,659,530,240, both verified
+  2026-07-16). A guessed size silently rejects a complete download — re-verify
+  with `curl -sIL <url> | grep -i content-length` before changing one. The 12B
+  entry is `available: false` (its URL 404s); unavailable variants are hidden
+  from the picker and rejected by `ensureModel()`.
+- `initialize()` is single-flight (`_initFuture`) and records `lastInitError`,
+  which Settings → ডায়াগনস্টিকস surfaces — Tier 2 degrades to corpus silently,
+  so without that string a broken offline model is invisible on a real phone.
+- Files are stored per-variant as `model_<variant>.litertlm` and loaded **in
+  place** via `installModel(...).fromFile(path).install()` (instant — the
+  handler only registers the path, it does not copy) followed by
+  `getActiveModel()`. There is no magic filename and no second copy.
+- `_purgeIncompatibleLegacyFiles()` deletes pre-1.x MediaPipe artifacts
+  (`model.bin`, `model_*.bin`, `gemma-4-E2B-it-web.task`) at boot and on init —
+  they are unreadable by this engine, so there is nothing to migrate, only
+  ~1.9 GB to reclaim.
+- Run config: context `maxTokens: 1024` (>= 1024 required — see Hard
+  constraints), reply cap `maxOutputTokens: 512`, `temperature: 0.2`,
+  `topK: 40`. Don't bump these casually — it risks OOM on low-RAM phones.
+- `DeviceCapability.getRecommendedVariant()` returns **E2B everywhere except
+  high-RAM devices**: the model card measures E2B at ~1.7 GB CPU / 0.7 GB GPU
+  runtime, while E4B roughly doubles that on top of a 3.5 GB download — an OOM
+  risk on the 6–8 GB phones this app targets. E4B stays one tap away in
+  Settings. If you swap a model, update that variant's `sizeBytes` /
+  `downloadUrl` in `DeviceCapability` and the spike entry in
+  `docs/spike-results.md`.
 
 ## Bangla STT (`lib/features/voice/`)
 
@@ -163,8 +211,8 @@ with `bn-IN` fallback, no extra download.
 ## Cloud AI fallback (`lib/features/cloud_ai/cloud_ai_service.dart`)
 
 Optional. Constructed only when `--dart-define=GEMINI_API_KEY=<key>` is passed at build.
-Primary `gemini-2.5-flash`, fallback `gemini-2.0-flash-lite` (verify at build time —
-fictional model IDs return 404). The chain is invoked only when the app-wide
+Primary `gemma-4-31b-it`, fallback `gemini-3.1-flash-lite` (the old `gemini-2.0-flash-lite`
+was deprecated June 1, 2026 — see `docs/IMPLAN.md` §1.1). The chain is invoked only when the app-wide
 `connectivityProvider.isOnline` singleton (`lib/core/connectivity_provider.dart`,
 initialized once in `main.dart`) reports online — read that cached boolean, don't
 poll `Connectivity().checkConnectivity()`. The API key is read via
@@ -193,7 +241,22 @@ explain why in the PR body or they're blocked.
   and `geolocator_android`).
 - Release builds are signed with the debug key for the demo (`flutter run --release`
   works out of the box). Production signing is post-hackathon.
-- `R8`/minification is on; rules live in `proguard-rules.pro`.
+- `R8`/minification is on; rules live in `proguard-rules.pro`. **The MediaPipe /
+  protobuf `-keep` rules there are load-bearing for the offline AI** — MediaPipe
+  loads its calculator-option protos reflectively and binds native methods over
+  JNI, so R8 sees them as unused and deletes them. `-dontwarn` does NOT retain
+  anything; only `-keep` does. When they were missing, the release APK shipped
+  with 506 classes stripped (the whole `com.google.protobuf` runtime plus
+  `CalculatorOptionsProto`), `LlmInference` died building its graph, and Tier 2
+  degraded to corpus answers — **release-only**, invisible in debug, while the
+  online path kept working because it is pure-Dart HTTP. This class of bug does
+  not reproduce in `flutter run` or any test; verify it against the APK:
+  ```bash
+  flutter build apk --release
+  # must print 0 — any name without a trailing ':' is a DELETED class
+  grep -cE '^com\.google\.(mediapipe|protobuf|odml)[^:]*$' \
+    build/app/outputs/mapping/release/usage.txt
+  ```
 - Permissions required in `AndroidManifest.xml`: `RECORD_AUDIO`, `ACCESS_FINE_LOCATION`
   (+ `ACCESS_COARSE_LOCATION`), `CALL_PHONE`, `SEND_SMS`, `INTERNET` (only for the
   model download), plus Bluetooth/Wi-Fi set for mesh (`BLUETOOTH_*`, `NEARBY_WIFI_DEVICES`,
@@ -214,8 +277,9 @@ explain why in the PR body or they're blocked.
 
 - Remove the `arm64-v8a` ABI filter, add a second `FlutterGemma` instance, or branch
   the model path.
-- Rename `_modelFileName` to anything other than `'model.bin'` — `flutter_gemma`'s
-  `isModelLoaded` hard-checks for that constant string.
+- Point the model download at a `.task` URL, or drop `maxTokens` below 1024, or
+  drop `model.close()` from `resetSession()`. See §"Hard constraints" — each one
+  breaks the offline model in a way that looks like "the AI just doesn't answer".
 - Ship a corpus chunk from outside `WHO / BDRCS / MoDMR / BMD / CDC / IFRC`.
 - Lower the cosine floor in the retriever or strip the canned 999 fallback to "fix"
   retrieval gaps — fix the corpus instead.

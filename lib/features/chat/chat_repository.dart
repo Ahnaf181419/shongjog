@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 
-import '../../core/model_manager.dart';
 import '../../knowledge/kb_loader.dart';
-import '../../rag/persona_prompt.dart';
+import '../../rag/prompt_builder.dart';
 import '../../rag/types.dart';
 import '../cloud_ai/cloud_ai_service.dart';
+import 'local_llm.dart';
 
 /// Orchestrates a single RAG query via 3-Tier intelligence:
 /// TIER 1: Cloud AI (online)
@@ -12,7 +12,15 @@ import '../cloud_ai/cloud_ai_service.dart';
 /// TIER 3: RAG corpus
 class ChatRepository {
   final KnowledgeBase kb;
-  final ModelManager? modelManager;
+
+  /// The on-device LLM contract (see [LocalLlm]). In production this is
+  /// [modelManager] (which `implements LocalLlm` via duck typing on the
+  /// three members `isReady`, `isAnyOnDisk`, `generate`); in tests it
+  /// is a 30-line fake. Either way the repository never depends on
+  /// ModelManager's larger surface (download state, variant switching,
+  /// ChangeNotifier plumbing).
+  final LocalLlm? model;
+
   final CloudAiService? cloudAi;
 
   /// Optional embedder for cosine retrieval. When null, keyword-only.
@@ -20,7 +28,7 @@ class ChatRepository {
 
   ChatRepository({
     required this.kb,
-    this.modelManager,
+    this.model,
     this.cloudAi,
     this.embedder,
   });
@@ -57,16 +65,27 @@ class ChatRepository {
 
     // TIER 2: Local LLM (offline)
     final prompt = buildPrompt(query: userQuery, hits: hits);
-    if (modelManager != null) {
+    if (model != null) {
+      // Tagged logging for runtime triage — `debugPrint` is filtered out
+      // in release by default; consumers can enable `-v` or wire
+      // `debugPrint` into a file logger to read these on a phone.
+      debugPrint('[ChatRepo/Tier2] entered for q="${userQuery.substring(0, userQuery.length.clamp(0, 40))}…" isReady=${model!.isReady}');
       try {
-        if (modelManager!.isReady || await modelManager!.isAnyOnDisk()) {
-          final answer = await modelManager!.generate(prompt);
+        final shouldTryDevice = model!.isReady || await model!.isAnyOnDisk();
+        debugPrint('[ChatRepo/Tier2] shouldTryDevice=$shouldTryDevice');
+        if (shouldTryDevice) {
+          final answer = await model!.generate(prompt);
+          debugPrint('[ChatRepo/Tier2] device path success len=${answer.length}');
           if (onPath != null) onPath(GenerationPath.device);
           return answer;
         }
-      } catch (e) {
-        debugPrint('Tier 2 Local Model generation failed: $e');
-        // Silent fallthrough to corpus
+      } catch (e, st) {
+        debugPrint('[ChatRepo/Tier2] device path FAILED: $e');
+        debugPrint('[ChatRepo/Tier2] stack: $st');
+        // Fall through to Tier-3 corpus. Silently degrading to a
+        // useful corpus answer is better UX than a hard error
+        // bubble — the user gets *something* useful and can retry
+        // or call 999.
       }
     }
 
