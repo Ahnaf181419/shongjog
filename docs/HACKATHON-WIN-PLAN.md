@@ -12,28 +12,32 @@
 **Date:** 2026-07-15
 **Owner:** whole team — assign names per item in `team.md` before Day 1 ends.
 
+> **Update 2026-07-16 (ahnaf branch):** Items 1, 2, 6, 11, 16 are DONE.
+> See status column below. Items 3, 4, 5, 7, 8-10, 12-15 are deferred
+> (out of scope for the current demo cycle).
+
 ---
 
 ## Priority summary
 
-| # | Feature | Effort | Tier | Demo moment |
-|---|---|---|---|---|
-| 1 | Multi-hop mesh SOS relay | ~1.5 days | 1 | Phone with no SIM gets rescued through strangers' phones |
-| 2 | "I'm safe" family check-in beacon | ~0.5 day | 1 | One tap → mesh broadcast + queued SMS |
-| 3 | Offline Bangladesh MBTiles | ~1 day | 1 | Shelter map works with all radios off |
-| 4 | Compass arrow to nearest shelter | ~0.5 day | 1 | Rotate the phone on stage, arrow tracks |
-| 5 | Cyclone early-warning "disaster mode" | ~1 day | 1 | App prepares while online, protects while offline |
-| 6 | Guided triage wizard (no LLM) | ~1 day | 1 | Life-critical steps without the model — can't hallucinate |
-| 7 | AI SOS composer | ~1 day | 1 | Panicked rambling → structured SOS, on-device, offline |
-| 8 | CPR metronome | ~2h | 2 | Full-screen 110 BPM pulse + haptics + Bangla count |
-| 9 | ORS mixing calculator | ~2h | 2 | Slider → Bangla instructions (০-৯ numerals) |
-| 10 | Torch SOS / whistle mode | ~2h | 2 | Flashlight Morse SOS for the physically trapped |
-| 11 | Offline emergency directory | ~2h | 2 | District-filterable official numbers, tap-to-call |
-| 12 | "Explain simply" button (AI) | ~0.5 day | 2 | One tap rewrites guidance in simpler Bangla + TTS |
-| 13 | Preparedness plan generator (AI) | ~1 day | 2 | Family profile → personalized Bangla cyclone checklist |
-| 14 | Battery-aware emergency mode | ~3h | 2 | Stripped black UI below 20% battery |
-| 15 | Elderly / low-literacy mode | ~3h | 2 | Huge text + TTS speaker button on every card |
-| 16 | First-run demo pack | ~1h | 2 | Chat never looks empty in judges' hands |
+| # | Feature | Effort | Tier | Demo moment | Status |
+|---|---|---|---|---|---|
+| 1 | Multi-hop mesh SOS relay | ~1.5 days | 1 | Phone with no SIM gets rescued through strangers' phones | ✅ DONE |
+| 2 | "I'm safe" family check-in beacon | ~0.5 day | 1 | One tap → mesh broadcast + queued SMS | ✅ DONE |
+| 3 | Offline Bangladesh MBTiles | ~1 day | 1 | Shelter map works with all radios off | ⏸ Deferred |
+| 4 | Compass arrow to nearest shelter | ~0.5 day | 1 | Rotate the phone on stage, arrow tracks | ⏸ Deferred |
+| 5 | Cyclone early-warning "disaster mode" | ~1 day | 1 | App prepares while online, protects while offline | ⏸ Deferred |
+| 6 | Guided triage wizard (no LLM) | ~1 day | 1 | Life-critical steps without the model — can't hallucinate | ✅ DONE |
+| 7 | AI SOS composer | ~1 day | 1 | Panicked rambling → structured SOS, on-device, offline | ⏸ Deferred |
+| 8 | CPR metronome | ~2h | 2 | Full-screen 110 BPM pulse + haptics + Bangla count | ⏸ Deferred |
+| 9 | ORS mixing calculator | ~2h | 2 | Slider → Bangla instructions (০-৯ numerals) | ⏸ Deferred |
+| 10 | Torch SOS / whistle mode | ~2h | 2 | Flashlight Morse SOS for the physically trapped | ⏸ Deferred |
+| 11 | Offline emergency directory | ~2h | 2 | District-filterable official numbers, tap-to-call | ✅ DONE |
+| 12 | "Explain simply" button (AI) | ~0.5 day | 2 | One tap rewrites guidance in simpler Bangla + TTS | ⏸ Deferred |
+| 13 | Preparedness plan generator (AI) | ~1 day | 2 | Family profile → personalized Bangla cyclone checklist | ⏸ Deferred |
+| 14 | Battery-aware emergency mode | ~3h | 2 | Stripped black UI below 20% battery | ⏸ Deferred |
+| 15 | Elderly / low-literacy mode | ~3h | 2 | Huge text + TTS speaker button on every card | ⏸ Deferred |
+| 16 | First-run demo pack | ~1h | 2 | Chat never looks empty in judges' hands | ✅ DONE |
 
 Pick **2–3 from Tier 1** plus as many Tier-2 quick wins as Day 4 allows.
 Cut ruthlessly; a rehearsed demo beats one more feature.

@@ -5,8 +5,9 @@
 > picking up where someone left off — it's the single entry point that tells you the
 > whole state.
 
-**Date of this report:** 2026-07-14  
-**Status:** 🟢 Code-complete. Tests green (91 pass, 1 skip). `flutter analyze` clean.  
+**Date of this report:** 2026-07-16 (updated post-hackathon-feature-build)  
+**Status:** 🟢 Code-complete + 5 demo features shipped. Tests green (246 pass, 1 skip). `flutter analyze` clean.  
+**Branch:** `ahnaf` (10 commits ahead of `main`). Merge to `main` via PR after device testing.  
 **Demo readiness:** Phase 0 (device spikes) and Phase 5 (live demo) are the only
 remaining work, both requiring a physical arm64-v8a Android device.
 
@@ -16,17 +17,16 @@ remaining work, both requiring a physical arm64-v8a Android device.
 
 | Metric | Value |
 |---|---|
-| Tasks complete | 22 ✅ |
-| Tasks partial | 3 🟡 |
-| Tasks blocked on device | 4 🔴 |
-| Tests passing | 91 (1 skipped) |
+| Tests passing | 246 (1 skipped) |
 | `flutter analyze` | 0 issues |
-| Commits | 14+ during this build |
-| Files in `lib/` | 38 Dart files |
+| Dart files in `lib/` | 81 |
+| Lines of Dart in `lib/` | ~9,656 |
+| Lines of test code | ~3,952 |
 | Bangla corpus chunks | 23 (10 topics) |
-| Bundle size (APK base) | ~30 MB (no model bundled yet) |
-| Model file size | ~1.5 GB (gemma-4-e2b-int4.task, downloaded per-device) |
+| APK size (release) | 126.5 MB (arm64-v8a only, no model bundled) |
+| Model file | ~1.87 GB (gemma-4-E2B-it.litertlm, downloaded per-device) |
 | Min Android ABI | arm64-v8a |
+| Commits on `ahnaf` | 10 (mesh relay, triage wizard, safe beacon, directory, demo seeder, fixes) |
 
 ---
 
@@ -79,16 +79,54 @@ Everything below runs on the Android emulator and in `flutter test`:
 - **Map/list toggle.** SegmentedButton: list shows distance-ranked shelters.
 - **Cached tile provider** with `ConnectivityHelper`.
 
-### Mesh communication (Maruf)
-- **`nearby_connections` peer-to-peer** text messaging.
+### Mesh communication
+- **`nearby_connections` peer-to-peer** text messaging (P2P_CLUSTER).
 - **Radar screen** for peer discovery.
-- **Group channels** for incident-scoped comms.
+- **Multi-hop SOS relay** (`SosPayload` + `SosRelayEngine` + `SosRelayListener`).
+  De-dupe by UUID, TTL (1h), max 5 hops, loop guard. Hop-count chip on
+  received SOS message bubbles (`↻ N হপ`).
+- **`MeshService.ensureRelayEngine()`** wires the relay on app startup;
+  `_onPayloadReceived` routes incoming bytes through the listener.
+- **`broadcastSos()`** helper for the safe-beacon screen.
+
+### Triage wizard (LLM-free, deterministic)
+- **Pure-Dart decision tree** (`lib/features/triage/decision_tree.dart`) —
+  5 yes/no questions, 5 terminal routes: cpr, bleeding, drowning,
+  snakebite, escalation999. Cannot hallucinate.
+- **Full-screen wizard UI** with giant হ্যাঁ/না buttons, Bengali
+  numerals (প্রশ্ন ১ / ৫), terminal node shows first-aid title +
+  subtitle + "কার্ড দেখুন" and "৯৯৯ কল করুন" CTAs.
+- **Home-screen tile** (red accent) routes to `/triage`.
+
+### Safe beacon ("I'm safe" check-in)
+- **`SafeBeaconPayload`** (reuses SosPayload wire format with `state=safe`).
+- **`SmsQueue`** (pure-Dart): enqueue/drain with head-retention on failure.
+- **`SafeBeaconScreen`** — one giant Bangla button. On tap: reads GPS via
+  `Geolocator`, broadcasts beacon over mesh, queues SMS for every emergency
+  contact, drains on connectivity flip. All counts in Bengali numerals.
+- **Home-screen tile** (teal accent) routes to `/safe-beacon`.
+
+### Offline emergency directory
+- **22-entry JSON asset** (`assets/emergency/directory.json`) — national
+  hotlines (999, 16163, 333, 16263, 966, 109, 16239) + division hospitals
+  + Cox's Bazar specifics + coast guard + tourist police.
+- **`DirectoryScreen`** with division FilterChips, tap-to-call via
+  `url_launcher` `tel:` URI, Bengali-digit phone display.
+- **`@visibleForTesting` seam** (`debugSetEntries`) for widget tests.
+- **Home-screen tile** routes to `/directory`.
+
+### First-run demo seeder
+- **`DemoSeeder`** (pure-Dart) returns 3 pre-answered Q&As (ORS recipe,
+  shelter map, snakebite) — matches existing KB content.
+- **ChatScreen** seeds on first run when store is empty AND
+  `pref_demo_seeded_v1` flag is unset. Persists seed; idempotent.
 
 ### Cross-cutting
 - **`HapticService`** (`lib/core/haptics.dart`) codified per design spec — 6 events.
 - **`SoundService`** (`lib/features/audio/sound_service.dart`) — chime + knock,
   5-second debounce, gated by prefs.
-- **Test suite** — 91 pass, 1 skip, organized into unit/widget/integration.
+- **Test suite** — 246 pass, 1 skip, organized into unit/widget/integration.
+  36 new tests added on the `ahnaf` branch across 7 new test files.
 
 ---
 
@@ -135,6 +173,38 @@ sign of trouble.
 
 **What to do:** Record `adb shell screenrecord` while walking through the 5
 scenarios. Trim to 60s. Save as `docs/demo-fallback.mp4`. Transfer to demo phone.
+
+---
+
+## Remaining work (ahnaf branch — needs device testing + demo polish)
+
+### Done on `ahnaf`, needs on-device verification
+- [ ] **Multi-hop mesh SOS relay** — 3-phone test (Phone A broadcasts, B
+      relays, C receives with hop-count chip). Unit-tested but Bluetooth
+      pairing + real delivery can't be verified without hardware.
+- [ ] **"I'm safe" beacon** — GPS capture + mesh broadcast + SMS composer
+      open. All logic unit-tested; `Geolocator` + `url_launcher` dialogs
+      are device-only.
+- [ ] **Triage wizard** — walk every branch on device, verify Bengali
+      numerals + terminal node CTAs render correctly under real fonts.
+- [ ] **Offline directory** — tap-to-call opens dialer, division filter
+      works, 22 entries display with Bengali-digit phones.
+- [ ] **Demo seeder** — first launch shows 3 Q&A pairs in chat; second
+      launch does NOT re-seed.
+- [ ] **Merge `ahnaf` → `main`** via PR after device test.
+
+### Deferred from HACKATHON-WIN-PLAN (not started)
+| # | Feature | Effort | Why deferred |
+|---|---|---|---|
+| 3 | Offline MBTiles | 1 day | No tile source ready; map uses styled markers offline |
+| 4 | Compass arrow | 0.5 day | `flutter_compass` not in pubspec |
+| 5 | Cyclone disaster mode | 1 day | Needs weather spike on device |
+| 7 | AI SOS composer | 1 day | SOS path must not require model; template is safe path |
+| 8-10 | CPR metronome, ORS calc, torch SOS | 2h each | Triage wizard covers "LLM-free guidance" pitch |
+| 12 | "Explain simply" button | 0.5 day | Time-boxed out |
+| 13 | Preparedness plan generator | 1 day | Time-boxed out |
+| 14 | Battery-aware mode | 3h | Time-boxed out |
+| 15 | Elderly / low-literacy mode | 3h | Time-boxed out |
 
 ---
 

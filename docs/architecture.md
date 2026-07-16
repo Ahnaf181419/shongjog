@@ -155,7 +155,24 @@ lib/
 │   │   └── cloud_ai_service.dart   Gemini 2.5-flash + 2.0-flash-lite fallback
 │   ├── mesh_comm/
 │   │   ├── mesh_service.dart       nearby_connections P2P adapter
-│   │   └── mesh_radar_screen.dart  Radar + peer-to-peer chat
+│   │   ├── mesh_radar_screen.dart  Radar + peer-to-peer chat
+│   │   ├── sos_payload.dart        Pure: JSON SOS schema (id, hops, GPS, TTL)
+│   │   ├── sos_relay.dart          Pure: de-dupe + TTL + hop-budget engine
+│   │   ├── sos_relay_listener.dart Bridge: incoming bytes → engine → re-broadcast
+│   │   └── mesh_chat_screen.dart   Presentation (hop-count chip on SOS bubbles)
+│   ├── triage/
+│   │   ├── decision_tree.dart      Pure: 5 yes/no → 5 terminal routes (no LLM)
+│   │   └── triage_wizard_screen.dart Presentation (full-screen হ্যাঁ/না wizard)
+│   ├── safe_beacon/
+│   │   ├── safe_beacon_payload.dart Pure: wire-compatible SosPayload variant
+│   │   ├── sms_queue.dart           Pure: enqueue/drain with head-retention
+│   │   └── safe_beacon_screen.dart  Presentation (GPS + mesh + SMS queue)
+│   ├── emergency/
+│   │   ├── emergency_sheet.dart         Presentation (slide-to-confirm 999)
+│   │   ├── emergency_actions.dart       Adapter: url_launcher tel:/sms:
+│   │   ├── sos_sms_template.dart        Pure: SOS body builder
+│   │   ├── directory_loader.dart        Pure: parse assets/emergency/directory.json
+│   │   └── directory_screen.dart        Presentation (division filter + tap-to-call)
 │   ├── contacts/
 │   │   ├── contact_model.dart           Domain: Contact value object
 │   │   ├── contacts_repository.dart     Persistence: load/save contacts
@@ -175,8 +192,11 @@ lib/
 **Pure (no Flutter / no package deps):** `lib/rag/retriever.dart`,
 `lib/rag/keyword_retriever.dart`, `lib/rag/prompt_builder.dart`, `lib/rag/types.dart`,
 `lib/features/shelter/nearest_shelter.dart`, `lib/features/shelter/shelter_model.dart`,
-`lib/features/emergency/sos_sms_template.dart`, `lib/features/quick_cards/cards_data.dart`,
-`lib/features/contacts/contact_model.dart`.
+`lib/features/emergency/sos_sms_template.dart`, `lib/features/emergency/directory_loader.dart`,
+`lib/features/quick_cards/cards_data.dart`, `lib/features/contacts/contact_model.dart`,
+`lib/features/mesh_comm/sos_payload.dart`, `lib/features/mesh_comm/sos_relay.dart`,
+`lib/features/triage/decision_tree.dart`, `lib/features/safe_beacon/safe_beacon_payload.dart`,
+`lib/features/safe_beacon/sms_queue.dart`, `lib/features/chat/demo_seeder.dart`.
 
 These are the unit-testable correctness core.
 
