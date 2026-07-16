@@ -12,6 +12,9 @@ import '../features/onboarding/onboarding_screen.dart';
 import '../features/safe_beacon/safe_beacon_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/triage/triage_wizard_screen.dart';
+import '../features/admin/admin_login_screen.dart';
+import '../features/admin/admin_panel_screen.dart';
+import '../features/notifications/notifications_screen.dart';
 import '../main.dart';
 import 'main_shell.dart';
 import 'router.dart';
@@ -42,6 +45,9 @@ class ShongjogApp extends StatelessWidget {
             AppRoutes.triage: (_) => const TriageWizardScreen(),
             AppRoutes.safeBeacon: (_) => const SafeBeaconScreen(),
             AppRoutes.directory: (_) => const DirectoryScreen(),
+            AppRoutes.adminLogin: (_) => const AdminLoginScreen(),
+            AppRoutes.adminPanel: (_) => const AdminPanelScreen(),
+            AppRoutes.notifications: (_) => const NotificationsScreen(),
           },
           onUnknownRoute: (settings) => MaterialPageRoute(
             builder: (_) => Scaffold(
