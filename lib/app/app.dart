@@ -5,10 +5,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../core/theme_controller.dart';
 import '../features/about/about_screen.dart';
 import '../features/contacts/emergency_contacts_screen.dart';
+import '../features/emergency/directory_screen.dart';
 import '../features/mesh_comm/mesh_radar_screen.dart';
 import '../features/mesh_comm/mesh_service.dart';
 import '../features/onboarding/onboarding_screen.dart';
+import '../features/safe_beacon/safe_beacon_screen.dart';
 import '../features/settings/settings_screen.dart';
+import '../features/triage/triage_wizard_screen.dart';
 import '../main.dart';
 import 'main_shell.dart';
 import 'router.dart';
@@ -36,6 +39,9 @@ class ShongjogApp extends StatelessWidget {
                 const EmergencyContactsScreen(),
             AppRoutes.about: (_) => const AboutScreen(),
             AppRoutes.meshRadar: (_) => const MeshRadarScreen(),
+            AppRoutes.triage: (_) => const TriageWizardScreen(),
+            AppRoutes.safeBeacon: (_) => const SafeBeaconScreen(),
+            AppRoutes.directory: (_) => const DirectoryScreen(),
           },
           onUnknownRoute: (settings) => MaterialPageRoute(
             builder: (_) => Scaffold(
@@ -122,6 +128,9 @@ class _StartupGateState extends State<_StartupGate> {
       _meshStarted = true;
       meshService.start().then((ok) {
         if (!ok) debugPrint('StartupGate: mesh failed to start');
+        // Wire the SOS relay engine once the mesh is up. The
+        // listener is idempotent so subsequent calls are safe.
+        meshService.ensureRelayEngine();
       });
     }
 

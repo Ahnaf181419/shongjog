@@ -245,11 +245,37 @@ class _MessageBubble extends StatelessWidget {
                   ],
                 ),
               )
-            : Text(
-                message.text,
-                style: TextStyle(
-                  color: isMe ? cs.onPrimary : cs.onSurface,
-                ),
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    message.text,
+                    style: TextStyle(
+                      color: isMe ? cs.onPrimary : cs.onSurface,
+                    ),
+                  ),
+                  if (message.hopCount != null && message.hopCount! > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: cs.errorContainer.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '↻ ${message.hopCount} হপ',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: cs.onErrorContainer,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
       ),
     );

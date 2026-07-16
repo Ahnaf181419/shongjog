@@ -24,4 +24,12 @@ class EmergencyActions {
     if (await canLaunchUrl(uri)) return launchUrl(uri);
     return false;
   }
+
+  /// Open the SMS composer with [body] to [phone]. Used by the
+  /// safe-beacon screen to ping emergency contacts.
+  static Future<bool> sendSmsTo(String phone, String body) async {
+    final uri = Uri(scheme: 'sms', path: phone, query: 'body=$body');
+    if (await canLaunchUrl(uri)) return launchUrl(uri);
+    return false;
+  }
 }
