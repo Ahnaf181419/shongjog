@@ -420,6 +420,7 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
   /// null to use the SDK default (thinking off). Used by the urgency
   /// classifier — critical queries get thinking=false (reflex), complex
   /// queries get thinking=true (deliberation).
+  @override
   void setThinkingMode(bool? enable) {
     _enableThinking = enable;
   }
