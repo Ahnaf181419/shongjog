@@ -67,14 +67,16 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
     final text = _msgCtrl.text.trim();
     if (text.isEmpty) return;
     HapticService.lightTap();
-    meshService.sendMessage(text);
+    meshService.sendMessage(text, targetEndpointId: widget.peer.endpointId);
     _msgCtrl.clear();
   }
 
   Future<void> _toggleRecording() async {
     HapticService.lightTap();
     if (_recording) {
-      await meshVoiceService.stopRecordingAndSend();
+      await meshVoiceService.stopRecordingAndSend(
+        targetEndpointId: widget.peer.endpointId,
+      );
       if (mounted) setState(() => _recording = false);
     } else {
       final ok = await meshVoiceService.startRecording(
@@ -89,7 +91,9 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
   Future<void> _playVoice(String? filePath) async {
     if (filePath == null) return;
     try {
-      if (filePath.startsWith('content://') || filePath.startsWith('/')) {
+      if (filePath.startsWith('content://')) {
+        await _player.play(UrlSource(filePath));
+      } else if (filePath.startsWith('/')) {
         await _player.play(DeviceFileSource(filePath));
       }
     } catch (e) {

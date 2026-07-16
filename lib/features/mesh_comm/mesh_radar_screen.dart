@@ -19,6 +19,7 @@ class MeshRadarScreen extends StatefulWidget {
 class _MeshRadarScreenState extends State<MeshRadarScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _radarAnim;
+  final TextEditingController _msgCtrl = TextEditingController();
   StreamSubscription? _peerSub;
   List<MeshPeer> _peers = [];
   bool _started = false;
@@ -58,6 +59,7 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
 
   @override
   void dispose() {
+    _msgCtrl.dispose();
     _peerSub?.cancel();
     _radarAnim.dispose();
     // NOTE: Do NOT call meshService.stop() — it runs at app level.
@@ -209,6 +211,7 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
                     // Quick text input
                     Expanded(
                       child: TextField(
+                        controller: _msgCtrl,
                         decoration: const InputDecoration(
                           hintText: 'মেসেজ লিখুন...',
                           border: OutlineInputBorder(),
@@ -220,13 +223,21 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
                           if (trimmed.isNotEmpty) {
                             HapticService.lightTap();
                             meshService.sendMessage(trimmed);
+                            _msgCtrl.clear();
                           }
                         },
                       ),
                     ),
                     const SizedBox(width: 8),
                     IconButton.filled(
-                      onPressed: () {},
+                      onPressed: () {
+                        final text = _msgCtrl.text.trim();
+                        if (text.isNotEmpty) {
+                          HapticService.lightTap();
+                          meshService.sendMessage(text);
+                          _msgCtrl.clear();
+                        }
+                      },
                       icon: const Icon(Icons.send),
                       style: IconButton.styleFrom(
                         backgroundColor: cs.primary,

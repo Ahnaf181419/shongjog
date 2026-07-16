@@ -63,9 +63,10 @@ class MeshVoiceService {
     return true;
   }
 
-  /// Stop recording and send the audio file to all connected peers.
+  /// Stop recording and send the audio file to connected peers.
+  /// If [targetEndpointId] is given, only that peer receives the file.
   /// Returns the file path of the recording, or null if not recording.
-  Future<String?> stopRecordingAndSend() async {
+  Future<String?> stopRecordingAndSend({String? targetEndpointId}) async {
     if (!_isRecording) return null;
 
     _autoStopTimer?.cancel();
@@ -73,7 +74,7 @@ class MeshVoiceService {
     _isRecording = false;
 
     if (path != null) {
-      meshService.sendVoiceMessage(path);
+      meshService.sendVoiceMessage(path, targetEndpointId: targetEndpointId);
     }
 
     return path;
