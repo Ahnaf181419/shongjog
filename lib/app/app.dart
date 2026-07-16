@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../core/theme_controller.dart';
 import '../features/about/about_screen.dart';
 import '../features/contacts/emergency_contacts_screen.dart';
+import '../features/emergency/directory_screen.dart';
 import '../features/mesh_comm/mesh_radar_screen.dart';
 import '../features/mesh_comm/mesh_service.dart';
 import '../features/onboarding/onboarding_screen.dart';
@@ -40,6 +41,7 @@ class ShongjogApp extends StatelessWidget {
             AppRoutes.meshRadar: (_) => const MeshRadarScreen(),
             AppRoutes.triage: (_) => const TriageWizardScreen(),
             AppRoutes.safeBeacon: (_) => const SafeBeaconScreen(),
+            AppRoutes.directory: (_) => const DirectoryScreen(),
           },
           onUnknownRoute: (settings) => MaterialPageRoute(
             builder: (_) => Scaffold(

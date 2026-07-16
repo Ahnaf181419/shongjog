@@ -73,6 +73,7 @@ flutter:
     - assets/shelter/
     - assets/sound/chime.wav
     - assets/sound/knock.wav
+    - assets/emergency/
   fonts:
     - family: HindSiliguri
       fonts:
