@@ -85,7 +85,8 @@ core/     Cross-cutting singletons: modelManager, connectivityProvider, themeCon
 rag/      Retrieval core (keyword_retriever, brute-force cosine, prompt_builder, types) — PURE DART
 knowledge/ KB loader (reads assets/kb/{corpus.json, vectors.bin} via rootBundle)
 features/ One folder per feature: chat, voice, shelter, quick_cards, emergency,
-          onboarding, settings, home, about, cloud_ai, mesh_comm, contacts, audio, weather
+          onboarding, settings, home, about, cloud_ai, mesh_comm, contacts,
+          audio, weather, intelligence, triage, safe_beacon
 ```
 
 **Dependency rule** (from `docs/architecture.md` §3):
@@ -98,7 +99,8 @@ new logic pure when practical — that's what makes it unit-testable without a d
 
 **Tab vs route:** 4 tabs in `MainShell` (`lib/app/main_shell.dart`) are bottom-nav —
 `হোম / এআই / কার্ড / আশ্রয়` (Home / AI / Cards / Shelter). `SettingsScreen`,
-`EmergencyContactsScreen`, `AboutScreen`, `MeshRadarScreen` are push routes from `lib/app/router.dart`
+`EmergencyContactsScreen`, `AboutScreen`, `MeshRadarScreen`, `TriageWizardScreen`,
+`SafeBeaconScreen`, `DirectoryScreen` are push routes from `lib/app/router.dart`
 (`AppRoutes.*` constants). The startup gate (`_StartupGate` in `app.dart`) reads
 `SharedPreferences.getBool('pref_has_onboarded')`; first-run shows
 `OnboardingScreen`, then routes to `MainShell`.
@@ -107,13 +109,26 @@ new logic pure when practical — that's what makes it unit-testable without a d
 an app-wide singleton using `nearby_connections` with `Strategy.P2P_CLUSTER`.
 `MeshRadarScreen` and `home_screen.dart`'s `_OfflineMessageTile` both reference it
 directly. Messages are UTF-8 encoded (NOT `codeUnits` — that garbles Bangla).
+**Multi-hop SOS relay:** `SosPayload` (JSON wire format) + `SosRelayEngine`
+(de-dupe by UUID, 1h TTL, max 5 hops, loop guard) + `SosRelayListener` (bridges
+incoming bytes to the engine and re-broadcasts). `meshService.ensureRelayEngine()`
+is called from `_StartupGate` on app startup. `broadcastSos()` sends a payload
+to all peers and adds a local `hopCount: 0` message to the chat stream.
+**Triage wizard:** pure-Dart `TriageTree` in `lib/features/triage/decision_tree.dart`
+routes 5 yes/no questions to 5 terminal first-aid routes (cpr, bleeding, drowning,
+snakebite, escalation999). No LLM involved; cannot hallucinate.
+**Safe beacon:** `SafeBeaconScreen` broadcasts a "নিরাপদ" payload over the mesh
+and queues SMSes to emergency contacts via `SmsQueue`, draining when
+`connectivityProvider` reports online.
+**Emergency directory:** `DirectoryScreen` reads `assets/emergency/directory.json`
+(22 entries), filterable by division, tap-to-call via `url_launcher`.
 
 ## Commands
 
 ```bash
 flutter pub get                            # standard
 flutter analyze                            # must report "No issues found!"
-flutter test                               # 210 pass, 1 skip — see note below
+flutter test                               # 246 pass, 1 skip — see note below
 flutter test test/unit/                    # only unit tests (fast)
 flutter test test/widget/                  # only widget tests
 flutter test integration_test/...          # REQUIRES a connected device
