@@ -5,9 +5,9 @@
 > picking up where someone left off — it's the single entry point that tells you the
 > whole state.
 
-**Date of this report:** 2026-07-16 (updated post-hackathon-feature-build)  
-**Status:** 🟢 Code-complete + 5 demo features shipped. Tests green (246 pass, 1 skip). `flutter analyze` clean.  
-**Branch:** `ahnaf` (10 commits ahead of `main`). Merge to `main` via PR after device testing.  
+**Date of this report:** 2026-07-16 (v2 — Gemma deepening)  
+**Status:** 🟢 v2 features shipped: eval harness, LoRA support, adaptive thinking, rumour check, structured SOS, source attribution. 284 tests pass. `flutter analyze` clean.  
+**Branch:** `v2` (built on top of `ahnaf`/`main`).  
 **Demo readiness:** Phase 0 (device spikes) and Phase 5 (live demo) are the only
 remaining work, both requiring a physical arm64-v8a Android device.
 
@@ -17,12 +17,14 @@ remaining work, both requiring a physical arm64-v8a Android device.
 
 | Metric | Value |
 |---|---|
-| Tests passing | 246 (1 skipped) |
+| Tests passing | 284 (1 skipped) |
 | `flutter analyze` | 0 issues |
-| Dart files in `lib/` | 81 |
-| Lines of Dart in `lib/` | ~9,656 |
-| Lines of test code | ~3,952 |
-| Bangla corpus chunks | 23 (10 topics) |
+| Dart files in `lib/` | 85+ |
+| Lines of Dart in `lib/` | ~10,000+ |
+| Lines of test code | ~4,500+ |
+| Bangla corpus chunks | 23 (target: 50+, see corpus-review.md) |
+| Eval test set | 50 queries across 5 categories |
+| Baseline retrieval | Recall@1=44%, Recall@3=58% |
 | APK size (release) | 126.5 MB (arm64-v8a only, no model bundled) |
 | Model file | ~1.87 GB (gemma-4-E2B-it.litertlm, downloaded per-device) |
 | Min Android ABI | arm64-v8a |
@@ -120,6 +122,45 @@ Everything below runs on the Android emulator and in `flutter test`:
   shelter map, snakebite) — matches existing KB content.
 - **ChatScreen** seeds on first run when store is empty AND
   `pref_demo_seeded_v1` flag is unset. Persists seed; idempotent.
+
+### v2 — Gemma deepening (eval harness, LoRA, thinking, rumour, SOS)
+
+**Evaluation harness** (`eval/`):
+- 50-query held-out test set across 5 categories (standard, cross-hazard,
+  myth, out-of-scope, follow-up)
+- Python eval runner replicates KeywordRetriever, measures Recall@1 and
+  Recall@3
+- Baseline: Recall@1=44%, Recall@3=58% (these are the "before" numbers)
+- Manual rubric scoring template for 2 reviewers × 50 queries
+
+**LoRA fine-tune support** (`lib/core/model_manager.dart`):
+- `setLoraAdapter(path)` / `clearLoraAdapter()` — hot-swap without
+  reloading the 2.5 GB base model
+- `createSession(loraPath: ...)` passes the adapter to the SDK
+- `training/sft_dataset.jsonl` — 6-example scaffold (expand to 150-400)
+
+**Adaptive thinking mode** (`lib/rag/urgency_classifier.dart`):
+- Keyword-based urgency classifier: critical / urgent / routine
+- Critical emergencies (শ্বাসকষ্ট, ডুবে যাওয়া) → thinking OFF (reflex)
+- Complex queries → thinking ON (deliberation)
+- Wired into `ChatRepository.ask()` — classifies before Tier 2 generation
+
+**Rumour & misinformation check** (`lib/rag/rumour_checker.dart`):
+- Detects rumour prefixes (গুজব:, কেউ বললো, শুনেছি, সত্য কি)
+- Builds a verdict prompt: সত্য / ভুল / নিশ্চিত নই + source citation
+- Routed automatically when query starts with a rumour prefix
+- Suggestion chip on chat screen for instant demo
+
+**Structured SOS via function calling** (`lib/features/emergency/sos_function_schema.dart`):
+- `Tool` definition for `submit_sos_report` (location, hazard, casualties,
+  injuries, needs, access notes)
+- `buildSosSmsBody()` formats structured fields as SMS for 999 operators
+- `SosComposerScreen` — full composer with editable fields + live SMS preview
+- Route registered at `/sos-composer`
+
+**Source attribution** (`lib/rag/prompt_builder.dart`):
+- Context header instructs model to cite sources
+- Format: `[Source: WHO] text` so the model can say "সূত্র: WHO"
 
 ### Cross-cutting
 - **`HapticService`** (`lib/core/haptics.dart`) codified per design spec — 6 events.

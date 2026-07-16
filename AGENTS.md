@@ -128,7 +128,7 @@ and queues SMSes to emergency contacts via `SmsQueue`, draining when
 ```bash
 flutter pub get                            # standard
 flutter analyze                            # must report "No issues found!"
-flutter test                               # 246 pass, 1 skip — see note below
+flutter test                               # 284 pass, 1 skip — see note below
 flutter test test/unit/                    # only unit tests (fast)
 flutter test test/widget/                  # only widget tests
 flutter test integration_test/...          # REQUIRES a connected device
