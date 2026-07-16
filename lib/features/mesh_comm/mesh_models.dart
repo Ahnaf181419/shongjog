@@ -18,6 +18,7 @@ class MeshMessage {
   final MessageType type;
   final String? filePath;
   final DateTime? timestamp;
+  final int? hopCount;
 
   MeshMessage({
     required this.senderId,
@@ -25,6 +26,7 @@ class MeshMessage {
     required this.text,
     required this.type,
     this.filePath,
+    this.hopCount,
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
 

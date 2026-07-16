@@ -11,14 +11,15 @@ import '../../knowledge/kb_loader.dart';
 import '../../rag/keyword_retriever.dart';
 import '../../rag/types.dart';
 import '../audio/sound_service.dart';
+import '../cloud_ai/cloud_ai_service.dart';
 import '../emergency/emergency_sheet.dart';
 import '../voice/stt_service.dart';
 import '../voice/tts_service.dart';
 import 'chat_input.dart';
 import 'chat_repository.dart';
 import 'chat_store.dart';
+import 'demo_seeder.dart';
 import 'message_bubble.dart';
-import '../cloud_ai/cloud_ai_service.dart';
 
 /// Chat screen — voice-first Bangla emergency assistant.
 ///
@@ -100,9 +101,36 @@ class _ChatScreenState extends State<ChatScreen> {
     _voiceInputEnabled = prefs.getBool('pref_voice_input') ?? true;
 
     final saved = await _store.load();
-    final restored = saved.reversed
+    var restored = saved.reversed
         .map((m) => _Msg(m.text, m.isUser))
         .toList();
+
+    // First-run demo pack: if no chat history exists AND we haven't
+    // seeded before, prepend 3 pre-answered Q&As so the chat
+    // never looks empty in a judge's hands. Idempotent via the
+    // 'pref_demo_seeded_v1' flag.
+    if (restored.isEmpty &&
+        !(prefs.getBool('pref_demo_seeded_v1') ?? false)) {
+      final seeds = DemoSeeder.seeds();
+      final seeded = <_Msg>[];
+      for (final s in seeds) {
+        seeded.add(_Msg(s.question, true));
+        seeded.add(_Msg(s.answer, false));
+      }
+      // Newest-first in memory, oldest-first on disk; reverse so the
+      // user sees the first Q&A pair at the top of the list.
+      restored = seeded.reversed.toList();
+      // Persist so the seed survives app restarts.
+      await _store.save(
+        seeds
+            .expand((s) => [
+                  ChatMessage(text: s.question, isUser: true),
+                  ChatMessage(text: s.answer, isUser: false),
+                ])
+            .toList(),
+      );
+      await prefs.setBool('pref_demo_seeded_v1', true);
+    }
 
     KnowledgeBase? kb;
     try {
