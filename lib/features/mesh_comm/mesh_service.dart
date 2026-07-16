@@ -113,7 +113,10 @@ class MeshService {
         onEndpointFound: _onEndpointFound,
         onEndpointLost: _onEndpointLost,
       );
-    } catch (e) {}
+    } catch (_) {
+      // Discovery start is best-effort; a failure here just means no peers
+      // are found until the next start attempt.
+    }
   }
 
   Future<void> stop() async {
@@ -292,8 +295,11 @@ class MeshService {
     ));
   }
 
-  /// Send a voice file to all connected peers.
-  void sendVoiceMessage(String filePath) {
+  /// Send a voice file to connected peers.
+  ///
+  /// When [targetEndpointId] is null the file is broadcast to every connected
+  /// peer; when set, only that peer receives it (used by the per-peer chat).
+  void sendVoiceMessage(String filePath, {String? targetEndpointId}) {
     if (_peers.isEmpty) return;
     for (final peer in _peers.values) {
       if (peer.status == PeerStatus.connected) {
