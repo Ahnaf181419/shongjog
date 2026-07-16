@@ -10,6 +10,7 @@ class AppRoutes {
   static const triage = '/triage';
   static const safeBeacon = '/safe-beacon';
   static const directory = '/directory';
+  static const sosComposer = '/sos-composer';
 }
 
 /// Push a named route only if the current route is not already that route.
