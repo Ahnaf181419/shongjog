@@ -185,6 +185,17 @@ adb logcat | grep -E "shongjog|flutter_gemma|GemmaLiteRT|ModelManager"
 - [ ] Quick voice test: tap mic, say "তৈরি", verify partial transcript appears
 - [ ] Slide-to-dial test: tap emergency icon, drag knob to 50%, release — verify
       spring-back (no accidental 999)
+- [ ] **Mesh bring-up checklist** (the off-grid demo's most fragile part):
+    - [ ] Wi-Fi ON on both phones (the P2P_CLUSTER transport is Wi-Fi Direct, NOT
+          Bluetooth — turning Wi-Fi off prevents peer discovery)
+    - [ ] Bluetooth ON (used only for advertising beacons, but the package
+          still needs the runtime permission to scan/advertise)
+    - [ ] Both devices running the same build (mixed versions can advertise
+          different serviceIds)
+    - [ ] Both devices ≥ 1 m apart (antenna in same pocket can null the link)
+    - [ ] **Voice message round-trip test**: A records, B plays back, swap.
+          If only A hears it but B doesn't, the receive path is broken (was a
+          `content://` URI bug pre-2026-07-17 — verify the build is post-fix).
 - [ ] Turn airplane mode ON
 - [ ] Power bank plugged in
 

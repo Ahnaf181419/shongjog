@@ -1,10 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:nearby_connections/nearby_connections.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'mesh_models.dart';
 import 'sos_payload.dart';
@@ -12,6 +16,46 @@ import 'sos_relay.dart';
 import 'sos_relay_listener.dart';
 
 const _kServiceId = 'com.shongjog.mesh';
+
+/// Structured outcome of [MeshService.start].
+///
+/// `P2P_CLUSTER` is a Wi-Fi Direct / soft-AP strategy on Android — it does
+/// NOT use the Bluetooth radio for transport (Bluetooth permissions are only
+/// needed so the plugin can advertise/scan beacons). Turning Wi-Fi off
+/// therefore prevents peer discovery. [ok] is true only if both advertising
+/// and discovery started; [reason] is a short Bangla-safe tag the radar
+/// screen can show in a snackbar.
+class MeshStartResult {
+  final bool ok;
+  final bool advertisingOk;
+  final bool discoveryOk;
+  final bool wifiOn;
+  final String? reason;
+
+  const MeshStartResult({
+    required this.ok,
+    required this.advertisingOk,
+    required this.discoveryOk,
+    required this.wifiOn,
+    this.reason,
+  });
+
+  static const success = MeshStartResult(
+    ok: true,
+    advertisingOk: true,
+    discoveryOk: true,
+    wifiOn: true,
+  );
+
+  static MeshStartResult fail(String reason, {required bool wifiOn}) =>
+      MeshStartResult(
+        ok: false,
+        advertisingOk: false,
+        discoveryOk: false,
+        wifiOn: wifiOn,
+        reason: reason,
+      );
+}
 
 class MeshService {
   final Strategy strategy = Strategy.P2P_CLUSTER;
@@ -58,13 +102,35 @@ class MeshService {
     // Note: nearbyWifiDevices might be null on older Androids, so we don't strictly require it in the return statement, but we MUST request it.
   }
 
-  Future<bool> start() async {
-    if (_running) return true;
+  /// Pre-flight check: P2P_CLUSTER needs the Wi-Fi radio.
+  /// `connectivity_plus` reports Wi-Fi as a transport, not the radio state,
+  /// so we treat any non-airplane "wifi|wifi+cellular" as Wi-Fi on. The
+  /// final word comes from startAdvertising/startDiscovery actually
+  /// returning true; this check just gives a fast, honest failure message.
+  Future<bool> _wifiRadioAvailable() async {
+    try {
+      final results = await Connectivity().checkConnectivity();
+      // Ignore "none" (airplane / radio off). A connected Wi-Fi network is
+      // not required — P2P_CLUSTER creates its own group.
+      return results.any((r) => r != ConnectivityResult.none);
+    } catch (_) {
+      return true; // Don't block on a connectivity check failure.
+    }
+  }
+
+  Future<MeshStartResult> start() async {
+    if (_running) return MeshStartResult.success;
 
     final granted = await requestPermissions();
     if (!granted) {
       debugPrint('MeshService: permissions denied');
-      return false;
+      return MeshStartResult.fail('permissions', wifiOn: true);
+    }
+
+    final wifiOn = await _wifiRadioAvailable();
+    if (!wifiOn) {
+      debugPrint('MeshService: Wi-Fi radio off — P2P_CLUSTER cannot start');
+      return MeshStartResult.fail('wifi_off', wifiOn: false);
     }
 
     bool advertisingOk = false;
@@ -95,11 +161,18 @@ class MeshService {
       debugPrint('MeshService: startDiscovery failed: $e');
     }
 
-    if (!advertisingOk && !discoveryOk) return false;
+    if (!advertisingOk && !discoveryOk) {
+      return MeshStartResult.fail('radio_unavailable', wifiOn: wifiOn);
+    }
 
     _running = true;
     _peersController.add(peerList);
-    return true;
+    return MeshStartResult(
+      ok: true,
+      advertisingOk: advertisingOk,
+      discoveryOk: discoveryOk,
+      wifiOn: wifiOn,
+    );
   }
 
   Future<void> restartDiscovery() async {
@@ -189,11 +262,28 @@ class MeshService {
     }
   }
 
+  /// Map of payloadId → basename, populated when the paired bytes hint
+  /// arrives before (or after) the FILE payload's SUCCESS callback. The
+  /// receiver renames the materialized file with this basename so the
+  /// extension matches what the sender recorded.
+  final Map<int, String> _incomingFilenames = {};
+
   void _onPayloadReceived(String endpointId, Payload payload) {
     if (payload.type == PayloadType.BYTES) {
       final bytes = payload.bytes;
       if (bytes == null) return;
       final text = utf8.decode(bytes, allowMalformed: true);
+      // Voice filename hint: "voice:<payloadId>:<basename>". Cache the
+      // basename for the FILE payload's SUCCESS handler. Non-voice chat
+      // bytes that happen to start with "voice:" are ignored safely.
+      if (text.startsWith('voice:')) {
+        final parts = text.split(':');
+        if (parts.length >= 3) {
+          final id = int.tryParse(parts[1]);
+          if (id != null) _incomingFilenames[id] = parts[2];
+        }
+        return;
+      }
       final peerName = _peers[endpointId]?.name ?? endpointId;
       final msg = MeshMessage(
         senderId: endpointId,
@@ -217,22 +307,55 @@ class MeshService {
     }
   }
 
+  /// Copy a received voice payload out of the nearby_connections plugin's
+  /// `content://` URI into app-private storage so `audioplayers` can read it.
+  /// The plugin stores FILE payloads under `Downloads/.nearby/` with a
+  /// generic name — `UrlSource('content://…')` does NOT work, only a real
+  /// filesystem path does.
+  Future<String?> _materializeVoiceFile(int payloadId, String sourceUri) async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      // Prefer the basename from the paired voice-hint bytes payload; fall
+      // back to a generic .m4a extension if the hint hasn't arrived yet.
+      final basename = _incomingFilenames.remove(payloadId);
+      final safeName = (basename != null && basename.isNotEmpty)
+          ? basename
+          : 'mesh_voice_$payloadId.m4a';
+      final dest = '${dir.path}/$safeName';
+      // copyFileAndDeleteOriginal: documented convenience on the plugin
+      // (https://pub.dev/packages/nearby_connections — "Convenience method to
+      // copy file using its uri"). It accepts the content:// URI directly.
+      await Nearby().copyFileAndDeleteOriginal(sourceUri, dest);
+      return dest;
+    } catch (e) {
+      debugPrint('MeshService: failed to materialize voice file: $e');
+      // Hint is consumed; if a retry comes through we'll fall back to .m4a.
+      _incomingFilenames.remove(payloadId);
+      return null;
+    }
+  }
+
   // 🔴 FIX 1: Only pass the file to the UI when download completes
   void _onPayloadTransferUpdate(String endpointId, PayloadTransferUpdate update) {
     if (update.status == PayloadStatus.SUCCESS) {
-      final filePath = _incomingFiles.remove(update.id);
-      if (filePath != null) {
+      final sourceUri = _incomingFiles.remove(update.id);
+      if (sourceUri == null) return;
+      // Copy the content:// URI into real storage asynchronously; emit the
+      // message once the copy completes. If the copy fails we surface a
+      // text-fallback so the chat bubble is never a silent dead tap.
+      _materializeVoiceFile(update.id, sourceUri).then((filePath) {
         final peerName = _peers[endpointId]?.name ?? endpointId;
         _messagesController.add(MeshMessage(
           senderId: endpointId,
           senderName: peerName,
-          text: '',
+          text: filePath == null ? '⚠ ভয়েস ফাইল সংরক্ষণ ব্যর্থ' : '',
           type: MessageType.voice,
-          filePath: filePath, // File is now 100% downloaded and safe to play
+          filePath: filePath,
         ));
-      }
+      });
     } else if (update.status == PayloadStatus.FAILURE || update.status == PayloadStatus.CANCELED) {
       _incomingFiles.remove(update.id);
+      _incomingFilenames.remove(update.id);
     }
   }
 
@@ -299,13 +422,38 @@ class MeshService {
   ///
   /// When [targetEndpointId] is null the file is broadcast to every connected
   /// peer; when set, only that peer receives it (used by the per-peer chat).
+  ///
+  /// The `nearby_connections` plugin stores FILE payloads under
+  /// `Downloads/.nearby/` with a generic, extension-less name, so we also
+  /// send a paired bytes hint `voice:<payloadId>:<basename>` that the
+  /// receiver uses to rename the copied file. `payloadId` is the id that
+  /// nearby_connections auto-assigns and returns from `sendFilePayload`,
+  /// forwarded into the hint so the receiver's `onPayloadTransferUpdate`
+  /// can correlate.
   void sendVoiceMessage(String filePath, {String? targetEndpointId}) {
     if (_peers.isEmpty) return;
+    final basename = filePath.split('/').last;
+
     for (final peer in _peers.values) {
       if (peer.status == PeerStatus.connected) {
         if (targetEndpointId == null || peer.endpointId == targetEndpointId) {
           try {
-            Nearby().sendFilePayload(peer.endpointId, filePath);
+            // nearby_connections assigns the payload id itself and returns it.
+            // We forward that id into the bytes hint so the receiver can
+            // match the trailing FILE transfer event to this basename.
+            final filePayloadId =
+                Nearby().sendFilePayload(peer.endpointId, filePath);
+            filePayloadId.then((payloadId) {
+              final hint = utf8.encode('voice:$payloadId:$basename');
+              Nearby().sendBytesPayload(
+                peer.endpointId,
+                Uint8List.fromList(hint),
+              );
+            }).catchError((_) {
+              // File send rejected (peer dropped, etc.) — swallow silently;
+              // the UI does not need to surface a queued-error dialog for an
+              // offline path that already failed at the device-radio layer.
+            });
           } catch (_) {}
         }
       }
@@ -317,6 +465,17 @@ class MeshService {
       type: MessageType.voice,
       filePath: filePath,
     ));
+    // Phase C: clean up the temp recording 60s after send. The sender's own
+    // bubble plays immediately on tap, by which time `audioplayers` has
+    // already loaded the bytes from disk into its buffer. 60s is well past
+    // any reasonable interaction window and prevents the temp dir from
+    // growing without bound over a long chat session.
+    Timer(const Duration(seconds: 60), () {
+      final f = File(filePath);
+      if (f.existsSync()) {
+        f.delete().catchError((_) => f);
+      }
+    });
   }
 }
 

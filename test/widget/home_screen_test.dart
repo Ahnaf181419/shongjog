@@ -28,10 +28,12 @@ void main() {
   }
 
   group('HomeScreen', () {
-    testWidgets('renders app bar with title', (tester) async {
+    testWidgets('renders app bar with profile title', (tester) async {
       await tester.pumpWidget(wrapHome());
       await pumpOnce(tester);
-      expect(find.text('সংযোগ'), findsOneWidget);
+      // The AppBar title is now a _ProfileTitle widget (avatar + name).
+      // With no profile set, it shows a person icon.
+      expect(find.byIcon(Icons.person_rounded), findsOneWidget);
     });
 
     testWidgets('renders hero card with primary CTA', (tester) async {

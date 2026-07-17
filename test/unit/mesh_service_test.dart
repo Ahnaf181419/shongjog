@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shongjog/features/mesh_comm/mesh_chat_screen.dart';
 import 'package:shongjog/features/mesh_comm/mesh_models.dart';
 import 'package:shongjog/features/mesh_comm/mesh_service.dart';
 
@@ -108,6 +109,47 @@ void main() {
 
     test('peerList starts empty', () {
       expect(meshService.peerList, isEmpty);
+    });
+  });
+
+  group('isPlayableVoicePath (receive-path gate)', () {
+    test('accepts absolute filesystem path', () {
+      expect(isPlayableVoicePath('/data/user/0/x/files/voice.m4a'), isTrue);
+    });
+
+    test('rejects content:// URI from nearby_connections plugin', () {
+      // This is the bug fix: pre-fix code passed content:// to audioplayers
+      // and the bubble silently failed. Post-fix the gate rejects it.
+      expect(isPlayableVoicePath('content://x/y/123'), isFalse);
+    });
+
+    test('rejects null path', () {
+      expect(isPlayableVoicePath(null), isFalse);
+    });
+
+    test('rejects relative path', () {
+      expect(isPlayableVoicePath('voice.m4a'), isFalse);
+    });
+
+    test('rejects empty string', () {
+      expect(isPlayableVoicePath(''), isFalse);
+    });
+  });
+
+  group('MeshStartResult', () {
+    test('ok result exposes both advertising and discovery as true', () {
+      const r = MeshStartResult.success;
+      expect(r.ok, isTrue);
+      expect(r.advertisingOk, isTrue);
+      expect(r.discoveryOk, isTrue);
+      expect(r.reason, isNull);
+    });
+
+    test('fail result is not ok and carries a reason', () {
+      final r = MeshStartResult.fail('wifi_off', wifiOn: false);
+      expect(r.ok, isFalse);
+      expect(r.wifiOn, isFalse);
+      expect(r.reason, 'wifi_off');
     });
   });
 }

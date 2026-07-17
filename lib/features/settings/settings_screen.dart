@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/router.dart';
@@ -8,6 +9,7 @@ import '../../core/model_manager.dart';
 import '../../core/theme_controller.dart';
 import '../audio/sound_service.dart';
 import '../chat/chat_store.dart';
+import '../profile/profile_screen.dart';
 import 'model_picker_section.dart';
 import '../../core/admin_broadcast_service.dart';
 
@@ -29,6 +31,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _soundEnabled = true;
   bool _showInsights = true;
   String? _kbVersion;
+  UserProfileData _profile = UserProfileData.empty;
 
   @override
   void initState() {
@@ -39,6 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _loadPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('pref_dialect');
+    final profile = await UserProfileData.load();
     if (mounted) {
       setState(() {
         _autoRead = prefs.getBool('pref_auto_read') ?? false;
@@ -46,6 +50,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _soundEnabled = prefs.getBool('pref_sound_enabled') ?? true;
         _showInsights = prefs.getBool('pref_show_insights') ?? true;
         _kbVersion = prefs.getString('kb_version') ?? 'v1.0';
+        _profile = profile;
       });
     }
   }
@@ -59,6 +64,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
+          // ── Profile row ──
+          _ProfileRow(profile: _profile),
+          const _Divider(),
           _SectionHeader('উপস্থিতি'),
           _ThemeSegmentedRow(controller: tc),
           const _Divider(),
@@ -261,6 +269,102 @@ class _Divider extends StatelessWidget {
     return const Padding(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Divider(height: 1, thickness: 0.5),
+    );
+  }
+}
+
+class _ProfileRow extends StatelessWidget {
+  final UserProfileData profile;
+  const _ProfileRow({required this.profile});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final hasPhoto = profile.hasPhoto;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          pushNamedSafe(context, AppRoutes.profile);
+        },
+        borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: cs.primary.withValues(alpha: 0.12),
+                  border: Border.all(
+                    color: cs.primary.withValues(alpha: 0.2),
+                    width: 1.5,
+                  ),
+                ),
+                child: ClipOval(
+                  child: hasPhoto
+                      ? Image.file(
+                          File(profile.photoPath!),
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
+                        )
+                      : Center(
+                          child: profile.initial.isNotEmpty
+                              ? Text(
+                                  profile.initial,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                    color: cs.primary,
+                                  ),
+                                )
+                              : Icon(
+                                  Icons.person_rounded,
+                                  size: 24,
+                                  color: cs.primary.withValues(alpha: 0.6),
+                                ),
+                        ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      profile.name.isNotEmpty ? profile.name : 'প্রোফাইল সেট করুন',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: ShongjogTheme.fontFamily,
+                        color: profile.name.isNotEmpty
+                            ? cs.onSurface
+                            : cs.onSurfaceVariant,
+                      ),
+                    ),
+                    if (profile.district != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        profile.district!,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontFamily: ShongjogTheme.fontFamily,
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -37,13 +37,18 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
 
   Future<void> _startMesh() async {
     if (!meshService.isRunning) {
-      final ok = await meshService.start();
+      final result = await meshService.start();
       if (!mounted) return;
-      if (!ok) {
+      if (!result.ok) {
+        final msg = switch (result.reason) {
+          'wifi_off' =>
+            'Wi-Fi বন্ধ আছে — Wi-Fi চালু করে আবার চেষ্টা করুন (ব্লুটুথ একা কাজ করে না)',
+          'permissions' =>
+            'Wi-Fi ও ব্লুটুথ অনুমতি প্রয়োজন — সেটিংসে অনুমতি দিন',
+          _ => 'মেশ সংযোগ শুরু করা যায়নি — Wi-Fi ও ব্লুটুথ চালু আছে কিনা দেখুন',
+        };
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('ব্লুটুথ অনুমতি প্রয়োজন — সেটিংসে অনুমতি দিন'),
-          ),
+          SnackBar(content: Text(msg)),
         );
         return;
       }
@@ -152,8 +157,8 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
                     const SizedBox(height: 16),
                     Text(
                       'কাছের ডিভাইস খোঁজা হচ্ছে...\n'
-                      'Shongjog ব্যবহারকারী কাছে থাকলে\n'
-                      'এখানে দেখা যাবে।',
+                      'Wi-Fi চালু রাখুন এবং Shongjog\n'
+                      'ব্যবহারকারী কাছে থাকলে এখানে দেখা যাবে।',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,

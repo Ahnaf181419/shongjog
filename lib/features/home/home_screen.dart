@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/main_shell.dart';
@@ -12,6 +13,7 @@ import '../../core/model_manager.dart';
 import '../../main.dart';
 import '../intelligence/intelligence_engine.dart';
 import '../intelligence/notification_service.dart';
+import '../profile/profile_screen.dart';
 import '../quick_cards/cards_data.dart';
 import '../weather/weather_card.dart';
 
@@ -33,7 +35,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('সংযোগ'),
+        title: const _ProfileTitle(),
         actions: [
           const _EmergencyCallPill(),
           const SizedBox(width: 4),
@@ -74,6 +76,105 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  AppBar title — profile avatar + name, tap to edit
+// ════════════════════════════════════════════════════════════════
+
+class _ProfileTitle extends StatefulWidget {
+  const _ProfileTitle();
+
+  @override
+  State<_ProfileTitle> createState() => _ProfileTitleState();
+}
+
+class _ProfileTitleState extends State<_ProfileTitle> {
+  UserProfileData _profile = UserProfileData.empty;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    final profile = await UserProfileData.load();
+    if (mounted) setState(() => _profile = profile);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final hasPhoto = _profile.hasPhoto;
+
+    return GestureDetector(
+      onTap: () {
+        pushNamedSafe(context, AppRoutes.profile);
+        // Reload profile when returning — use a post-frame callback
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          if (mounted) {
+            final updated = await UserProfileData.load();
+            if (mounted) setState(() => _profile = updated);
+          }
+        });
+      },
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: cs.primary.withValues(alpha: 0.12),
+              border: Border.all(
+                color: cs.primary.withValues(alpha: 0.2),
+                width: 1,
+              ),
+            ),
+            child: ClipOval(
+              child: hasPhoto
+                  ? Image.file(
+                      File(_profile.photoPath!),
+                      width: 32,
+                      height: 32,
+                      fit: BoxFit.cover,
+                    )
+                  : Center(
+                      child: _profile.initial.isNotEmpty
+                          ? Text(
+                              _profile.initial,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: cs.primary,
+                              ),
+                            )
+                          : Icon(
+                              Icons.person_rounded,
+                              size: 18,
+                              color: cs.primary.withValues(alpha: 0.6),
+                            ),
+                    ),
+            ),
+          ),
+          if (_profile.name.isNotEmpty) ...[
+            const SizedBox(width: 8),
+            Text(
+              _profile.name,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                fontFamily: ShongjogTheme.fontFamily,
+                color: cs.onSurface,
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -792,7 +893,7 @@ class _OfflineMessageTile extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: ShongjogTheme.iconBadge(context),
-                child: Icon(Icons.bluetooth_audio_rounded,
+                child: Icon(Icons.wifi_tethering_rounded,
                     color: cs.primary, size: 22),
               ),
               const SizedBox(width: 14),
@@ -812,7 +913,7 @@ class _OfflineMessageTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'ব্লুটুথ দিয়ে কাছের মানুষদের সাথে কথা বলুন',
+                      'Wi-Fi চালু রেখে কাছের মানুষদের সাথে কথা বলুন',
                       style: TextStyle(
                         fontSize: 14,
                         height: 1.4,

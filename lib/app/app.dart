@@ -16,6 +16,7 @@ import '../features/triage/triage_wizard_screen.dart';
 import '../features/admin/admin_login_screen.dart';
 import '../features/admin/admin_panel_screen.dart';
 import '../features/notifications/notifications_screen.dart';
+import '../features/profile/profile_screen.dart';
 import '../main.dart';
 import 'main_shell.dart';
 import 'router.dart';
@@ -50,6 +51,7 @@ class ShongjogApp extends StatelessWidget {
             AppRoutes.adminLogin: (_) => const AdminLoginScreen(),
             AppRoutes.adminPanel: (_) => const AdminPanelScreen(),
             AppRoutes.notifications: (_) => const NotificationsScreen(),
+            AppRoutes.profile: (_) => const ProfileScreen(),
           },
           onUnknownRoute: (settings) => MaterialPageRoute(
             builder: (_) => Scaffold(
@@ -134,10 +136,16 @@ class _StartupGateState extends State<_StartupGate> {
     // Start mesh service once after onboarding (idempotent).
     if (!_meshStarted) {
       _meshStarted = true;
-      meshService.start().then((ok) {
-        if (!ok) debugPrint('StartupGate: mesh failed to start');
-        // Wire the SOS relay engine once the mesh is up. The
-        // listener is idempotent so subsequent calls are safe.
+      meshService.start().then((result) {
+        if (!result.ok) {
+          debugPrint(
+            'StartupGate: mesh failed to start (${result.reason}, '
+            'wifiOn=${result.wifiOn})',
+          );
+        }
+        // Wire the SOS relay engine regardless — the relay listener is
+        // idempotent and only sends when peers are connected, so wiring
+        // it on a failed start is harmless.
         meshService.ensureRelayEngine();
       });
     }
