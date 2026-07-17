@@ -21,10 +21,13 @@ gaps surfaced:
    anonymous blobs, not humans.
 2. **W2 — Walkie-talkie polish.** A complete PTT path exists
    (`MeshVoiceService.startRecording` /
-   `stopRecordingAndSend` / `sendVoiceMessage`) but the chat UI is
-   missing recording feedback, slide-to-cancel, voice-bubble playback
-   progress, permission gating, and a known **double-stop race** that
-   can flip `_recording = false` before the file is sent.
+   `stopRecordingAndSend` / `sendVoiceMessage`) with re-entry guards
+   (`if (!_isRecording) return null` at lines 33 and 69) and a
+   60-second `maxRecordingDuration` hard cap. Gaps remain in the
+   chat UI: no live MM:SS timer, no slide-to-cancel gesture,
+   no waveform/duration/play-progress in the voice bubble, no
+   microphone permission gate, no `HapticService` tick on the
+   55-second warning.
 3. **W3 — Reliability.** `MeshService.start()` reports success or
    failure but does not surface degraded / hotspot-fallback states,
    so users have no indicator when peers drop. Leader arbitration
@@ -32,8 +35,11 @@ gaps surfaced:
    design is informal.
 4. **W4 — UI audit.** The four touched screens (`home_screen`,
    `mesh_chat_screen`, `profile_screen`, `onboarding_screen`,
-   `mesh_radar_screen`) have scattered glitches:
-   `mesh_radar_screen.dart:143` typo "ব্লুটুভ" → "ব্লুটুথ",
+   `mesh_radar_screen`) have scattered glitches enumerated in §7.3
+   (inline `Colors.green/orange/red` instead of
+   `ShongjogTheme.success/warning/alert`, etc.). Note: no spelling
+   typos remain in `mesh_radar_screen.dart` (verified `Select-String`
+   on 2026-07-17: lines 45, 47, 48, 143 all render as `ব্লুটুথ`).
    inline `Colors.green/red` instead of theme tokens, missing
    `SafeArea` on modal sheets, `autofocus: true` on the new
    optional name field, and assorted Latin numerals in user-facing
@@ -352,19 +358,59 @@ final meshIdentity = MeshIdentity();
 `package:characters/characters.dart`, already in the Flutter SDK. No
 new dependency.)
 
-### 4.2 `MeshService.userName` — `final` → `var`
+### 4.2 `MeshService.userName` — keep `final`, add mutable backing
+
+`MeshService._` is a private constructor and the file-level singleton
+is itself `final meshService = MeshService._(...)`. No external caller
+can ever re-instantiate the singleton, so flipping `final String
+userName` to `var` would not enable reassignment from anywhere except
+inside the class. Keep the public field `final`, and route changes
+through a typed setter.
 
 In `lib/features/mesh_comm/mesh_service.dart`:
 
-- Line 62: `final String userName;` → `String userName;`
+- The public `final String userName` field becomes:
+  ```dart
+  final String userName; // immutable from outside the class
+  ```
+  Read-only externally.
+- Add a private mutable backing field:
+  ```dart
+  String _userName;
+  ```
+- Constructor body: take `String initialUserName` (no `required` —
+  defaults to `''`), assign `_userName = initialUserName`, and
+  initialize `userName` to `''` (the public field is unused as a
+  storage slot):
+  ```dart
+  MeshService._({String initialUserName = ''})
+      : userName = '',
+        _userName = initialUserName;
+  ```
+- Add the public method:
+  ```dart
+  Future<void> setName(String name) async {
+    _userName = name;
+    await restart(newName: name);
+  }
+
+  // Trampoline: read the public field through the mutable backing
+  // store so Nearby() advertises the latest name without a `var` flip.
+  String get userName => _userName;
+  ```
+
+  (Two-field pattern — `final` getter delegating to a private mutable
+  `_userName` — keeps the singleton contract intact while letting
+  `restart(...)` swap the name at runtime. The unused public `userName`
+  field is retained as a stable external read surface so callers that
+  already read `meshService.userName` keep working without churn.)
+
 - Line 482: replace the random-name factory with:
   ```dart
   final meshService = MeshService._(userName: '');
-
-  void bootstrapMeshIdentity(String name) {
-    meshService.userName = name;
-  }
   ```
+  `main.dart` (§4.4) fills `_userName` before the first `start()` so
+  the first advertisement is correct.
 
 ### 4.3 `MeshService.restart({String? newName})` — new method
 
@@ -415,9 +461,10 @@ In `main()` between `adminBroadcastService.initialize()` and
 
 ```dart
 await meshIdentity.load();
-// meshService was constructed with an empty userName; set it now
-// so the first start() call advertises the correct name.
-meshService.userName = meshIdentity.endpointName;
+// meshService was constructed with an empty userName. Fill the
+// private backing field before the first start() call so the
+// advertisement carries the correct endpoint name.
+meshService.setName(meshIdentity.endpointName);
 ```
 
 ### 4.5 `_StartupGate` — restart on identity change
@@ -442,28 +489,53 @@ reliability fixes.
 
 ### 5.1 `lib/features/mesh_comm/mesh_voice_service.dart`
 
-- Add `numChannels: 1` to `RecordConfig` (cuts bandwidth in half).
-- Guard `dispose()` against double-dispose with a `_disposed` flag.
+`MeshVoiceService` already has re-entry guards (`if (!_isRecording)
+return null` at lines 33 and 69), a 60-second
+`maxRecordingDuration` hard cap, and a graceful `null` file-path
+fallback. Changes here are additive and small.
+
+- Add `numChannels: 1` to the `RecordConfig` in `startRecording`
+  (currently passes `encoder` / `bitRate` / `sampleRate` only).
+- Guard `dispose()` against double-dispose:
+  ```dart
+  bool _disposed = false;
+  void dispose() {
+    if (_disposed) return;
+    _disposed = true;
+    _autoStopTimer?.cancel();
+    _recorder.dispose();
+  }
+  ```
+- Surface a clean public getter for elapsed time so the chat screen
+  (§5.2) can render the live pill without coupling to internal timers:
+  ```dart
+  Duration get elapsed => _recordStart == null
+      ? Duration.zero
+      : DateTime.now().difference(_recordStart!);
+  ```
 
 ### 5.2 `lib/features/mesh_comm/mesh_chat_screen.dart`
 
-A fully rewritten `_toggleRecording` + `_handleAutoStop` +
-`_recordingPill` + `_inputRow` + `StatefulWidget _MessageBubble`.
-The diff is big enough to enumerate:
+`_MeshChatScreenState` already declares `_recording`,
+`AudioPlayer _player`, `_msgCtrl`, `_scrollCtrl`, `_msgSub`, and a
+working `_toggleRecording` (lines 83–98). `_playVoice` already
+guards on `isPlayableVoicePath` and swallows `content://` URIs.
+`_MessageBubble` is **already** a `StatelessWidget` (line 213).
+The diff is additive only — no rewrite of the existing helpers.
 
 | Edit | Lines | What changes |
 |---|---|---|
-| A | imports | `import 'dart:async'`, `audioplayers`, `permission_handler` |
-| B | state vars | add `_recordStart`, `_recordTicker`, `_recordElapsed`, `_recordCancelled`, `AudioPlayer _player`, `String? _playingMessageId` |
-| C | `_toggleRecording` | race-free; permission gate before start |
-| D | `_handleAutoStop` | new helper, calls `stopRecordingAndSend`, then `setState(() => _recording = false)`; ignored if `_recordCancelled` |
-| E | ticker | `Timer.periodic(Duration(seconds: 1))` updates `_recordElapsed = now - _recordStart` |
-| F | 5s warning haptic | in the ticker, when `_recordElapsed.inSeconds == 55`, `HapticService.warningHaptic()` |
-| G | slide-to-cancel | a horizontal `GestureDetector` wrapping the mic button: `onHorizontalDragUpdate` updates `_dragOffset`; `onHorizontalDragEnd` with `|dx| > 80` triggers `_recordCancelled = true; meshVoiceService.stopRecording();` |
-| H | `_recordingPill` | new widget overlay: pulsing red dot + MM:SS + "স্লাইড করে বাতিল" hint, replaces mic button while `_recording` |
-| I | `_inputRow` | mic + text + send; **conditionally** shows `_recordingPill` overlay |
-| J | `_MessageBubble` | `StatelessWidget` → `StatefulWidget`; holds an `AudioPlayer`; renders waveform placeholder (`Container(height: 4, decoration: …)` × 8), duration labels (`0:12 / 0:24`), play/pause toggle, `LinearProgressIndicator` while playing |
-| K | on play failure | shows red `Icons.warning_rounded` + `'অডিও ব্যর্থ হয়েছে'` fallback text |
+| A | imports | add `import 'dart:async'`, `permission_handler` (already present) |
+| B | state vars | add `DateTime? _recordStart; Timer? _recordTicker; Duration _recordElapsed = Duration.zero; bool _recordCancelled = false; String? _playingMessageId;` |
+| C | `_toggleRecording` | add `if (!await _ensureMicPermission()) return;` before the `startRecording` branch; after a successful start, set `_recordStart = DateTime.now(); _recordCancelled = false; _recordTicker?.cancel(); _recordTicker = Timer.periodic(const Duration(seconds: 1), (_) { if (!mounted) return; setState(() => _recordElapsed = meshVoiceService.elapsed); });` |
+| D | new helper | `Future<void> _handleAutoStop() async { _recordTicker?.cancel(); if (_recordCancelled) return; await meshVoiceService.stopRecordingAndSend(targetEndpointId: widget.peer.endpointId); }`; the existing `onAutoStop` callback at line 92 now calls this helper instead of inlining `setState`. |
+| E | ticker source | instead of recomputing `now - _recordStart`, the ticker reads `meshVoiceService.elapsed` (single source of truth) and `setState(() => _recordElapsed = …)`. |
+| F | 5s warning haptic | inside the ticker, when `_recordElapsed.inSeconds == 55`, call `await HapticService.warn();` (the real API is `warn()`, not `warningHaptic()` — see `lib/core/haptics.dart:36`) |
+| G | slide-to-cancel | a horizontal `GestureDetector` wrapping the mic button: `onHorizontalDragUpdate` updates `Offset _dragOffset`; `onHorizontalDragEnd` with `|dx| > 80` triggers `_recordCancelled = true; await meshVoiceService.stopRecording();` and rolls back `_recordStart` so the next press starts fresh. |
+| H | `_recordingPill` | new widget overlay (separate method on the screen state): pulsing red `Container(width: 10, height: 10, decoration: BoxDecoration(color: cs.alert, shape: BoxShape.circle))` + MM:SS using ASCII colon (`0:55`) + hint `'← স্লাইড করে বাতিল'`. Replaces the mic button while `_recording`. |
+| I | render switch | the bottom row of the chat shows `_recordingPill` (row H) when `_recording`, else the existing mic + text + send. |
+| J | `_MessageBubble` (existing) | leave `StatelessWidget` (line 213). Inside the `message.type == MessageType.voice` branch, swap the bare `Row` for: waveform placeholder (`Row(children: List.generate(8, (_) => Container(width: 2, height: <random 8–24>, margin: EdgeInsets.symmetric(horizontal: 1), color: cs.onSurfaceVariant)))`), duration label (`Text('0:12', ...)` derived from `message.voiceDurationMs ?? 0`), play/pause toggle that swaps between `Icons.play_arrow` and `Icons.pause_rounded` based on `_playingMessageId == message.id`, and `LinearProgressIndicator(minHeight: 2)` while playing. |
+| K | on play failure | if `_playVoice` throws (existing try/catch), bubble renders a red `Icons.warning_rounded` + `'অডিও ব্যর্থ হয়েছে'` fallback text instead of the silent default. |
 
 Permission gate:
 
@@ -487,12 +559,14 @@ Future<bool> _ensureMicPermission() async {
 
 Bugs fixed:
 
-1. **Double-stop race.** The new `_handleAutoStop` awaits
-   `stopRecordingAndSend` *before* flipping `_recording = false`. The
-   `onAutoStop` callback is now just `_handleAutoStop()`.
-2. **Empty bubble on voice-receive failure.** The renderer falls back
-   to `'অডিও ব্যর্থ হয়েছে'` with a red `Icons.warning_rounded`
-   instead of a silent `''` text and a non-functional play tap.
+1. **Silent voice-bubble fallback on stale path.** A voice bubble
+   with `filePath: null` (post-rollback, pre-resend) used to render
+   a `Text('')` and a tap that threw silently. Now it renders a red
+   warning chip with copy.
+2. **`_recordElapsed` drift.** The ticker reads from
+   `meshVoiceService.elapsed` (single source of truth) instead of
+   a local `now - _recordStart` (which could drift on a paused
+   device clock).
 
 ### 5.3 Tests
 
@@ -771,10 +845,8 @@ static SystemUiOverlayStyle overlayForBar(BuildContext context) {
 
 #### `mesh_radar_screen.dart`
 
-- Inline `Colors.green/red/orange` → `ShongjogTheme.success/danger/warning`.
-- `'.toString().banglaDigits'` for the count chip.
-- **Typo fix:** `'ব্লুটুভ সংযোগ চালু হচ্ছে...'` → `'ব্লুটুথ সংযোগ চালু হচ্ছে...'`
-  (line 143).
+- Inline `Colors.green/red/orange` → `ShongjogTheme.success/alert/warning`.
+- `'.toString().banglaDigits()` (helper from §7.4) for the count chip.
 - Snackbar uses `cs.errorContainer` / `cs.onErrorContainer`.
 
 ### 7.4 Cross-screen invariants
@@ -808,8 +880,9 @@ compliance, RTL for Arabic/Urdu.
 Per `docs/PRE-DEMO.md`:
 
 - `flutter analyze` — **No issues found**.
-- `flutter test` — **321 pass + 1 skip** (was 284 + 1 pre-W1; +37
-  tests across Sections 5, 6, 7).
+- `flutter test` — **all-pass + 1 skip** (baseline 284 + 1; the +5
+  new tests enumerated in §§5.3, 6.5, 7.5 land; final count is
+  whatever `flutter test` reports at PR-time — no fixed-number claim).
 - New files:
   - `lib/features/profile/mesh_identity.dart`
   - `lib/features/mesh_comm/mesh_health.dart`
@@ -834,9 +907,11 @@ Per `docs/PRE-DEMO.md`:
 ## 9. Migration / rollback
 
 - All edits are **additive** or **edit existing**. No file deletion.
-- `mesh_service.userName` flips `final` → `var`; any caller using
-  `MeshService.userName = X` after `start()` will be ignored —
-  callers must use `restart(newName:)`.
+- `mesh_service.userName` is exposed as a `String get userName`
+  delegating to a private mutable `_userName` field; callers mutate
+  the name by calling `meshService.setName(...)` (which itself calls
+  `restart(newName:)`). Direct field reassignment is not possible
+  from outside the class — preserves the singleton contract.
 - `MeshIdentity` writes `pref_mesh_stable_id` + `pref_mesh_endpoint_name`
   on first launch. Existing devices auto-migrate: missing keys → new
   stable id generated, endpoint name defaults to legacy random form.
