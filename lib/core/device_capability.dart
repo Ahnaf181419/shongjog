@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 
 enum DeviceTier { low, mid, high }
 enum ModelVariant { e2b, e4b, twelveb }
@@ -105,7 +106,7 @@ class DeviceCapability {
           }
         }
       }
-    } catch (_) {}
+    } catch (e) { debugPrint("[Catch] device_capability: $e"); }
     return 0;
   }
 

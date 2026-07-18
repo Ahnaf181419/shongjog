@@ -1,3 +1,5 @@
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
 import 'package:flutter_gemma_litertlm/flutter_gemma_litertlm.dart';
@@ -15,6 +17,19 @@ final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Global error handlers — capture uncaught errors in release mode where
+  // debugPrint is a no-op. Without this, errors vanish silently on a
+  // real phone with no logcat attached.
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    debugPrint('[FlutterError] ${details.exceptionAsString()}');
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    debugPrint('[ZoneError] $error\\n$stack');
+    return true;
+  };
+
   // flutter_gemma 1.x is modular and registers NO inference engine on its own,
   // so this must run before any getActiveModel() call or it throws "add the
   // engine package". LiteRtLmEngine reads `.litertlm` over FFI — the only

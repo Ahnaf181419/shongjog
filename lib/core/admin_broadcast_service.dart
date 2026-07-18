@@ -116,7 +116,7 @@ class AdminBroadcastService extends ChangeNotifier {
       if (await f.exists()) {
         await f.delete();
       }
-    } catch (_) {}
+    } catch (e) { debugPrint("[Catch] admin_broadcast: $e"); }
     notifyListeners();
   }
 }

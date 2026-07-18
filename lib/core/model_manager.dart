@@ -595,7 +595,7 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
         if (await f.exists()) {
           total += await f.length();
         }
-      } catch (_) {}
+      } catch (e) { debugPrint("[Catch] model_manager: $e"); }
     }
     // No second copy to count any more: the engine loads each variant in
     // place, so the per-variant files above are the whole footprint.
@@ -619,7 +619,7 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
       final path = await _pathForVariant(v);
       final f = File(path);
       if (await f.exists()) return await f.length();
-    } catch (_) {}
+    } catch (e) { debugPrint("[Catch] model_manager: $e"); }
     return 0;
   }
 

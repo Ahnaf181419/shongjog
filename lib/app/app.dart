@@ -155,7 +155,7 @@ class _MeshLifecycleObserver extends WidgetsBindingObserver {
       // Keep advertising so other peers can still find us.
       try {
         Nearby().stopDiscovery();
-      } catch (_) {}
+      } catch (e) { debugPrint("[Catch] app: $e"); }
     } else if (state == AppLifecycleState.resumed) {
       // App coming to foreground — restart discovery.
       if (meshService.isRunning) {

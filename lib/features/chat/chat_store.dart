@@ -65,7 +65,7 @@ class ChatStore {
       final f = await _file();
       final raw = jsonEncode(messages.map((m) => m.toJson()).toList());
       await f.writeAsString(raw);
-    } catch (_) {}
+    } catch (e) { debugPrint("[Catch] chat_store: $e"); }
   }
 
   /// Delete all stored messages.
@@ -73,6 +73,6 @@ class ChatStore {
     try {
       final f = await _file();
       if (await f.exists()) await f.delete();
-    } catch (_) {}
+    } catch (e) { debugPrint("[Catch] chat_store: $e"); }
   }
 }

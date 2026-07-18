@@ -244,7 +244,7 @@ class MeshService {
         if (targetEndpointId == null || peer.endpointId == targetEndpointId) {
           try {
             Nearby().sendBytesPayload(peer.endpointId, bytes);
-          } catch (_) {}
+          } catch (e) { debugPrint("[Catch] mesh_service: $e"); }
         }
       }
     }
@@ -306,7 +306,7 @@ class MeshService {
         if (targetEndpointId == null || peer.endpointId == targetEndpointId) {
           try {
             Nearby().sendFilePayload(peer.endpointId, filePath);
-          } catch (_) {}
+          } catch (e) { debugPrint("[Catch] mesh_service: $e"); }
         }
       }
     }
