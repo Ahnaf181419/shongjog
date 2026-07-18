@@ -11,6 +11,10 @@
 /// ModelManager's implementation. The `@override` annotation on
 /// ModelManager's version will fail the analyzer if the signature
 /// diverges, so the contract is statically enforced.
+library;
+
+import 'package:flutter_gemma/core/tool.dart';
+
 abstract class LocalLlm {
   /// True if the LLM has finished loading and can answer immediately
   /// (no native init call needed). When false, [generate] must do a
@@ -28,6 +32,17 @@ abstract class LocalLlm {
   /// repository decides how to recover (and [ChatRepository] surfaces
   /// the failure to the UI rather than silently masking it).
   Future<String> generate(String prompt);
+
+  /// Run inference with function-calling and return the raw SDK JSON
+  /// containing the tool call arguments. Used by SOS composer for
+  /// structured extraction. Returns null if the model doesn't support
+  /// tool calls or the session doesn't expose RawSdkResponseSession.
+  /// Default implementation is a no-op for test fakes.
+  Future<String?> generateStructured({
+    required String prompt,
+    required List<Tool> tools,
+  }) async =>
+      null;
 
   /// Override the model's thinking mode for the next [generate] call.
   /// Set to null to use the SDK default. Used by the urgency classifier

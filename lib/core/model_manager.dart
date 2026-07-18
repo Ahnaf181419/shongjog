@@ -454,6 +454,40 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
     }
   }
 
+  /// Run inference with function-calling for structured SOS extraction.
+  /// Returns the raw SDK JSON response containing the tool call args.
+  /// Returns null if the session doesn't expose RawSdkResponseSession
+  /// or if generation fails (caller should fall back to manual entry).
+  @override
+  Future<String?> generateStructured({
+    required String prompt,
+    required List<Tool> tools,
+  }) async {
+    final model = await initialize();
+    final session = await model.createSession(
+      temperature: 0.2,
+      topK: 40,
+      maxOutputTokens: 512,
+      tools: tools,
+      loraPath: _loraPath,
+      enableThinking: _enableThinking ?? false,
+    );
+    try {
+      await session.addQueryChunk(Message.text(text: prompt, isUser: true));
+      await session.getResponse();
+      // Read the raw SDK JSON to extract the tool call arguments.
+      if (session is RawSdkResponseSession) {
+        return session.lastRawResponse;
+      }
+      return null;
+    } catch (e) {
+      debugPrint('[ModelManager/generateStructured] failed: $e');
+      return null;
+    } finally {
+      await session.close();
+    }
+  }
+
   @override
   bool get isReady => state == ModelState.ready;
 
