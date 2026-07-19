@@ -23,12 +23,37 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
 
   /// Context window passed to getActiveModel(). `.litertlm` refuses to
   /// allocate tensors below 1024 (upstream #318) — this is NOT the reply cap.
-  static const _kContextTokens = 1024;
+  static const kContextTokens = 1024;
 
-  /// Reply-length cap, applied per session. Mirrors the 512 in docs/prd.md §8.
-  static const _kMaxOutputTokens = 512;
-  static const _kTemperature = 0.2;
-  static const _kTopK = 40;
+  /// Reply-length cap, applied per session. Kept small to (a) speed up
+  /// generation — a 2B model at 512 tokens runs ~5-8s with most
+  /// tokens being degenerate, and (b) prevent the model from
+  /// wandering into repetition loops after producing a valid answer,
+  /// because the SDK has no `stopStrings` API on the .litertlm path.
+  /// 256 is enough for the longest grounded emergency answer
+  /// (numbered steps + warning signs + 999 escalation) with headroom.
+  static const int kMaxOutputTokens = 256;
+
+  /// Sampling temperature. 0.2 was too greedy — at low temp with high
+  /// topK, the model could pick a token that started a loop and then
+  /// keep picking it. 0.3 is still grounded (RAG context dominates)
+  /// but adds enough variation to break out of degenerate sequences.
+  static const double kTemperature = 0.3;
+
+  /// Top-K sampling. 40 is the LiteRT-LM Gemma 4 default and is
+  /// appropriate for grounded RAG — we don't want the model picking
+  /// from the long tail of the vocabulary when an answerable chunk
+  /// is right there in context.
+  static const int kTopK = 40;
+
+  /// Nucleus sampling (top-P). The SDK supports it via [topP]. We
+  /// cap the cumulative probability at 0.95 as a safety net on top
+  /// of [kTopK]: even if topK keeps a low-prob token in the pool,
+  /// topP excludes it once the high-prob tokens cover 95% of mass.
+  /// This is the single most effective knob for preventing the
+  /// "long random same texts" symptom users reported, because
+  /// repetition loops almost always start from a low-prob tail pick.
+  static const double kTopP = 0.95;
 
   /// Files written by the pre-1.x MediaPipe build. They are `.task`/`.bin`
   /// artifacts the LiteRT-LM engine cannot read (and the E2B one was a
@@ -341,7 +366,7 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
       // >= 1024: `.litertlm` fails to allocate tensors below that (upstream
       // #318), so the old MediaPipe-era 512 would break outright. Reply length
       // is capped per-session via maxOutputTokens in [generate].
-      _model = await FlutterGemma.getActiveModel(maxTokens: _kContextTokens)
+      _model = await FlutterGemma.getActiveModel(maxTokens: kContextTokens)
           .timeout(
         // Documented cold start is 3–10s on arm64 (docs/spike-results.md);
         // 60s is a generous ceiling that still fails fast enough for a user
@@ -432,12 +457,17 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
     // already carries its context), so leftover KV-cache history would only
     // bias the next answer. Sessions are cheap — the weights stay loaded.
     final session = await model.createSession(
-      temperature: _kTemperature,
-      topK: _kTopK,
+      temperature: kTemperature,
+      topK: kTopK,
+      // Nucleus sampling — safety net against repetition loops.
+      // See [kTopP] doc for rationale.
+      topP: kTopP,
       // Caps GENERATED tokens without shrinking the context window, which
-      // `.litertlm` requires to stay >= 1024. Preserves the short-answer
-      // intent of the documented run config (docs/prd.md §8).
-      maxOutputTokens: _kMaxOutputTokens,
+      // `.litertlm` requires to stay >= 1024. 256 is enough for the
+      // longest grounded emergency answer; lower than 512 because
+      // greedy sampling at low temp produces degenerate output as it
+      // runs out of real content to generate.
+      maxOutputTokens: kMaxOutputTokens,
       // LoRA adapter — null means base model only.
       loraPath: _loraPath,
       // Thinking mode — only override when explicitly set; SDK default
@@ -465,9 +495,10 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
   }) async {
     final model = await initialize();
     final session = await model.createSession(
-      temperature: 0.2,
-      topK: 40,
-      maxOutputTokens: 512,
+      temperature: kTemperature,
+      topK: kTopK,
+      topP: kTopP,
+      maxOutputTokens: kMaxOutputTokens,
       tools: tools,
       loraPath: _loraPath,
       enableThinking: _enableThinking ?? false,

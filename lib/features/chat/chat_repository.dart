@@ -88,8 +88,13 @@ class ChatRepository {
         final shouldTryDevice = model!.isReady || await model!.isAnyOnDisk();
         debugPrint('[ChatRepo/Tier2] shouldTryDevice=$shouldTryDevice');
         if (shouldTryDevice) {
-          final answer = await model!.generate(prompt);
-          debugPrint('[ChatRepo/Tier2] device path success len=${answer.length}');
+          final rawAnswer = await model!.generate(prompt);
+          // Post-process: the SDK has no stopStrings API on the
+          // .litertlm path, so after a valid answer the model can
+          // emit a second "User:" turn and start rambling. Truncate
+          // at the first turn-marker artifact.
+          final answer = ChatRepository.truncateAtTurnMarker(rawAnswer);
+          debugPrint('[ChatRepo/Tier2] device path success len=${answer.length} (raw ${rawAnswer.length})');
           if (onPath != null) onPath(GenerationPath.device);
           return answer;
         }
@@ -118,6 +123,41 @@ class ChatRepository {
   List<RetrievalHit> _retrieve(String query) {
     final keywordHits = kb.keywordRetriever.topK(query, k: 5);
     return keywordHits.take(3).toList();
+  }
+
+  /// Cut the raw model output at the first turn-marker artifact.
+  ///
+  /// Why: the LiteRT-LM engine has no `stopStrings` API on the .litertlm
+  /// path, and a 2B model with greedy sampling at low temperature tends
+  /// to emit a second "User:" turn after producing a valid answer —
+  /// then it ramble-generates a fake question and another fake answer
+  /// for hundreds of tokens. Users reported this as "long random same
+  /// texts". We can't fix it at generation time (SDK limitation), so
+  /// we fix it at post-processing time: chop everything from the first
+  /// turn marker onward.
+  ///
+  /// Markers detected, in order of how often we see them:
+  /// - `"\nUser:"` — the legacy prompt format used by buildPrompt
+  /// - `&lt;start_of_turn&gt;` — the SDK's chat template
+  /// - `"\nassistant\n"` / `"\nAssistant\n"` — model reinjects role marker
+  ///
+  /// Exposed as `static` so the unit test exercises the real
+  /// production code path, not a private copy.
+  @visibleForTesting
+  static String truncateAtTurnMarker(String raw) {
+    if (raw.isEmpty) return raw;
+    final patterns = <RegExp>[
+      RegExp(r'\nUser:'),
+      RegExp(r'<start_of_turn>'),
+      RegExp(r'\nAssistant\b', caseSensitive: false),
+      RegExp(r'\n[উA]ssistant:'), // bilingual safety
+    ];
+    int cutAt = raw.length;
+    for (final p in patterns) {
+      final m = p.firstMatch(raw);
+      if (m != null && m.start < cutAt) cutAt = m.start;
+    }
+    return raw.substring(0, cutAt).trimRight();
   }
 }
 
