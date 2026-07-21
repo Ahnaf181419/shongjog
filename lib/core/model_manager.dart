@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:shongjog/features/chat/local_llm.dart';
+import 'package:shongjog/rag/repetition_detector.dart';
 
 import 'device_capability.dart';
 
@@ -456,12 +457,22 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
     // A fresh session per query: each ask() is single-shot RAG (the prompt
     // already carries its context), so leftover KV-cache history would only
     // bias the next answer. Sessions are cheap — the weights stay loaded.
+    //
+    // randomSeed: the SDK defaults to 1, which means identical prompts
+    // produce byte-identical degenerate output across runs — the
+    // "long random same texts" symptom. A fresh random seed per call
+    // guarantees variation even when the model is deterministic at
+    // temperature 0.
     final session = await model.createSession(
       temperature: kTemperature,
       topK: kTopK,
       // Nucleus sampling — safety net against repetition loops.
       // See [kTopP] doc for rationale.
       topP: kTopP,
+      // Fresh seed per call. Without this the SDK's default of 1 makes
+      // every query with the same prompt return the exact same degenerate
+      // output. Random seed + temperature 0.3 gives controlled variation.
+      randomSeed: DateTime.now().microsecondsSinceEpoch,
       // Caps GENERATED tokens without shrinking the context window, which
       // `.litertlm` requires to stay >= 1024. 256 is enough for the
       // longest grounded emergency answer; lower than 512 because
@@ -476,11 +487,97 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
     );
     try {
       await session.addQueryChunk(Message.text(text: prompt, isUser: true));
-      return await session.getResponse();
+      // STREAM + EARLY-STOP instead of blocking getResponse().
+      //
+      // getResponse() waits for all maxOutputTokens to generate before
+      // returning anything — so the user stares at a spinner for the
+      // full degenerate sequence. getResponseAsync() streams tokens,
+      // letting us (a) show progress immediately and (b) call
+      // stopGeneration() the moment a repetition loop is detected,
+      // killing native decoding and returning the clean prefix.
+      return _streamWithRepetitionGuard(session);
+    } catch (e) {
+      // Streaming setup or the query chunk failed; fall back to the
+      // blocking path so a regression in the stream path never blocks
+      // the user from getting an answer.
+      debugPrint('[ModelManager/generate] stream failed, falling back: $e');
+      try {
+        return await session.getResponse();
+      } catch (e2) {
+        debugPrint('[ModelManager/generate] fallback also failed: $e2');
+        rethrow;
+      }
     } finally {
       // Native sessions hold a KV cache; leaking them exhausts memory after a
       // handful of questions on a low-RAM phone.
       await session.close();
+    }
+  }
+
+  /// Consume [session.getResponseAsync] with a [RepetitionDetector]. The
+  /// moment the detector fires we call [session.stopGeneration] to kill
+  /// native decoding and return the clean prefix. Also enforces a hard
+  /// wall-clock timeout so a hung stream can't freeze the UI forever.
+  Future<String> _streamWithRepetitionGuard(
+    dynamic session,
+  ) async {
+    // Dynamic dispatch so the test suite can pass a fake session. The
+    // real session type is InferenceModelSession from flutter_gemma.
+    final Stream<String> tokenStream =
+        (session.getResponseAsync() as Stream<String>);
+    final detector = RepetitionDetector();
+    final completer = Completer<String>();
+    late StreamSubscription<String> sub;
+    final timer = Timer(const Duration(seconds: 30), () {
+      if (!completer.isCompleted) {
+        try {
+          (session.stopGeneration as Function()).call();
+        } catch (_) {}
+        completer.complete(detector.trimmed());
+      }
+    });
+
+    sub = tokenStream.listen(
+      (chunk) => detector.feed(chunk),
+      onError: (Object e) {
+        timer.cancel();
+        if (!completer.isCompleted) {
+          completer.complete(detector.trimmed());
+        }
+      },
+      onDone: () {
+        timer.cancel();
+        if (!completer.isCompleted) {
+          completer.complete(detector.trimmed());
+        }
+      },
+      cancelOnError: true,
+    );
+
+    // Poll for shouldStop without consuming the stream — when the detector
+    // fires, tear down the subscription and stop native generation.
+    Timer? stopPoll;
+    stopPoll = Timer.periodic(const Duration(milliseconds: 40), (_) {
+      if (detector.shouldStop && !completer.isCompleted) {
+        timer.cancel();
+        stopPoll?.cancel();
+        sub.cancel().then((_) {
+          try {
+            (session.stopGeneration as Function()).call();
+          } catch (_) {}
+          if (!completer.isCompleted) {
+            completer.complete(detector.trimmed());
+          }
+        });
+      }
+    });
+
+    try {
+      return await completer.future;
+    } finally {
+      timer.cancel();
+      stopPoll.cancel();
+      await sub.cancel();
     }
   }
 
