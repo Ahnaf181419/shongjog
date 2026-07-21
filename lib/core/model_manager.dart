@@ -487,26 +487,15 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
     );
     try {
       await session.addQueryChunk(Message.text(text: prompt, isUser: true));
-      // STREAM + EARLY-STOP instead of blocking getResponse().
-      //
-      // getResponse() waits for all maxOutputTokens to generate before
-      // returning anything — so the user stares at a spinner for the
-      // full degenerate sequence. getResponseAsync() streams tokens,
-      // letting us (a) show progress immediately and (b) call
-      // stopGeneration() the moment a repetition loop is detected,
-      // killing native decoding and returning the clean prefix.
-      return _streamWithRepetitionGuard(session);
-    } catch (e) {
-      // Streaming setup or the query chunk failed; fall back to the
-      // blocking path so a regression in the stream path never blocks
-      // the user from getting an answer.
-      debugPrint('[ModelManager/generate] stream failed, falling back: $e');
-      try {
-        return await session.getResponse();
-      } catch (e2) {
-        debugPrint('[ModelManager/generate] fallback also failed: $e2');
-        rethrow;
-      }
+      // Blocking getResponse() — the streaming + early-stop approach
+      // (commit 016daf2) caused blank replies on real hardware because
+      // stopGeneration() was killing the session before meaningful
+      // content landed. The blocking call is slower but RELIABLE: it
+      // always returns the full response. Repetition loops are trimmed
+      // post-hoc by ChatRepository.truncateAtTurnMarker + the safe
+      // repetition trim below — neither of which can return empty.
+      final raw = await session.getResponse();
+      return _safeTrimRepetition(raw);
     } finally {
       // Native sessions hold a KV cache; leaking them exhausts memory after a
       // handful of questions on a low-RAM phone.
@@ -514,70 +503,30 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
     }
   }
 
-  /// Consume [session.getResponseAsync] with a [RepetitionDetector]. The
-  /// moment the detector fires we call [session.stopGeneration] to kill
-  /// native decoding and return the clean prefix. Also enforces a hard
-  /// wall-clock timeout so a hung stream can't freeze the UI forever.
-  Future<String> _streamWithRepetitionGuard(
-    dynamic session,
-  ) async {
-    // Dynamic dispatch so the test suite can pass a fake session. The
-    // real session type is InferenceModelSession from flutter_gemma.
-    final Stream<String> tokenStream =
-        (session.getResponseAsync() as Stream<String>);
-    final detector = RepetitionDetector();
-    final completer = Completer<String>();
-    late StreamSubscription<String> sub;
-    final timer = Timer(const Duration(seconds: 30), () {
-      if (!completer.isCompleted) {
-        try {
-          (session.stopGeneration as Function()).call();
-        } catch (_) {}
-        completer.complete(detector.trimmed());
-      }
-    });
-
-    sub = tokenStream.listen(
-      (chunk) => detector.feed(chunk),
-      onError: (Object e) {
-        timer.cancel();
-        if (!completer.isCompleted) {
-          completer.complete(detector.trimmed());
-        }
-      },
-      onDone: () {
-        timer.cancel();
-        if (!completer.isCompleted) {
-          completer.complete(detector.trimmed());
-        }
-      },
-      cancelOnError: true,
-    );
-
-    // Poll for shouldStop without consuming the stream — when the detector
-    // fires, tear down the subscription and stop native generation.
-    Timer? stopPoll;
-    stopPoll = Timer.periodic(const Duration(milliseconds: 40), (_) {
-      if (detector.shouldStop && !completer.isCompleted) {
-        timer.cancel();
-        stopPoll?.cancel();
-        sub.cancel().then((_) {
-          try {
-            (session.stopGeneration as Function()).call();
-          } catch (_) {}
-          if (!completer.isCompleted) {
-            completer.complete(detector.trimmed());
-          }
-        });
-      }
-    });
-
+  /// Trim trailing repetition loops from [raw] WITHOUT ever returning
+  /// empty. If the trim would produce an empty string, return the raw
+  /// input unchanged — a degenerate answer is strictly better than a
+  /// blank bubble.
+  ///
+  /// Uses [RepetitionDetector.trimmed] when it yields a non-empty
+  /// result; otherwise falls back to the raw string. This is a safety
+  /// net layered below ChatRepository.truncateAtTurnMarker (which
+  /// handles turn markers / channel leaks).
+  static String _safeTrimRepetition(String raw) {
+    if (raw.trim().isEmpty) return raw;
     try {
-      return await completer.future;
-    } finally {
-      timer.cancel();
-      stopPoll.cancel();
-      await sub.cancel();
+      final detector = RepetitionDetector();
+      detector.feed(raw);
+      if (!detector.shouldStop) return raw;
+      final trimmed = detector.trimmed();
+      // The golden rule: NEVER return empty. If the detector fired too
+      // early (false positive on a short or repetitive-but-valid answer)
+      // and trimmed() wiped the whole thing, fall back to the raw text.
+      // A user seeing "আমি আমি আমি" can retry; a user seeing blank
+      // thinks the app is broken.
+      return trimmed.trim().isEmpty ? raw : trimmed;
+    } catch (_) {
+      return raw;
     }
   }
 
