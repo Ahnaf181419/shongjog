@@ -404,7 +404,10 @@ class MeshService {
         if (targetEndpointId == null || peer.endpointId == targetEndpointId) {
           try {
             Nearby().sendBytesPayload(peer.endpointId, bytes);
-          } catch (e) { debugPrint("[Catch] mesh_service: $e"); }
+            delivered = true;
+          } catch (e) {
+            debugPrint('MeshService: sendBytes failed to ${peer.name}: $e');
+          }
         }
       }
     }
@@ -497,8 +500,16 @@ class MeshService {
       if (peer.status == PeerStatus.connected) {
         if (targetEndpointId == null || peer.endpointId == targetEndpointId) {
           try {
-            Nearby().sendFilePayload(peer.endpointId, filePath);
-          } catch (e) { debugPrint("[Catch] mesh_service: $e"); }
+            final filePayloadId =
+                Nearby().sendFilePayload(peer.endpointId, sendPath);
+            filePayloadId.then((payloadId) {
+              final hint = utf8.encode('voice:$payloadId:$basename');
+              Nearby().sendBytesPayload(
+                peer.endpointId,
+                Uint8List.fromList(hint),
+              );
+            }).catchError((_) {});
+          } catch (_) {}
         }
       }
     }

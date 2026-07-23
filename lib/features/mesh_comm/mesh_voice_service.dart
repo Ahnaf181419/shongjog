@@ -91,7 +91,7 @@ class MeshVoiceService {
     if (path != null) {
       try {
         await File(path).delete();
-      } catch (e) { debugPrint("[Catch] mesh_voice: $e"); }
+      } catch (_) {}
     }
   }
 
