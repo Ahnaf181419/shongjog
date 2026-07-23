@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../../app/theme.dart';
+import '../../core/connectivity_provider.dart';
 import 'weather_service.dart';
 
 /// Today's weather + next-3-day forecast card.
@@ -45,15 +46,24 @@ class _WeatherCardState extends State<WeatherCard>
     _cachedPosition = pos;
     final lat = pos?.latitude ?? 23.81; // Dhaka fallback
     final lon = pos?.longitude ?? 90.41;
-    final snap = await WeatherService.fetch(lat: lat, lon: lon);
+    final isOnline = connectivityProvider.isOnline;
+    final snap = await WeatherService.fetch(
+      lat: lat,
+      lon: lon,
+      isOnline: isOnline,
+    );
     if (!mounted) return;
     setState(() {
       _snapshot = snap;
       _loading = false;
       if (snap == null) {
-        _errorText = pos == null
-            ? 'অবস্থান নেই — ডিফল্ট ঢাকা দেখানো হচ্ছে'
-            : 'আবহাওয়া লোড করা যায়নি';
+        if (!isOnline) {
+          _errorText = 'ইন্টারনেট সংযোগ নেই';
+        } else if (pos == null) {
+          _errorText = 'অবস্থান নেই — ডিফল্ট ঢাকা';
+        } else {
+          _errorText = 'আবহাওয়া সার্ভার থেকে তথ্য পাওয়া যায়নি';
+        }
       }
     });
   }
@@ -74,7 +84,7 @@ class _WeatherCardState extends State<WeatherCard>
           timeLimit: Duration(seconds: 5),
         ),
       );
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -242,7 +252,7 @@ class _WeatherCardState extends State<WeatherCard>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'কার্ড নেই — আবহাওয়া দেখতে চাপুন',
+                      'আবহাওয়া দেখতে চাপুন',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,

@@ -103,5 +103,11 @@ void main() {
       final out = ChatRepository.truncateAtTurnMarker(raw);
       expect(out, '');
     });
+
+    test('strips <channel|> variant without leading pipe', () {
+      const raw = 'Real answer\n<channel|>thought leak<|channel|>';
+      final out = ChatRepository.truncateAtTurnMarker(raw);
+      expect(out, 'Real answer');
+    });
   });
 }

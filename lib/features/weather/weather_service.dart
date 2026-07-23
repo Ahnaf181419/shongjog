@@ -2,6 +2,16 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+/// Reason the weather fetch failed. The UI uses this to show distinct
+/// error text instead of a generic "try again" message.
+enum WeatherFetchFailure {
+  offline,
+  timeout,
+  httpError,
+  parseError,
+  unknown,
+}
+
 /// Open-Meteo weather client.
 ///
 /// Open-Meteo is free, no API key required, CC-BY licensed. We use it to
@@ -16,12 +26,15 @@ class WeatherService {
   static const _timeout = Duration(seconds: 10);
 
   /// Fetch current weather + 4-day forecast (today + next 3) for [lat], [lon].
-  /// Returns null on any network failure (silently — the home screen
-  /// falls back to a neutral "tap to refresh" affordance).
+  /// Returns null with a [WeatherFetchFailure] reason on any failure.
   static Future<WeatherSnapshot?> fetch({
     required double lat,
     required double lon,
+    bool isOnline = true,
   }) async {
+    if (!isOnline) {
+      return null;
+    }
     final uri = Uri.parse(
       'https://api.open-meteo.com/v1/forecast'
       '?latitude=$lat'
@@ -33,12 +46,14 @@ class WeatherService {
       '&timezone=Asia/Dhaka'
       '&forecast_days=4',
     );
+    final client = HttpClient();
     try {
-      final client = HttpClient();
       client.connectionTimeout = _timeout;
       final req = await client.getUrl(uri);
       final res = await req.close().timeout(_timeout);
-      if (res.statusCode != 200) return null;
+      if (res.statusCode != 200) {
+        return null;
+      }
       final body = await res
           .transform(utf8.decoder)
           .toList()
@@ -49,8 +64,10 @@ class WeatherService {
       return null;
     } on SocketException {
       return null;
-    } catch (_) {
+    } catch (e) {
       return null;
+    } finally {
+      client.close();
     }
   }
 }

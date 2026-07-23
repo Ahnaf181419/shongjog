@@ -67,6 +67,8 @@ class HomeScreen extends StatelessWidget {
                 //   lives in the AppBar pill — always reachable while scrolling.
                 _EmergencyTriad(),
                 const SizedBox(height: 12),
+                const _TipCard(),
+                const SizedBox(height: 12),
                 _OfflineMessageTile(),
                 const SizedBox(height: 12),
                 const _InsightsList(),
@@ -581,6 +583,7 @@ class _SafeBeaconTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(ShongjogTheme.radius),
         child: Container(
+          constraints: const BoxConstraints(minHeight: 60),
           decoration: BoxDecoration(
             color: cs.tertiaryContainer,
             borderRadius: BorderRadius.circular(ShongjogTheme.radius),
@@ -625,6 +628,80 @@ class _SafeBeaconTile extends StatelessWidget {
   }
 }
 
+// ══════════════════════════════════════════════════════════════
+//  Tip card — daily rotating disaster-preparedness tip
+// ══════════════════════════════════════════════════════════════
+
+class _TipCard extends StatelessWidget {
+  const _TipCard();
+
+  static const _tips = [
+    'বন্যা মৌসুমে পানি অন্তত ১ মিনিট ফুটিয়ে পান। পানিবাহিত রোগ প্রতিরোধে ORS মজুত রাখুন।',
+    'ঝড় আসার আগে জানালা-দরজা বন্ধ করুন। ভাঙা কাচের ক্ষতি থেকে বাঁচতে মোটা কাপড় দিয়ে ঢাকুন।',
+    'ভূমিকম্পে টেবিলের নিচে ঢুকুন, দেয়াল থেকে দূরে সরে যান। লিফট ব্যবহার করবেন না।',
+    'অগ্নিকাণ্ডে ধোঁয়া থেকে বাঁচতে মাটি পর্যন্ত নিচু হয়ে যান। ধোঁয়া ঘুরি উপরে ওঠে।',
+    'গ্রীষ্মে প্রতি ৩০ মিনিটে পানি পান করুন। তাপঘূর্ণণ থেকে বাঁচতে হালকা রঙের কাপড় পরুন।',
+    'ডায়রিয়ায় ORS ঘরে তৈরি করুন: ১ লিটার ফুটিয়ে ঠান্ডা পানিতে ১ চা চামচ চিনি + আধা চা চামচ লবণ মিশান।',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tipIndex = DateTime.now().day % _tips.length;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cs.primary.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(ShongjogTheme.radius),
+        border: Border.all(
+          color: cs.primary.withValues(alpha: 0.14),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: cs.primary.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(Icons.lightbulb_rounded,
+                color: cs.primary, size: 22),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'আজকের পরামর্শ',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: cs.primary,
+                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _tips[tipIndex],
+                  style: TextStyle(
+                    fontSize: ShongjogTheme.bodyFloor,
+                    height: 1.5,
+                    color: cs.onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _TriageTile extends StatelessWidget {
   final VoidCallback onTap;
   const _TriageTile({required this.onTap});
@@ -638,6 +715,7 @@ class _TriageTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(ShongjogTheme.radius),
         child: Container(
+          constraints: const BoxConstraints(minHeight: 60),
           decoration: BoxDecoration(
             color: cs.errorContainer,
             borderRadius: BorderRadius.circular(ShongjogTheme.radius),
