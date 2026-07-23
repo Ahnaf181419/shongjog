@@ -171,5 +171,57 @@ void main() {
       expect(answer, contains('ORS'));
       expect(paths, [GenerationPath.corpus]);
     });
+
+    // ══════════════════════════════════════════════════════════════
+    //  BLANK-BUBBLE GUARD
+    //
+    //  When the engine leaks its thought channel, the raw output starts
+    //  with `<|channel|>` at index 0. truncateAtTurnMarker correctly cuts
+    //  everything from the first marker onward — which for that input is
+    //  the ENTIRE string. Tier-2 used to return that empty string as a
+    //  successful device answer, rendering a blank bubble that looks
+    //  exactly like a crash.
+    //
+    //  Correct behavior: treat "cleaned to nothing" as no answer and fall
+    //  through to the corpus.
+    // ══════════════════════════════════════════════════════════════
+    test(
+        'when the model emits only control tokens, Tier-2 falls through to '
+        'corpus instead of returning a blank bubble', () async {
+      final paths = <GenerationPath>[];
+      final repo = ChatRepository(
+        kb: testKb,
+        model: _FakeLlm(
+          ready: true,
+          onDisk: true,
+          // Verbatim shape from docs/image.png — leak starts at index 0.
+          generateResult: '<|channel|>thought\nThinking<channel|>'
+              '<|channel|>thought\n Process<channel|>',
+        ),
+      );
+      final answer = await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+      expect(answer.trim(), isNotEmpty,
+          reason: 'a blank bubble must never reach the user');
+      expect(answer, contains('ORS'));
+      expect(paths, [GenerationPath.corpus]);
+    });
+
+    test(
+        'a real answer followed by a channel leak still reports the device '
+        'path (the guard must not over-trigger)', () async {
+      final paths = <GenerationPath>[];
+      final repo = ChatRepository(
+        kb: testKb,
+        model: _FakeLlm(
+          ready: true,
+          onDisk: true,
+          generateResult:
+              'ORS বানাতে ১ লিটার পানি নিন।\n<|channel|>thought leak',
+        ),
+      );
+      final answer = await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+      expect(answer, 'ORS বানাতে ১ লিটার পানি নিন।');
+      expect(paths, [GenerationPath.device]);
+    });
   });
 }

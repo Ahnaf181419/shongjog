@@ -26,6 +26,38 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
   /// allocate tensors below 1024 (upstream #318) — this is NOT the reply cap.
   static const kContextTokens = 1024;
 
+  /// Whether the active engine can separate the model's internal "thought"
+  /// channel from its user-visible answer. On the `.litertlm` FFI path it
+  /// CANNOT: `enableThinking: true` only injects `{"enable_thinking": true}`
+  /// into the prompt template (flutter_gemma_litertlm 1.1.0,
+  /// ffi_inference_model.dart:631) and the engine then streams the raw
+  /// `<|channel|>thought …` tokens straight into the response string. There
+  /// is no "final channel" API to read the answer back out of.
+  ///
+  /// The result is the bug in `docs/image.png`: the whole bubble is
+  /// `<|channel|>thought Thinking<|channel|>…`. Because that garbage starts
+  /// at index 0, [ChatRepository.truncateAtTurnMarker] cuts the entire
+  /// string away and the user gets a blank bubble instead.
+  ///
+  /// So thinking stays OFF until the engine grows real channel separation.
+  /// [setThinkingMode] still records the caller's intent (the urgency badge
+  /// in the UI reads it) — it just can't reach the SDK yet.
+  static const bool kThinkingModeSupported = false;
+
+  /// A seed the native sampler will actually accept.
+  ///
+  /// `LiteRtLmSamplerParams.seed` is `@ffi.Int32()`
+  /// (litert_lm_bindings.dart:2028). `DateTime.now().microsecondsSinceEpoch`
+  /// is ~1.78e15, ~830,000x over the Int32 max, and Dart FFI stores it by
+  /// silently truncating to the low 32 bits *signed* — so the seed handed to
+  /// native flips negative for ~35.8 minutes out of every 71.6 (the period of
+  /// bit 31 of a microsecond counter). Masking with 0x7FFFFFFF keeps the
+  /// low-order entropy that makes each call differ while guaranteeing a
+  /// non-negative, in-range value.
+  @visibleForTesting
+  static int nextRandomSeed() =>
+      DateTime.now().microsecondsSinceEpoch & 0x7FFFFFFF;
+
   /// Reply-length cap, applied per session. Kept small to (a) speed up
   /// generation — a 2B model at 512 tokens runs ~5-8s with most
   /// tokens being degenerate, and (b) prevent the model from
@@ -451,6 +483,12 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
     _enableThinking = enable;
   }
 
+  /// The thinking flag actually handed to the SDK. Gated by
+  /// [kThinkingModeSupported] so the caller's intent is recorded but never
+  /// reaches an engine that would leak the thought channel as visible text.
+  bool get _effectiveThinking =>
+      kThinkingModeSupported && (_enableThinking ?? false);
+
   @override
   Future<String> generate(String prompt) async {
     final model = await initialize();
@@ -472,7 +510,10 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
       // Fresh seed per call. Without this the SDK's default of 1 makes
       // every query with the same prompt return the exact same degenerate
       // output. Random seed + temperature 0.3 gives controlled variation.
-      randomSeed: DateTime.now().microsecondsSinceEpoch,
+      // Must go through [nextRandomSeed] — the native field is Int32 and
+      // a raw microsecond timestamp truncates to a negative value half
+      // the time. See [nextRandomSeed].
+      randomSeed: nextRandomSeed(),
       // Caps GENERATED tokens without shrinking the context window, which
       // `.litertlm` requires to stay >= 1024. 256 is enough for the
       // longest grounded emergency answer; lower than 512 because
@@ -481,9 +522,10 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
       maxOutputTokens: kMaxOutputTokens,
       // LoRA adapter — null means base model only.
       loraPath: _loraPath,
-      // Thinking mode — only override when explicitly set; SDK default
-      // is thinking off.
-      enableThinking: _enableThinking ?? false,
+      // Forced off on the .litertlm path — the engine has no channel
+      // separation, so turning this on leaks the raw thought stream into
+      // the answer. See [kThinkingModeSupported].
+      enableThinking: _effectiveThinking,
     );
     try {
       await session.addQueryChunk(Message.text(text: prompt, isUser: true));
@@ -547,7 +589,7 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
       maxOutputTokens: kMaxOutputTokens,
       tools: tools,
       loraPath: _loraPath,
-      enableThinking: _enableThinking ?? false,
+      enableThinking: _effectiveThinking,
     );
     try {
       await session.addQueryChunk(Message.text(text: prompt, isUser: true));
