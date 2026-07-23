@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../app/theme.dart';
+import '../admin/campaign_request.dart';
 import 'cached_tile_provider.dart';
 import 'nearest_shelter.dart';
 import 'shelter_constants.dart';
@@ -51,11 +52,13 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
   )..repeat(reverse: true);
 
   StreamSubscription<bool>? _connSub;
+  double _currentZoom = 11.0;
 
   @override
   void initState() {
     super.initState();
     _vm.addListener(_onVmChanged);
+    campaignRequestService.addListener(_onCampaignChanged);
     _connSub = ConnectivityHelper.onConnectivityChanged.listen(_vm.setOnline);
     // Seed the VM's online flag from the global connectivity singleton
     // so the first frame correctly hides / shows the offline pill.
@@ -69,10 +72,15 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
   void dispose() {
     _pulse.dispose();
     _connSub?.cancel();
+    campaignRequestService.removeListener(_onCampaignChanged);
     _vm.removeListener(_onVmChanged);
     _vm.dispose();
     _mapController.dispose();
     super.dispose();
+  }
+
+  void _onCampaignChanged() {
+    if (mounted) setState(() {});
   }
 
   void _onVmChanged() {
@@ -144,7 +152,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                           const SizedBox(width: 6),
                           const Expanded(
                             child: Text(
-                              'অফলাইন — টাইলস নেই, মার্কার আছে',
+                              'অফলাইন — ক্যাশ টাইলস দেখাচ্ছে',
                               style: TextStyle(fontSize: 13),
                             ),
                           ),
@@ -229,17 +237,20 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
             initialZoom: _vm.userPosition != null
                 ? ShelterConstants.zoomWithUser
                 : ShelterConstants.zoomWithoutUser,
-            backgroundColor: _vm.isOnline
-                ? Theme.of(context).colorScheme.surface
-                : Theme.of(context).colorScheme.surfaceContainerHighest,
+            onPositionChanged: (position, hasGesture) {
+              if (hasGesture) {
+                setState(() => _currentZoom = position.zoom);
+              }
+            },
           ),
           children: [
-            if (_vm.isOnline)
-              TileLayer(
-                urlTemplate:
-                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.shongjog.app',
-              ),
+            // ── Always show tiles (cached tiles available offline) ──
+            TileLayer(
+              urlTemplate:
+                  'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'com.shongjog.app',
+              tileProvider: tileCacheProvider,
+            ),
             if (_vm.routePoints.isNotEmpty)
               PolylineLayer(
                 polylines: [
@@ -263,11 +274,70 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                       _vm.selectedShelter?.name == s.name,
                       () => _vm.fetchRoute(s),
                     )),
+                // ── Approved campaign markers (orange, distinct from blue shelters)
+                ...campaignRequestService.approvedRequests.map((c) => Marker(
+                      point: LatLng(c.latitude, c.longitude),
+                      width: 44,
+                      height: 44,
+                      child: GestureDetector(
+                        onTap: () => _showCampaignSheet(c),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: ShongjogTheme.alert.withValues(alpha: 0.9),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                                color: Colors.white, width: 2.5),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.25),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            c.type == CampaignType.rescueOperation
+                                ? Icons.search_rounded
+                                : Icons.volunteer_activism_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    )),
               ],
             ),
           ],
         ),
         if (!_vm.isOnline) const OfflineBanner(),
+        // ── Zoom controls ──
+        Positioned(
+          right: 12,
+          top: 12,
+          child: Column(
+            children: [
+              _MapZoomButton(
+                icon: Icons.add_rounded,
+                tooltip: 'জুম ইন',
+                onTap: () {
+                  final newZoom = (_currentZoom + 1).clamp(1.0, 18.0);
+                  setState(() => _currentZoom = newZoom);
+                  _mapController.move(_mapController.camera.center, newZoom);
+                },
+              ),
+              const SizedBox(height: 4),
+              _MapZoomButton(
+                icon: Icons.remove_rounded,
+                tooltip: 'জুম আউট',
+                onTap: () {
+                  final newZoom = (_currentZoom - 1).clamp(1.0, 18.0);
+                  setState(() => _currentZoom = newZoom);
+                  _mapController.move(_mapController.camera.center, newZoom);
+                },
+              ),
+            ],
+          ),
+        ),
         if (_vm.selectedShelter != null)
           Positioned(
             left: 12,
@@ -368,6 +438,87 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
     );
   }
 
+  void _showCampaignSheet(CampaignRequest c) {
+    final cs = Theme.of(context).colorScheme;
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: ShongjogTheme.alert.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    c.type == CampaignType.rescueOperation
+                        ? Icons.search_rounded
+                        : Icons.volunteer_activism_rounded,
+                    color: ShongjogTheme.alert,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        c.type.labelBn,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 2),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: ShongjogTheme.success.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          'অনুমোদিত',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: ShongjogTheme.success,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _row('ঠিকানা', c.address),
+            if (c.landmark.isNotEmpty) _row('ল্যান্ডমার্ক', c.landmark),
+            _row('GPS', '${c.latitude.toStringAsFixed(4)}, ${c.longitude.toStringAsFixed(4)}'),
+            if (c.description.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text('বিবরণ',
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSurfaceVariant)),
+              const SizedBox(height: 4),
+              Text(c.description, style: TextStyle(fontSize: 14, color: cs.onSurface)),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _row(String k, String v) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -385,6 +536,41 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                       fontSize: 15,
                       color: Theme.of(context).colorScheme.onSurface))),
         ],
+      ),
+    );
+  }
+}
+
+// ── Map zoom control button ──────────────────────────────────
+class _MapZoomButton extends StatelessWidget {
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  const _MapZoomButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Material(
+      color: cs.surface.withValues(alpha: 0.95),
+      shape: const CircleBorder(),
+      elevation: 2,
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: Tooltip(
+          message: tooltip,
+          child: SizedBox(
+            width: 44,
+            height: 44,
+            child: Icon(icon, color: cs.onSurface, size: 24),
+          ),
+        ),
       ),
     );
   }

@@ -1,15 +1,18 @@
 
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../core/model_manager.dart';
 import '../../core/theme_controller.dart';
+import '../admin/map_picker_screen.dart';
 import '../audio/sound_service.dart';
 import '../chat/chat_store.dart';
 import 'model_picker_section.dart';
 import '../../core/admin_broadcast_service.dart';
+import '../../features/admin/campaign_request.dart';
 
 /// Settings screen.
 ///
@@ -119,6 +122,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 pushNamedSafe(context, AppRoutes.emergencyContacts),
           ),
           const _Divider(),
+          _SectionHeader('অভিযান অনুরোধ'),
+          ListTile(
+            leading: const Icon(Icons.campaign_rounded),
+            title: const Text('দান/উদ্ধার অভিযান অনুরোধ করুন'),
+            subtitle: const Text('অ্যাডমিন অনুমোদনে মানচিত্রে দেখাবে'),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: _showCampaignRequestDialog,
+          ),
+          const _Divider(),
           _SectionHeader('AI মডেল'),
           const ModelPickerSection(),
           const _Divider(),
@@ -220,6 +232,239 @@ class _SettingsScreenState extends State<SettingsScreen> {
         );
       }
     }
+  }
+
+  Future<void> _showCampaignRequestDialog() async {
+    final addressController = TextEditingController();
+    final landmarkController = TextEditingController();
+    final descController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    CampaignType selectedType = CampaignType.foodDonation;
+    LatLng? selectedLocation;
+
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: const Text('অভিযান অনুরোধ জমা দিন'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Form(
+              key: formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DropdownButtonFormField<CampaignType>(
+                      initialValue: selectedType,
+                      decoration: const InputDecoration(
+                        labelText: 'অভিযানের ধরন',
+                        prefixIcon: Icon(Icons.category_rounded),
+                      ),
+                      items: CampaignType.values.map((type) {
+                        return DropdownMenuItem(
+                          value: type,
+                          child: Text(type.labelBn),
+                        );
+                      }).toList(),
+                      onChanged: (v) => setDialogState(() => selectedType = v!),
+                      validator: (v) => v == null ? 'ধরন বেছে নিন' : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // ── Map picker button ──
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () async {
+                          final result = await Navigator.push<LatLng>(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => MapPickerScreen(
+                                initialLocation: selectedLocation,
+                              ),
+                            ),
+                          );
+                          if (result != null) {
+                            setDialogState(() => selectedLocation = result);
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(ShongjogTheme.radius),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: selectedLocation != null
+                                ? Theme.of(context)
+                                    .colorScheme
+                                    .primary
+                                    .withValues(alpha: 0.06)
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest
+                                    .withValues(alpha: 0.5),
+                            borderRadius:
+                                BorderRadius.circular(ShongjogTheme.radius),
+                            border: Border.all(
+                              color: selectedLocation != null
+                                  ? Theme.of(context)
+                                      .colorScheme
+                                      .primary
+                                      .withValues(alpha: 0.3)
+                                  : Theme.of(context).colorScheme.outlineVariant,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: selectedLocation != null
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withValues(alpha: 0.12)
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.08),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Icon(
+                                  selectedLocation != null
+                                      ? Icons.check_circle_rounded
+                                      : Icons.map_rounded,
+                                  color: selectedLocation != null
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                  size: 22,
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      selectedLocation != null
+                                          ? 'অবস্থান নির্বাচিত'
+                                          : 'মানচিত্র থেকে অবস্থান নির্বাচন করুন',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      selectedLocation != null
+                                          ? '${selectedLocation!.latitude.toStringAsFixed(4)}, ${selectedLocation!.longitude.toStringAsFixed(4)}'
+                                          : 'ট্যাপ করে মানচিত্রে পিন দিন',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Icon(
+                                Icons.chevron_right_rounded,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: addressController,
+                      decoration: const InputDecoration(
+                        labelText: 'ঠিকানা/স্থান',
+                        prefixIcon: Icon(Icons.location_on_rounded),
+                        hintText: 'যেমন: ঢাকা মেডিকেল কলেজ হাসপাতাল',
+                      ),
+                      validator: (v) =>
+                          v == null || v.trim().isEmpty ? 'ঠিকানা লিখুন' : null,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: landmarkController,
+                      decoration: const InputDecoration(
+                        labelText: 'স্পষ্ট ঠিকানা/ল্যান্ডমার্ক',
+                        prefixIcon: Icon(Icons.place_rounded),
+                        hintText: 'যেমন: মসজিদের পাশে, দোকান নম্বর ১২',
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: descController,
+                      decoration: const InputDecoration(
+                        labelText: 'বিবরণ (ঐচ্ছিক)',
+                        prefixIcon: Icon(Icons.description_rounded),
+                        hintText: 'অভিযানের লক্ষ্য, সময়, যোগাযোগ নম্বর ইত্যাদি',
+                      ),
+                      maxLines: 3,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('বাতিল'),
+            ),
+            FilledButton(
+              onPressed: () async {
+                if (!formKey.currentState!.validate()) return;
+                if (selectedLocation == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('মানচিত্র থেকে অবস্থান নির্বাচন করুন'),
+                    ),
+                  );
+                  return;
+                }
+                Navigator.pop(ctx);
+
+                final request = CampaignRequest(
+                  id: DateTime.now().microsecondsSinceEpoch.toString(),
+                  userId: 'local_user',
+                  userName: 'ব্যবহারকারী',
+                  userPhone: '',
+                  type: selectedType,
+                  latitude: selectedLocation!.latitude,
+                  longitude: selectedLocation!.longitude,
+                  address: addressController.text.trim(),
+                  landmark: landmarkController.text.trim(),
+                  description: descController.text.trim(),
+                  timestamp: DateTime.now(),
+                );
+
+                await campaignRequestService.submitRequest(request);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('অভিযান অনুরোধ জমা দেওয়া হয়েছে')),
+                  );
+                }
+              },
+              child: const Text('জমা দিন'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 // ════════════════════════════════════════════════════════════════

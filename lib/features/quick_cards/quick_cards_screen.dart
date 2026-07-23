@@ -6,18 +6,88 @@ import 'cards_data.dart';
 /// Quick cards screen — 8 static Bangla emergency cards.
 /// Works with no model loaded (safety net, docs/prd.md M4).
 /// Per design.md §7.2: ExpansionTile, numbered Bangla steps, 12dp spacing.
-class QuickCardsScreen extends StatelessWidget {
+class QuickCardsScreen extends StatefulWidget {
   const QuickCardsScreen({super.key});
+
+  @override
+  State<QuickCardsScreen> createState() => _QuickCardsScreenState();
+}
+
+class _QuickCardsScreenState extends State<QuickCardsScreen> {
+  final _searchController = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<QuickCard> get _filteredCards {
+    if (_query.isEmpty) return kQuickCards;
+    final q = _query.toLowerCase();
+    return kQuickCards.where((card) {
+      final titleMatch = card.titleBn.toLowerCase().contains(q);
+      final stepsMatch = card.stepsBn.any((s) => s.toLowerCase().contains(q));
+      return titleMatch || stepsMatch;
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('জরুরি সহায়তা কার্ড')),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: kQuickCards.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 12),
-        itemBuilder: (_, i) => _CardTile(card: kQuickCards[i]),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'খুঁজুন: অরএস, সাপের কামড়, বন্যা...',
+                hintStyle: TextStyle(
+                  color: ShongjogTheme.bodySecondary(context),
+                  fontSize: 16,
+                ),
+                prefixIcon: Icon(Icons.search, color: ShongjogTheme.bodySecondary(context)),
+                filled: true,
+                fillColor: ShongjogTheme.cardSurface(context),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: ShongjogTheme.hairline(context)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: ShongjogTheme.hairline(context)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: ShongjogTheme.ocean, width: 2),
+                ),
+                suffixIcon: _query.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(Icons.clear, color: ShongjogTheme.bodySecondary(context)),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() => _query = '');
+                        },
+                      )
+                    : null,
+              ),
+              onChanged: (v) => setState(() => _query = v.trim()),
+              textInputAction: TextInputAction.search,
+            ),
+          ),
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              itemCount: _filteredCards.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
+              itemBuilder: (_, i) => _CardTile(card: _filteredCards[i]),
+            ),
+          ),
+        ],
       ),
     );
   }
