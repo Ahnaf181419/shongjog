@@ -36,12 +36,6 @@ void main() {
       expect(find.byIcon(Icons.person_rounded), findsOneWidget);
     });
 
-    testWidgets('renders hero card with primary CTA', (tester) async {
-      await tester.pumpWidget(wrapHome());
-      await pumpOnce(tester);
-      expect(find.text('প্রশ্ন করুন'), findsOneWidget);
-    });
-
     testWidgets('renders 2-tile emergency triad + AppBar 999 pill',
         (tester) async {
       await tester.pumpWidget(wrapHome());
@@ -141,37 +135,6 @@ void main() {
       expect(find.text('অফলাইন AI প্রস্তুত'), findsOneWidget);
     });
 
-    testWidgets('AI hero CTA triggers onNavigateToTab(1)', (tester) async {
-      int? tappedIndex;
-      await tester.pumpWidget(
-        wrapHome(onNavigateToTab: (i) => tappedIndex = i),
-      );
-      await pumpOnce(tester);
-      await tester.tap(find.text('প্রশ্ন করুন'));
-      expect(tappedIndex, 1);
-    });
-
-    testWidgets('hero panel renders a gradient decoration', (tester) async {
-      await tester.pumpWidget(wrapHome());
-      await pumpOnce(tester);
-      // The drenched hero uses `Ink.decoration` with a `BoxDecoration`
-      // whose `gradient` is set. Find exactly one such widget in the tree.
-      final gradientInks = find.byWidgetPredicate((w) {
-        if (w is! Ink) return false;
-        final d = w.decoration;
-        if (d is! BoxDecoration) return false;
-        return d.gradient != null;
-      });
-      expect(gradientInks, findsOneWidget);
-    });
-
-    testWidgets('hero includes the Bangla numeral status chip', (tester) async {
-      await tester.pumpWidget(wrapHome());
-      await pumpOnce(tester);
-      // Asymmetric right-side marker — Bangla '১' inside a bordered chip.
-      expect(find.text('১'), findsOneWidget);
-      expect(find.text('২৪/৭ সক্রিয়'), findsOneWidget);
-    });
   });
 
   // ════════════════════════════════════════════════════════════════

@@ -62,10 +62,7 @@ class HomeScreen extends StatelessWidget {
                 //   Optional network feature — degrades to a tap-to-load affordance.
                 const WeatherCard(),
                 const SizedBox(height: 16),
-                // ── Hero: voice-first AI entry. Smaller (28 sp) than before; the
-                //   weather card now leads, so the hero is "one of several" CTAs.
-                _HeroAskCard(onTap: () => onNavigateToTab?.call(1)),
-                const SizedBox(height: 16),
+
                 // ── 2 emergency tiles (cards / shelter). The 999 entry point
                 //   lives in the AppBar pill — always reachable while scrolling.
                 _EmergencyTriad(),
@@ -113,15 +110,12 @@ class _ProfileTitleState extends State<_ProfileTitle> {
     final hasPhoto = _profile.hasPhoto;
 
     return GestureDetector(
-      onTap: () {
-        pushNamedSafe(context, AppRoutes.profile);
-        // Reload profile when returning — use a post-frame callback
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          if (mounted) {
-            final updated = await UserProfileData.load();
-            if (mounted) setState(() => _profile = updated);
-          }
-        });
+      onTap: () async {
+        await Navigator.pushNamed(context, AppRoutes.profile);
+        if (mounted) {
+          final updated = await UserProfileData.load();
+          if (mounted) setState(() => _profile = updated);
+        }
       },
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -462,135 +456,6 @@ class _OfflineDotState extends State<_OfflineDot>
 }
 
 // ════════════════════════════════════════════════════════════════
-//  Hero — voice-first entry to AI (28 sp CTA)
-// ════════════════════════════════════════════════════════════════
-
-class _HeroAskCard extends StatefulWidget {
-  final VoidCallback onTap;
-  const _HeroAskCard({required this.onTap});
-
-  @override
-  State<_HeroAskCard> createState() => _HeroAskCardState();
-}
-
-class _HeroAskCardState extends State<_HeroAskCard> {
-  // Tracks the InkWell highlight so we can run a press-scale animation
-  // alongside the default ripple. Both are required: ripple alone is
-  // subtle on a saturated gradient panel.
-  bool _pressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    // Honour reduced-motion: skip the 0.98 press-scale when the user has
-    // asked the OS to reduce motion. The InkWell ripple still fires either
-    // way, so press feedback survives — only the lift animation is gated.
-    final reduceMotion = MediaQuery.of(context).disableAnimations;
-    return AnimatedScale(
-      scale: (!reduceMotion && _pressed) ? 0.98 : 1.0,
-      duration: const Duration(milliseconds: 150),
-      curve: Curves.easeOutQuart,
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(ShongjogTheme.radiusLg),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: widget.onTap,
-          onHighlightChanged: (pressed) {
-            setState(() => _pressed = pressed);
-          },
-          child: Ink(
-            decoration: ShongjogTheme.heroPanel(context),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 18, 18, 18),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Recessed mic well — contained object, not a glow source.
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: ShongjogTheme.micWell(context),
-                    child: Icon(
-                      Icons.mic_rounded,
-                      color: cs.onPrimary,
-                      size: 26,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  // Middle: Bangla heading + caption.
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'প্রশ্ন করুন',
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.w700,
-                            color: cs.onPrimary,
-                            height: 1.15,
-                            letterSpacing: -0.01,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'অফলাইনে বাংলায় ভয়েসে উত্তর',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: cs.onPrimary.withValues(alpha: 0.85),
-                            height: 1.35,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  // Right: quiet secondary status + Bangla numeral chip.
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '২৪/৭ সক্রিয়',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: cs.onPrimary.withValues(alpha: 0.85),
-                          height: 1.1,
-                          letterSpacing: 0.02,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Container(
-                        width: 30,
-                        height: 30,
-                        alignment: Alignment.center,
-                        decoration: ShongjogTheme.numeralChip(context),
-                        child: Text(
-                          '১',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: cs.onPrimary,
-                            height: 1.0,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ════════════════════════════════════════════════════════════════
 //  Emergency triad — 2-up tiles (999 moved to AppBar pill)
 // ════════════════════════════════════════════════════════════════
 
@@ -627,12 +492,20 @@ class _EmergencyTriad extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        _TriageTile(
-          onTap: () => pushNamedSafe(context, AppRoutes.triage),
-        ),
-        const SizedBox(height: 12),
-        _SafeBeaconTile(
-          onTap: () => pushNamedSafe(context, AppRoutes.safeBeacon),
+        Row(
+          children: [
+            Expanded(
+              child: _TriageTile(
+                onTap: () => pushNamedSafe(context, AppRoutes.triage),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _SafeBeaconTile(
+                onTap: () => pushNamedSafe(context, AppRoutes.safeBeacon),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         _DirectoryTile(
@@ -733,7 +606,7 @@ class _SafeBeaconTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'পরিবারকে মেশ ও এসএমএস দিয়ে জানান',
+                      'মেশ ও এসএমএস দিয়ে জানান',
                       style: TextStyle(
                         fontSize: 12,
                         color: cs.onTertiaryContainer.withValues(alpha: 0.8),
@@ -789,7 +662,7 @@ class _TriageTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'এলএলএম ছাড়াই প্রাথমিক চিকিৎসা — প্রশ্নের উত্তর দিন',
+                      'প্রাথমিক চিকিৎসা',
                       style: TextStyle(
                         fontSize: 12,
                         color: cs.onErrorContainer.withValues(alpha: 0.8),

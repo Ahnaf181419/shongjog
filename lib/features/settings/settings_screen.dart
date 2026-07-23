@@ -65,7 +65,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
           // ── Profile row ──
-          _ProfileRow(profile: _profile),
+          _ProfileRow(profile: _profile, onChanged: _loadPrefs),
           const _Divider(),
           _SectionHeader('উপস্থিতি'),
           _ThemeSegmentedRow(controller: tc),
@@ -275,7 +275,8 @@ class _Divider extends StatelessWidget {
 
 class _ProfileRow extends StatelessWidget {
   final UserProfileData profile;
-  const _ProfileRow({required this.profile});
+  final VoidCallback? onChanged;
+  const _ProfileRow({required this.profile, this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -285,8 +286,9 @@ class _ProfileRow extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () {
-          pushNamedSafe(context, AppRoutes.profile);
+        onTap: () async {
+          await Navigator.pushNamed(context, AppRoutes.profile);
+          onChanged?.call();
         },
         borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
         child: Padding(

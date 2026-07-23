@@ -69,6 +69,12 @@ class MeshService {
   // 🔴 FIX 1: Map to hold files that are currently downloading
   final Map<int, String> _incomingFiles = {};
 
+  /// Timers for cleaning up disconnected peers after a TTL.
+  final Map<String, Timer> _disconnectTimers = {};
+
+  /// How long a disconnected peer stays in the list before removal.
+  static const _disconnectTtl = Duration(seconds: 30);
+
   /// Multi-hop SOS relay engine. Wired lazily — the listener is
   /// attached to the messages stream on first [start]().
   SosRelayEngine? _relayEngine;
@@ -98,8 +104,12 @@ class MeshService {
     return statuses[Permission.bluetoothAdvertise]!.isGranted &&
         statuses[Permission.bluetoothConnect]!.isGranted &&
         statuses[Permission.bluetoothScan]!.isGranted &&
-        statuses[Permission.location]!.isGranted;
-    // Note: nearbyWifiDevices might be null on older Androids, so we don't strictly require it in the return statement, but we MUST request it.
+        statuses[Permission.location]!.isGranted &&
+        (statuses[Permission.nearbyWifiDevices] ?? PermissionStatus.granted)
+            .isGranted;
+    // nearbyWifiDevices may be null on older Androids where the permission
+    // doesn't exist — treat missing as granted. On Android 13+ it IS
+    // required for P2P_CLUSTER Wi-Fi Direct operations.
   }
 
   /// Pre-flight check: P2P_CLUSTER needs the Wi-Fi radio.
@@ -197,6 +207,10 @@ class MeshService {
     await Nearby().stopAdvertising();
     await Nearby().stopDiscovery();
     await Nearby().stopAllEndpoints();
+    for (final t in _disconnectTimers.values) {
+      t.cancel();
+    }
+    _disconnectTimers.clear();
     _peers.clear();
     _incomingFiles.clear();
     _peersController.add(peerList);
@@ -210,6 +224,11 @@ class MeshService {
   void _onEndpointFound(String id, String name, String serviceId) {
     if (!name.startsWith(kMeshPeerPrefix)) return;
 
+    // If this peer was disconnected, cancel its cleanup timer — it's
+    // coming back into range. The connection flow will promote it to
+    // connected via _onConnectionResult.
+    _disconnectTimers.remove(id)?.cancel();
+
     Nearby().requestConnection(
       userName,
       id,
@@ -221,12 +240,18 @@ class MeshService {
 
   void _onEndpointLost(String? id) {
     if (id == null) return;
-    // 🔴 FIX 2: Don't remove the peer, mark them as disconnected so UI can show grayed out state
     final peer = _peers[id];
-    if (peer != null) {
-      _peers[id] = peer.copyWith(status: PeerStatus.disconnected);
-      _peersController.add(peerList);
-    }
+    if (peer == null) return;
+    _peers[id] = peer.copyWith(status: PeerStatus.reconnecting);
+    _peersController.add(peerList);
+
+    // Start a TTL timer for cleanup if the endpoint doesn't return.
+    _disconnectTimers[id]?.cancel();
+    _disconnectTimers[id] = Timer(_disconnectTtl, () {
+      final p = _peers.remove(id);
+      _disconnectTimers.remove(id);
+      if (p != null) _peersController.add(peerList);
+    });
   }
 
   void _onConnectionInitiated(String id, ConnectionInfo info) {
@@ -239,6 +264,7 @@ class MeshService {
 
   void _onConnectionResult(String id, Status status) {
     if (status == Status.CONNECTED) {
+      _disconnectTimers.remove(id)?.cancel();
       final existing = _peers[id];
       _peers[id] = MeshPeer(
         endpointId: id,
@@ -248,18 +274,27 @@ class MeshService {
       _peersController.add(peerList);
     } else {
       _peers.remove(id);
+      _disconnectTimers.remove(id)?.cancel();
       _peersController.add(peerList);
     }
   }
 
   void _onDisconnected(String id) {
-    // 🔴 FIX 2: Keep peer in list, but mark as disconnected.
-    // Nearby automatically handles reconnecting if they come back into range via onEndpointFound.
     final peer = _peers[id];
-    if (peer != null) {
-      _peers[id] = peer.copyWith(status: PeerStatus.disconnected);
-      _peersController.add(peerList);
-    }
+    if (peer == null) return;
+    // Mark as reconnecting — Nearby may auto-reconnect if the peer
+    // comes back into range via onEndpointFound.
+    _peers[id] = peer.copyWith(status: PeerStatus.reconnecting);
+    _peersController.add(peerList);
+
+    // Start a TTL timer: if the peer doesn't reconnect within
+    // [_disconnectTtl], remove it from the map entirely.
+    _disconnectTimers[id]?.cancel();
+    _disconnectTimers[id] = Timer(_disconnectTtl, () {
+      final p = _peers.remove(id);
+      _disconnectTimers.remove(id);
+      if (p != null) _peersController.add(peerList);
+    });
   }
 
   /// Map of payloadId → basename, populated when the paired bytes hint
@@ -359,15 +394,20 @@ class MeshService {
     }
   }
 
-  void sendMessage(String text, {String? targetEndpointId}) {
-    if (_peers.isEmpty) return;
+  /// Returns true if at least one peer received the message.
+  bool sendMessage(String text, {String? targetEndpointId}) {
+    if (_peers.isEmpty) return false;
     final bytes = Uint8List.fromList(utf8.encode(text));
+    var delivered = false;
     for (final peer in _peers.values) {
       if (peer.status == PeerStatus.connected) {
         if (targetEndpointId == null || peer.endpointId == targetEndpointId) {
           try {
             Nearby().sendBytesPayload(peer.endpointId, bytes);
-          } catch (_) {}
+            delivered = true;
+          } catch (e) {
+            debugPrint('MeshService: sendBytes failed to ${peer.name}: $e');
+          }
         }
       }
     }
@@ -377,6 +417,7 @@ class MeshService {
       text: text,
       type: MessageType.text,
     ));
+    return delivered;
   }
 
   /// Lazily wire the SOS relay engine. Idempotent — call from app
@@ -430,30 +471,44 @@ class MeshService {
   /// nearby_connections auto-assigns and returns from `sendFilePayload`,
   /// forwarded into the hint so the receiver's `onPayloadTransferUpdate`
   /// can correlate.
-  void sendVoiceMessage(String filePath, {String? targetEndpointId}) {
-    if (_peers.isEmpty) return;
+  ///
+  /// Returns the persisted file path used for the local chat bubble, or
+  /// null if no peers are connected.
+  Future<String?> sendVoiceMessage(String filePath,
+      {String? targetEndpointId}) async {
+    if (_peers.isEmpty) return null;
     final basename = filePath.split('/').last;
 
+    // Persist the recording into app-private storage so it survives the
+    // temp-directory cleanup and the sender can replay their own voice.
+    String? localPath;
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final dest = '${dir.path}/$basename';
+      final src = File(filePath);
+      if (await src.exists()) {
+        await src.copy(dest);
+        localPath = dest;
+      }
+    } catch (e) {
+      debugPrint('MeshService: failed to persist sender voice: $e');
+      localPath = filePath; // Fallback to temp path
+    }
+
+    final sendPath = localPath ?? filePath;
     for (final peer in _peers.values) {
       if (peer.status == PeerStatus.connected) {
         if (targetEndpointId == null || peer.endpointId == targetEndpointId) {
           try {
-            // nearby_connections assigns the payload id itself and returns it.
-            // We forward that id into the bytes hint so the receiver can
-            // match the trailing FILE transfer event to this basename.
             final filePayloadId =
-                Nearby().sendFilePayload(peer.endpointId, filePath);
+                Nearby().sendFilePayload(peer.endpointId, sendPath);
             filePayloadId.then((payloadId) {
               final hint = utf8.encode('voice:$payloadId:$basename');
               Nearby().sendBytesPayload(
                 peer.endpointId,
                 Uint8List.fromList(hint),
               );
-            }).catchError((_) {
-              // File send rejected (peer dropped, etc.) — swallow silently;
-              // the UI does not need to surface a queued-error dialog for an
-              // offline path that already failed at the device-radio layer.
-            });
+            }).catchError((_) {});
           } catch (_) {}
         }
       }
@@ -463,19 +518,17 @@ class MeshService {
       senderName: 'Me',
       text: '',
       type: MessageType.voice,
-      filePath: filePath,
+      filePath: sendPath,
     ));
-    // Phase C: clean up the temp recording 60s after send. The sender's own
-    // bubble plays immediately on tap, by which time `audioplayers` has
-    // already loaded the bytes from disk into its buffer. 60s is well past
-    // any reasonable interaction window and prevents the temp dir from
-    // growing without bound over a long chat session.
-    Timer(const Duration(seconds: 60), () {
+    // Clean up the temp recording after a short delay. The persisted copy
+    // in app-private storage is what the sender's bubble points to.
+    Timer(const Duration(seconds: 10), () {
       final f = File(filePath);
       if (f.existsSync()) {
         f.delete().catchError((_) => f);
       }
     });
+    return sendPath;
   }
 }
 

@@ -42,10 +42,10 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
       if (!result.ok) {
         final msg = switch (result.reason) {
           'wifi_off' =>
-            'Wi-Fi বন্ধ আছে — Wi-Fi চালু করে আবার চেষ্টা করুন (ব্লুটুথ একা কাজ করে না)',
+            'Wi-Fi বন্ধ আছে — Wi-Fi চালু করে আবার চেষ্টা করুন',
           'permissions' =>
-            'Wi-Fi ও ব্লুটুথ অনুমতি প্রয়োজন — সেটিংসে অনুমতি দিন',
-          _ => 'মেশ সংযোগ শুরু করা যায়নি — Wi-Fi ও ব্লুটুথ চালু আছে কিনা দেখুন',
+            'Wi-Fi ও অনুমতি প্রয়োজন — সেটিংসে অনুমতি দিন',
+          _ => 'মেশ সংযোগ শুরু করা যায়নি — Wi-Fi চালু আছে কিনা দেখুন',
         };
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(msg)),
@@ -82,7 +82,15 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
           if (mounted) setState(() => _recording = false);
         },
       );
-      if (ok && mounted) setState(() => _recording = true);
+      if (ok && mounted) {
+        setState(() => _recording = true);
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('রেকর্ডিং শুরু করা যায়নি — মাইক্রোফোন অনুমতি দিন'),
+          ),
+        );
+      }
     }
   }
 
@@ -140,7 +148,7 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
                   children: [
                     CircularProgressIndicator(strokeWidth: 2),
                     SizedBox(height: 12),
-                    Text('ব্লুটুথ সংযোগ চালু হচ্ছে...'),
+                    Text('Wi-Fi সংযোগ চালু হচ্ছে...'),
                   ],
                 ),
               ),
@@ -196,61 +204,100 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
           // Bottom input bar
           if (_started)
             SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    // Voice record button
-                    IconButton.filled(
-                      onPressed: _toggleRecording,
-                      icon: Icon(
-                        _recording ? Icons.stop : Icons.mic,
-                        color: _recording ? Colors.white : cs.onPrimary,
-                      ),
-                      style: IconButton.styleFrom(
-                        backgroundColor:
-                            _recording ? Colors.red : cs.primary,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (_peers.any((p) => p.status == PeerStatus.connected))
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: [
+                          Icon(Icons.broadcast_on_personal,
+                              size: 14, color: cs.onSurfaceVariant),
+                          const SizedBox(width: 6),
+                          Text(
+                            'সবাইকে পাঠানো হবে',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    // Quick text input
-                    Expanded(
-                      child: TextField(
-                        controller: _msgCtrl,
-                        decoration: const InputDecoration(
-                          hintText: 'মেসেজ লিখুন...',
-                          border: OutlineInputBorder(),
-                          contentPadding:
-                              EdgeInsets.symmetric(horizontal: 16),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        // Voice record button
+                        IconButton.filled(
+                          onPressed: _toggleRecording,
+                          icon: Icon(
+                            _recording ? Icons.stop : Icons.mic,
+                            color: _recording ? Colors.white : cs.onPrimary,
+                          ),
+                          style: IconButton.styleFrom(
+                            backgroundColor:
+                                _recording ? Colors.red : cs.primary,
+                          ),
                         ),
-                        onSubmitted: (text) {
-                          final trimmed = text.trim();
-                          if (trimmed.isNotEmpty) {
-                            HapticService.lightTap();
-                            meshService.sendMessage(trimmed);
-                            _msgCtrl.clear();
-                          }
-                        },
-                      ),
+                        const SizedBox(width: 8),
+                        // Quick text input
+                        Expanded(
+                          child: TextField(
+                            controller: _msgCtrl,
+                            decoration: const InputDecoration(
+                              hintText: 'মেসেজ লিখুন...',
+                              border: OutlineInputBorder(),
+                              contentPadding:
+                                  EdgeInsets.symmetric(horizontal: 16),
+                            ),
+                            onSubmitted: (text) {
+                              final trimmed = text.trim();
+                              if (trimmed.isNotEmpty) {
+                                HapticService.lightTap();
+                                final ok = meshService.sendMessage(trimmed);
+                                _msgCtrl.clear();
+                                if (!ok && mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          'কোনো ডিভাইস সংযুক্ত নেই — মেসেজ পাঠানো যায়নি'),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton.filled(
+                          onPressed: () {
+                            final text = _msgCtrl.text.trim();
+                            if (text.isNotEmpty) {
+                              HapticService.lightTap();
+                              final ok = meshService.sendMessage(text);
+                              _msgCtrl.clear();
+                              if (!ok && mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        'কোনো ডিভাইস সংযুক্ত নেই — মেসেজ পাঠানো যায়নি'),
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          icon: const Icon(Icons.send),
+                          style: IconButton.styleFrom(
+                            backgroundColor: cs.primary,
+                            foregroundColor: cs.onPrimary,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    IconButton.filled(
-                      onPressed: () {
-                        final text = _msgCtrl.text.trim();
-                        if (text.isNotEmpty) {
-                          HapticService.lightTap();
-                          meshService.sendMessage(text);
-                          _msgCtrl.clear();
-                        }
-                      },
-                      icon: const Icon(Icons.send),
-                      style: IconButton.styleFrom(
-                        backgroundColor: cs.primary,
-                        foregroundColor: cs.onPrimary,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
         ],
@@ -278,7 +325,7 @@ class _PeerTile extends StatelessWidget {
         child: Icon(Icons.person, color: statusColor),
       ),
       title: Text(
-        peer.name,
+        peer.displayName,
         style: const TextStyle(fontWeight: FontWeight.w500),
       ),
       subtitle: Text(

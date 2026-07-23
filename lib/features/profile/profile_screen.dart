@@ -11,11 +11,13 @@ import 'district_data.dart';
 /// Lightweight profile data holder for display outside the profile screen.
 class UserProfileData {
   final String name;
+  final String phone;
   final String? photoPath;
   final String? district;
 
   const UserProfileData({
     required this.name,
+    this.phone = '',
     this.photoPath,
     this.district,
   });
@@ -29,16 +31,18 @@ class UserProfileData {
     final prefs = await SharedPreferences.getInstance();
     return UserProfileData(
       name: prefs.getString('user_name') ?? '',
+      phone: prefs.getString('user_phone') ?? '',
       photoPath: prefs.getString('user_photo_path'),
       district: prefs.getString('user_district'),
     );
   }
 }
 
-/// User profile screen — edit name, profile photo, and district.
+/// User profile screen — edit name, phone, profile photo, and district.
 ///
 /// Persists to SharedPreferences keys:
 /// - `user_name` (read by emergency_sheet.dart and safe_beacon_screen.dart)
+/// - `user_phone` (read by emergency_sheet.dart and safe_beacon_screen.dart)
 /// - `user_photo_path` (path to app-docs/profile_photo.jpg)
 /// - `user_district`
 class ProfileScreen extends StatefulWidget {
@@ -50,6 +54,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _picker = ImagePicker();
   String? _photoPath;
   String? _district;
@@ -65,6 +70,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void dispose() {
     _nameController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -73,6 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (!mounted) return;
     setState(() {
       _nameController.text = prefs.getString('user_name') ?? '';
+      _phoneController.text = prefs.getString('user_phone') ?? '';
       _photoPath = prefs.getString('user_photo_path');
       _district = prefs.getString('user_district');
       _loading = false;
@@ -142,6 +149,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('user_name', name);
+    await prefs.setString('user_phone', _phoneController.text.trim());
     await prefs.setString('user_photo_path', _photoPath ?? '');
     if (_district != null) {
       await prefs.setString('user_district', _district!);
@@ -244,6 +252,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   decoration: const InputDecoration(
                     labelText: 'নাম',
                     hintText: 'আপনার নাম লিখুন',
+                    counterText: '',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // ── Phone field ──
+                TextField(
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  maxLength: 14,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(
+                    labelText: 'ফোন নম্বর',
+                    hintText: '০১XXXXXXXXX',
                     counterText: '',
                   ),
                 ),
