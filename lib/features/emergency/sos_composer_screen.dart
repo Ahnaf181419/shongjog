@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
+import '../../core/model_manager.dart';
 import 'sos_function_schema.dart';
 
 /// SOS composer — takes panicked voice/text input, passes it through
@@ -24,6 +27,7 @@ class _SosComposerScreenState extends State<SosComposerScreen> {
   final _needsController = TextEditingController();
   final _accessController = TextEditingController();
 
+  final ModelManager _model = modelManager;
   bool _isProcessing = false;
 
   @override
@@ -170,23 +174,117 @@ class _SosComposerScreenState extends State<SosComposerScreen> {
     );
   }
 
-  void _processWithAi() {
-    // On-device model call to extract structured fields from the input.
-    // Requires the model to be loaded — this is a placeholder for the
-    // actual function-calling session. On a device without the model,
-    // the user can manually fill the fields below.
+  Future<void> _processWithAi() async {
+    final input = _inputController.text.trim();
+    if (input.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('আগে অবস্থা বর্ণনা লিখুন।')),
+      );
+      return;
+    }
+
     setState(() => _isProcessing = true);
 
-    // TODO: Wire to modelManager.generateStructured() once the model
-    // supports function calling on-device. For now, show a snackbar.
+    if (!_model.isReady) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('মডেল লোড করা নেই — নিজে পূরণ করুন।'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      setState(() => _isProcessing = false);
+      return;
+    }
+
+    try {
+      final prompt = _buildSosPrompt(input);
+      final raw = await _model.generateStructured(
+        prompt: prompt,
+        tools: const [sosReportTool],
+      );
+      if (!mounted) return;
+      if (raw == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('AI গঠন করতে পারেনি — নিজে পূরণ করুন।'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+      final fields = _parseToolCallResponse(raw);
+      if (fields != null) _applyExtractedFields(fields);
+    } catch (e) {
+      debugPrint('[SosComposer] AI extraction failed: $e');
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
+    }
+  }
+
+  String _buildSosPrompt(String input) {
+    return '''তুমি একজন বাংলাদেশি জরুরি সহায়তা সহকারী। নিচের বর্ণনা থেকে একটি কাঠামোবদ্ধ SOS রিপোর্ট বের করো।
+সবকিছু বাংলায় লেখো।
+
+অবস্থা: $input''';
+  }
+
+  /// Extract the tool-call arguments from the raw SDK JSON. The format
+  /// varies across SDK versions — we look for the first key that contains
+  /// "submit_sos_report" or fall back to scanning for known field names.
+  Map<String, dynamic>? _parseToolCallResponse(String raw) {
+    try {
+      final dynamic parsed = jsonDecode(raw);
+      // Case 1: structured tool_calls array
+      if (parsed is Map<String, dynamic>) {
+        final calls = parsed['tool_calls'] as List?;
+        if (calls != null && calls.isNotEmpty) {
+          final first = calls.first as Map<String, dynamic>;
+          final fn = first['function'] as Map<String, dynamic>?;
+          if (fn != null && fn['arguments'] != null) {
+            final args = fn['arguments'];
+            if (args is String) return jsonDecode(args) as Map<String, dynamic>;
+            if (args is Map<String, dynamic>) return args;
+          }
+        }
+        // Case 2: flat map with field names directly
+        if (parsed.containsKey('location') ||
+            parsed.containsKey('hazard_type')) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      debugPrint('[SosComposer] JSON parse failed: $e');
+    }
+    return null;
+  }
+
+  void _applyExtractedFields(Map<String, dynamic> fields) {
+    if (fields['location'] != null) {
+      _locationController.text = fields['location'].toString();
+    }
+    if (fields['hazard_type'] != null) {
+      _hazardController.text = fields['hazard_type'].toString();
+    }
+    if (fields['casualty_count'] != null) {
+      _casualtyController.text = fields['casualty_count'].toString();
+    }
+    if (fields['injuries'] != null) {
+      _injuriesController.text = fields['injuries'].toString();
+    }
+    final needs = fields['immediate_needs'];
+    if (needs is List && needs.isNotEmpty) {
+      _needsController.text = needs.join(', ');
+    }
+    if (fields['access_notes'] != null) {
+      _accessController.text = fields['access_notes'].toString();
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('মডেল লোড করা থাকলে AI গঠন করবে। এখন নিজে পূরণ করুন।'),
+        content: Text('AI দিয়ে গঠন সম্পন্ন — যাচাই করুন।'),
         duration: Duration(seconds: 2),
       ),
     );
-
-    setState(() => _isProcessing = false);
   }
 
   void _sendSos() {

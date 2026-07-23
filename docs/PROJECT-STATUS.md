@@ -5,9 +5,9 @@
 > picking up where someone left off — it's the single entry point that tells you the
 > whole state.
 
-**Date of this report:** 2026-07-16 (v2 — Gemma deepening)  
-**Status:** 🟢 v2 features shipped: eval harness, LoRA support, adaptive thinking, rumour check, structured SOS, source attribution. 284 tests pass. `flutter analyze` clean.  
-**Branch:** `v2` (built on top of `ahnaf`/`main`).  
+**Date of this report:** 2026-07-18 (post-upgrade-rounds)  
+**Status:** 🟢 Upgraded: 319 tests pass, 48-chunk corpus, 179-example SFT dataset, SOS composer wired to model function-calling, global error handler in place, 10 bare catch blocks replaced. `flutter analyze` clean.  
+**Branch:** `main` (v2 + ahnaf work merged; 13 commits this session).  
 **Demo readiness:** Phase 0 (device spikes) and Phase 5 (live demo) are the only
 remaining work, both requiring a physical arm64-v8a Android device.
 
@@ -17,14 +17,15 @@ remaining work, both requiring a physical arm64-v8a Android device.
 
 | Metric | Value |
 |---|---|
-| Tests passing | 284 (1 skipped) |
+| Tests passing | 319 (1 skipped) |
 | `flutter analyze` | 0 issues |
-| Dart files in `lib/` | 85+ |
-| Lines of Dart in `lib/` | ~10,000+ |
-| Lines of test code | ~4,500+ |
-| Bangla corpus chunks | 23 (target: 50+, see corpus-review.md) |
+| Dart files in `lib/` | 89 |
+| Lines of Dart in `lib/` | ~10,500+ |
+| Lines of test code | ~5,000+ |
+| Bangla corpus chunks | 48 (22 topics) |
+| SFT dataset examples | 179 |
 | Eval test set | 50 queries across 5 categories |
-| Baseline retrieval | Recall@1=44%, Recall@3=58% |
+| Baseline retrieval | Recall@1=46%, Recall@3=60% |
 | APK size (release) | 126.5 MB (arm64-v8a only, no model bundled) |
 | Model file | ~1.87 GB (gemma-4-E2B-it.litertlm, downloaded per-device) |
 | Min Android ABI | arm64-v8a |

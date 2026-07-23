@@ -88,8 +88,13 @@ class ChatRepository {
         final shouldTryDevice = model!.isReady || await model!.isAnyOnDisk();
         debugPrint('[ChatRepo/Tier2] shouldTryDevice=$shouldTryDevice');
         if (shouldTryDevice) {
-          final answer = await model!.generate(prompt);
-          debugPrint('[ChatRepo/Tier2] device path success len=${answer.length}');
+          final rawAnswer = await model!.generate(prompt);
+          // Post-process: the SDK has no stopStrings API on the
+          // .litertlm path, so after a valid answer the model can
+          // emit a second "User:" turn and start rambling. Truncate
+          // at the first turn-marker artifact.
+          final answer = ChatRepository.truncateAtTurnMarker(rawAnswer);
+          debugPrint('[ChatRepo/Tier2] device path success len=${answer.length} (raw ${rawAnswer.length})');
           if (onPath != null) onPath(GenerationPath.device);
           return answer;
         }
@@ -118,6 +123,49 @@ class ChatRepository {
   List<RetrievalHit> _retrieve(String query) {
     final keywordHits = kb.keywordRetriever.topK(query, k: 5);
     return keywordHits.take(3).toList();
+  }
+
+  /// Clean the raw model output of internal-control tokens that should
+  /// never be visible to the user.
+  ///
+  /// Three classes of artifact are stripped (cut at the EARLIEST
+  /// occurrence so a real answer that appears before any of them
+  /// survives):
+  ///
+  /// 1. **`\nUser:` / `<start_of_turn>` / `\nassistant\n`** — turn
+  ///    markers. After a valid answer the model emits a second
+  ///    turn and rambles; we cut everything from the first marker
+  ///    onward. This is what the LiteRT-LM SDK can't fix for us
+  ///    (no `stopStrings` API on the .litertlm path).
+  ///
+  /// 2. **`<|channel|>...<|channel|>` blocks** — LiteRT-LM's
+  ///    internal channel tokens. With `enableThinking: true` the
+  ///    engine leaks the model's internal "thought" channel into
+  ///    the visible response as raw text. The user sees gibberish
+  ///    like `<|channel|>thought Thinking<|channel|><|channel|>...`.
+  ///    We strip everything from the first channel marker onward.
+  ///
+  /// 3. **`\nAssistant\b`** — bilingual safety (the model
+  ///    reinjects the role marker in Bangla: `\nঅassistent:`).
+  ///
+  /// Exposed as `static` so the unit test exercises the real
+  /// production code path, not a private copy.
+  @visibleForTesting
+  static String truncateAtTurnMarker(String raw) {
+    if (raw.isEmpty) return raw;
+    // Single regex with alternation so we get the global earliest
+    // match in one pass instead of looping.
+    final cutPattern = RegExp(
+      r'\nUser:' // legacy prompt format
+      r'|<start_of_turn>' // SDK chat template
+      r'|<\|channel\|>' // LiteRT-LM thinking channel leak
+      r'|\nAssistant\b' // model reinjects role marker (en)
+      r'|\n[উA]ssistant:', // bilingual safety
+      caseSensitive: false,
+    );
+    final m = cutPattern.firstMatch(raw);
+    final cutAt = m?.start ?? raw.length;
+    return raw.substring(0, cutAt).trimRight();
   }
 }
 

@@ -255,7 +255,7 @@ class _EmergencySheetState extends State<EmergencySheet> {
       final prefs = await SharedPreferences.getInstance();
       name = prefs.getString('user_name') ?? name;
       phone = prefs.getString('user_phone') ?? phone;
-    } catch (_) {}
+    } catch (e) { debugPrint("[Catch] emergency_sheet: $e"); }
 
     final body = sosSmsBody(
       name: name,

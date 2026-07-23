@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_gemma/core/tool.dart';
 import 'package:shongjog/features/chat/chat_repository.dart';
 import 'package:shongjog/features/chat/local_llm.dart';
 import 'package:shongjog/rag/keyword_retriever.dart';
@@ -34,6 +35,13 @@ class _FakeLlm implements LocalLlm {
     if (generateError != null) throw generateError!;
     return generateResult ?? 'fake-answer';
   }
+
+  @override
+  Future<String?> generateStructured({
+    required String prompt,
+    required List<Tool> tools,
+  }) async =>
+      null;
 }
 
 void main() {
