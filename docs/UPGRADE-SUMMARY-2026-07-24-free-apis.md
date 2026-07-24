@@ -7,7 +7,7 @@ the API scan. Five services + one home-screen card, each with unit tests.
 
 ## What shipped
 
-Six commits, each bisectable. One round = one focused commit per the
+Ten commits, each bisectable. One round = one focused commit per the
 round-based-execution skill.
 
 | # | Commit | What |
@@ -18,6 +18,10 @@ round-based-execution skill.
 | R4 | `3d40f27` | `feat(environment): Open-Meteo marine wave-forecast service` |
 | R5 | `d065551` | `feat(hazards): GDACS disaster alerts service` |
 | R6 | `6e498b8` | `feat(home): live-hazards card surfaces EONET + USGS + GDACS` |
+| R7 | `7a2f3c3` | `docs: upgrade summary for the free-APIs integration` |
+| R8 | `a693612` | `feat(home): air-quality card surfaces PM2.5 / PM10 + WHO severity` |
+| R9 | `980e057` | `feat(home): marine wave-forecast card (coast-aware)` |
+| R10 | `52ceaff` | `feat(home): auto-refresh cards on connectivity flip` |
 
 ---
 
@@ -65,22 +69,29 @@ or any transport/parse failure, matching the established
 
 ---
 
-## The home-screen card
+## The home-screen cards
 
-`lib/features/home/live_hazards_card.dart` — a single "সতর্কতা" (warning)
-card placed between the offline-message tile and the insights list on
-the home screen. Pulls EONET + USGS + GDACS in parallel via
-`Future.wait`, normalises each item into a common (icon, title, color,
-weight) shape, sorts by urgency, and shows the top 3.
+Three cards now surface the new services on the home screen. All three
+degrade to "not rendered" when offline (consistent with the app's
+offline-first thesis), show a tap-to-retry affordance on fetch failure,
+and auto-refresh when the network comes back online.
 
-State matrix:
-- **Offline** → card not rendered (no noise).
-- **All 3 feeds failed** → tap-to-retry.
-- **Feeds OK, 0 items** → green "এই মুহূর্তে কোনো ঝুঁকি নেই".
-- **Feeds OK with items** → sorted top-3 list + "+N more" footer.
+1. **Live Hazards** (`live_hazards_card.dart`, R6) — "সতর্কতা" card.
+   Pulls EONET + USGS + GDACS in parallel, sorts by urgency, shows
+   top 3. Placed between the offline-message tile and the insights.
 
-Air Quality and Marine services are shipped but not yet wired into a
-card — see Next Steps.
+2. **Air Quality** (`air_quality_card.dart`, R8) — "বায়ুর গুণমান" card.
+   Shows PM2.5 number + WHO severity chip + PM10. Placed directly under
+   the weather card (environmental grouping).
+
+3. **Marine** (`marine_card.dart`, R9) — "সমুদ্রের উত্তালতা" card.
+   Coast-aware: only renders when the user's GPS is within ~150 km of
+   the Bay of Bengal shoreline (Cox's Bazar / Chittagong / Bhola /
+   Patuakhali / Sundarbans / Teknaf). Shows today's wave height +
+   severity chip + 2-day strip. Inland users never see it.
+
+R10 (`52ceaff`) added connectivity-flip auto-refresh to all three cards
+so a user returning from airplane mode sees fresh data without a tap.
 
 ---
 
@@ -90,11 +101,11 @@ card — see Next Steps.
 |---|---|---|---|
 | Tests passing | 357 | 402 | **+45** |
 | `flutter analyze` (new files) | — | 0 issues | — |
-| Dart files in `lib/` | 101 | 106 | +5 services |
+| Dart files in `lib/` | 101 | 109 | +8 (5 services + 3 cards) |
 | Network services | 3 (weather, OSRM, OSM tiles) | 8 | +5 |
 | External APIs | 3 | 8 | +5 |
 | API keys required | 0 | 0 | — |
-| Home-screen cards | weather + tip + offline + insights | + live hazards | +1 |
+| Home-screen cards | weather + tip + offline + insights | + hazards + AQI + marine | +3 |
 
 ---
 
@@ -113,21 +124,16 @@ services) and is best verified on-device during demo prep.
 
 ## Next steps (user-owned)
 
-1. **Wire Air Quality + Marine into cards.** The services exist and are
-   tested; they need a small card widget each (mirror `WeatherCard`).
-   Suggested placement: AQI as a chip inside the existing weather card,
-   Marine as a collapsible card shown only when the user's GPS is near
-   the southern coast.
-2. **On-device smoke test of the live-hazards card.** Needs a phone
-   with internet — confirm the parallel fetch, the empty-state, and
-   the offline hide behaviour.
-3. **Tap-to-detail.** Each hazard row currently shows title only. A
-   future iteration could deep-link to the shelter map (for cyclones)
-   or the triage wizard (for earthquakes).
-4. **Refresh on connectivity change.** The card loads once on first
-   build; consider re-fetching when `connectivityProvider` flips to
-   online, so a user coming back online sees fresh hazards without a
-   manual pull.
+1. **On-device smoke test.** All three cards + all five services are
+   pure-Dart and unit-tested, but the parallel `Future.wait` with real
+   HTTP responses, the coast-aware GPS gate, and the connectivity-flip
+   auto-refresh all need a phone with internet to confirm end-to-end.
+2. **Tap-to-detail on hazard rows.** Each hazard row currently shows
+   title only. A future iteration could deep-link to the shelter map
+   (for cyclones) or the triage wizard (for earthquakes).
+3. **AQI historical trend.** The Open-Meteo Air Quality API supports
+   past-hour archives; a sparkline of the last 24h PM2.5 would make
+   the card more informative without any extra dependency.
 
 ---
 
