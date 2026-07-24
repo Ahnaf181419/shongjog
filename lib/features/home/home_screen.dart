@@ -19,6 +19,7 @@ import '../quick_cards/cards_data.dart';
 import '../weather/weather_card.dart';
 import 'air_quality_card.dart';
 import 'live_hazards_card.dart';
+import 'marine_card.dart';
 
 /// Home tab — context-first dashboard.
 ///
@@ -66,6 +67,8 @@ class HomeScreen extends StatelessWidget {
                 const WeatherCard(),
                 const SizedBox(height: 8),
                 const AirQualityCard(),
+                const SizedBox(height: 8),
+                const MarineCard(),
                 const SizedBox(height: 16),
 
                 // ── 2 emergency tiles (cards / shelter). The 999 entry point
