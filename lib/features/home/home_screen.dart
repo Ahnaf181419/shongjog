@@ -17,6 +17,7 @@ import '../intelligence/notification_service.dart';
 import '../profile/profile_screen.dart';
 import '../quick_cards/cards_data.dart';
 import '../weather/weather_card.dart';
+import 'live_hazards_card.dart';
 
 /// Home tab — context-first dashboard.
 ///
@@ -71,6 +72,8 @@ class HomeScreen extends StatelessWidget {
                 _TipCard(),
                 const SizedBox(height: 12),
                 _OfflineMessageTile(),
+                const SizedBox(height: 12),
+                const LiveHazardsCard(),
                 const SizedBox(height: 12),
                 const _InsightsList(),
               ],
