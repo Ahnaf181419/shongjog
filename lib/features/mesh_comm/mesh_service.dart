@@ -509,7 +509,7 @@ class MeshService {
                 Uint8List.fromList(hint),
               );
             }).catchError((_) {});
-          } catch (_) {}
+          } catch (e) { debugPrint("[Catch] mesh_service: $e"); }
         }
       }
     }
