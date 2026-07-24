@@ -214,13 +214,17 @@ class _EmergencySheetState extends State<EmergencySheet> {
     );
   }
 
-  void _confirmDial() async {
-    HapticFeedback.heavyImpact();
-    await EmergencyActions.dial(EmergencyActions.police);
+  Future<void> _confirmDial() async {
+    try {
+      HapticFeedback.heavyImpact();
+      await EmergencyActions.dial(EmergencyActions.police);
+    } catch (e) {
+      debugPrint('EmergencySheet: dial failed: $e');
+    }
     if (mounted) Navigator.pop(context);
   }
 
-  void _sendSos() async {
+  Future<void> _sendSos() async {
     double? lat;
     double? lon;
     String name = 'ব্যবহারকারী';
@@ -234,8 +238,6 @@ class _EmergencySheetState extends State<EmergencySheet> {
       }
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
-        // Don't silently ship (0,0) — flag it so the SOS body + UI can be
-        // honest about where we are (responders can't search Atlantic Ocean).
         gpsWarning = 'GPS অনুমতি দেওয়া হয়নি';
       } else {
         final pos = await Geolocator.getCurrentPosition(
@@ -264,9 +266,22 @@ class _EmergencySheetState extends State<EmergencySheet> {
       lon: lon,
       gpsWarning: gpsWarning,
     );
-    await EmergencyActions.sendSos(body);
+
+    final smsOk = await EmergencyActions.sendSos(body);
 
     if (!mounted) return;
+
+    if (!smsOk) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('SOS পাঠানো যায়নি — স্মস অ্যাপ খুঁজে পাওয়া যায়নি'),
+          backgroundColor: ShongjogTheme.alertBright,
+          duration: const Duration(seconds: 5),
+        ),
+      );
+      return;
+    }
+
     if (gpsWarning != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -275,7 +290,6 @@ class _EmergencySheetState extends State<EmergencySheet> {
           duration: const Duration(seconds: 5),
         ),
       );
-      // Don't auto-close: the user must see the warning and decide next step.
       return;
     }
     Navigator.pop(context);

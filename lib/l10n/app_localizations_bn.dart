@@ -519,6 +519,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get chatTryAgain => 'আবার চেষ্টা করুন';
 
   @override
+  String get chatMicPermission => 'মাইক্রোফোন অনুমতি নেই। সেটিংসে যেতে চাপুন।';
+
+  @override
   String get meshTitle => 'অফলাইন যোগাযোগ';
 
   @override
@@ -584,4 +587,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get weatherLoading => 'আবহাওয়া — লোড হচ্ছে';
+
+  @override
+  String get weatherFallbackLabel => '📍 ঢাকা (ডিফল্ট)';
+
+  @override
+  String get weatherLocationRetry => 'অবস্থান আবার চেষ্টা করুন';
 }

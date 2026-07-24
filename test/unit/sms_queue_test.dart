@@ -26,22 +26,19 @@ void main() {
     expect(q.pending, 0);
   });
 
-  test('drain stops on first failure and leaves the failed entry at the head',
-      () async {
+  test('drain skips failed entries and retries them at the end', () async {
     final q = SmsQueue((b, p) async => b != 'fail');
     q.enqueue('ok1', 'p1');
     q.enqueue('fail', 'p2');
     q.enqueue('ok2', 'p3');
     final sent = await q.drain();
-    expect(sent, 1); // ok1 succeeded; fail stopped the drain.
-    // 'fail' is at the head; 'ok2' still queued. Total pending = 2.
-    expect(q.pending, 2);
-    // Resuming: only the 'fail' entry should be retried first.
-    final okQueue = SmsQueue((b, p) async => true);
-    okQueue.enqueue('fail', 'p2');
-    okQueue.enqueue('ok2', 'p3');
-    final sent2 = await okQueue.drain();
-    expect(sent2, 2);
+    expect(sent, 2); // ok1 + ok2 succeeded; fail was skipped.
+    // 'fail' is re-queued at the head for retry.
+    expect(q.pending, 1);
+    // Resuming: the failed entry is retried first.
+    final sent2 = await q.drain();
+    expect(sent2, 0); // still fails
+    expect(q.pending, 1); // stays queued
   });
 
   test('drain empty queue returns 0 without calling sendOne', () async {

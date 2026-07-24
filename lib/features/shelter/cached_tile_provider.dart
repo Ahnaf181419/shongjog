@@ -159,6 +159,13 @@ class CachedTileProvider extends TileProvider {
   Directory? _cacheDir;
   bool _initialized = false;
 
+  CachedTileProvider() {
+    // Kick off cache dir init eagerly so it's ready by the time the
+    // first tile is requested. _ensureCacheDir is safe to race with
+    // getImage() — the fallback Directory('') handles the brief window.
+    _ensureCacheDir();
+  }
+
   Future<void> _ensureCacheDir() async {
     if (_initialized) return;
     try {

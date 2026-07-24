@@ -12,8 +12,8 @@ class SosPayload {
   final String originName;
   final String originPhone;
   final String message;
-  final double lat;
-  final double lon;
+  final double? lat;
+  final double? lon;
   final DateTime timestamp;
   final int hopCount;
   final List<String> hops;
@@ -23,8 +23,8 @@ class SosPayload {
     required this.originName,
     required this.originPhone,
     required this.message,
-    required this.lat,
-    required this.lon,
+    this.lat,
+    this.lon,
     required this.timestamp,
     required this.hopCount,
     required this.hops,
@@ -81,8 +81,8 @@ class SosPayload {
         'originName': originName,
         'originPhone': originPhone,
         'message': message,
-        'lat': lat,
-        'lon': lon,
+        if (lat != null) 'lat': lat,
+        if (lon != null) 'lon': lon,
         'timestamp': timestamp.toIso8601String(),
         'hopCount': hopCount,
         'hops': hops,
@@ -95,8 +95,8 @@ class SosPayload {
       originName: m['originName'] as String,
       originPhone: m['originPhone'] as String,
       message: m['message'] as String,
-      lat: (m['lat'] as num).toDouble(),
-      lon: (m['lon'] as num).toDouble(),
+      lat: (m['lat'] as num?)?.toDouble(),
+      lon: (m['lon'] as num?)?.toDouble(),
       timestamp: DateTime.parse(m['timestamp'] as String),
       hopCount: m['hopCount'] as int,
       hops: (m['hops'] as List).cast<String>(),

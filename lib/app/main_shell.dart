@@ -3,12 +3,18 @@ import 'package:flutter/material.dart';
 import '../features/chat/chat_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/quick_cards/quick_cards_screen.dart';
+import 'dart:async';
 import '../features/shelter/shelter_map_screen.dart';
 import '../l10n/app_localizations.dart';
+import '../features/mesh_comm/mesh_call_screen.dart';
+import '../features/mesh_comm/mesh_call_service.dart';
+import '../features/mesh_comm/mesh_models.dart';
+import '../features/mesh_comm/mesh_service.dart';
 
-/// Root app shell — a [NavigationBar] with 4 tabs, each preserving its own
-/// state via an [IndexedStack]. Settings and Emergency are reached from the
-/// Home tab (push routes), not as tabs.
+/// Root app shell — a [NavigationBar] with 4 tabs. Tabs are lazily built
+/// on first selection and kept alive via [Offstage] to preserve state.
+/// Settings and Emergency are reached from the Home tab (push routes),
+/// not as tabs.
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
 
@@ -26,9 +32,109 @@ class MainShell extends StatefulWidget {
 }
 
 class _MainShellState extends State<MainShell> {
+  StreamSubscription? _connectionSub;
+  StreamSubscription? _incomingCallSub;
+
+  @override
+  void initState() {
+    super.initState();
+    _connectionSub = meshService.connectionRequests.listen((event) {
+      if (!mounted) return;
+      _showConnectionDialog(event);
+    });
+    _incomingCallSub = meshCallService.incomingCallStream.listen((sig) {
+      if (!mounted) return;
+      _showIncomingCall(sig);
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectionSub?.cancel();
+    _incomingCallSub?.cancel();
+    super.dispose();
+  }
+
+  void _showConnectionDialog(ConnectionRequestEvent event) {
+    final displayName = event.endpointName.startsWith(kMeshPeerPrefix) 
+        ? event.endpointName.substring(kMeshPeerPrefix.length) 
+        : event.endpointName;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: Text('নতুন সংযোগের অনুরোধ'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(
+              radius: 30,
+              child: Icon(Icons.person, size: 30),
+            ),
+            SizedBox(height: 16),
+            Text(
+              '$displayName আপনার সাথে কানেক্ট হতে চাচ্ছে।',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              meshService.rejectConnection(event.endpointId);
+              Navigator.pop(ctx);
+            },
+            child: Text('প্রত্যাখ্যান'),
+          ),
+          FilledButton(
+            onPressed: () {
+              meshService.acceptConnection(event.endpointId);
+              Navigator.pop(ctx);
+            },
+            child: Text('গ্রহণ করুন'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showIncomingCall(CallSignalMessage sig) {
+    // Build a synthetic peer from the signal sender info.
+    final peer = MeshPeer(
+      endpointId: sig.fromId,
+      name: sig.fromName,
+      status: PeerStatus.connected,
+    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MeshCallScreen(peer: peer, isIncoming: true),
+      ),
+    );
+  }
+
   int _index = 0;
+  final Map<int, Widget> _tabCache = {};
 
   void _goToTab(int i) => setState(() => _index = i);
+
+  Widget _buildTab(int index) {
+    return _tabCache.putIfAbsent(index, () {
+      switch (index) {
+        case 0:
+          return HomeScreen(onNavigateToTab: _goToTab);
+        case 1:
+          return const ChatScreen();
+        case 2:
+          return const QuickCardsScreen();
+        case 3:
+          return const ShelterMapScreen();
+        default:
+          return const SizedBox.shrink();
+      }
+    });
+  }
 
   List<NavigationDestination> _destinations(BuildContext context) => [
     NavigationDestination(
@@ -61,13 +167,13 @@ class _MainShellState extends State<MainShell> {
         if (!didPop) setState(() => _index = 0);
       },
       child: Scaffold(
-        body: IndexedStack(
-          index: _index,
+        body: Stack(
           children: [
-            HomeScreen(onNavigateToTab: _goToTab),
-            const ChatScreen(),
-            const QuickCardsScreen(),
-            const ShelterMapScreen(),
+            for (int i = 0; i < 4; i++)
+              Offstage(
+                offstage: _index != i,
+                child: _buildTab(i),
+              ),
           ],
         ),
         bottomNavigationBar: NavigationBar(

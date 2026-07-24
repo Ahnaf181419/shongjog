@@ -60,8 +60,9 @@ class SosRelayEngine {
   void _remember(String id) {
     _seen.add(id);
     if (_seen.length > _maxSeen) {
-      _seen.clear();
-      _seen.add(id);
+      // Evict the oldest entry instead of clearing the entire set.
+      // _seen is a LinkedHashSet (insertion-ordered), so first is oldest.
+      _seen.remove(_seen.first);
     }
   }
 }

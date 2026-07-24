@@ -75,13 +75,9 @@ class HomeScreen extends StatelessWidget {
                 //   lives in the AppBar pill — always reachable while scrolling.
                 _EmergencyTriad(),
                 const SizedBox(height: 12),
-                _TipCard(),
-                const SizedBox(height: 12),
                 _OfflineMessageTile(),
                 const SizedBox(height: 12),
-                const LiveHazardsCard(),
-                const SizedBox(height: 12),
-                const _InsightsList(),
+                _TipCard(),
               ],
             ),
           ),
@@ -171,13 +167,17 @@ class _ProfileTitleState extends State<_ProfileTitle> {
           ),
           if (_profile.name.isNotEmpty) ...[
             const SizedBox(width: 8),
-            Text(
-              _profile.name,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                fontFamily: ShongjogTheme.fontFamily,
-                color: cs.onSurface,
+            Flexible(
+              child: Text(
+                _profile.name,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: ShongjogTheme.fontFamily,
+                  color: cs.onSurface,
+                ),
               ),
             ),
           ],
@@ -482,42 +482,48 @@ class _EmergencyTriad extends StatelessWidget {
     final countBn = _bnNum(kQuickCards.length);
     return Column(
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: _TriadTile(
-                icon: Icons.style_rounded,
-                titleBn: AppLocalizations.of(context).emergencyCards,
-                subtitleBn: AppLocalizations.of(context).emergencyCardsCount(countBn),
-                onTap: () => MainShellRoute.goTo(context, 2),
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: _TriadTile(
+                  icon: Icons.style_rounded,
+                  titleBn: AppLocalizations.of(context).emergencyCards,
+                  subtitleBn: AppLocalizations.of(context).emergencyCardsCount(countBn),
+                  onTap: () => MainShellRoute.goTo(context, 2),
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _TriadTile(
-                icon: Icons.shield_rounded,
-                titleBn: AppLocalizations.of(context).nearbyShelter,
-                subtitleBn: AppLocalizations.of(context).shelterFromGps,
-                onTap: () => MainShellRoute.goTo(context, 3),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _TriadTile(
+                  icon: Icons.shield_rounded,
+                  titleBn: AppLocalizations.of(context).nearbyShelter,
+                  subtitleBn: AppLocalizations.of(context).shelterFromGps,
+                  onTap: () => MainShellRoute.goTo(context, 3),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _TriageTile(
-                onTap: () => pushNamedSafe(context, AppRoutes.triage),
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: _TriageTile(
+                  onTap: () => pushNamedSafe(context, AppRoutes.triage),
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _SafeBeaconTile(
-                onTap: () => pushNamedSafe(context, AppRoutes.safeBeacon),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _SafeBeaconTile(
+                  onTap: () => pushNamedSafe(context, AppRoutes.safeBeacon),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         const SizedBox(height: 12),
         _DirectoryTile(
@@ -603,7 +609,7 @@ class _SafeBeaconTile extends StatelessWidget {
           child: Row(
             children: [
               Icon(Icons.check_circle_outline_rounded,
-                  color: cs.tertiary, size: 28),
+                  color: cs.onTertiaryContainer, size: 28),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -734,7 +740,8 @@ class _TriageTile extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              Icon(Icons.medical_services_rounded, color: cs.error, size: 28),
+              Icon(Icons.medical_services_rounded,
+                  color: cs.onErrorContainer, size: 28),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -1062,7 +1069,15 @@ class _ModelDownloadBanner extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              LinearProgressIndicator(value: progress, minHeight: 3),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: progress ?? 0.0,
+                  minHeight: 4,
+                  backgroundColor: cs.primary.withValues(alpha: 0.15),
+                  valueColor: AlwaysStoppedAnimation<Color>(cs.primary),
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 child: Row(

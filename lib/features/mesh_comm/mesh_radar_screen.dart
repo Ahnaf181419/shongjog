@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/haptics.dart';
 import '../../l10n/app_localizations.dart';
 import 'mesh_chat_screen.dart';
 import 'mesh_models.dart';
 import 'mesh_service.dart';
+import 'mesh_transport.dart';
 import 'mesh_voice_service.dart';
 
 class MeshRadarScreen extends StatefulWidget {
@@ -25,15 +27,70 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
   List<MeshPeer> _peers = [];
   bool _started = false;
   bool _recording = false;
+  Timer? _refreshTimer;
+  List<String> _savedContacts = [];
 
   @override
   void initState() {
+    _loadSavedContacts();
     super.initState();
     _radarAnim = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 3),
     )..repeat();
     _startMesh();
+  }
+
+  Future<void> _loadSavedContacts() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      _savedContacts = prefs.getStringList('pref_saved_contacts') ?? [];
+    });
+  }
+
+  Future<void> _toggleSavedContact(String name) async {
+    HapticService.lightTap();
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      if (_savedContacts.contains(name)) {
+        _savedContacts.remove(name);
+      } else {
+        _savedContacts.add(name);
+      }
+    });
+    await prefs.setStringList('pref_saved_contacts', _savedContacts);
+  }
+
+  List<MeshPeer> _getCombinedPeers() {
+    final combined = <MeshPeer>[];
+    final activeNames = <String>{};
+
+    for (final p in _peers) {
+      combined.add(p);
+      activeNames.add(p.displayName);
+    }
+
+    for (final name in _savedContacts) {
+      if (!activeNames.contains(name)) {
+        combined.add(MeshPeer(
+          endpointId: 'saved_$name',
+          name: name,
+          status: PeerStatus.disconnected,
+        ));
+      }
+    }
+    
+    // Put connected/active peers at the top
+    combined.sort((a, b) {
+      final aActive = a.status == PeerStatus.connected || a.status == PeerStatus.reconnecting;
+      final bActive = b.status == PeerStatus.connected || b.status == PeerStatus.reconnecting;
+      if (aActive && !bActive) return -1;
+      if (!aActive && bActive) return 1;
+      return 0;
+    });
+
+    return combined;
   }
 
   Future<void> _startMesh() async {
@@ -61,10 +118,15 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
     _peerSub = meshService.peers.listen((peers) {
       if (mounted) setState(() => _peers = peers);
     });
+    
+    _refreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+      meshService.restartDiscovery();
+    });
   }
 
   @override
   void dispose() {
+    _refreshTimer?.cancel();
     _msgCtrl.dispose();
     _peerSub?.cancel();
     _radarAnim.dispose();
@@ -100,8 +162,56 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
     final cs = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context).meshTitle),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
+                AppLocalizations.of(context).meshTitle,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 8),
+            if (_started)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                decoration: BoxDecoration(
+                  color: meshService.activeTransport == MeshTransportType.wifiDirect
+                      ? Colors.orange.withValues(alpha: 0.2)
+                      : Colors.green.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  meshService.activeTransport == MeshTransportType.wifiDirect
+                      ? 'Wi-Fi Direct'
+                      : 'Nearby',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: meshService.activeTransport == MeshTransportType.wifiDirect
+                        ? Colors.orange
+                        : Colors.green,
+                  ),
+                ),
+              ),
+          ],
+        ),
         actions: [
+          if (_started)
+            IconButton(
+              icon: const Icon(Icons.refresh_rounded),
+              tooltip: 'পুনরায় স্ক্যান করুন',
+              onPressed: () {
+                HapticService.lightTap();
+                meshService.restartDiscovery();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('আবার স্ক্যান করা হচ্ছে...'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+            ),
           if (_started)
             Center(
               child: Padding(
@@ -155,7 +265,7 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
               ),
             ),
 
-          if (_started && _peers.isEmpty)
+          if (_started && _getCombinedPeers().isEmpty)
             Expanded(
               child: Center(
                 child: Column(
@@ -178,16 +288,39 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
               ),
             ),
 
-          if (_started && _peers.isNotEmpty)
+          if (_started && _getCombinedPeers().isNotEmpty)
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: _peers.length,
+                itemCount: _getCombinedPeers().length,
                 itemBuilder: (context, index) {
-                  final peer = _peers[index];
+                  final peer = _getCombinedPeers()[index];
                   return _PeerTile(
                     peer: peer,
-                    onTap: () {
+                    isSaved: _savedContacts.contains(peer.displayName),
+                    onToggleSave: () => _toggleSavedContact(peer.displayName),
+                    onTap: () async {
+                      if (peer.status != PeerStatus.connected) {
+                        HapticService.lightTap();
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('সংযোগ করা হচ্ছে...'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        final ok = await meshService.connectToEndpoint(peer.endpointId);
+                        if (!ok) {
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('সংযোগ ব্যর্থ হয়েছে'),
+                            ),
+                          );
+                          return;
+                        }
+                      }
+                      if (!mounted) return;
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -307,13 +440,21 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
 
 class _PeerTile extends StatelessWidget {
   final MeshPeer peer;
+  final bool isSaved;
   final VoidCallback onTap;
+  final VoidCallback onToggleSave;
 
-  const _PeerTile({required this.peer, required this.onTap});
+  const _PeerTile({
+    required this.peer, 
+    required this.isSaved, 
+    required this.onTap, 
+    required this.onToggleSave,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final statusColor = switch (peer.status) {
+    final isOfflineSaved = peer.endpointId.startsWith('saved_');
+    final statusColor = isOfflineSaved ? Colors.grey : switch (peer.status) {
       PeerStatus.connected => Colors.green,
       PeerStatus.reconnecting => Colors.orange,
       PeerStatus.disconnected => Colors.red,
@@ -328,6 +469,7 @@ class _PeerTile extends StatelessWidget {
         style: const TextStyle(fontWeight: FontWeight.w500),
       ),
       subtitle: Text(
+        isOfflineSaved ? 'অফলাইন' :
         peer.status == PeerStatus.connected
             ? AppLocalizations.of(context).meshConnected
             : peer.status == PeerStatus.reconnecting
@@ -335,8 +477,20 @@ class _PeerTile extends StatelessWidget {
                 : AppLocalizations.of(context).meshDisconnected,
         style: TextStyle(color: statusColor, fontSize: 12),
       ),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: onTap,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: Icon(
+              isSaved ? Icons.star_rounded : Icons.star_border_rounded,
+              color: isSaved ? Colors.amber : Colors.grey,
+            ),
+            onPressed: onToggleSave,
+          ),
+          if (!isOfflineSaved) const Icon(Icons.chevron_right),
+        ],
+      ),
+      onTap: isOfflineSaved ? null : onTap,
     );
   }
 }

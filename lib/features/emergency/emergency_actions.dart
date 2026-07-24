@@ -1,6 +1,8 @@
 import 'package:url_launcher/url_launcher.dart';
 
-/// Emergency actions via the cellular voice channel (tel: and sms: URIs).
+import '../../core/sms_channel.dart';
+
+/// Emergency actions via the cellular voice channel (tel: and SmsManager).
 /// Bangladesh emergency numbers.
 class EmergencyActions {
   // National hotlines (verified against BTRC + government directories).
@@ -18,18 +20,13 @@ class EmergencyActions {
     return false;
   }
 
-  /// Open the SMS composer with a pre-drafted SOS body to 999.
-  static Future<bool> sendSos(String body) async {
-    final uri = Uri(scheme: 'sms', path: '999', query: 'body=$body');
-    if (await canLaunchUrl(uri)) return launchUrl(uri);
-    return false;
+  /// Send an SOS SMS to 999 silently via SmsManager.
+  static Future<bool> sendSos(String body) {
+    return SmsChannel.send('999', body);
   }
 
-  /// Open the SMS composer with [body] to [phone]. Used by the
-  /// safe-beacon screen to ping emergency contacts.
-  static Future<bool> sendSmsTo(String phone, String body) async {
-    final uri = Uri(scheme: 'sms', path: phone, query: 'body=$body');
-    if (await canLaunchUrl(uri)) return launchUrl(uri);
-    return false;
+  /// Send an SMS with [body] to [phone] silently via SmsManager.
+  static Future<bool> sendSmsTo(String phone, String body) {
+    return SmsChannel.send(phone, body);
   }
 }

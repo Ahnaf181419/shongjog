@@ -17,10 +17,8 @@ import 'vosk_stt_provider.dart';
 class SttService {
   SttProvider? _provider;
   final _partialCtl = StreamController<String>.broadcast();
-  final _finalCtl = StreamController<String>.broadcast();
 
   Stream<String> get partials => _partialCtl.stream;
-  Stream<String> get finals => _finalCtl.stream;
 
   /// The name of the active provider, or null if not yet initialized.
   String? get activeProviderName => _provider?.name;
@@ -74,6 +72,5 @@ class SttService {
   void dispose() {
     _provider?.dispose();
     _partialCtl.close();
-    _finalCtl.close();
   }
 }

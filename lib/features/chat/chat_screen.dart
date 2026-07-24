@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/theme.dart';
@@ -61,8 +62,12 @@ class _ChatScreenState extends State<ChatScreen> {
   ChatRepository? _repo;
   bool _busy = false;
   bool _listening = false;
-  bool _autoRead = true;
+  // H10 FIX: must default to false. pref_auto_read requires explicit opt-in.
+  // Defaulting true meant TTS could fire on the first answer before
+  // SharedPreferences loaded (race window of ~200ms on cold start).
+  bool _autoRead = false;
   bool _voiceInputEnabled = true;
+  bool _sttReady = false;
   String? _lastQuery;
   GenerationPath? _lastPath;
 
@@ -156,9 +161,10 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     try {
-      await _stt.init();
+      _sttReady = await _stt.init();
     } catch (e) {
       debugPrint('STT init error: $e');
+      _sttReady = false;
     }
 
     if (mounted) {
@@ -297,6 +303,22 @@ class _ChatScreenState extends State<ChatScreen> {
       HapticService.warn();
       await _stt.stop();
       setState(() => _listening = false);
+      return;
+    }
+    // If STT failed to initialize (e.g. permission denied), offer a
+    // settings redirect so the user can recover.
+    if (!_sttReady) {
+      final l10n = AppLocalizations.of(context);
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.chatMicPermission),
+          action: SnackBarAction(
+            label: l10n.settingsTitle,
+            onPressed: () => openAppSettings(),
+          ),
+        ),
+      );
       return;
     }
     HapticService.lightTap();

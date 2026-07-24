@@ -14,8 +14,8 @@ class SafeBeaconPayload {
   final String id;
   final String originName;
   final String originPhone;
-  final double lat;
-  final double lon;
+  final double? lat;
+  final double? lon;
   final DateTime timestamp;
   final int hopCount;
   final List<String> hops;
@@ -25,8 +25,8 @@ class SafeBeaconPayload {
     required this.id,
     required this.originName,
     required this.originPhone,
-    required this.lat,
-    required this.lon,
+    this.lat,
+    this.lon,
     required this.timestamp,
     required this.hopCount,
     required this.hops,
@@ -54,8 +54,8 @@ class SafeBeaconPayload {
         'id': id,
         'originName': originName,
         'originPhone': originPhone,
-        'lat': lat,
-        'lon': lon,
+        if (lat != null) 'lat': lat,
+        if (lon != null) 'lon': lon,
         'timestamp': timestamp.toIso8601String(),
         'hopCount': hopCount,
         'hops': hops,
@@ -68,8 +68,8 @@ class SafeBeaconPayload {
       id: m['id'] as String,
       originName: m['originName'] as String,
       originPhone: m['originPhone'] as String,
-      lat: (m['lat'] as num).toDouble(),
-      lon: (m['lon'] as num).toDouble(),
+      lat: (m['lat'] as num?)?.toDouble(),
+      lon: (m['lon'] as num?)?.toDouble(),
       timestamp: DateTime.parse(m['timestamp'] as String),
       hopCount: m['hopCount'] as int,
       hops: (m['hops'] as List).cast<String>(),
