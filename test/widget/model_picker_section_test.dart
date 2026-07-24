@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/app/theme.dart';
 import 'package:shongjog/features/settings/model_picker_section.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
+
+import 'test_app.dart';
 
 void main() {
   // These tests MUST use the real ShongjogTheme. Under a bare MaterialApp the
@@ -12,6 +15,9 @@ void main() {
   // infinite width" and the whole card silently vanished.
   Widget wrap({double width = 1280}) {
     return MaterialApp(
+      locale: const Locale('bn'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: ShongjogTheme.light(),
       home: Scaffold(
         body: SizedBox(

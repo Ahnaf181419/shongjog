@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/main_shell.dart';
+import '../../l10n/app_localizations.dart';
 import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../core/admin_broadcast_service.dart';
@@ -37,12 +38,12 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const _ProfileTitle(),
         actions: [
-          const _EmergencyCallPill(),
+          _EmergencyCallPill(),
           const SizedBox(width: 4),
           const _NotificationBell(),
           const SizedBox(width: 4),
           IconButton(
-            tooltip: 'সেটিংস',
+            tooltip: AppLocalizations.of(context).settingsTitle,
             icon: const Icon(Icons.settings_rounded),
             onPressed: () => pushNamedSafe(context, AppRoutes.settings),
           ),
@@ -50,13 +51,13 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          const _ModelDownloadBanner(),
-          const _DownloadCompletionListener(),
+          _ModelDownloadBanner(),
+          _DownloadCompletionListener(),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
               children: [
-                const _StatusStrip(),
+                _StatusStrip(),
                 const SizedBox(height: 10),
                 // ── Weather card sits at the top: today's weather + 3-day strip.
                 //   Optional network feature — degrades to a tap-to-load affordance.
@@ -67,7 +68,7 @@ class HomeScreen extends StatelessWidget {
                 //   lives in the AppBar pill — always reachable while scrolling.
                 _EmergencyTriad(),
                 const SizedBox(height: 12),
-                const _TipCard(),
+                _TipCard(),
                 const SizedBox(height: 12),
                 _OfflineMessageTile(),
                 const SizedBox(height: 12),
@@ -210,7 +211,7 @@ class _EmergencyCallPill extends StatelessWidget {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  'জরুরি কল',
+                    AppLocalizations.of(context).emergencyCall,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -267,7 +268,7 @@ class _NotificationBellState extends State<_NotificationBell> {
       clipBehavior: Clip.none,
       children: [
         IconButton(
-          tooltip: 'বিজ্ঞপ্তি',
+          tooltip: AppLocalizations.of(context).notificationsTooltip,
           icon: const Icon(Icons.notifications_rounded),
           onPressed: () => pushNamedSafe(context, AppRoutes.notifications),
         ),
@@ -335,13 +336,13 @@ class _StatusStripState extends State<_StatusStrip> {
           leading: isOnline
               ? _LiveDot(color: cs.primary)
               : _OfflineDot(color: cs.primary),
-          label: isOnline ? 'অনলাইনে চলছে' : 'অফলাইনে চলে',
+          label: isOnline ? AppLocalizations.of(context).statusOnline : AppLocalizations.of(context).statusOffline,
         ),
         const SizedBox(width: 8),
         _StatusChip(
           leading: Icon(Icons.check_circle_rounded,
               size: 14, color: ShongjogTheme.success),
-          label: 'তথ্য প্রস্তুত',
+          label: AppLocalizations.of(context).dataReady,
         ),
       ],
     );
@@ -477,8 +478,8 @@ class _EmergencyTriad extends StatelessWidget {
             Expanded(
               child: _TriadTile(
                 icon: Icons.style_rounded,
-                titleBn: 'জরুরি কার্ড',
-                subtitleBn: '$countBnটি দ্রুত নির্দেশিকা',
+                titleBn: AppLocalizations.of(context).emergencyCards,
+                subtitleBn: AppLocalizations.of(context).emergencyCardsCount(countBn),
                 onTap: () => MainShellRoute.goTo(context, 2),
               ),
             ),
@@ -486,8 +487,8 @@ class _EmergencyTriad extends StatelessWidget {
             Expanded(
               child: _TriadTile(
                 icon: Icons.shield_rounded,
-                titleBn: 'নিকটস্থ আশ্রয়',
-                subtitleBn: 'GPS থেকে শেল্টার',
+                titleBn: AppLocalizations.of(context).nearbyShelter,
+                subtitleBn: AppLocalizations.of(context).shelterFromGps,
                 onTap: () => MainShellRoute.goTo(context, 3),
               ),
             ),
@@ -542,7 +543,7 @@ class _DirectoryTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'জরুরি নম্বর',
+                      AppLocalizations.of(context).emergencyNumbers,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -551,7 +552,7 @@ class _DirectoryTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'অফলাইন ডিরেক্টরি — জাতীয় ও বিভাগীয় হটলাইন',
+                      AppLocalizations.of(context).emergencyDirectoryDesc,
                       style: TextStyle(
                         fontSize: 12,
                         color: cs.onSurfaceVariant,
@@ -600,7 +601,7 @@ class _SafeBeaconTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'আমি নিরাপদ আছি',
+                      AppLocalizations.of(context).imSafe,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -609,7 +610,7 @@ class _SafeBeaconTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'মেশ ও এসএমএস দিয়ে জানান',
+                      AppLocalizations.of(context).imSafeDesc,
                       style: TextStyle(
                         fontSize: 12,
                         color: cs.onTertiaryContainer.withValues(alpha: 0.8),
@@ -676,7 +677,7 @@ class _TipCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'আজকের পরামর্শ',
+                  AppLocalizations.of(context).todaysTip,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -731,7 +732,7 @@ class _TriageTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'ট্রায়াজ উইজার্ড',
+                      AppLocalizations.of(context).triageWizard,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -740,7 +741,7 @@ class _TriageTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'প্রাথমিক চিকিৎসা',
+                      AppLocalizations.of(context).firstAid,
                       style: TextStyle(
                         fontSize: 12,
                         color: cs.onErrorContainer.withValues(alpha: 0.8),
@@ -854,7 +855,7 @@ class _OfflineMessageTile extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'অফলাইন মেসেজ',
+                      AppLocalizations.of(context).offlineMessage,
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
@@ -864,7 +865,7 @@ class _OfflineMessageTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Wi-Fi চালু রেখে কাছের মানুষদের সাথে কথা বলুন',
+                      AppLocalizations.of(context).offlineMessageDesc,
                       style: TextStyle(
                         fontSize: 14,
                         height: 1.4,
@@ -1060,7 +1061,7 @@ class _ModelDownloadBanner extends StatelessWidget {
                     Icon(Icons.download_rounded, size: 14, color: cs.primary),
                     const SizedBox(width: 6),
                     Text(
-                      'মডেল ডাউনলোড ${_bnPct(progress)}',
+                      AppLocalizations.of(context).modelDownloadProgress(_bnPct(progress)),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -1069,7 +1070,7 @@ class _ModelDownloadBanner extends StatelessWidget {
                     ),
                     const Spacer(),
                     Text(
-                      'পটভূমিতে চলছে',
+                      AppLocalizations.of(context).modelDownloading,
                       style: TextStyle(
                         fontSize: 11,
                         color: cs.onSurfaceVariant,
@@ -1129,15 +1130,15 @@ class _DownloadCompletionListenerState
         );
         if (anyReady) {
           messenger.showSnackBar(
-            const SnackBar(
-              content: Text('মডেল প্রস্তুত — এখন অফলাইন এআই চালু।'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context).modelReady),
               duration: Duration(seconds: 4),
             ),
           );
         } else {
           messenger.showSnackBar(
-            const SnackBar(
-              content: Text('ডাউনলোড ব্যর্থ — সেটিংস থেকে আবার চেষ্টা করুন।'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context).downloadFailed),
               duration: Duration(seconds: 4),
             ),
           );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../l10n/app_localizations.dart';
 import 'directory_loader.dart';
 
 /// Offline-first list of national, division, and district
@@ -16,8 +17,8 @@ class DirectoryScreen extends StatefulWidget {
 }
 
 class _DirectoryScreenState extends State<DirectoryScreen> {
-  static const _divisions = <String, String>{
-    'all': 'সব',
+  static Map<String, String> _divisions(BuildContext context) => <String, String>{
+    'all': AppLocalizations.of(context).allDivisions,
     'dhaka': 'ঢাকা',
     'chattogram': 'চট্টগ্রাম',
     'rajshahi': 'রাজশাহী',
@@ -86,7 +87,7 @@ class _DirectoryScreenState extends State<DirectoryScreen> {
     final cs = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('জরুরি নম্বর'),
+        title: Text(AppLocalizations.of(context).emergencyNumbers),
       ),
       body: Column(
         children: [
@@ -97,7 +98,7 @@ class _DirectoryScreenState extends State<DirectoryScreen> {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  for (final entry in _divisions.entries)
+                  for (final entry in _divisions(context).entries)
                     Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: FilterChip(
@@ -118,8 +119,8 @@ class _DirectoryScreenState extends State<DirectoryScreen> {
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : (_entries == null || _entries!.isEmpty)
-                    ? const Center(
-                        child: Text('এই বিভাগে কোনো নম্বর পাওয়া যায়নি'),
+                    ? Center(
+                        child: Text(AppLocalizations.of(context).noNumbersInDivision),
                       )
                     : ListView.separated(
                         itemCount: _entries!.length,
@@ -136,7 +137,7 @@ class _DirectoryScreenState extends State<DirectoryScreen> {
                             title: Text(e.nameBn),
                             subtitle: Text(_bn(e.phone)),
                             trailing: IconButton(
-                              tooltip: 'কল করুন',
+                              tooltip: AppLocalizations.of(context).callTooltip,
                               icon: const Icon(Icons.call_rounded),
                               onPressed: () => _call(e.phone),
                             ),

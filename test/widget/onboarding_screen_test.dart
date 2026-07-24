@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shongjog/features/onboarding/onboarding_screen.dart';
 import 'package:shongjog/features/settings/settings_screen.dart';
 
+import 'test_app.dart';
+
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -13,9 +15,9 @@ void main() {
     VoidCallback? onComplete,
     Map<String, WidgetBuilder>? routes,
   }) {
-    return MaterialApp(
-      home: OnboardingScreen(onComplete: onComplete ?? () {}),
-      routes: routes ?? const {},
+    return localizedApp(
+      OnboardingScreen(onComplete: onComplete ?? () {}),
+      routes: routes,
     );
   }
 

@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/router.dart';
 import '../../app/theme.dart';
+import '../../core/locale_controller.dart';
+import '../../l10n/app_localizations.dart';
 
 /// First-run onboarding: welcome → permissions rationale → model download hint.
 ///
@@ -60,7 +62,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('pref_has_onboarded', true);
     if (!mounted) return;
-    Navigator.pushReplacementNamed(context, AppRoutes.settings);
+    widget.onComplete();
+    Navigator.pushNamed(context, AppRoutes.settings);
   }
 
   @override
@@ -93,6 +96,34 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Align(
+            alignment: Alignment.topRight,
+            child: SegmentedButton<String>(
+              segments: [
+                ButtonSegment(
+                  value: 'bn',
+                  label: Text(AppLocalizations.of(context).langBn),
+                ),
+                ButtonSegment(
+                  value: 'en',
+                  label: Text(AppLocalizations.of(context).langEn),
+                ),
+              ],
+              selected: {localeController.languageCode},
+              onSelectionChanged: (s) {
+                final locale = switch (s.first) {
+                  'en' => const Locale('en'),
+                  _ => const Locale('bn'),
+                };
+                localeController.setLocale(locale);
+              },
+              style: ButtonStyle(
+                visualDensity: VisualDensity.compact,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
           Container(
             width: 100,
             height: 100,
@@ -107,19 +138,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
           const SizedBox(height: 32),
-          const Text(
-            'সংযোগে স্বাগতম',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context).onboardingWelcome,
+            style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 16),
           Text(
-            'বন্যা, ঘুর্ণিঝড় বা জরুরি পরিস্থিতিতে '
-            'অফলাইনে সাহায্য পান। ভয়েস চ্যাট, '
-            'দ্রুত নির্দেশিকা কার্ড, এবং আশ্রয়কেন্দ্রের '
-            'তথ্য — সবকিছু আপনার হাতে।',
+            AppLocalizations.of(context).onboardingDesc,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: ShongjogTheme.bodyFloor,
@@ -141,29 +169,29 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const Icon(Icons.admin_panel_settings_outlined,
               size: 64, color: ShongjogTheme.ocean),
           const SizedBox(height: 24),
-          const Text(
-            'অনুমতি প্রয়োজন',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+          Text(
+            AppLocalizations.of(context).onboardingPermRequired,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 24),
           _permissionItem(
             icon: Icons.mic_rounded,
-            title: 'মাইক্রোফোন',
-            desc: 'ভয়েসে প্রশ্ন করার জন্য',
+            title: AppLocalizations.of(context).onboardingMic,
+            desc: AppLocalizations.of(context).onboardingMicDesc,
           ),
           _permissionItem(
             icon: Icons.location_on_rounded,
-            title: 'অবস্থান (GPS)',
-            desc: 'নিকটস্থ আশ্রয়কেন্দ্র খুঁজতে',
+            title: AppLocalizations.of(context).onboardingGps,
+            desc: AppLocalizations.of(context).onboardingGpsDesc,
           ),
           _permissionItem(
             icon: Icons.phone_rounded,
-            title: 'ফোন ও SMS',
-            desc: 'জরুরি কল ও SOS পাঠাতে',
+            title: AppLocalizations.of(context).onboardingPhone,
+            desc: AppLocalizations.of(context).onboardingPhoneDesc,
           ),
           const SizedBox(height: 24),
           Text(
-            'পরবর্তীতে সেটিংস থেকে যেকোনো সময় পরিবর্তন করতে পারবেন',
+            AppLocalizations.of(context).onboardingPermHint,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13,
@@ -184,17 +212,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const Icon(Icons.downloading_rounded,
               size: 64, color: ShongjogTheme.ocean),
           const SizedBox(height: 24),
-          const Text(
-            'AI মডেল ডাউনলোড',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+          Text(
+            AppLocalizations.of(context).onboardingModelTitle,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 16),
           Text(
-            'সম্পূর্ণ অফলাইন AI সহায়কের জন্য '
-            'Gemma 4 E2B মডেল (~1.5 GB) ডাউনলোড করুন।\n\n'
-            'ইন্টারনেট থাকলে ক্লাউড AI কাজ করবে। '
-            'অফলাইনে ক্লাউড AI ছাড়াই দ্রুত কার্ড ও '
-            'তথ্যকোষ থেকে উত্তর পাবেন।',
+            AppLocalizations.of(context).onboardingModelDesc,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: ShongjogTheme.bodyFloor,
@@ -204,7 +228,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'মডেল ডাউনলোড করতে সেটিংস → AI মডেল এ যান।',
+            AppLocalizations.of(context).onboardingModelHint,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13,
@@ -271,19 +295,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             children: [
               TextButton(
                 onPressed: _goToHome,
-                child: const Text('স্কিপ'),
+                child: Text(AppLocalizations.of(context).skip),
               ),
               if (_page > 0) ...[
                 const SizedBox(width: 8),
                 IconButton(
-                  tooltip: 'পূর্ববর্তী',
+                  tooltip: AppLocalizations.of(context).back,
                   onPressed: _back,
                   icon: const Icon(Icons.arrow_back_rounded),
                 ),
               ],
               const Spacer(),
               IconButton.filledTonal(
-                tooltip: 'পরবর্তী',
+                tooltip: AppLocalizations.of(context).next,
                 onPressed: _next,
                 icon: const Icon(Icons.arrow_forward_rounded),
                 iconSize: 24,
@@ -310,7 +334,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: OutlinedButton.icon(
                   onPressed: _goToSettings,
                   icon: const Icon(Icons.settings_rounded),
-                  label: const Text('সেটিংস'),
+                  label: Text(AppLocalizations.of(context).settingsTitle),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size.fromHeight(52),
                     side: BorderSide(color: cs.outlineVariant),
@@ -322,7 +346,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: FilledButton.icon(
                   onPressed: _goToHome,
                   icon: const Icon(Icons.home_rounded),
-                  label: const Text('হোমে যান'),
+                  label: Text(AppLocalizations.of(context).goToHome),
                 ),
               ),
             ],
@@ -333,7 +357,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             child: TextButton.icon(
               onPressed: _back,
               icon: const Icon(Icons.arrow_back_rounded, size: 18),
-              label: const Text('পূর্ববর্তী'),
+              label: Text(AppLocalizations.of(context).back),
             ),
           ),
         ],

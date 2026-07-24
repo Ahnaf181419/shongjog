@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
 import '../../core/admin_broadcast_service.dart';
+import '../../l10n/app_localizations.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -33,14 +34,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (mounted) setState(() {});
   }
 
-  String _formatTimestamp(DateTime ts) {
+  String _formatTimestamp(BuildContext context, DateTime ts) {
     const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
     String bn(int n) => n.toString().split('').map((d) => bnDigits[int.parse(d)]).join();
     final now = DateTime.now();
     final diff = now.difference(ts);
-    if (diff.inMinutes < 1) return 'এইমাত্র';
-    if (diff.inMinutes < 60) return '${bn(diff.inMinutes)} মিনিট আগে';
-    if (diff.inHours < 24) return '${bn(diff.inHours)} ঘণ্টা আগে';
+    final l10n = AppLocalizations.of(context);
+    if (diff.inMinutes < 1) return l10n.justNow;
+    if (diff.inMinutes < 60) return l10n.minutesAgo(bn(diff.inMinutes));
+    if (diff.inHours < 24) return l10n.hoursAgo(bn(diff.inHours));
     return '${bn(ts.day)}/${bn(ts.month)}/${bn(ts.year)}';
   }
 
@@ -48,7 +50,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     final messages = adminBroadcastService.messages;
     return Scaffold(
-      appBar: AppBar(title: const Text('বিজ্ঞপ্তি')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).notificationsTitle)),
       body: messages.isEmpty
           ? Center(
               child: Column(
@@ -61,7 +63,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'কোন নতুন বার্তা নেই',
+                    AppLocalizations.of(context).noNewMessages,
                     style: TextStyle(
                       fontSize: 16,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -77,7 +79,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 final msg = messages[index];
                 return _NotificationTile(
                   message: msg,
-                  timestamp: _formatTimestamp(msg.timestamp),
+                  timestamp: _formatTimestamp(context, msg.timestamp),
                 );
               },
             ),

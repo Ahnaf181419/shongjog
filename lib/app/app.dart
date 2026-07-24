@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:nearby_connections/nearby_connections.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../core/locale_controller.dart';
 import '../core/theme_controller.dart';
 import '../features/about/about_screen.dart';
+import '../l10n/app_localizations.dart';
 import '../features/contacts/emergency_contacts_screen.dart';
 import '../features/emergency/directory_screen.dart';
 import '../features/emergency/sos_composer_screen.dart';
@@ -29,7 +31,7 @@ class ShongjogApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: themeController,
+      listenable: Listenable.merge([themeController, localeController]),
       builder: (context, _) {
         return MaterialApp(
           title: 'Shongjog',
@@ -37,6 +39,9 @@ class ShongjogApp extends StatelessWidget {
           theme: ShongjogTheme.light(),
           darkTheme: ShongjogTheme.dark(),
           themeMode: themeController.mode,
+          locale: localeController.locale,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: const _StartupGate(),
           routes: {
             AppRoutes.settings: (_) => const SettingsScreen(),
@@ -54,10 +59,12 @@ class ShongjogApp extends StatelessWidget {
             AppRoutes.profile: (_) => const ProfileScreen(),
           },
           onUnknownRoute: (settings) => MaterialPageRoute(
-            builder: (_) => Scaffold(
-              appBar: AppBar(title: const Text('পাওয়া যায়নি')),
-              body: const Center(
-                child: Text('এই পৃষ্ঠাটি পাওয়া যায়নি।'),
+            builder: (ctx) => Scaffold(
+              appBar: AppBar(
+                title: Text(AppLocalizations.of(ctx).pageNotFound),
+              ),
+              body: Center(
+                child: Text(AppLocalizations.of(ctx).pageNotFoundDesc),
               ),
             ),
           ),
@@ -112,7 +119,7 @@ class _StartupGateState extends State<_StartupGate> {
                   size: 72, color: Theme.of(context).colorScheme.primary),
               const SizedBox(height: 16),
               Text(
-                'সংযোগ',
+                AppLocalizations.of(context).splashTitle,
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w700,

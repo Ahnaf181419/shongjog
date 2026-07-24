@@ -7,8 +7,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/router.dart';
 import '../../app/theme.dart';
+import '../../core/locale_controller.dart';
 import '../../core/model_manager.dart';
 import '../../core/theme_controller.dart';
+import '../../l10n/app_localizations.dart';
 import '../admin/map_picker_screen.dart';
 import '../audio/sound_service.dart';
 import '../chat/chat_store.dart';
@@ -64,21 +66,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final tc = themeController;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('সেটিংস')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).settingsTitle)),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
           // ── Profile row ──
           _ProfileRow(profile: _profile, onChanged: _loadPrefs),
           const _Divider(),
-          _SectionHeader('উপস্থিতি'),
+          _SectionHeader(AppLocalizations.of(context).sectionAppearance),
           _ThemeSegmentedRow(controller: tc),
+          _LanguageSegmentedRow(controller: localeController),
           const _Divider(),
-          _SectionHeader('ভয়েস'),
+          _SectionHeader(AppLocalizations.of(context).sectionVoice),
           SwitchListTile(
             secondary: const Icon(Icons.record_voice_over_rounded),
-            title: const Text('স্বয়ংক্রিয় পঠন'),
-            subtitle: const Text('AI উত্তর স্বয়ংক্রিয়ভাবে পড়ে শোনাবে'),
+            title: Text(AppLocalizations.of(context).autoRead),
+            subtitle: Text(AppLocalizations.of(context).autoReadDesc),
             value: _autoRead,
             onChanged: (v) async {
               setState(() => _autoRead = v);
@@ -88,8 +91,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           SwitchListTile(
             secondary: const Icon(Icons.mic_rounded),
-            title: const Text('ভয়েস ইনপুট'),
-            subtitle: const Text('কথা বলে প্রশ্ন করুন'),
+            title: Text(AppLocalizations.of(context).voiceInput),
+            subtitle: Text(AppLocalizations.of(context).voiceInputDesc),
             value: _voiceInput,
             onChanged: (v) async {
               setState(() => _voiceInput = v);
@@ -99,8 +102,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           SwitchListTile(
             secondary: const Icon(Icons.notifications_active_rounded),
-            title: const Text('শব্দ ইঙ্গিত'),
-            subtitle: const Text('AI উত্তর প্রস্তুত হলে চিম বাজবে'),
+            title: Text(AppLocalizations.of(context).soundHint),
+            subtitle: Text(AppLocalizations.of(context).soundHintDesc),
             value: _soundEnabled,
             onChanged: (v) async {
               setState(() => _soundEnabled = v);
@@ -111,8 +114,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           SwitchListTile(
             secondary: const Icon(Icons.lightbulb_rounded),
-            title: const Text('প্রস্তুতি পরামর্শ'),
-            subtitle: const Text('চ্যাট ইতিহাস অনুযায়ী হোম স্ক্রিনে পরামর্শ কার্ড'),
+            title: Text(AppLocalizations.of(context).prepTips),
+            subtitle: Text(AppLocalizations.of(context).prepTipsDesc),
             value: _showInsights,
             onChanged: (v) async {
               setState(() => _showInsights = v);
@@ -121,32 +124,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           ),
           const _Divider(),
-          _SectionHeader('জরুরি'),
+          _SectionHeader(AppLocalizations.of(context).sectionEmergency),
           ListTile(
             leading: const Icon(Icons.contacts_rounded),
-            title: const Text('জরুরি পরিচিতি'),
-            subtitle: const Text('জাতীয় নম্বর ও নিজের পরিচিতি'),
+            title: Text(AppLocalizations.of(context).emergencyContacts),
+            subtitle: Text(AppLocalizations.of(context).emergencyContactsDesc),
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () =>
                 pushNamedSafe(context, AppRoutes.emergencyContacts),
           ),
           const _Divider(),
-          _SectionHeader('অভিযান অনুরোধ'),
+          _SectionHeader(AppLocalizations.of(context).sectionCampaign),
           ListTile(
             leading: const Icon(Icons.campaign_rounded),
-            title: const Text('দান/উদ্ধার অভিযান অনুরোধ করুন'),
-            subtitle: const Text('অ্যাডমিন অনুমোদনে মানচিত্রে দেখাবে'),
+            title: Text(AppLocalizations.of(context).campaignRequest),
+            subtitle: Text(AppLocalizations.of(context).campaignRequestDesc),
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: _showCampaignRequestDialog,
           ),
           const _Divider(),
-          _SectionHeader('AI মডেল'),
+          _SectionHeader(AppLocalizations.of(context).sectionAiModel),
           const ModelPickerSection(),
           const _Divider(),
-          _SectionHeader('ডায়াগনস্টিকস'),
+          _SectionHeader(AppLocalizations.of(context).sectionDiagnostics),
           ListTile(
             leading: const Icon(Icons.menu_book_rounded),
-            title: const Text('তথ্যকোষ সংস্করণ'),
+            title: Text(AppLocalizations.of(context).kbVersion),
             trailing: Text(
               _kbVersion ?? '—',
               style: TextStyle(
@@ -166,7 +169,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               return ListTile(
                 leading: Icon(Icons.error_outline_rounded,
                     color: Theme.of(context).colorScheme.error),
-                title: const Text('অফলাইন AI চালু হয়নি'),
+                title: Text(AppLocalizations.of(context).offlineAiFailed),
                 subtitle: Text(
                   err,
                   style: const TextStyle(fontSize: 11),
@@ -174,12 +177,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: () => showDialog<void>(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: const Text('অফলাইন AI ত্রুটি'),
+                    title: Text(AppLocalizations.of(context).offlineAiError),
                     content: SelectableText(err),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(ctx),
-                        child: const Text('বন্ধ করুন'),
+                        child: Text(AppLocalizations.of(context).close),
                       ),
                     ],
                   ),
@@ -188,24 +191,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           ),
           const _Divider(),
-          _SectionHeader('তথ্য'),
+          _SectionHeader(AppLocalizations.of(context).sectionInfo),
           ListTile(
             leading: const Icon(Icons.cleaning_services_rounded),
-            title: const Text('ক্যাশ মুছুন'),
-            subtitle: const Text('চ্যাট ইতিহাস মুছে ফেলুন'),
+            title: Text(AppLocalizations.of(context).clearCache),
+            subtitle: Text(AppLocalizations.of(context).clearCacheDesc),
             onTap: _clearCache,
           ),
           ListTile(
             leading: const Icon(Icons.info_rounded),
-            title: const Text('অ্যাপ সম্পর্কে'),
-            subtitle: const Text('তথ্যসূত্র, লাইসেন্স, সংস্করণ'),
+            title: Text(AppLocalizations.of(context).aboutApp),
+            subtitle: Text(AppLocalizations.of(context).aboutAppDesc),
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => pushNamedSafe(context, AppRoutes.about),
           ),
           ListTile(
             leading: const Icon(Icons.admin_panel_settings_rounded),
-            title: const Text('অ্যাডমিন লগইন'),
-            subtitle: const Text('বার্তা ব্রডকাস্ট এবং ব্যবস্থাপনা'),
+            title: Text(AppLocalizations.of(context).adminLogin),
+            subtitle: Text(AppLocalizations.of(context).adminLoginDesc),
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => pushNamedSafe(context, AppRoutes.adminLogin),
           ),
@@ -218,16 +221,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('ক্যাশ মুছুন?'),
-        content: const Text('সব চ্যাট ইতিহাস মুছে যাবে। এটি পূর্বাবস্থায় ফেরানো যাবে না।'),
+        title: Text(AppLocalizations.of(context).clearCacheConfirmTitle),
+        content: Text(AppLocalizations.of(context).clearCacheConfirmDesc),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('বাতিল'),
+            child: Text(AppLocalizations.of(context).cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('মুছুন'),
+            child: Text(AppLocalizations.of(context).delete),
           ),
         ],
       ),
@@ -237,7 +240,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await adminBroadcastService.clear();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('ক্যাশ মুছে ফেলা হয়েছে')),
+          SnackBar(content: Text(AppLocalizations.of(context).cacheCleared)),
         );
       }
     }
@@ -255,7 +258,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          title: const Text('অভিযান অনুরোধ জমা দিন'),
+          title: Text(AppLocalizations.of(context).campaignDialogTitle),
           content: SizedBox(
             width: double.maxFinite,
             child: Form(
@@ -266,9 +269,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     DropdownButtonFormField<CampaignType>(
                       initialValue: selectedType,
-                      decoration: const InputDecoration(
-                        labelText: 'অভিযানের ধরন',
-                        prefixIcon: Icon(Icons.category_rounded),
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context).campaignTypeLabel,
+                        prefixIcon: const Icon(Icons.category_rounded),
                       ),
                       items: CampaignType.values.map((type) {
                         return DropdownMenuItem(
@@ -277,7 +280,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         );
                       }).toList(),
                       onChanged: (v) => setDialogState(() => selectedType = v!),
-                      validator: (v) => v == null ? 'ধরন বেছে নিন' : null,
+                      validator: (v) => v == null ? AppLocalizations.of(context).campaignTypeValidator : null,
                     ),
                     const SizedBox(height: 16),
 
@@ -358,8 +361,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   children: [
                                     Text(
                                       selectedLocation != null
-                                          ? 'অবস্থান নির্বাচিত'
-                                          : 'মানচিত্র থেকে অবস্থান নির্বাচন করুন',
+                                          ? AppLocalizations.of(context).campaignLocationSelected
+                                          : AppLocalizations.of(context).campaignLocationPrompt,
                                       style: TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w600,
@@ -372,7 +375,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     Text(
                                       selectedLocation != null
                                           ? '${selectedLocation!.latitude.toStringAsFixed(4)}, ${selectedLocation!.longitude.toStringAsFixed(4)}'
-                                          : 'ট্যাপ করে মানচিত্রে পিন দিন',
+                                          : AppLocalizations.of(context).campaignLocationTap,
                                       style: TextStyle(
                                         fontSize: 13,
                                         color: Theme.of(context)
@@ -397,30 +400,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: addressController,
-                      decoration: const InputDecoration(
-                        labelText: 'ঠিকানা/স্থান',
-                        prefixIcon: Icon(Icons.location_on_rounded),
-                        hintText: 'যেমন: ঢাকা মেডিকেল কলেজ হাসপাতাল',
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context).campaignAddress,
+                        prefixIcon: const Icon(Icons.location_on_rounded),
+                        hintText: AppLocalizations.of(context).campaignAddressHint,
                       ),
                       validator: (v) =>
-                          v == null || v.trim().isEmpty ? 'ঠিকানা লিখুন' : null,
+                          v == null || v.trim().isEmpty ? AppLocalizations.of(context).campaignAddressValidator : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: landmarkController,
-                      decoration: const InputDecoration(
-                        labelText: 'স্পষ্ট ঠিকানা/ল্যান্ডমার্ক',
-                        prefixIcon: Icon(Icons.place_rounded),
-                        hintText: 'যেমন: মসজিদের পাশে, দোকান নম্বর ১২',
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context).campaignLandmark,
+                        prefixIcon: const Icon(Icons.place_rounded),
+                        hintText: AppLocalizations.of(context).campaignLandmarkHint,
                       ),
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: descController,
-                      decoration: const InputDecoration(
-                        labelText: 'বিবরণ (ঐচ্ছিক)',
-                        prefixIcon: Icon(Icons.description_rounded),
-                        hintText: 'অভিযানের লক্ষ্য, সময়, যোগাযোগ নম্বর ইত্যাদি',
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context).campaignDescLabel,
+                        prefixIcon: const Icon(Icons.description_rounded),
+                        hintText: AppLocalizations.of(context).campaignDescHint,
                       ),
                       maxLines: 3,
                     ),
@@ -432,15 +435,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('বাতিল'),
+              child: Text(AppLocalizations.of(context).cancel),
             ),
             FilledButton(
               onPressed: () async {
                 if (!formKey.currentState!.validate()) return;
                 if (selectedLocation == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('মানচিত্র থেকে অবস্থান নির্বাচন করুন'),
+                    SnackBar(
+                      content: Text(AppLocalizations.of(context).campaignLocationRequired),
                     ),
                   );
                   return;
@@ -464,11 +467,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 await campaignRequestService.submitRequest(request);
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('অভিযান অনুরোধ জমা দেওয়া হয়েছে')),
+                    SnackBar(content: Text(AppLocalizations.of(context).campaignSubmitted)),
                   );
                 }
               },
-              child: const Text('জমা দিন'),
+              child: Text(AppLocalizations.of(context).campaignSubmit),
             ),
           ],
         ),
@@ -584,7 +587,7 @@ class _ProfileRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      profile.name.isNotEmpty ? profile.name : 'প্রোফাইল সেট করুন',
+                      profile.name.isNotEmpty ? profile.name : AppLocalizations.of(context).profileSet,
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
@@ -636,11 +639,11 @@ class _ThemeSegmentedRow extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('থিম',
-                        style: TextStyle(fontWeight: FontWeight.w500)),
+                    Text(AppLocalizations.of(context).themeLabel,
+                        style: const TextStyle(fontWeight: FontWeight.w500)),
                     const SizedBox(height: 2),
                     Text(
-                      'লাইট, ডার্ক, বা সিস্টেম অনুসরণ',
+                      AppLocalizations.of(context).themeDesc,
                       style: TextStyle(
                         fontSize: 14,
                         height: 1.4,
@@ -657,25 +660,91 @@ class _ThemeSegmentedRow extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: SegmentedButton<ThemeMode>(
-              segments: const [
+              segments: [
                 ButtonSegment(
                   value: ThemeMode.light,
-                  icon: Icon(Icons.light_mode_rounded),
-                  label: Text('লাইট'),
+                  icon: const Icon(Icons.light_mode_rounded),
+                  label: Text(AppLocalizations.of(context).themeLight),
                 ),
                 ButtonSegment(
                   value: ThemeMode.dark,
-                  icon: Icon(Icons.dark_mode_rounded),
-                  label: Text('ডার্ক'),
+                  icon: const Icon(Icons.dark_mode_rounded),
+                  label: Text(AppLocalizations.of(context).themeDark),
                 ),
                 ButtonSegment(
                   value: ThemeMode.system,
-                  icon: Icon(Icons.brightness_auto_rounded),
-                  label: Text('সিস্টেম'),
+                  icon: const Icon(Icons.brightness_auto_rounded),
+                  label: Text(AppLocalizations.of(context).themeSystem),
                 ),
               ],
               selected: {controller.mode},
               onSelectionChanged: (s) => controller.setMode(s.first),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LanguageSegmentedRow extends StatelessWidget {
+  final LocaleController controller;
+  const _LanguageSegmentedRow({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.language_rounded, size: 22),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(AppLocalizations.of(context).languageLabel,
+                        style: const TextStyle(fontWeight: FontWeight.w500)),
+                    const SizedBox(height: 2),
+                    Text(
+                      AppLocalizations.of(context).languageDesc,
+                      style: TextStyle(
+                        fontSize: 14,
+                        height: 1.4,
+                        fontFamily: ShongjogTheme.fontFamily,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<String>(
+              segments: [
+                ButtonSegment(
+                  value: 'bn',
+                  label: Text(AppLocalizations.of(context).langBn),
+                ),
+                ButtonSegment(
+                  value: 'en',
+                  label: Text(AppLocalizations.of(context).langEn),
+                ),
+              ],
+              selected: {controller.languageCode},
+              onSelectionChanged: (s) {
+                final locale = switch (s.first) {
+                  'en' => const Locale('en'),
+                  _ => const Locale('bn'),
+                };
+                controller.setLocale(locale);
+              },
             ),
           ),
         ],

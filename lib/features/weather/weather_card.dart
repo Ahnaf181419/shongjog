@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 
 import '../../app/theme.dart';
 import '../../core/connectivity_provider.dart';
+import '../../l10n/app_localizations.dart';
 import 'weather_service.dart';
 
 /// Today's weather + next-3-day forecast card.
@@ -22,7 +23,7 @@ class _WeatherCardState extends State<WeatherCard>
     with SingleTickerProviderStateMixin {
   WeatherSnapshot? _snapshot;
   bool _loading = true;
-  String? _errorText;
+  int? _errorKey;
   Position? _cachedPosition;
   // The card reserves a fixed height to keep layout stable across states
   // (loading / online / offline). Without this the screen jumps as the
@@ -39,7 +40,7 @@ class _WeatherCardState extends State<WeatherCard>
   Future<void> _load() async {
     setState(() {
       _loading = true;
-      _errorText = null;
+      _errorKey = null;
     });
     Position? pos = _cachedPosition;
     pos ??= await _tryPosition();
@@ -58,11 +59,11 @@ class _WeatherCardState extends State<WeatherCard>
       _loading = false;
       if (snap == null) {
         if (!isOnline) {
-          _errorText = 'ইন্টারনেট সংযোগ নেই';
+          _errorKey = 0;
         } else if (pos == null) {
-          _errorText = 'অবস্থান নেই — ডিফল্ট ঢাকা';
+          _errorKey = 1;
         } else {
-          _errorText = 'আবহাওয়া সার্ভার থেকে তথ্য পাওয়া যায়নি';
+          _errorKey = 2;
         }
       }
     });
@@ -142,7 +143,7 @@ class _WeatherCardState extends State<WeatherCard>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'আবহাওয়া · আজ · ${s.conditionBn}',
+                  AppLocalizations.of(context).weatherTodayLabel(s.conditionBn),
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -235,6 +236,13 @@ class _WeatherCardState extends State<WeatherCard>
 
   Widget _buildOffline(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+    final errorText = switch (_errorKey) {
+      0 => l10n.weatherNoInternet,
+      1 => l10n.weatherNoLocation,
+      2 => l10n.weatherFetchError,
+      _ => null,
+    };
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -252,7 +260,7 @@ class _WeatherCardState extends State<WeatherCard>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'আবহাওয়া দেখতে চাপুন',
+                      l10n.weatherTapToView,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -260,10 +268,10 @@ class _WeatherCardState extends State<WeatherCard>
                         height: 1.2,
                       ),
                     ),
-                    if (_errorText != null) ...[
+                    if (errorText != null) ...[
                       const SizedBox(height: 2),
                       Text(
-                        _errorText!,
+                        errorText,
                         style: TextStyle(
                           fontSize: 12,
                           color: cs.onSurfaceVariant,
@@ -307,7 +315,7 @@ class _WeatherCardState extends State<WeatherCard>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'আবহাওয়া — লোড হচ্ছে',
+                  AppLocalizations.of(context).weatherLoading,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,

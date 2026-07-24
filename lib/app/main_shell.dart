@@ -4,6 +4,7 @@ import '../features/chat/chat_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/quick_cards/quick_cards_screen.dart';
 import '../features/shelter/shelter_map_screen.dart';
+import '../l10n/app_localizations.dart';
 
 /// Root app shell — a [NavigationBar] with 4 tabs, each preserving its own
 /// state via an [IndexedStack]. Settings and Emergency are reached from the
@@ -29,26 +30,26 @@ class _MainShellState extends State<MainShell> {
 
   void _goToTab(int i) => setState(() => _index = i);
 
-  static const _destinations = [
+  List<NavigationDestination> _destinations(BuildContext context) => [
     NavigationDestination(
       selectedIcon: Icon(Icons.home_rounded),
       icon: Icon(Icons.home_outlined),
-      label: 'হোম',
+      label: AppLocalizations.of(context).navHome,
     ),
     NavigationDestination(
       selectedIcon: Icon(Icons.auto_awesome_rounded),
       icon: Icon(Icons.auto_awesome_outlined),
-      label: 'এআই',
+      label: AppLocalizations.of(context).navAi,
     ),
     NavigationDestination(
       selectedIcon: Icon(Icons.style_rounded),
       icon: Icon(Icons.style_outlined),
-      label: 'কার্ড',
+      label: AppLocalizations.of(context).navCards,
     ),
     NavigationDestination(
       selectedIcon: Icon(Icons.shield_rounded),
       icon: Icon(Icons.shield_outlined),
-      label: 'আশ্রয়',
+      label: AppLocalizations.of(context).navShelter,
     ),
   ];
 
@@ -72,7 +73,7 @@ class _MainShellState extends State<MainShell> {
         bottomNavigationBar: NavigationBar(
           selectedIndex: _index,
           onDestinationSelected: _goToTab,
-          destinations: _destinations,
+          destinations: _destinations(context),
         ),
       ),
     );

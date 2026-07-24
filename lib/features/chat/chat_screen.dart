@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../app/main_shell.dart';
 import '../../core/api_key_store.dart';
 import '../../core/connectivity_provider.dart';
@@ -192,7 +193,7 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       _busy = true;
       _messages.insert(0, _Msg(q, true));
-      _messages.insert(0, _Msg('ভাবছি...', false, isThinking: true));
+      _messages.insert(0, _Msg(AppLocalizations.of(context).chatThinking, false, isThinking: true));
     });
     await _tryGenerate();
   }
@@ -201,7 +202,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (_lastQuery == null || _busy) return;
     setState(() {
       _busy = true;
-      _messages.insert(0, _Msg('ভাবছি...', false, isThinking: true));
+      _messages.insert(0, _Msg(AppLocalizations.of(context).chatThinking, false, isThinking: true));
     });
     await _tryGenerate();
   }
@@ -236,7 +237,7 @@ class _ChatScreenState extends State<ChatScreen> {
       if (!mounted) return;
       setState(() {
         _messages[0] = _Msg(
-          'ত্রুটি হয়েছে। অনুগ্রহ করে ৯৯৯ এ কল করুন।',
+          AppLocalizations.of(context).chatError,
           false,
           isError: true,
         );
@@ -288,7 +289,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _onMicPressed() async {
     if (!_voiceInputEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('সেটিংসে ভয়েস ইনপুট চালু করুন')),
+        SnackBar(content: Text(AppLocalizations.of(context).chatVoiceInputDisabled)),
       );
       return;
     }
@@ -307,7 +308,7 @@ class _ChatScreenState extends State<ChatScreen> {
       _onSubmit(transcript.trim());
     } else {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('আবার চেষ্টা করুন')));
+          .showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).chatTryAgain)));
     }
   }
 
@@ -318,8 +319,9 @@ class _ChatScreenState extends State<ChatScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('AI সহায়ক'),
+            Text(AppLocalizations.of(context).chatTitle),
             Builder(builder: (context) {
+              final l10n = AppLocalizations.of(context);
               final isDark = Theme.of(context).brightness == Brightness.dark;
               final hasCloud = _repo?.cloudAi != null && connectivityProvider.isOnline;
               // Show "অফলাইন এআই" whenever the offline model is *available*,
@@ -332,11 +334,11 @@ class _ChatScreenState extends State<ChatScreen> {
               final hasLocal =
                   modelManager.isReady || _hasLocalFileAwaitingInit();
 
-              String status = 'অফলাইন (তথ্যকোষ)';
+              String status = l10n.chatStatusCorpus;
               if (hasCloud) {
-                status = 'ক্লাউড এআই (Gemma 4)';
+                status = l10n.chatStatusCloud;
               } else if (hasLocal) {
-                status = 'অফলাইন এআই (Gemma 4)';
+                status = l10n.chatStatusLocal;
               }
 
               return Text(
@@ -356,7 +358,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         actions: [
           IconButton(
-            tooltip: 'জরুরি কল',
+            tooltip: AppLocalizations.of(context).chatEmergencyCall,
             icon: Icon(Icons.call, color: Theme.of(context).colorScheme.error),
             onPressed: () => EmergencySheet.show(context),
           ),
@@ -396,7 +398,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           const SizedBox(width: 12),
           Text(
-            'তথ্য প্রস্তুত হচ্ছে...',
+            AppLocalizations.of(context).chatLoading,
             style: TextStyle(
               fontSize: 13,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -470,14 +472,14 @@ class _ChatScreenState extends State<ChatScreen> {
                 TextButton.icon(
                   onPressed: _retry,
                   icon: const Icon(Icons.refresh, size: 18),
-                  label: const Text('আবার চেষ্টা করুন'),
+                  label: Text(AppLocalizations.of(context).chatRetry),
                 ),
                 const SizedBox(width: 8),
                 TextButton.icon(
                   onPressed: () => EmergencySheet.show(context),
                   icon: Icon(Icons.call,
                       size: 18, color: Theme.of(context).colorScheme.error),
-                  label: Text('৯৯৯ কল',
+                  label: Text(AppLocalizations.of(context).chatCall999,
                       style: TextStyle(
                           color: Theme.of(context).colorScheme.error)),
                 ),
@@ -513,7 +515,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             const SizedBox(height: 20),
             Text(
-              _listening ? 'শুনছি...' : 'আপনার জরুরি প্রশ্ন বলুন বা লিখুন',
+              _listening ? AppLocalizations.of(context).chatListening : AppLocalizations.of(context).chatEmptyPrompt,
               textAlign: TextAlign.center,
               style: const TextStyle(
                   fontSize: ShongjogTheme.bodyLargeFloor,
@@ -536,7 +538,7 @@ class _ChatScreenState extends State<ChatScreen> {
               TextButton.icon(
                 onPressed: () => MainShell.goToTab(context, 2),
                 icon: const Icon(Icons.style_outlined, size: 18),
-                label: const Text('দ্রুত নির্দেশিকা কার্ড দেখুন'),
+                label: Text(AppLocalizations.of(context).chatQuickCards),
               ),
             ],
           ],

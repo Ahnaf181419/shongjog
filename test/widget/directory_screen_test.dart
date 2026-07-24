@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/emergency/directory_loader.dart';
 import 'package:shongjog/features/emergency/directory_screen.dart';
 
+import 'test_app.dart';
+
 void main() {
   setUp(() {
     DirectoryLoader.debugClearCache();
@@ -38,7 +40,7 @@ void main() {
   testWidgets('renders entries with phone numbers and call buttons',
       (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(home: DirectoryScreen()),
+      localizedApp(const DirectoryScreen()),
     );
     await tester.pumpAndSettle();
     expect(find.text('জাতীয় জরুরি'), findsOneWidget);
@@ -49,7 +51,7 @@ void main() {
 
   testWidgets('division filter narrows results', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(home: DirectoryScreen(initialDivision: 'dhaka')),
+      localizedApp(const DirectoryScreen(initialDivision: 'dhaka')),
     );
     await tester.pumpAndSettle();
     // National (all-division) is still shown, plus Dhaka, but NOT Chattogram.

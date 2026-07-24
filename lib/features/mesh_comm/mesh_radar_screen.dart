@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../../core/haptics.dart';
+import '../../l10n/app_localizations.dart';
 import 'mesh_chat_screen.dart';
 import 'mesh_models.dart';
 import 'mesh_service.dart';
@@ -42,10 +43,10 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
       if (!result.ok) {
         final msg = switch (result.reason) {
           'wifi_off' =>
-            'Wi-Fi বন্ধ আছে — Wi-Fi চালু করে আবার চেষ্টা করুন',
+            AppLocalizations.of(context).meshWifiOff,
           'permissions' =>
-            'Wi-Fi ও অনুমতি প্রয়োজন — সেটিংসে অনুমতি দিন',
-          _ => 'মেশ সংযোগ শুরু করা যায়নি — Wi-Fi চালু আছে কিনা দেখুন',
+            AppLocalizations.of(context).meshPermissions,
+          _ => AppLocalizations.of(context).meshStartFailed,
         };
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(msg)),
@@ -86,8 +87,8 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
         setState(() => _recording = true);
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('রেকর্ডিং শুরু করা যায়নি — মাইক্রোফোন অনুমতি দিন'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context).meshRecordingFailed),
           ),
         );
       }
@@ -99,14 +100,14 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
     final cs = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('অফলাইন যোগাযোগ'),
+        title: Text(AppLocalizations.of(context).meshTitle),
         actions: [
           if (_started)
             Center(
               child: Padding(
                 padding: const EdgeInsets.only(right: 16),
                 child: Text(
-                  '${_peers.length} ডিভাইস',
+                  AppLocalizations.of(context).meshDeviceCount(_peers.length),
                   style: TextStyle(
                     color: cs.onSurfaceVariant,
                     fontSize: 14,
@@ -141,14 +142,14 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
 
           // Peer list
           if (!_started)
-            const Expanded(
+            Expanded(
               child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     CircularProgressIndicator(strokeWidth: 2),
                     SizedBox(height: 12),
-                    Text('Wi-Fi সংযোগ চালু হচ্ছে...'),
+                    Text(AppLocalizations.of(context).meshConnecting),
                   ],
                 ),
               ),
@@ -164,9 +165,7 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
                         size: 48, color: cs.onSurfaceVariant),
                     const SizedBox(height: 16),
                     Text(
-                      'কাছের ডিভাইস খোঁজা হচ্ছে...\n'
-                      'Wi-Fi চালু রাখুন এবং Shongjog\n'
-                      'ব্যবহারকারী কাছে থাকলে এখানে দেখা যাবে।',
+                      AppLocalizations.of(context).meshSearching,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
@@ -216,7 +215,7 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
                               size: 14, color: cs.onSurfaceVariant),
                           const SizedBox(width: 6),
                           Text(
-                            'সবাইকে পাঠানো হবে',
+                            AppLocalizations.of(context).meshBroadcastAll,
                             style: TextStyle(
                               fontSize: 12,
                               color: cs.onSurfaceVariant,
@@ -246,8 +245,8 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
                         Expanded(
                           child: TextField(
                             controller: _msgCtrl,
-                            decoration: const InputDecoration(
-                              hintText: 'মেসেজ লিখুন...',
+                            decoration: InputDecoration(
+                              hintText: AppLocalizations.of(context).meshHint,
                               border: OutlineInputBorder(),
                               contentPadding:
                                   EdgeInsets.symmetric(horizontal: 16),
@@ -260,9 +259,9 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
                                 _msgCtrl.clear();
                                 if (!ok && mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
+                                    SnackBar(
                                       content: Text(
-                                          'কোনো ডিভাইস সংযুক্ত নেই — মেসেজ পাঠানো যায়নি'),
+                                          AppLocalizations.of(context).meshNoDevice),
                                     ),
                                   );
                                 }
@@ -280,9 +279,9 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
                               _msgCtrl.clear();
                               if (!ok && mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
+                                  SnackBar(
                                     content: Text(
-                                        'কোনো ডিভাইস সংযুক্ত নেই — মেসেজ পাঠানো যায়নি'),
+                                        AppLocalizations.of(context).meshNoDevice),
                                   ),
                                 );
                               }
@@ -330,10 +329,10 @@ class _PeerTile extends StatelessWidget {
       ),
       subtitle: Text(
         peer.status == PeerStatus.connected
-            ? 'সংযুক্ত'
+            ? AppLocalizations.of(context).meshConnected
             : peer.status == PeerStatus.reconnecting
-                ? 'পুনঃসংযোগ হচ্ছে...'
-                : 'বিচ্ছিন্ন',
+                ? AppLocalizations.of(context).meshReconnecting
+                : AppLocalizations.of(context).meshDisconnected,
         style: TextStyle(color: statusColor, fontSize: 12),
       ),
       trailing: const Icon(Icons.chevron_right),

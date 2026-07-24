@@ -6,10 +6,16 @@ import 'package:shongjog/core/model_manager.dart';
 import 'package:shongjog/features/home/home_screen.dart';
 import 'package:shongjog/features/weather/weather_card.dart';
 import 'package:shongjog/main.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
+
+import 'test_app.dart';
 
 void main() {
   Widget wrapHome({ValueChanged<int>? onNavigateToTab}) {
     return MaterialApp(
+      locale: const Locale('bn'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       scaffoldMessengerKey: scaffoldMessengerKey,
       home: HomeScreen(onNavigateToTab: onNavigateToTab),
       routes: {
