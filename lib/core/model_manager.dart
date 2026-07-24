@@ -26,6 +26,38 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
   /// allocate tensors below 1024 (upstream #318) — this is NOT the reply cap.
   static const kContextTokens = 1024;
 
+  /// Whether the active engine can separate the model's internal "thought"
+  /// channel from its user-visible answer. On the `.litertlm` FFI path it
+  /// CANNOT: `enableThinking: true` only injects `{"enable_thinking": true}`
+  /// into the prompt template (flutter_gemma_litertlm 1.1.0,
+  /// ffi_inference_model.dart:631) and the engine then streams the raw
+  /// `<|channel|>thought …` tokens straight into the response string. There
+  /// is no "final channel" API to read the answer back out of.
+  ///
+  /// The result is the bug in `docs/image.png`: the whole bubble is
+  /// `<|channel|>thought Thinking<|channel|>…`. Because that garbage starts
+  /// at index 0, [ChatRepository.truncateAtTurnMarker] cuts the entire
+  /// string away and the user gets a blank bubble instead.
+  ///
+  /// So thinking stays OFF until the engine grows real channel separation.
+  /// [setThinkingMode] still records the caller's intent (the urgency badge
+  /// in the UI reads it) — it just can't reach the SDK yet.
+  static const bool kThinkingModeSupported = false;
+
+  /// A seed the native sampler will actually accept.
+  ///
+  /// `LiteRtLmSamplerParams.seed` is `@ffi.Int32()`
+  /// (litert_lm_bindings.dart:2028). `DateTime.now().microsecondsSinceEpoch`
+  /// is ~1.78e15, ~830,000x over the Int32 max, and Dart FFI stores it by
+  /// silently truncating to the low 32 bits *signed* — so the seed handed to
+  /// native flips negative for ~35.8 minutes out of every 71.6 (the period of
+  /// bit 31 of a microsecond counter). Masking with 0x7FFFFFFF keeps the
+  /// low-order entropy that makes each call differ while guaranteeing a
+  /// non-negative, in-range value.
+  @visibleForTesting
+  static int nextRandomSeed() =>
+      DateTime.now().microsecondsSinceEpoch & 0x7FFFFFFF;
+
   /// Reply-length cap, applied per session. Kept small to (a) speed up
   /// generation — a 2B model at 512 tokens runs ~5-8s with most
   /// tokens being degenerate, and (b) prevent the model from
@@ -451,6 +483,12 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
     _enableThinking = enable;
   }
 
+  /// The thinking flag actually handed to the SDK. Gated by
+  /// [kThinkingModeSupported] so the caller's intent is recorded but never
+  /// reaches an engine that would leak the thought channel as visible text.
+  bool get _effectiveThinking =>
+      kThinkingModeSupported && (_enableThinking ?? false);
+
   @override
   Future<String> generate(String prompt) async {
     final model = await initialize();
@@ -472,7 +510,10 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
       // Fresh seed per call. Without this the SDK's default of 1 makes
       // every query with the same prompt return the exact same degenerate
       // output. Random seed + temperature 0.3 gives controlled variation.
-      randomSeed: DateTime.now().microsecondsSinceEpoch,
+      // Must go through [nextRandomSeed] — the native field is Int32 and
+      // a raw microsecond timestamp truncates to a negative value half
+      // the time. See [nextRandomSeed].
+      randomSeed: nextRandomSeed(),
       // Caps GENERATED tokens without shrinking the context window, which
       // `.litertlm` requires to stay >= 1024. 256 is enough for the
       // longest grounded emergency answer; lower than 512 because
@@ -481,32 +522,22 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
       maxOutputTokens: kMaxOutputTokens,
       // LoRA adapter — null means base model only.
       loraPath: _loraPath,
-      // Thinking mode — only override when explicitly set; SDK default
-      // is thinking off.
-      enableThinking: _enableThinking ?? false,
+      // Forced off on the .litertlm path — the engine has no channel
+      // separation, so turning this on leaks the raw thought stream into
+      // the answer. See [kThinkingModeSupported].
+      enableThinking: _effectiveThinking,
     );
     try {
       await session.addQueryChunk(Message.text(text: prompt, isUser: true));
-      // STREAM + EARLY-STOP instead of blocking getResponse().
-      //
-      // getResponse() waits for all maxOutputTokens to generate before
-      // returning anything — so the user stares at a spinner for the
-      // full degenerate sequence. getResponseAsync() streams tokens,
-      // letting us (a) show progress immediately and (b) call
-      // stopGeneration() the moment a repetition loop is detected,
-      // killing native decoding and returning the clean prefix.
-      return _streamWithRepetitionGuard(session);
-    } catch (e) {
-      // Streaming setup or the query chunk failed; fall back to the
-      // blocking path so a regression in the stream path never blocks
-      // the user from getting an answer.
-      debugPrint('[ModelManager/generate] stream failed, falling back: $e');
-      try {
-        return await session.getResponse();
-      } catch (e2) {
-        debugPrint('[ModelManager/generate] fallback also failed: $e2');
-        rethrow;
-      }
+      // Blocking getResponse() — the streaming + early-stop approach
+      // (commit 016daf2) caused blank replies on real hardware because
+      // stopGeneration() was killing the session before meaningful
+      // content landed. The blocking call is slower but RELIABLE: it
+      // always returns the full response. Repetition loops are trimmed
+      // post-hoc by ChatRepository.truncateAtTurnMarker + the safe
+      // repetition trim below — neither of which can return empty.
+      final raw = await session.getResponse();
+      return _safeTrimRepetition(raw);
     } finally {
       // Native sessions hold a KV cache; leaking them exhausts memory after a
       // handful of questions on a low-RAM phone.
@@ -514,70 +545,30 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
     }
   }
 
-  /// Consume [session.getResponseAsync] with a [RepetitionDetector]. The
-  /// moment the detector fires we call [session.stopGeneration] to kill
-  /// native decoding and return the clean prefix. Also enforces a hard
-  /// wall-clock timeout so a hung stream can't freeze the UI forever.
-  Future<String> _streamWithRepetitionGuard(
-    dynamic session,
-  ) async {
-    // Dynamic dispatch so the test suite can pass a fake session. The
-    // real session type is InferenceModelSession from flutter_gemma.
-    final Stream<String> tokenStream =
-        (session.getResponseAsync() as Stream<String>);
-    final detector = RepetitionDetector();
-    final completer = Completer<String>();
-    late StreamSubscription<String> sub;
-    final timer = Timer(const Duration(seconds: 30), () {
-      if (!completer.isCompleted) {
-        try {
-          (session.stopGeneration as Function()).call();
-        } catch (_) {}
-        completer.complete(detector.trimmed());
-      }
-    });
-
-    sub = tokenStream.listen(
-      (chunk) => detector.feed(chunk),
-      onError: (Object e) {
-        timer.cancel();
-        if (!completer.isCompleted) {
-          completer.complete(detector.trimmed());
-        }
-      },
-      onDone: () {
-        timer.cancel();
-        if (!completer.isCompleted) {
-          completer.complete(detector.trimmed());
-        }
-      },
-      cancelOnError: true,
-    );
-
-    // Poll for shouldStop without consuming the stream — when the detector
-    // fires, tear down the subscription and stop native generation.
-    Timer? stopPoll;
-    stopPoll = Timer.periodic(const Duration(milliseconds: 40), (_) {
-      if (detector.shouldStop && !completer.isCompleted) {
-        timer.cancel();
-        stopPoll?.cancel();
-        sub.cancel().then((_) {
-          try {
-            (session.stopGeneration as Function()).call();
-          } catch (_) {}
-          if (!completer.isCompleted) {
-            completer.complete(detector.trimmed());
-          }
-        });
-      }
-    });
-
+  /// Trim trailing repetition loops from [raw] WITHOUT ever returning
+  /// empty. If the trim would produce an empty string, return the raw
+  /// input unchanged — a degenerate answer is strictly better than a
+  /// blank bubble.
+  ///
+  /// Uses [RepetitionDetector.trimmed] when it yields a non-empty
+  /// result; otherwise falls back to the raw string. This is a safety
+  /// net layered below ChatRepository.truncateAtTurnMarker (which
+  /// handles turn markers / channel leaks).
+  static String _safeTrimRepetition(String raw) {
+    if (raw.trim().isEmpty) return raw;
     try {
-      return await completer.future;
-    } finally {
-      timer.cancel();
-      stopPoll.cancel();
-      await sub.cancel();
+      final detector = RepetitionDetector();
+      detector.feed(raw);
+      if (!detector.shouldStop) return raw;
+      final trimmed = detector.trimmed();
+      // The golden rule: NEVER return empty. If the detector fired too
+      // early (false positive on a short or repetitive-but-valid answer)
+      // and trimmed() wiped the whole thing, fall back to the raw text.
+      // A user seeing "আমি আমি আমি" can retry; a user seeing blank
+      // thinks the app is broken.
+      return trimmed.trim().isEmpty ? raw : trimmed;
+    } catch (_) {
+      return raw;
     }
   }
 
@@ -598,7 +589,7 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
       maxOutputTokens: kMaxOutputTokens,
       tools: tools,
       loraPath: _loraPath,
-      enableThinking: _enableThinking ?? false,
+      enableThinking: _effectiveThinking,
     );
     try {
       await session.addQueryChunk(Message.text(text: prompt, isUser: true));

@@ -94,9 +94,22 @@ class ChatRepository {
           // emit a second "User:" turn and start rambling. Truncate
           // at the first turn-marker artifact.
           final answer = ChatRepository.truncateAtTurnMarker(rawAnswer);
-          debugPrint('[ChatRepo/Tier2] device path success len=${answer.length} (raw ${rawAnswer.length})');
-          if (onPath != null) onPath(GenerationPath.device);
-          return answer;
+          // A cleaned-to-nothing answer means the model produced only
+          // control tokens (e.g. a `<|channel|>thought …` leak starting at
+          // index 0, which truncateAtTurnMarker correctly cuts entirely).
+          // Returning it here would render a blank bubble and look like a
+          // crash. Fall through to the corpus instead — a grounded corpus
+          // answer is strictly better than empty.
+          if (answer.trim().isEmpty) {
+            debugPrint(
+                '[ChatRepo/Tier2] device path produced no usable text '
+                '(raw ${rawAnswer.length} chars, all control tokens) '
+                '— falling through to corpus');
+          } else {
+            debugPrint('[ChatRepo/Tier2] device path success len=${answer.length} (raw ${rawAnswer.length})');
+            if (onPath != null) onPath(GenerationPath.device);
+            return answer;
+          }
         }
       } catch (e, st) {
         debugPrint('[ChatRepo/Tier2] device path FAILED: $e');
