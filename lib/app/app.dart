@@ -19,6 +19,7 @@ import '../features/admin/admin_login_screen.dart';
 import '../features/admin/admin_panel_screen.dart';
 import '../features/notifications/notifications_screen.dart';
 import '../features/profile/profile_screen.dart';
+import '../features/splash/splash_screen.dart';
 import '../main.dart';
 import 'main_shell.dart';
 import 'router.dart';
@@ -42,7 +43,15 @@ class ShongjogApp extends StatelessWidget {
           locale: localeController.locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: const _StartupGate(),
+          home: Builder(
+            builder: (navContext) => SplashScreen(
+              onComplete: () {
+                Navigator.of(navContext).pushReplacement(
+                  MaterialPageRoute(builder: (_) => const _StartupGate()),
+                );
+              },
+            ),
+          ),
           routes: {
             AppRoutes.settings: (_) => const SettingsScreen(),
             AppRoutes.emergencyContacts: (_) =>
