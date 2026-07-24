@@ -35,11 +35,29 @@ class _MarineCardState extends State<MarineCard> {
   bool _failed = false;
   bool _coastal = false;
   _CoastalPoint? _reference;
+  bool _wasOnline = false;
 
   @override
   void initState() {
     super.initState();
+    _wasOnline = connectivityProvider.isOnline;
+    connectivityProvider.addListener(_onConnectivityChanged);
     _load();
+  }
+
+  @override
+  void dispose() {
+    connectivityProvider.removeListener(_onConnectivityChanged);
+    super.dispose();
+  }
+
+  /// Auto-refresh when the network comes back online.
+  void _onConnectivityChanged() {
+    final now = connectivityProvider.isOnline;
+    if (now && !_wasOnline) {
+      _load();
+    }
+    _wasOnline = now;
   }
 
   Future<void> _load() async {

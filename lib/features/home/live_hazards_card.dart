@@ -29,11 +29,30 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
   List<_HazardsItem>? _items;
   bool _loading = true;
   bool _allFailed = false;
+  bool _wasOnline = false;
 
   @override
   void initState() {
     super.initState();
+    _wasOnline = connectivityProvider.isOnline;
+    connectivityProvider.addListener(_onConnectivityChanged);
     _load();
+  }
+
+  @override
+  void dispose() {
+    connectivityProvider.removeListener(_onConnectivityChanged);
+    super.dispose();
+  }
+
+  /// Auto-refresh when the network comes back online — a user returning
+  /// from airplane mode should see fresh hazards without a manual tap.
+  void _onConnectivityChanged() {
+    final now = connectivityProvider.isOnline;
+    if (now && !_wasOnline) {
+      _load();
+    }
+    _wasOnline = now;
   }
 
   Future<void> _load() async {

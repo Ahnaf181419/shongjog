@@ -28,11 +28,30 @@ class _AirQualityCardState extends State<AirQualityCard> {
   AirQualitySnapshot? _snapshot;
   bool _loading = true;
   bool _failed = false;
+  bool _wasOnline = false;
 
   @override
   void initState() {
     super.initState();
+    _wasOnline = connectivityProvider.isOnline;
+    connectivityProvider.addListener(_onConnectivityChanged);
     _load();
+  }
+
+  @override
+  void dispose() {
+    connectivityProvider.removeListener(_onConnectivityChanged);
+    super.dispose();
+  }
+
+  /// Auto-refresh when the network comes back online. Avoids re-fetching
+  /// on every transient flutter — only fires on a false → true flip.
+  void _onConnectivityChanged() {
+    final now = connectivityProvider.isOnline;
+    if (now && !_wasOnline) {
+      _load();
+    }
+    _wasOnline = now;
   }
 
   Future<void> _load() async {
