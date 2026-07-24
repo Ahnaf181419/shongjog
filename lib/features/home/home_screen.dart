@@ -17,6 +17,9 @@ import '../intelligence/notification_service.dart';
 import '../profile/profile_screen.dart';
 import '../quick_cards/cards_data.dart';
 import '../weather/weather_card.dart';
+import 'air_quality_card.dart';
+import 'live_hazards_card.dart';
+import 'marine_card.dart';
 
 /// Home tab — context-first dashboard.
 ///
@@ -62,6 +65,10 @@ class HomeScreen extends StatelessWidget {
                 // ── Weather card sits at the top: today's weather + 3-day strip.
                 //   Optional network feature — degrades to a tap-to-load affordance.
                 const WeatherCard(),
+                const SizedBox(height: 8),
+                const AirQualityCard(),
+                const SizedBox(height: 8),
+                const MarineCard(),
                 const SizedBox(height: 16),
 
                 // ── 2 emergency tiles (cards / shelter). The 999 entry point
