@@ -49,15 +49,15 @@ class WeatherService {
     final client = HttpClient();
     try {
       client.connectionTimeout = _timeout;
-      final req = await client.getUrl(uri);
+      final req = await client.getUrl(uri).timeout(_timeout);
       final res = await req.close().timeout(_timeout);
       if (res.statusCode != 200) {
         return null;
       }
       final body = await res
           .transform(utf8.decoder)
-          .toList()
-          .then((chunks) => chunks.join());
+          .join()
+          .timeout(_timeout);
       final json = jsonDecode(body) as Map<String, dynamic>;
       return WeatherSnapshot.fromOpenMeteo(json);
     } on TimeoutException {
@@ -135,10 +135,10 @@ class WeatherSnapshot {
       dailyList.add(
         DailyForecast(
           date: DateTime.parse(times[i]),
-          maxC: (maxes[i] as num?)?.toDouble() ?? 0,
-          minC: (mins[i] as num?)?.toDouble() ?? 0,
-          weatherCode: (codes[i] as num?)?.toInt() ?? 0,
-          precipProbabilityPct: (precips[i] as num?)?.toInt() ?? 0,
+          maxC: (maxes.length > i ? (maxes[i] as num?)?.toDouble() : 0) ?? 0,
+          minC: (mins.length > i ? (mins[i] as num?)?.toDouble() : 0) ?? 0,
+          weatherCode: (codes.length > i ? (codes[i] as num?)?.toInt() : 0) ?? 0,
+          precipProbabilityPct: (precips.length > i ? (precips[i] as num?)?.toInt() : 0) ?? 0,
         ),
       );
     }

@@ -21,17 +21,28 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final _pageController = PageController();
+  final _nameController = TextEditingController();
   int _page = 0;
 
-  static const _pages = 3;
+  static const _pages = 4;
+
+  Future<void> _saveName() async {
+    final name = _nameController.text.trim();
+    if (name.isNotEmpty) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_name', name);
+    }
+  }
 
   @override
   void dispose() {
+    _nameController.dispose();
     _pageController.dispose();
     super.dispose();
   }
 
-  void _next() {
+  void _next() async {
+    await _saveName();
     if (_page < _pages - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
@@ -52,6 +63,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _goToHome() async {
+    await _saveName();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('pref_has_onboarded', true);
     if (!mounted) return;
@@ -59,6 +71,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _goToSettings() async {
+    await _saveName();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('pref_has_onboarded', true);
     if (!mounted) return;
@@ -78,6 +91,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 onPageChanged: (i) => setState(() => _page = i),
                 children: [
                   _welcomePage(),
+                  _profilePage(),
                   _permissionsPage(),
                   _modelPage(),
                 ],
@@ -91,9 +105,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _welcomePage() {
-    return Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(32),
+        child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Align(
@@ -157,13 +172,57 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
         ],
       ),
+      ),
+    );
+  }
+
+  Widget _profilePage() {
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.person_outline_rounded,
+              size: 64, color: ShongjogTheme.ocean),
+          const SizedBox(height: 24),
+          Text(
+            'আপনার নাম',
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'অফলাইন মেসেজিং এবং জরুরি যোগাযোগের জন্য আপনার নাম সেট করতে পারেন। এটি ঐচ্ছিক।',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: ShongjogTheme.bodyFloor,
+              height: 1.6,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 32),
+          TextField(
+            controller: _nameController,
+            textInputAction: TextInputAction.done,
+            decoration: InputDecoration(
+              labelText: 'নাম',
+              hintText: 'আপনার নাম লিখুন',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(ShongjogTheme.radius),
+              ),
+            ),
+          ),
+        ],
+      ),
+      ),
     );
   }
 
   Widget _permissionsPage() {
-    return Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(32),
+        child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.admin_panel_settings_outlined,
@@ -200,13 +259,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
         ],
       ),
+      ),
     );
   }
 
   Widget _modelPage() {
-    return Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(32),
+        child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.downloading_rounded,
@@ -237,6 +298,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

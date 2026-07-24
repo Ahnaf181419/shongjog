@@ -21,8 +21,9 @@ class SosRelayListener {
   final SosRelayEngine engine;
   final Future<void> Function(Uint8List bytes) sendToAll;
   final void Function(MeshMessage msg) emit;
+  final Set<String> _emittedIds = {};
 
-  const SosRelayListener({
+  SosRelayListener({
     required this.engine,
     required this.sendToAll,
     required this.emit,
@@ -46,14 +47,16 @@ class SosRelayListener {
         Uint8List.fromList(utf8.encode(verdict.relayed!.encode())),
       );
     }
-    // Always emit a local message with the hopCount, regardless of
-    // whether we relayed or not. The chat bubble decides what to show.
-    emit(MeshMessage(
-      senderId: msg.senderId,
-      senderName: msg.senderName,
-      text: payload.message,
-      type: MessageType.text,
-      hopCount: payload.hopCount,
-    ));
+    // Only emit once per SOS id — duplicate arrivals from different
+    // mesh paths are de-duped here to avoid cluttering the chat.
+    if (_emittedIds.add(payload.id)) {
+      emit(MeshMessage(
+        senderId: msg.senderId,
+        senderName: msg.senderName,
+        text: payload.message,
+        type: MessageType.text,
+        hopCount: payload.hopCount,
+      ));
+    }
   }
 }

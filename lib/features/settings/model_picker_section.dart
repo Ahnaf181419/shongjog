@@ -269,8 +269,16 @@ class _ModelCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    LinearProgressIndicator(value: progress ?? 0),
-                    const SizedBox(height: 4),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: progress ?? 0.0,
+                        minHeight: 6,
+                        backgroundColor: cs.primary.withValues(alpha: 0.15),
+                        valueColor: AlwaysStoppedAnimation<Color>(cs.primary),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
                     Text('${((progress ?? 0) * 100).round()}%', style: const TextStyle(fontSize: 12)),
                   ],
                 ),

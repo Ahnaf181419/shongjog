@@ -34,6 +34,9 @@ void main() {
   }
 
   group('HomeScreen', () {
+    setUp(() => WeatherCard.debugSkipGps = true);
+    tearDown(() => WeatherCard.debugSkipGps = false);
+
     testWidgets('renders app bar with profile title', (tester) async {
       await tester.pumpWidget(wrapHome());
       await pumpOnce(tester);
@@ -149,12 +152,14 @@ void main() {
   // ════════════════════════════════════════════════════════════════
   group('HomeScreen download progress chip', () {
     setUp(() {
+      WeatherCard.debugSkipGps = true;
       for (final v in ModelVariant.values) {
         modelManager.debugClearDownloadingState(v);
       }
     });
 
     tearDown(() {
+      WeatherCard.debugSkipGps = false;
       for (final v in ModelVariant.values) {
         modelManager.debugClearDownloadingState(v);
       }

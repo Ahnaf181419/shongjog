@@ -92,9 +92,9 @@ void main() {
         rawBytes: Uint8List.fromList(utf8.encode(encoded)),
       );
       expect(sent, hasLength(1));
-      // But still emits twice — chat history shows the second arrival.
-      expect(emitted, hasLength(2));
-      expect(emitted[1].hopCount, 0);
+      // Duplicate arrival is de-duped — only one emission per SOS id.
+      expect(emitted, hasLength(1));
+      expect(emitted[0].hopCount, 0);
     });
 
     test('emitted message carries the original payload hopCount', () async {

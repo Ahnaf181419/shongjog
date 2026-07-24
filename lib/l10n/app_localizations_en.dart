@@ -519,6 +519,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatTryAgain => 'Try again';
 
   @override
+  String get chatMicPermission =>
+      'Microphone permission denied. Tap to open Settings.';
+
+  @override
   String get meshTitle => 'Offline Communication';
 
   @override
@@ -584,4 +588,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get weatherLoading => 'Weather — Loading';
+
+  @override
+  String get weatherFallbackLabel => '📍 Dhaka (default)';
+
+  @override
+  String get weatherLocationRetry => 'Retry location';
 }

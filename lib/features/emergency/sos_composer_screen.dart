@@ -288,8 +288,7 @@ class _SosComposerScreenState extends State<SosComposerScreen> {
   }
 
   void _sendSos() {
-    // Navigate to the dialer with the SMS body pre-filled.
-    // Uses EmergencyActions.sendSos which opens the system SMS composer.
+    // Return the composed SOS body to the caller (emergency_sheet.dart).
     Navigator.of(context).pop(_smsPreview);
   }
 }

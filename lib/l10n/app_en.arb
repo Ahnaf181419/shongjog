@@ -161,6 +161,7 @@
   "chatQuickCards": "View quick guidance cards",
   "chatVoiceInputDisabled": "Enable voice input in Settings",
   "chatTryAgain": "Try again",
+  "chatMicPermission": "Microphone permission denied. Tap to open Settings.",
   "meshTitle": "Offline Communication",
   "meshDeviceCount": "{count} devices",
   "meshConnecting": "Connecting via Wi-Fi...",
@@ -180,5 +181,7 @@
   "weatherFetchError": "Could not get weather data from server",
   "weatherTodayLabel": "Weather · Today · {condition}",
   "weatherTapToView": "Tap to view weather",
-  "weatherLoading": "Weather — Loading"
+  "weatherLoading": "Weather — Loading",
+  "weatherFallbackLabel": "📍 Dhaka (default)",
+  "weatherLocationRetry": "Retry location"
 }

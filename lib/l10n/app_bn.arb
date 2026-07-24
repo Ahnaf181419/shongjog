@@ -161,6 +161,7 @@
   "chatQuickCards": "দ্রুত নির্দেশিকা কার্ড দেখুন",
   "chatVoiceInputDisabled": "সেটিংসে ভয়েস ইনপুট চালু করুন",
   "chatTryAgain": "আবার চেষ্টা করুন",
+  "chatMicPermission": "মাইক্রোফোন অনুমতি নেই। সেটিংসে যেতে চাপুন।",
   "meshTitle": "অফলাইন যোগাযোগ",
   "meshDeviceCount": "{count} ডিভাইস",
   "meshConnecting": "Wi-Fi সংযোগ চালু হচ্ছে...",
@@ -180,5 +181,7 @@
   "weatherFetchError": "আবহাওয়া সার্ভার থেকে তথ্য পাওয়া যায়নি",
   "weatherTodayLabel": "আবহাওয়া · আজ · {condition}",
   "weatherTapToView": "আবহাওয়া দেখতে চাপুন",
-  "weatherLoading": "আবহাওয়া — লোড হচ্ছে"
+  "weatherLoading": "আবহাওয়া — লোড হচ্ছে",
+  "weatherFallbackLabel": "📍 ঢাকা (ডিফল্ট)",
+  "weatherLocationRetry": "অবস্থান আবার চেষ্টা করুন"
 }

@@ -107,12 +107,24 @@ class ShelterMapViewModel extends ChangeNotifier {
     } catch (_) {
       shelters = const [];
     }
+    // Notify immediately so the map renders with shelter markers
+    // while GPS resolves in the background.
+    notifyListeners();
 
     try {
-      userPosition = await _resolvePosition(
-        accuracy: LocationAccuracy.high,
-        timeLimit: ShelterConstants.gpsTimeout,
-      );
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        gpsError = 'GPS অনুমতি দেওয়া হয়নি';
+      } else {
+        userPosition = await _resolvePosition(
+          accuracy: LocationAccuracy.high,
+          timeLimit: ShelterConstants.gpsTimeout,
+        );
+      }
     } catch (_) {
       gpsError = 'GPS পাওয়া যায়নি';
     }

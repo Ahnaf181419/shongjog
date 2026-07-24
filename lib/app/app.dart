@@ -10,6 +10,7 @@ import '../features/contacts/emergency_contacts_screen.dart';
 import '../features/emergency/directory_screen.dart';
 import '../features/emergency/sos_composer_screen.dart';
 import '../features/mesh_comm/mesh_radar_screen.dart';
+import '../features/mesh_comm/mesh_call_service.dart';
 import '../features/mesh_comm/mesh_service.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/safe_beacon/safe_beacon_screen.dart';
@@ -19,6 +20,7 @@ import '../features/admin/admin_login_screen.dart';
 import '../features/admin/admin_panel_screen.dart';
 import '../features/notifications/notifications_screen.dart';
 import '../features/profile/profile_screen.dart';
+import '../features/splash/splash_screen.dart';
 import '../main.dart';
 import 'main_shell.dart';
 import 'router.dart';
@@ -42,7 +44,15 @@ class ShongjogApp extends StatelessWidget {
           locale: localeController.locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: const _StartupGate(),
+          home: Builder(
+            builder: (navContext) => SplashScreen(
+              onComplete: () {
+                Navigator.of(navContext).pushReplacement(
+                  MaterialPageRoute(builder: (_) => const _StartupGate()),
+                );
+              },
+            ),
+          ),
           routes: {
             AppRoutes.settings: (_) => const SettingsScreen(),
             AppRoutes.emergencyContacts: (_) =>
@@ -154,6 +164,12 @@ class _StartupGateState extends State<_StartupGate> {
         // idempotent and only sends when peers are connected, so wiring
         // it on a failed start is harmless.
         meshService.ensureRelayEngine();
+        // C1 FIX: initialize the call service so recorder/player open and
+        // the signalling listener wires up. Without this, voice calls are
+        // permanently dead (_recorderReady / _playerReady stay false).
+        meshCallService.initialize().catchError(
+          (e) => debugPrint('StartupGate: meshCallService init failed: $e'),
+        );
       });
     }
 

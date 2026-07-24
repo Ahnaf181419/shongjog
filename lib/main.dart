@@ -1,8 +1,10 @@
 import 'dart:ui' show PlatformDispatcher;
+import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
 import 'package:flutter_gemma_litertlm/flutter_gemma_litertlm.dart';
+import 'package:flutter_displaymode/flutter_displaymode.dart';
 
 import 'app/app.dart';
 import 'core/admin_broadcast_service.dart';
@@ -53,6 +55,13 @@ Future<void> main() async {
     await modelManager.autoSelectBestModel();
   } catch (e) {
     debugPrint('Model auto-select failed: $e');
+  }
+  if (Platform.isAndroid) {
+    try {
+      await FlutterDisplayMode.setHighRefreshRate();
+    } catch (e) {
+      debugPrint('FlutterDisplayMode failed: $e');
+    }
   }
   runApp(const ShongjogApp());
 }

@@ -1064,6 +1064,12 @@ abstract class AppLocalizations {
   /// **'আবার চেষ্টা করুন'**
   String get chatTryAgain;
 
+  /// No description provided for @chatMicPermission.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাইক্রোফোন অনুমতি নেই। সেটিংসে যেতে চাপুন।'**
+  String get chatMicPermission;
+
   /// No description provided for @meshTitle.
   ///
   /// In bn, this message translates to:
@@ -1183,6 +1189,18 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'আবহাওয়া — লোড হচ্ছে'**
   String get weatherLoading;
+
+  /// No description provided for @weatherFallbackLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'📍 ঢাকা (ডিফল্ট)'**
+  String get weatherFallbackLabel;
+
+  /// No description provided for @weatherLocationRetry.
+  ///
+  /// In bn, this message translates to:
+  /// **'অবস্থান আবার চেষ্টা করুন'**
+  String get weatherLocationRetry;
 }
 
 class _AppLocalizationsDelegate

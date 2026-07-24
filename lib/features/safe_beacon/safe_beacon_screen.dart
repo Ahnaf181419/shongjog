@@ -32,7 +32,7 @@ String _bn(int n) {
 ///    emergency contact via [SmsQueue].
 /// 5. Listens to [connectivityProvider]; when the device goes
 ///    online, drains the queue (opens the SMS composer for each
-///    queued contact via [EmergencyActions.sendSmsTo]).
+///    queued contact via [EmergencyActions.sendSmsTo] (SmsManager).
 class SafeBeaconScreen extends StatefulWidget {
   const SafeBeaconScreen({super.key});
 
@@ -133,8 +133,8 @@ class _SafeBeaconScreenState extends State<SafeBeaconScreen> {
         id: 'safe-${DateTime.now().microsecondsSinceEpoch}',
         originName: name,
         originPhone: phone,
-        lat: lat ?? 0,
-        lon: lon ?? 0,
+        lat: lat,
+        lon: lon,
         timestamp: DateTime.now(),
         hopCount: 0,
         hops: const [],

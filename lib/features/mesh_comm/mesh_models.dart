@@ -11,6 +11,13 @@ enum MessageType { text, voice }
 enum PeerStatus { connected, reconnecting, disconnected }
 
 @immutable
+class ConnectionRequestEvent {
+  final String endpointId;
+  final String endpointName;
+  const ConnectionRequestEvent(this.endpointId, this.endpointName);
+}
+
+@immutable
 class MeshMessage {
   final String senderId;
   final String senderName;

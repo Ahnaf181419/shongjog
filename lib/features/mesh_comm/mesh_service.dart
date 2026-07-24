@@ -9,11 +9,15 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'mesh_call_service.dart';
 import 'mesh_models.dart';
+import 'mesh_transport.dart';
 import 'sos_payload.dart';
 import 'sos_relay.dart';
 import 'sos_relay_listener.dart';
+import 'wifi_direct_transport.dart';
 
 const _kServiceId = 'com.shongjog.mesh';
 
@@ -57,16 +61,27 @@ class MeshStartResult {
       );
 }
 
+
+
 class MeshService {
   final Strategy strategy = Strategy.P2P_CLUSTER;
-  final String userName;
+  String userName;
+
+  /// Which transport backend is currently active. Null until [start] completes.
+  MeshTransportType? activeTransport;
+
+  /// GMS-free fallback transport. Lazily initialized only when GMS is absent.
+  WifiDirectTransport? _wifiDirectTransport;
+  StreamSubscription? _wdPeerSub;
+  StreamSubscription? _wdMsgSub;
 
   final _peersController = StreamController<List<MeshPeer>>.broadcast();
   final _messagesController = StreamController<MeshMessage>.broadcast();
+  final _connectionRequestsController = StreamController<ConnectionRequestEvent>.broadcast();
 
   final Map<String, MeshPeer> _peers = {};
 
-  // 🔴 FIX 1: Map to hold files that are currently downloading
+  // Map to hold files that are currently downloading
   final Map<int, String> _incomingFiles = {};
 
   /// Timers for cleaning up disconnected peers after a TTL.
@@ -82,6 +97,7 @@ class MeshService {
 
   Stream<List<MeshPeer>> get peers => _peersController.stream;
   Stream<MeshMessage> get messages => _messagesController.stream;
+  Stream<ConnectionRequestEvent> get connectionRequests => _connectionRequestsController.stream;
 
   List<MeshPeer> get peerList => _peers.values.toList();
   int get peerCount => _peers.length;
@@ -131,6 +147,14 @@ class MeshService {
   Future<MeshStartResult> start() async {
     if (_running) return MeshStartResult.success;
 
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedName = prefs.getString('user_name') ?? '';
+      if (savedName.isNotEmpty) {
+        userName = '$kMeshPeerPrefix$savedName';
+      }
+    } catch (_) {}
+
     final granted = await requestPermissions();
     if (!granted) {
       debugPrint('MeshService: permissions denied');
@@ -139,10 +163,14 @@ class MeshService {
 
     final wifiOn = await _wifiRadioAvailable();
     if (!wifiOn) {
-      debugPrint('MeshService: Wi-Fi radio off — P2P_CLUSTER cannot start');
+      debugPrint('MeshService: Wi-Fi radio off — cannot start any transport');
       return MeshStartResult.fail('wifi_off', wifiOn: false);
     }
 
+    // ── Dual-Stack Transport Selection ───────────────────────────────────
+    // Try Google Nearby first (fastest, peer-symmetric). If advertising
+    // AND discovery both fail immediately, GMS is absent → fall back to
+    // the GMS-free Wi-Fi Direct transport.
     bool advertisingOk = false;
     bool discoveryOk = false;
 
@@ -156,7 +184,7 @@ class MeshService {
         onDisconnected: _onDisconnected,
       );
     } catch (e) {
-      debugPrint('MeshService: startAdvertising failed: $e');
+      debugPrint('MeshService: Nearby startAdvertising failed: $e');
     }
 
     try {
@@ -168,25 +196,72 @@ class MeshService {
         onEndpointLost: _onEndpointLost,
       );
     } catch (e) {
-      debugPrint('MeshService: startDiscovery failed: $e');
+      debugPrint('MeshService: Nearby startDiscovery failed: $e');
     }
 
-    if (!advertisingOk && !discoveryOk) {
+    if (advertisingOk || discoveryOk) {
+      // Nearby Connections is working → GMS is present.
+      activeTransport = MeshTransportType.nearbyConnections;
+      debugPrint('MeshService: using Nearby Connections (GMS detected)');
+      _running = true;
+      _peersController.add(peerList);
+      return MeshStartResult(
+        ok: true,
+        advertisingOk: advertisingOk,
+        discoveryOk: discoveryOk,
+        wifiOn: wifiOn,
+      );
+    }
+
+    // ── GMS absent: fall back to GMS-free Wi-Fi Direct ───────────────────
+    debugPrint('MeshService: Nearby Connections unavailable → falling back to Wi-Fi Direct');
+    final wdt = WifiDirectTransport();
+    final wdOk = await wdt.start(userName);
+    if (!wdOk) {
       return MeshStartResult.fail('radio_unavailable', wifiOn: wifiOn);
     }
+
+    _wifiDirectTransport = wdt;
+    activeTransport = MeshTransportType.wifiDirect;
+
+    // Bridge WifiDirectTransport peers/messages into MeshService streams.
+    _wdPeerSub = wdt.peers.listen((peers) {
+      _peers.clear();
+      for (final p in peers) {
+        _peers[p.id] = MeshPeer(
+          endpointId: p.id,
+          name: p.displayName,
+          status: p.isConnected ? PeerStatus.connected : PeerStatus.disconnected,
+        );
+      }
+      _peersController.add(peerList);
+    });
+
+    _wdMsgSub = wdt.messages.listen((msg) {
+      _messagesController.add(MeshMessage(
+        senderId: msg.senderId,
+        senderName: msg.senderName,
+        text: msg.text,
+        type: MessageType.text,
+      ));
+    });
 
     _running = true;
     _peersController.add(peerList);
     return MeshStartResult(
       ok: true,
-      advertisingOk: advertisingOk,
-      discoveryOk: discoveryOk,
+      advertisingOk: true,
+      discoveryOk: true,
       wifiOn: wifiOn,
     );
   }
 
   Future<void> restartDiscovery() async {
     if (!_running) return;
+    if (activeTransport == MeshTransportType.wifiDirect) {
+      await _wifiDirectTransport?.restartDiscovery();
+      return;
+    }
     try {
       await Nearby().stopDiscovery();
       await Nearby().startDiscovery(
@@ -204,9 +279,15 @@ class MeshService {
 
   Future<void> stop() async {
     _running = false;
-    await Nearby().stopAdvertising();
-    await Nearby().stopDiscovery();
-    await Nearby().stopAllEndpoints();
+    _wdPeerSub?.cancel();
+    _wdMsgSub?.cancel();
+    if (activeTransport == MeshTransportType.wifiDirect) {
+      await _wifiDirectTransport?.stop();
+    } else {
+      await Nearby().stopAdvertising();
+      await Nearby().stopDiscovery();
+      await Nearby().stopAllEndpoints();
+    }
     for (final t in _disconnectTimers.values) {
       t.cancel();
     }
@@ -224,18 +305,39 @@ class MeshService {
   void _onEndpointFound(String id, String name, String serviceId) {
     if (!name.startsWith(kMeshPeerPrefix)) return;
 
+    final existing = _peers[id];
+    if (existing != null && existing.status == PeerStatus.connected) return;
+
     // If this peer was disconnected, cancel its cleanup timer — it's
     // coming back into range. The connection flow will promote it to
     // connected via _onConnectionResult.
     _disconnectTimers.remove(id)?.cancel();
 
-    Nearby().requestConnection(
-      userName,
-      id,
-      onConnectionInitiated: _onConnectionInitiated,
-      onConnectionResult: _onConnectionResult,
-      onDisconnected: _onDisconnected,
+    final displayName = name.substring(kMeshPeerPrefix.length);
+    _peers[id] = MeshPeer(
+      endpointId: id,
+      name: displayName.isNotEmpty ? displayName : id,
+      status: PeerStatus.disconnected,
     );
+    _peersController.add(peerList);
+  }
+
+  /// Initiate a connection to a discovered peer.
+  /// Called when the user taps on a peer in the radar list.
+  Future<bool> connectToEndpoint(String endpointId) async {
+    try {
+      await Nearby().requestConnection(
+        userName,
+        endpointId,
+        onConnectionInitiated: _onConnectionInitiated,
+        onConnectionResult: _onConnectionResult,
+        onDisconnected: _onDisconnected,
+      );
+      return true;
+    } catch (e) {
+      debugPrint('MeshService: connectToEndpoint failed: $e');
+      return false;
+    }
   }
 
   void _onEndpointLost(String? id) {
@@ -255,11 +357,23 @@ class MeshService {
   }
 
   void _onConnectionInitiated(String id, ConnectionInfo info) {
+    if (info.isIncomingConnection) {
+      _connectionRequestsController.add(ConnectionRequestEvent(id, info.endpointName));
+    } else {
+      acceptConnection(id);
+    }
+  }
+
+  void acceptConnection(String id) {
     Nearby().acceptConnection(
       id,
       onPayLoadRecieved: _onPayloadReceived,
-      onPayloadTransferUpdate: _onPayloadTransferUpdate, // 🔴 FIX 1
+      onPayloadTransferUpdate: _onPayloadTransferUpdate,
     );
+  }
+
+  void rejectConnection(String id) {
+    Nearby().rejectConnection(id);
   }
 
   void _onConnectionResult(String id, Status status) {
@@ -307,6 +421,23 @@ class MeshService {
     if (payload.type == PayloadType.BYTES) {
       final bytes = payload.bytes;
       if (bytes == null) return;
+      
+      final callPrefix = utf8.encode('CALL_AUDIO:');
+      if (bytes.length >= callPrefix.length) {
+        bool match = true;
+        for (int i = 0; i < callPrefix.length; i++) {
+          if (bytes[i] != callPrefix[i]) {
+            match = false;
+            break;
+          }
+        }
+        if (match) {
+          final audioData = bytes.sublist(callPrefix.length);
+          meshCallService.feedIncomingAudio(audioData);
+          return;
+        }
+      }
+
       final text = utf8.decode(bytes, allowMalformed: true);
       // Voice filename hint: "voice:<payloadId>:<basename>". Cache the
       // basename for the FILE payload's SUCCESS handler. Non-voice chat
@@ -395,7 +526,7 @@ class MeshService {
   }
 
   /// Returns true if at least one peer received the message.
-  bool sendMessage(String text, {String? targetEndpointId}) {
+  bool sendMessage(String text, {String? targetEndpointId, bool echoSelf = true}) {
     if (_peers.isEmpty) return false;
     final bytes = Uint8List.fromList(utf8.encode(text));
     var delivered = false;
@@ -411,12 +542,22 @@ class MeshService {
         }
       }
     }
-    _messagesController.add(MeshMessage(
-      senderId: kMeshSelfId,
-      senderName: 'Me',
-      text: text,
-      type: MessageType.text,
-    ));
+    // H7 FIX: only add to chat when at least one peer confirmed delivery.
+    // Previously the self-bubble was unconditional so the user saw "sent"
+    // even when no peers were connected.
+    // H8 FIX: use the user's own display name (stripped prefix) instead of
+    // the hardcoded English literal 'Me', which violated the Bangla-only UI.
+    if (delivered && echoSelf) {
+      final selfName = userName.startsWith(kMeshPeerPrefix)
+          ? userName.substring(kMeshPeerPrefix.length)
+          : userName;
+      _messagesController.add(MeshMessage(
+        senderId: kMeshSelfId,
+        senderName: selfName,
+        text: text,
+        type: MessageType.text,
+      ));
+    }
     return delivered;
   }
 
@@ -431,9 +572,7 @@ class MeshService {
     );
   }
 
-  /// Send raw bytes to all connected peers. Used by the SOS relay
-  /// listener to forward decoded payloads. Does NOT add to the
-  /// local message history (the listener handles that for SOS).
+  /// Send raw bytes to all connected peers.
   void sendBytesToAll(Uint8List bytes) {
     if (_peers.isEmpty) return;
     for (final peer in _peers.values) {
@@ -445,14 +584,32 @@ class MeshService {
     }
   }
 
+  /// Send raw bytes to a specific peer, using the active transport.
+  /// H5 FIX: used by MeshCallService for audio chunks so that
+  /// GMS-free (WifiDirect) devices don't crash on Nearby().
+  void sendBytesToPeer(String endpointId, Uint8List bytes) {
+    if (activeTransport == MeshTransportType.wifiDirect) {
+      _wifiDirectTransport?.sendBytes(endpointId, bytes);
+    } else {
+      try {
+        Nearby().sendBytesPayload(endpointId, bytes);
+      } catch (e) {
+        debugPrint('MeshService: sendBytesToPeer failed to $endpointId: $e');
+      }
+    }
+  }
+
   /// Broadcast a SOS payload over the mesh and add a local copy
   /// to the chat history with hopCount: 0.
   void broadcastSos(SosPayload payload) {
     final encoded = utf8.encode(payload.encode());
     sendBytesToAll(Uint8List.fromList(encoded));
+    final selfName = userName.startsWith(kMeshPeerPrefix)
+        ? userName.substring(kMeshPeerPrefix.length)
+        : userName;
     _messagesController.add(MeshMessage(
       senderId: kMeshSelfId,
-      senderName: 'Me',
+      senderName: selfName,
       text: payload.message,
       type: MessageType.text,
       hopCount: 0,
@@ -513,9 +670,12 @@ class MeshService {
         }
       }
     }
+    final selfName = userName.startsWith(kMeshPeerPrefix)
+        ? userName.substring(kMeshPeerPrefix.length)
+        : userName;
     _messagesController.add(MeshMessage(
       senderId: kMeshSelfId,
-      senderName: 'Me',
+      senderName: selfName,
       text: '',
       type: MessageType.voice,
       filePath: sendPath,

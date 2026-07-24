@@ -4,6 +4,8 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/haptics.dart';
+import 'mesh_call_screen.dart';
+import 'mesh_call_service.dart';
 import 'mesh_chat_store.dart';
 import 'mesh_models.dart';
 import 'mesh_service.dart';
@@ -178,6 +180,27 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
             ),
           ],
         ),
+        actions: [
+          if (widget.peer.status == PeerStatus.connected)
+            IconButton(
+              icon: const Icon(Icons.call_rounded),
+              tooltip: 'ভয়েস কল',
+              onPressed: () async {
+                HapticService.lightTap();
+                await meshCallService.call(widget.peer);
+                if (!context.mounted) return;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MeshCallScreen(
+                      peer: widget.peer,
+                      isIncoming: false,
+                    ),
+                  ),
+                );
+              },
+            ),
+        ],
       ),
       body: Column(
         children: [

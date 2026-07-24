@@ -15,26 +15,46 @@ import 'weather_service.dart';
 class WeatherCard extends StatefulWidget {
   const WeatherCard({super.key});
 
+  /// Test-only: when true, the card skips GPS entirely — avoids the
+  /// 7s pending-timer invariant failure in widget tests that run under
+  /// FakeAsync. Must be set before the widget is pumped.
+  static bool debugSkipGps = false;
+
   @override
   State<WeatherCard> createState() => _WeatherCardState();
 }
 
-class _WeatherCardState extends State<WeatherCard>
-    with SingleTickerProviderStateMixin {
+class _WeatherCardState extends State<WeatherCard> {
   WeatherSnapshot? _snapshot;
   bool _loading = true;
   int? _errorKey;
-  Position? _cachedPosition;
+  bool _usingFallback = false;
   // The card reserves a fixed height to keep layout stable across states
   // (loading / online / offline). Without this the screen jumps as the
   // card shrinks from "offline tap-to-load" to "full forecast" once data
   // arrives.
-  static const double _cardHeight = 168;
+  static const double _cardHeight = 172;
 
   @override
   void initState() {
     super.initState();
-    _load();
+    connectivityProvider.addListener(_onConnectivityChanged);
+    // Defer the network + GPS fetch to the next frame so the first paint
+    // completes before heavy I/O begins — avoids stacking with the
+    // ShelterMap GPS request on cold start.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+  }
+
+  void _onConnectivityChanged() {
+    if (connectivityProvider.isOnline && _snapshot == null && !_loading) {
+      _load();
+    }
+  }
+
+  @override
+  void dispose() {
+    connectivityProvider.removeListener(_onConnectivityChanged);
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -42,9 +62,10 @@ class _WeatherCardState extends State<WeatherCard>
       _loading = true;
       _errorKey = null;
     });
-    Position? pos = _cachedPosition;
-    pos ??= await _tryPosition();
-    _cachedPosition = pos;
+    // Always try GPS — don't cache null so location can recover when the
+    // user moves outdoors or grants permission after initially denying.
+    final pos = await _tryPosition();
+    final isFallback = pos == null;
     final lat = pos?.latitude ?? 23.81; // Dhaka fallback
     final lon = pos?.longitude ?? 90.41;
     final isOnline = connectivityProvider.isOnline;
@@ -57,10 +78,11 @@ class _WeatherCardState extends State<WeatherCard>
     setState(() {
       _snapshot = snap;
       _loading = false;
+      _usingFallback = isFallback;
       if (snap == null) {
         if (!isOnline) {
           _errorKey = 0;
-        } else if (pos == null) {
+        } else if (isFallback) {
           _errorKey = 1;
         } else {
           _errorKey = 2;
@@ -70,7 +92,20 @@ class _WeatherCardState extends State<WeatherCard>
   }
 
   Future<Position?> _tryPosition() async {
+    if (WeatherCard.debugSkipGps) return null;
     try {
+      return await _tryPositionInternal().timeout(const Duration(seconds: 7));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<Position?> _tryPositionInternal() async {
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        return null;
+      }
       var p = await Geolocator.checkPermission();
       if (p == LocationPermission.denied) {
         p = await Geolocator.requestPermission();
@@ -125,16 +160,22 @@ class _WeatherCardState extends State<WeatherCard>
 
   Widget _buildTodayRow(BuildContext context, WeatherSnapshot s) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: ShongjogTheme.iconBadge(context),
-            child: Icon(_iconFor(s.iconKey), color: cs.primary, size: 28),
+          GestureDetector(
+            onTap: _usingFallback ? _load : null,
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: ShongjogTheme.iconBadge(context),
+              child: _usingFallback
+                  ? Icon(Icons.location_off_rounded, color: cs.onSurfaceVariant, size: 26)
+                  : Icon(_iconFor(s.iconKey), color: cs.primary, size: 28),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -143,7 +184,7 @@ class _WeatherCardState extends State<WeatherCard>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  AppLocalizations.of(context).weatherTodayLabel(s.conditionBn),
+                  l10n.weatherTodayLabel(s.conditionBn),
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -151,6 +192,21 @@ class _WeatherCardState extends State<WeatherCard>
                     height: 1.2,
                   ),
                 ),
+                if (_usingFallback) ...[
+                  const SizedBox(height: 1),
+                  GestureDetector(
+                    onTap: _load,
+                    child: Text(
+                      l10n.weatherFallbackLabel,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+                        height: 1.2,
+                      ),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 2),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -214,13 +270,13 @@ class _WeatherCardState extends State<WeatherCard>
       cells.add(s.daily[i]);
     }
     return SizedBox(
-      height: 60,
+      height: 64,
       child: Row(
         children: [
           for (var i = 0; i < cells.length; i++) ...[
             Expanded(
               child: _DayCell(
-                label: _dayLabel(cells[i].date, isToday: false),
+                label: _dayLabel(cells[i].date),
                 icon: _iconForCode(cells[i].weatherCode),
                 maxC: cells[i].maxC,
                 minC: cells[i].minC,
@@ -348,14 +404,8 @@ class _WeatherCardState extends State<WeatherCard>
 
   // ─── HELPERS ─────────────────────────────────────────────
 
-  /// Bangla day label. 'আজ' / 'কাল' for the first two days (which the
-  /// caller has already filtered to start at index 1 here), then short
-  /// weekday names. Today (index 0 in the snapshot) is rendered in the
-  /// big today row, not the strip.
-  static String _dayLabel(DateTime d, {required bool isToday}) {
-    // Indices 0..2 in the strip = tomorrow, +2, +3 relative to "today".
-    // We can't know absolute "today" here without a clock, but the strip
-    // indices map to weekday-1, weekday, weekday+1 in most cases.
+  /// Bangla weekday label for the forecast strip cells.
+  static String _dayLabel(DateTime d) {
     const names = [
       'সোম', // 1 Mon
       'মঙ্গল', // 2 Tue
@@ -426,7 +476,7 @@ class _DayCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
