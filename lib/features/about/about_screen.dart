@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import '../../l10n/app_localizations.dart';
 
 /// About / sources page. Lists the corpus sources, building trust by
 /// showing guidance is attributable (docs/design.md §7.7).
@@ -31,7 +32,7 @@ class AboutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('তথ্যসূত্র')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).aboutTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -47,7 +48,7 @@ class AboutScreen extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  'সংযোগ',
+                  AppLocalizations.of(context).aboutBrand,
                   style: TextStyle(
                     color: cs.onPrimary,
                     fontSize: 28,
@@ -56,7 +57,7 @@ class AboutScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'অফলাইন জরুরি সহায়তা — বাংলায়',
+                  AppLocalizations.of(context).aboutTagline,
                   style: TextStyle(
                     color: cs.onPrimary.withValues(alpha: 0.85),
                     fontSize: 15,
@@ -67,8 +68,7 @@ class AboutScreen extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'শঙ্গ্যোগ-এর সমস্ত নির্দেশিকা নিচের প্রতিষ্ঠিত উৎস থেকে সংগৃহীত ও যাচাইকৃত। '
-            'অ্যাপ কখনো রোগ নির্ণয় করে না বা ওষুধ দেয় না — শুধু সাধারণ সহায়তা দেয়।',
+            AppLocalizations.of(context).aboutDescription,
             style: TextStyle(
               fontSize: 16,
               height: 1.5,
@@ -146,7 +146,7 @@ class AboutScreen extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'জরুরি হলে সর্বদা ৯৯৯ নম্বরে কল করুন বা নিকটস্থ হাসপাতালে যান।',
+                    AppLocalizations.of(context).aboutEmergencyNote,
                     style: TextStyle(
                       fontSize: 15,
                       height: 1.4,

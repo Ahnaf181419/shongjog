@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shongjog/app/router.dart';
 import 'package:shongjog/features/settings/settings_screen.dart';
 
+import 'test_app.dart';
+
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({
@@ -13,8 +15,8 @@ void main() {
   });
 
   Widget wrapSettings() {
-    return MaterialApp(
-      home: const SettingsScreen(),
+    return localizedApp(
+      const SettingsScreen(),
       routes: {
         AppRoutes.about: (_) => const Scaffold(body: Text('About')),
         AppRoutes.emergencyContacts: (_) =>

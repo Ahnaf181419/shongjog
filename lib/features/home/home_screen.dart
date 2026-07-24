@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/main_shell.dart';
+import '../../l10n/app_localizations.dart';
 import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../core/admin_broadcast_service.dart';
@@ -12,6 +14,7 @@ import '../../core/model_manager.dart';
 import '../../main.dart';
 import '../intelligence/intelligence_engine.dart';
 import '../intelligence/notification_service.dart';
+import '../profile/profile_screen.dart';
 import '../quick_cards/cards_data.dart';
 import '../weather/weather_card.dart';
 
@@ -33,14 +36,14 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('সংযোগ'),
+        title: const _ProfileTitle(),
         actions: [
-          const _EmergencyCallPill(),
+          _EmergencyCallPill(),
           const SizedBox(width: 4),
           const _NotificationBell(),
           const SizedBox(width: 4),
           IconButton(
-            tooltip: 'সেটিংস',
+            tooltip: AppLocalizations.of(context).settingsTitle,
             icon: const Icon(Icons.settings_rounded),
             onPressed: () => pushNamedSafe(context, AppRoutes.settings),
           ),
@@ -48,25 +51,24 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          const _ModelDownloadBanner(),
-          const _DownloadCompletionListener(),
+          _ModelDownloadBanner(),
+          _DownloadCompletionListener(),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
               children: [
-                const _StatusStrip(),
+                _StatusStrip(),
                 const SizedBox(height: 10),
                 // ── Weather card sits at the top: today's weather + 3-day strip.
                 //   Optional network feature — degrades to a tap-to-load affordance.
                 const WeatherCard(),
                 const SizedBox(height: 16),
-                // ── Hero: voice-first AI entry. Smaller (28 sp) than before; the
-                //   weather card now leads, so the hero is "one of several" CTAs.
-                _HeroAskCard(onTap: () => onNavigateToTab?.call(1)),
-                const SizedBox(height: 16),
+
                 // ── 2 emergency tiles (cards / shelter). The 999 entry point
                 //   lives in the AppBar pill — always reachable while scrolling.
                 _EmergencyTriad(),
+                const SizedBox(height: 12),
+                _TipCard(),
                 const SizedBox(height: 12),
                 _OfflineMessageTile(),
                 const SizedBox(height: 12),
@@ -74,6 +76,102 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  AppBar title — profile avatar + name, tap to edit
+// ════════════════════════════════════════════════════════════════
+
+class _ProfileTitle extends StatefulWidget {
+  const _ProfileTitle();
+
+  @override
+  State<_ProfileTitle> createState() => _ProfileTitleState();
+}
+
+class _ProfileTitleState extends State<_ProfileTitle> {
+  UserProfileData _profile = UserProfileData.empty;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    final profile = await UserProfileData.load();
+    if (mounted) setState(() => _profile = profile);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final hasPhoto = _profile.hasPhoto;
+
+    return GestureDetector(
+      onTap: () async {
+        await Navigator.pushNamed(context, AppRoutes.profile);
+        if (mounted) {
+          final updated = await UserProfileData.load();
+          if (mounted) setState(() => _profile = updated);
+        }
+      },
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: cs.primary.withValues(alpha: 0.12),
+              border: Border.all(
+                color: cs.primary.withValues(alpha: 0.2),
+                width: 1,
+              ),
+            ),
+            child: ClipOval(
+              child: hasPhoto
+                  ? Image.file(
+                      File(_profile.photoPath!),
+                      width: 32,
+                      height: 32,
+                      fit: BoxFit.cover,
+                    )
+                  : Center(
+                      child: _profile.initial.isNotEmpty
+                          ? Text(
+                              _profile.initial,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: cs.primary,
+                              ),
+                            )
+                          : Icon(
+                              Icons.person_rounded,
+                              size: 18,
+                              color: cs.primary.withValues(alpha: 0.6),
+                            ),
+                    ),
+            ),
+          ),
+          if (_profile.name.isNotEmpty) ...[
+            const SizedBox(width: 8),
+            Text(
+              _profile.name,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                fontFamily: ShongjogTheme.fontFamily,
+                color: cs.onSurface,
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -113,7 +211,7 @@ class _EmergencyCallPill extends StatelessWidget {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  'জরুরি কল',
+                    AppLocalizations.of(context).emergencyCall,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -170,7 +268,7 @@ class _NotificationBellState extends State<_NotificationBell> {
       clipBehavior: Clip.none,
       children: [
         IconButton(
-          tooltip: 'বিজ্ঞপ্তি',
+          tooltip: AppLocalizations.of(context).notificationsTooltip,
           icon: const Icon(Icons.notifications_rounded),
           onPressed: () => pushNamedSafe(context, AppRoutes.notifications),
         ),
@@ -238,13 +336,13 @@ class _StatusStripState extends State<_StatusStrip> {
           leading: isOnline
               ? _LiveDot(color: cs.primary)
               : _OfflineDot(color: cs.primary),
-          label: isOnline ? 'অনলাইনে চলছে' : 'অফলাইনে চলে',
+          label: isOnline ? AppLocalizations.of(context).statusOnline : AppLocalizations.of(context).statusOffline,
         ),
         const SizedBox(width: 8),
         _StatusChip(
           leading: Icon(Icons.check_circle_rounded,
               size: 14, color: ShongjogTheme.success),
-          label: 'তথ্য প্রস্তুত',
+          label: AppLocalizations.of(context).dataReady,
         ),
       ],
     );
@@ -361,135 +459,6 @@ class _OfflineDotState extends State<_OfflineDot>
 }
 
 // ════════════════════════════════════════════════════════════════
-//  Hero — voice-first entry to AI (28 sp CTA)
-// ════════════════════════════════════════════════════════════════
-
-class _HeroAskCard extends StatefulWidget {
-  final VoidCallback onTap;
-  const _HeroAskCard({required this.onTap});
-
-  @override
-  State<_HeroAskCard> createState() => _HeroAskCardState();
-}
-
-class _HeroAskCardState extends State<_HeroAskCard> {
-  // Tracks the InkWell highlight so we can run a press-scale animation
-  // alongside the default ripple. Both are required: ripple alone is
-  // subtle on a saturated gradient panel.
-  bool _pressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    // Honour reduced-motion: skip the 0.98 press-scale when the user has
-    // asked the OS to reduce motion. The InkWell ripple still fires either
-    // way, so press feedback survives — only the lift animation is gated.
-    final reduceMotion = MediaQuery.of(context).disableAnimations;
-    return AnimatedScale(
-      scale: (!reduceMotion && _pressed) ? 0.98 : 1.0,
-      duration: const Duration(milliseconds: 150),
-      curve: Curves.easeOutQuart,
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(ShongjogTheme.radiusLg),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: widget.onTap,
-          onHighlightChanged: (pressed) {
-            setState(() => _pressed = pressed);
-          },
-          child: Ink(
-            decoration: ShongjogTheme.heroPanel(context),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 18, 18, 18),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Recessed mic well — contained object, not a glow source.
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: ShongjogTheme.micWell(context),
-                    child: Icon(
-                      Icons.mic_rounded,
-                      color: cs.onPrimary,
-                      size: 26,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  // Middle: Bangla heading + caption.
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'প্রশ্ন করুন',
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.w700,
-                            color: cs.onPrimary,
-                            height: 1.15,
-                            letterSpacing: -0.01,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'অফলাইনে বাংলায় ভয়েসে উত্তর',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: cs.onPrimary.withValues(alpha: 0.85),
-                            height: 1.35,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  // Right: quiet secondary status + Bangla numeral chip.
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '২৪/৭ সক্রিয়',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: cs.onPrimary.withValues(alpha: 0.85),
-                          height: 1.1,
-                          letterSpacing: 0.02,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Container(
-                        width: 30,
-                        height: 30,
-                        alignment: Alignment.center,
-                        decoration: ShongjogTheme.numeralChip(context),
-                        child: Text(
-                          '১',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: cs.onPrimary,
-                            height: 1.0,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ════════════════════════════════════════════════════════════════
 //  Emergency triad — 2-up tiles (999 moved to AppBar pill)
 // ════════════════════════════════════════════════════════════════
 
@@ -509,8 +478,8 @@ class _EmergencyTriad extends StatelessWidget {
             Expanded(
               child: _TriadTile(
                 icon: Icons.style_rounded,
-                titleBn: 'জরুরি কার্ড',
-                subtitleBn: '$countBnটি দ্রুত নির্দেশিকা',
+                titleBn: AppLocalizations.of(context).emergencyCards,
+                subtitleBn: AppLocalizations.of(context).emergencyCardsCount(countBn),
                 onTap: () => MainShellRoute.goTo(context, 2),
               ),
             ),
@@ -518,20 +487,28 @@ class _EmergencyTriad extends StatelessWidget {
             Expanded(
               child: _TriadTile(
                 icon: Icons.shield_rounded,
-                titleBn: 'নিকটস্থ আশ্রয়',
-                subtitleBn: 'GPS থেকে শেল্টার',
+                titleBn: AppLocalizations.of(context).nearbyShelter,
+                subtitleBn: AppLocalizations.of(context).shelterFromGps,
                 onTap: () => MainShellRoute.goTo(context, 3),
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        _TriageTile(
-          onTap: () => pushNamedSafe(context, AppRoutes.triage),
-        ),
-        const SizedBox(height: 12),
-        _SafeBeaconTile(
-          onTap: () => pushNamedSafe(context, AppRoutes.safeBeacon),
+        Row(
+          children: [
+            Expanded(
+              child: _TriageTile(
+                onTap: () => pushNamedSafe(context, AppRoutes.triage),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _SafeBeaconTile(
+                onTap: () => pushNamedSafe(context, AppRoutes.safeBeacon),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         _DirectoryTile(
@@ -566,7 +543,7 @@ class _DirectoryTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'জরুরি নম্বর',
+                      AppLocalizations.of(context).emergencyNumbers,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -575,7 +552,7 @@ class _DirectoryTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'অফলাইন ডিরেক্টরি — জাতীয় ও বিভাগীয় হটলাইন',
+                      AppLocalizations.of(context).emergencyDirectoryDesc,
                       style: TextStyle(
                         fontSize: 12,
                         color: cs.onSurfaceVariant,
@@ -607,6 +584,7 @@ class _SafeBeaconTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(ShongjogTheme.radius),
         child: Container(
+          constraints: const BoxConstraints(minHeight: 60),
           decoration: BoxDecoration(
             color: cs.tertiaryContainer,
             borderRadius: BorderRadius.circular(ShongjogTheme.radius),
@@ -623,7 +601,7 @@ class _SafeBeaconTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'আমি নিরাপদ আছি',
+                      AppLocalizations.of(context).imSafe,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -632,7 +610,7 @@ class _SafeBeaconTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'পরিবারকে মেশ ও এসএমএস দিয়ে জানান',
+                      AppLocalizations.of(context).imSafeDesc,
                       style: TextStyle(
                         fontSize: 12,
                         color: cs.onTertiaryContainer.withValues(alpha: 0.8),
@@ -651,6 +629,80 @@ class _SafeBeaconTile extends StatelessWidget {
   }
 }
 
+// ══════════════════════════════════════════════════════════════
+//  Tip card — daily rotating disaster-preparedness tip
+// ══════════════════════════════════════════════════════════════
+
+class _TipCard extends StatelessWidget {
+  const _TipCard();
+
+  static const _tips = [
+    'বন্যা মৌসুমে পানি অন্তত ১ মিনিট ফুটিয়ে পান। পানিবাহিত রোগ প্রতিরোধে ORS মজুত রাখুন।',
+    'ঝড় আসার আগে জানালা-দরজা বন্ধ করুন। ভাঙা কাচের ক্ষতি থেকে বাঁচতে মোটা কাপড় দিয়ে ঢাকুন।',
+    'ভূমিকম্পে টেবিলের নিচে ঢুকুন, দেয়াল থেকে দূরে সরে যান। লিফট ব্যবহার করবেন না।',
+    'অগ্নিকাণ্ডে ধোঁয়া থেকে বাঁচতে মাটি পর্যন্ত নিচু হয়ে যান। ধোঁয়া ঘুরি উপরে ওঠে।',
+    'গ্রীষ্মে প্রতি ৩০ মিনিটে পানি পান করুন। তাপঘূর্ণণ থেকে বাঁচতে হালকা রঙের কাপড় পরুন।',
+    'ডায়রিয়ায় ORS ঘরে তৈরি করুন: ১ লিটার ফুটিয়ে ঠান্ডা পানিতে ১ চা চামচ চিনি + আধা চা চামচ লবণ মিশান।',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tipIndex = DateTime.now().day % _tips.length;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cs.primary.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(ShongjogTheme.radius),
+        border: Border.all(
+          color: cs.primary.withValues(alpha: 0.14),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: cs.primary.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(Icons.lightbulb_rounded,
+                color: cs.primary, size: 22),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocalizations.of(context).todaysTip,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: cs.primary,
+                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _tips[tipIndex],
+                  style: TextStyle(
+                    fontSize: ShongjogTheme.bodyFloor,
+                    height: 1.5,
+                    color: cs.onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _TriageTile extends StatelessWidget {
   final VoidCallback onTap;
   const _TriageTile({required this.onTap});
@@ -664,6 +716,7 @@ class _TriageTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(ShongjogTheme.radius),
         child: Container(
+          constraints: const BoxConstraints(minHeight: 60),
           decoration: BoxDecoration(
             color: cs.errorContainer,
             borderRadius: BorderRadius.circular(ShongjogTheme.radius),
@@ -679,7 +732,7 @@ class _TriageTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'ট্রায়াজ উইজার্ড',
+                      AppLocalizations.of(context).triageWizard,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -688,7 +741,7 @@ class _TriageTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'এলএলএম ছাড়াই প্রাথমিক চিকিৎসা — প্রশ্নের উত্তর দিন',
+                      AppLocalizations.of(context).firstAid,
                       style: TextStyle(
                         fontSize: 12,
                         color: cs.onErrorContainer.withValues(alpha: 0.8),
@@ -792,7 +845,7 @@ class _OfflineMessageTile extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: ShongjogTheme.iconBadge(context),
-                child: Icon(Icons.bluetooth_audio_rounded,
+                child: Icon(Icons.wifi_tethering_rounded,
                     color: cs.primary, size: 22),
               ),
               const SizedBox(width: 14),
@@ -802,7 +855,7 @@ class _OfflineMessageTile extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'অফলাইন মেসেজ',
+                      AppLocalizations.of(context).offlineMessage,
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
@@ -812,7 +865,7 @@ class _OfflineMessageTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'ব্লুটুথ দিয়ে কাছের মানুষদের সাথে কথা বলুন',
+                      AppLocalizations.of(context).offlineMessageDesc,
                       style: TextStyle(
                         fontSize: 14,
                         height: 1.4,
@@ -1008,7 +1061,7 @@ class _ModelDownloadBanner extends StatelessWidget {
                     Icon(Icons.download_rounded, size: 14, color: cs.primary),
                     const SizedBox(width: 6),
                     Text(
-                      'মডেল ডাউনলোড ${_bnPct(progress)}',
+                      AppLocalizations.of(context).modelDownloadProgress(_bnPct(progress)),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -1017,7 +1070,7 @@ class _ModelDownloadBanner extends StatelessWidget {
                     ),
                     const Spacer(),
                     Text(
-                      'পটভূমিতে চলছে',
+                      AppLocalizations.of(context).modelDownloading,
                       style: TextStyle(
                         fontSize: 11,
                         color: cs.onSurfaceVariant,
@@ -1077,15 +1130,15 @@ class _DownloadCompletionListenerState
         );
         if (anyReady) {
           messenger.showSnackBar(
-            const SnackBar(
-              content: Text('মডেল প্রস্তুত — এখন অফলাইন এআই চালু।'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context).modelReady),
               duration: Duration(seconds: 4),
             ),
           );
         } else {
           messenger.showSnackBar(
-            const SnackBar(
-              content: Text('ডাউনলোড ব্যর্থ — সেটিংস থেকে আবার চেষ্টা করুন।'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context).downloadFailed),
               duration: Duration(seconds: 4),
             ),
           );

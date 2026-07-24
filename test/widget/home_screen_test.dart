@@ -6,10 +6,16 @@ import 'package:shongjog/core/model_manager.dart';
 import 'package:shongjog/features/home/home_screen.dart';
 import 'package:shongjog/features/weather/weather_card.dart';
 import 'package:shongjog/main.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
+
+import 'test_app.dart';
 
 void main() {
   Widget wrapHome({ValueChanged<int>? onNavigateToTab}) {
     return MaterialApp(
+      locale: const Locale('bn'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       scaffoldMessengerKey: scaffoldMessengerKey,
       home: HomeScreen(onNavigateToTab: onNavigateToTab),
       routes: {
@@ -28,16 +34,12 @@ void main() {
   }
 
   group('HomeScreen', () {
-    testWidgets('renders app bar with title', (tester) async {
+    testWidgets('renders app bar with profile title', (tester) async {
       await tester.pumpWidget(wrapHome());
       await pumpOnce(tester);
-      expect(find.text('সংযোগ'), findsOneWidget);
-    });
-
-    testWidgets('renders hero card with primary CTA', (tester) async {
-      await tester.pumpWidget(wrapHome());
-      await pumpOnce(tester);
-      expect(find.text('প্রশ্ন করুন'), findsOneWidget);
+      // The AppBar title is now a _ProfileTitle widget (avatar + name).
+      // With no profile set, it shows a person icon.
+      expect(find.byIcon(Icons.person_rounded), findsOneWidget);
     });
 
     testWidgets('renders 2-tile emergency triad + AppBar 999 pill',
@@ -139,37 +141,6 @@ void main() {
       expect(find.text('অফলাইন AI প্রস্তুত'), findsOneWidget);
     });
 
-    testWidgets('AI hero CTA triggers onNavigateToTab(1)', (tester) async {
-      int? tappedIndex;
-      await tester.pumpWidget(
-        wrapHome(onNavigateToTab: (i) => tappedIndex = i),
-      );
-      await pumpOnce(tester);
-      await tester.tap(find.text('প্রশ্ন করুন'));
-      expect(tappedIndex, 1);
-    });
-
-    testWidgets('hero panel renders a gradient decoration', (tester) async {
-      await tester.pumpWidget(wrapHome());
-      await pumpOnce(tester);
-      // The drenched hero uses `Ink.decoration` with a `BoxDecoration`
-      // whose `gradient` is set. Find exactly one such widget in the tree.
-      final gradientInks = find.byWidgetPredicate((w) {
-        if (w is! Ink) return false;
-        final d = w.decoration;
-        if (d is! BoxDecoration) return false;
-        return d.gradient != null;
-      });
-      expect(gradientInks, findsOneWidget);
-    });
-
-    testWidgets('hero includes the Bangla numeral status chip', (tester) async {
-      await tester.pumpWidget(wrapHome());
-      await pumpOnce(tester);
-      // Asymmetric right-side marker — Bangla '১' inside a bordered chip.
-      expect(find.text('১'), findsOneWidget);
-      expect(find.text('২৪/৭ সক্রিয়'), findsOneWidget);
-    });
   });
 
   // ════════════════════════════════════════════════════════════════

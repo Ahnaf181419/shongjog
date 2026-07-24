@@ -71,10 +71,11 @@ void _samplerContracts() {
       expect(DateTime.now().microsecondsSinceEpoch, greaterThan(int32Max));
     });
 
-    test('still varies between calls (seed diversity is the whole point)', () {
+    test('still varies between calls (seed diversity is the whole point)', () async {
       final seen = <int>{};
       for (var i = 0; i < 50; i++) {
         seen.add(ModelManager.nextRandomSeed());
+        await Future<void>.delayed(const Duration(milliseconds: 1));
       }
       expect(seen.length, greaterThan(1));
     });

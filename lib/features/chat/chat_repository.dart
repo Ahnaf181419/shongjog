@@ -171,7 +171,7 @@ class ChatRepository {
     final cutPattern = RegExp(
       r'\nUser:' // legacy prompt format
       r'|<start_of_turn>' // SDK chat template
-      r'|<\|channel\|>' // LiteRT-LM thinking channel leak
+      r'|<\|?channel\|>' // LiteRT-LM thinking channel leak
       r'|\nAssistant\b' // model reinjects role marker (en)
       r'|\n[উA]ssistant:', // bilingual safety
       caseSensitive: false,

@@ -4,9 +4,19 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/haptics.dart';
+import 'mesh_chat_store.dart';
 import 'mesh_models.dart';
 import 'mesh_service.dart';
 import 'mesh_voice_service.dart';
+
+/// A voice file path is "playable" only if it points at real on-device
+/// storage. `content://` URIs from `nearby_connections` cannot be passed to
+/// `audioplayers`; `MeshService._materializeVoiceFile` is the one legal
+/// source of these paths. Anything else is a stale UI bubble from before
+/// the receive-path fix and must be ignored so the user sees a no-op tap,
+/// not a hang or crash.
+bool isPlayableVoicePath(String? filePath) =>
+    filePath != null && filePath.startsWith('/');
 
 /// Per-peer chat screen. Shows text + voice messages exchanged with nearby
 /// peers via mesh.
@@ -26,10 +36,12 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
   StreamSubscription? _msgSub;
   bool _recording = false;
   final AudioPlayer _player = AudioPlayer();
+  final MeshChatStore _store = MeshChatStore();
 
   @override
   void initState() {
     super.initState();
+    _loadPersistedMessages();
     // 1-on-1 view: only this device's messages and this peer's. Without the
     // filter, every connected peer's traffic appears in every open chat.
     _msgSub = meshService.messages
@@ -38,8 +50,34 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
       if (mounted) {
         setState(() => _messages.add(m));
         _scrollToBottom();
+        _persistMessages();
       }
     });
+  }
+
+  Future<void> _loadPersistedMessages() async {
+    final stored = await _store.load(widget.peer.endpointId);
+    if (mounted && stored.isNotEmpty) {
+      setState(() {
+        _messages.addAll(stored.map((m) => m.toMeshMessage()));
+      });
+      _scrollToBottom();
+    }
+  }
+
+  void _persistMessages() {
+    final stored = _messages
+        .map((m) => MeshChatMessage(
+              senderId: m.senderId,
+              senderName: m.senderName,
+              text: m.text,
+              type: m.type,
+              filePath: m.filePath,
+              hopCount: m.hopCount,
+              timestamp: m.timestamp,
+            ))
+        .toList();
+    _store.save(widget.peer.endpointId, stored);
   }
 
   @override
@@ -67,8 +105,15 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
     final text = _msgCtrl.text.trim();
     if (text.isEmpty) return;
     HapticService.lightTap();
-    meshService.sendMessage(text, targetEndpointId: widget.peer.endpointId);
+    final ok = meshService.sendMessage(text, targetEndpointId: widget.peer.endpointId);
     _msgCtrl.clear();
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('মেসেজ পাঠানো যায়নি — পিয়ার সংযুক্ত আছে কিনা দেখুন'),
+        ),
+      );
+    }
   }
 
   Future<void> _toggleRecording() async {
@@ -84,18 +129,28 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
           if (mounted) setState(() => _recording = false);
         },
       );
-      if (ok && mounted) setState(() => _recording = true);
+      if (ok && mounted) {
+        setState(() => _recording = true);
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('রেকর্ডিং শুরু করা যায়নি — মাইক্রোফোন অনুমতি দিন'),
+          ),
+        );
+      }
     }
   }
 
   Future<void> _playVoice(String? filePath) async {
-    if (filePath == null) return;
+    if (!isPlayableVoicePath(filePath)) {
+      // content:// URIs and missing paths cannot be played by audioplayers —
+      // MeshService.materializeVoiceFile is the only legal source of these
+      // paths. Anything else is a stale UI from before the fix.
+      debugPrint('MeshChatScreen: ignoring unplayable voice path: $filePath');
+      return;
+    }
     try {
-      if (filePath.startsWith('content://')) {
-        await _player.play(UrlSource(filePath));
-      } else if (filePath.startsWith('/')) {
-        await _player.play(DeviceFileSource(filePath));
-      }
+      await _player.play(DeviceFileSource(filePath!));
     } catch (e) {
       debugPrint('MeshChatScreen: failed to play voice: $e');
     }
@@ -109,7 +164,7 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.peer.name),
+            Text(widget.peer.displayName),
             Text(
               widget.peer.status == PeerStatus.connected
                   ? 'সংযুক্ত'
@@ -130,7 +185,7 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
             child: _messages.isEmpty
                 ? Center(
                     child: Text(
-                      'কোনো মেসেজ নেই\n"${widget.peer.name}" এর সাথে কথা বলুন',
+                      'কোনো মেসেজ নেই\n"${widget.peer.displayName}" এর সাথে কথা বলুন',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: cs.onSurfaceVariant,

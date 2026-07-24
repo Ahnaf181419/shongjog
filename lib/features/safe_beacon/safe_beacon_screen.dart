@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/connectivity_provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../contacts/contacts_repository.dart';
 import '../emergency/emergency_actions.dart';
 import '../mesh_comm/mesh_service.dart';
@@ -163,10 +164,10 @@ class _SafeBeaconScreenState extends State<SafeBeaconScreen> {
           SnackBar(
             content: Text(
               phones.isEmpty
-                  ? 'বীকন পাঠানো হয়েছে। ${_bn(_queue.pending)}টি অপেক্ষমান।'
+                  ? AppLocalizations.of(context).beaconSentPending(_bn(_queue.pending))
                   : sent > 0
-                      ? '${_bn(sent)}টি এসএমএস পাঠানো হয়েছে।'
-                      : '${_bn(phones.length)}জনকে জানানো হবে সংযোগ ফিরলে।',
+                      ? AppLocalizations.of(context).smsSent(_bn(sent))
+                      : AppLocalizations.of(context).willNotifyOnReconnect(_bn(phones.length)),
             ),
             duration: const Duration(seconds: 3),
           ),
@@ -182,7 +183,7 @@ class _SafeBeaconScreenState extends State<SafeBeaconScreen> {
     final cs = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('আমি নিরাপদ'),
+        title: Text(AppLocalizations.of(context).safeBeaconTitle),
         backgroundColor: cs.tertiaryContainer,
         foregroundColor: cs.onTertiaryContainer,
       ),
@@ -195,8 +196,8 @@ class _SafeBeaconScreenState extends State<SafeBeaconScreen> {
               Icon(Icons.check_circle_outline_rounded,
                   size: 96, color: cs.tertiary),
               const SizedBox(height: 24),
-              const Text(
-                'আপনার পরিবার ও সংযুক্ত মানুষদের জানান আপনি ভালো আছেন',
+              Text(
+                AppLocalizations.of(context).safeBeaconDesc,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 18,
@@ -228,20 +229,20 @@ class _SafeBeaconScreenState extends State<SafeBeaconScreen> {
                             strokeWidth: 3, color: Colors.white,
                           ),
                         )
-                      : const Text('আমি নিরাপদ আছি'),
+                      : Text(AppLocalizations.of(context).safeBeaconButton),
                 ),
               ),
               const SizedBox(height: 24),
               if (_lastSentCount > 0)
                 Text(
-                  'শেষ পাঠানো: ${_bn(_lastSentCount)}টি',
+                  AppLocalizations.of(context).lastSent(_bn(_lastSentCount)),
                   style: TextStyle(color: cs.onSurfaceVariant),
                 ),
               if (_queue.pending > 0)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
-                    '${_bn(_queue.pending)}টি অপেক্ষমান — সংযোগ ফিরলে পাঠানো হবে',
+                    AppLocalizations.of(context).pendingWait(_bn(_queue.pending)),
                     style: TextStyle(color: cs.onSurfaceVariant),
                   ),
                 ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../app/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../emergency/emergency_actions.dart';
 import '../emergency/emergency_sheet.dart';
 import 'contact_model.dart';
@@ -43,7 +44,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('জরুরি পরিচিতি')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).contactsTitle)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
         children: [
@@ -52,7 +53,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
           const SizedBox(height: 24),
 
           // ── National list ──
-          _SectionLabel('জাতীয় জরুরি নম্বর'),
+          _SectionLabel(AppLocalizations.of(context).nationalNumbers),
           const SizedBox(height: 8),
           ...nationalContacts.map((c) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),
@@ -64,7 +65,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
 
           // ── Custom contacts ──
           const SizedBox(height: 24),
-          _SectionLabel('আমার পরিচিতি'),
+          _SectionLabel(AppLocalizations.of(context).myContacts),
           const SizedBox(height: 8),
           if (_loading)
             const Padding(
@@ -150,7 +151,7 @@ class _PanicHero extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'জরুরি কল করুন (৯৯৯)',
+                      AppLocalizations.of(context).panicHeroTitle,
                       style: TextStyle(
                         fontSize: 19,
                         fontWeight: FontWeight.w600,
@@ -160,7 +161,7 @@ class _PanicHero extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'স্লাইড করে নিশ্চিত করুন',
+                      AppLocalizations.of(context).panicHeroSubtitle,
                       style: TextStyle(
                         fontSize: 14,
                         fontFamily: ShongjogTheme.fontFamily,
@@ -332,7 +333,7 @@ class _EmptyCustomState extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'নিজের জরুরি পরিচিতি যোগ করুন',
+            AppLocalizations.of(context).addCustomContact,
             style: TextStyle(
               fontSize: 15,
               fontFamily: ShongjogTheme.fontFamily,
@@ -343,7 +344,7 @@ class _EmptyCustomState extends StatelessWidget {
           TextButton.icon(
             onPressed: onAdd,
             icon: const Icon(Icons.add_rounded),
-            label: const Text('যোগ করুন'),
+            label: Text(AppLocalizations.of(context).addContact),
           ),
         ],
       ),
@@ -380,7 +381,7 @@ class _AddContactSheetState extends State<_AddContactSheet> {
     final phone = _phoneCtrl.text.trim();
     if (name.isEmpty || phone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('নাম ও নম্বর দিন')),
+        SnackBar(content: Text(AppLocalizations.of(context).nameAndNumberRequired)),
       );
       return;
     }
@@ -421,7 +422,7 @@ class _AddContactSheetState extends State<_AddContactSheet> {
             ),
           ),
           Text(
-            'নতুন পরিচিতি',
+            AppLocalizations.of(context).newContact,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -432,26 +433,26 @@ class _AddContactSheetState extends State<_AddContactSheet> {
           const SizedBox(height: 20),
           TextField(
             controller: _nameCtrl,
-            decoration: const InputDecoration(
-              labelText: 'নাম',
-              hintText: 'যেমন: ডাক্তার সাহেব',
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context).nameLabel,
+              hintText: AppLocalizations.of(context).nameHint,
             ),
             textCapitalization: TextCapitalization.words,
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _phoneCtrl,
-            decoration: const InputDecoration(
-              labelText: 'ফোন নম্বর',
-              hintText: '০১XXXXXXXXX',
-              prefixText: '+৮৮ ',
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context).phoneLabel,
+              hintText: AppLocalizations.of(context).phoneHint,
+              prefixText: AppLocalizations.of(context).phonePrefix,
             ),
             keyboardType: TextInputType.phone,
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<ContactCategory>(
             initialValue: _category,
-            decoration: const InputDecoration(labelText: 'শ্রেণি'),
+            decoration: InputDecoration(labelText: AppLocalizations.of(context).categoryLabel),
             items: ContactCategory.values.map((c) {
               final meta = categoryMeta[c]!;
               return DropdownMenuItem(
@@ -470,7 +471,7 @@ class _AddContactSheetState extends State<_AddContactSheet> {
           const SizedBox(height: 20),
           FilledButton(
             onPressed: _save,
-            child: const Text('সংরক্ষণ করুন'),
+            child: Text(AppLocalizations.of(context).save),
           ),
         ],
       ),

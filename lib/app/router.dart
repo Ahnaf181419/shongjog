@@ -14,6 +14,7 @@ class AppRoutes {
   static const adminPanel = '/admin-panel';
   static const notifications = '/notifications';
   static const sosComposer = '/sos-composer';
+  static const profile = '/profile';
 }
 
 /// Push a named route only if the current route is not already that route.
