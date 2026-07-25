@@ -264,7 +264,8 @@ class ChatRepository {
   ///
   /// Exposed as `static` so the unit test exercises the real
   /// production code path, not a private copy.
-  @visibleForTesting
+  /// Exposed as a public static so it can be called from the shelter
+  /// map screen (AI brief row) as well as from unit tests.
   static String truncateAtTurnMarker(String raw) {
     if (raw.isEmpty) return raw;
     // Single regex with alternation so we get the global earliest

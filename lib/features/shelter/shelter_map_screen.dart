@@ -8,8 +8,10 @@ import 'package:shongjog/l10n/app_localizations.dart';
 import '../../app/theme.dart';
 import '../../core/model_manager.dart';
 import '../admin/campaign_request.dart';
+import '../chat/chat_repository.dart';
 import 'cached_tile_provider.dart';
 import 'nearest_shelter.dart';
+import 'shelter_brief_builder.dart';
 import 'shelter_constants.dart';
 import 'shelter_map_view_model.dart';
 import 'shelter_model.dart';
@@ -116,7 +118,14 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
           IconButton(
             tooltip: l10n.shelterSearchTooltip,
             icon: Icon(_vm.showSearchPanel ? Icons.close : Icons.search),
-            onPressed: _vm.toggleSearchPanel,
+            onPressed: () {
+              _vm.toggleSearchPanel();
+              // Fire the AI safety-ranking after the panel opens so the
+              // ranked list reflects live hazard proximity + capacity.
+              if (_vm.showSearchPanel) {
+                _vm.applyAiRanking();
+              }
+            },
           ),
           if (_vm.selectedShelter != null)
             IconButton(
@@ -445,6 +454,15 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
               _row(l10n.shelterSource, s.source),
               _row('GPS',
                   '${s.lat.toStringAsFixed(4)}, ${s.lon.toStringAsFixed(4)}'),
+              const SizedBox(height: 16),
+              // AI risk brief — one warm Bangla sentence from the model.
+              // Falls back to a deterministic sentence if the model is
+              // offline or fails. Shows a spinner while loading.
+              _AiBriefRow(
+                shelter: RankedShelter(s, km ?? 0),
+                userLat: _vm.userPosition?.latitude,
+                userLon: _vm.userPosition?.longitude,
+              ),
             ],
           ),
         );
@@ -586,6 +604,133 @@ class _MapZoomButton extends StatelessWidget {
             child: Icon(icon, color: cs.onSurface, size: 24),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// AI risk-brief row for the tapped-shelter bottom sheet.
+///
+/// Loads asynchronously when the sheet opens. Shows the deterministic
+/// fallback immediately (so the sheet never has an empty section),
+/// then replaces it with the model's one-sentence Bangla brief when
+/// generation completes. On failure, keeps the fallback.
+class _AiBriefRow extends StatefulWidget {
+  final RankedShelter shelter;
+  final double? userLat;
+  final double? userLon;
+
+  const _AiBriefRow({
+    required this.shelter,
+    this.userLat,
+    this.userLon,
+  });
+
+  @override
+  State<_AiBriefRow> createState() => _AiBriefRowState();
+}
+
+class _AiBriefRowState extends State<_AiBriefRow> {
+  String? _brief;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBrief();
+  }
+
+  Future<void> _loadBrief() async {
+    // Start with the deterministic fallback.
+    final fallback = ShelterBriefBuilder.fallbackBrief(shelter: widget.shelter);
+    if (!mounted) return;
+    setState(() {
+      _brief = fallback;
+      _loading = true;
+    });
+
+    // Try the model.
+    try {
+      final prompt = ShelterBriefBuilder.buildPrompt(
+        userLat: widget.userLat,
+        userLon: widget.userLon,
+        shelter: widget.shelter,
+      );
+      if (prompt != null && modelManager.isReady) {
+        final answer = await modelManager.generate(prompt);
+        final cleaned = ChatRepository.truncateAtTurnMarker(answer);
+        if (!mounted) return;
+        if (cleaned.trim().isNotEmpty) {
+          setState(() {
+            _brief = cleaned;
+            _loading = false;
+          });
+          return;
+        }
+      }
+    } catch (_) {
+      // Keep the fallback.
+    }
+    if (!mounted) return;
+    setState(() => _loading = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: cs.primaryContainer.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.auto_awesome_rounded,
+              size: 18, color: cs.primary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'AI ঝুঁকি মূল্যায়ন',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: cs.primary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                if (_loading && _brief != null)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          _brief!,
+                          style: TextStyle(
+                              fontSize: 13, color: cs.onSurface),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 1.5, color: cs.primary),
+                      ),
+                    ],
+                  )
+                else
+                  Text(
+                    _brief ?? '...',
+                    style: TextStyle(fontSize: 13, color: cs.onSurface),
+                  ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

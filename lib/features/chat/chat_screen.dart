@@ -181,6 +181,15 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     if (mounted) {
+      // Preload the shelter cache so the first shelter query doesn't
+      // return empty (the lazy-load-in-provider pattern returned [] on
+      // the very first call, meaning the first "nearest shelter?" query
+      // fell through to RAG). Loading here means the data is ready by
+      // the time the user types.
+      ShelterRepository().loadAll().then((list) {
+        _shelterCache = list;
+      }).catchError((_) {});
+
       setState(() {
         _messages.addAll(restored);
         _repo = ChatRepository(
