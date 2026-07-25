@@ -382,6 +382,13 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
               ranked: _vm.rankedShelters,
               onSelect: _vm.onSearchSelect,
               onClose: _vm.toggleSearchPanel,
+              onPoiSelect: (lat, lon, label) {
+                // Drop a pin on the map for the selected POI / place.
+                _vm.toggleSearchPanel();
+                _mapController.move(LatLng(lat, lon), 14);
+              },
+              userLat: _vm.userPosition?.latitude,
+              userLon: _vm.userPosition?.longitude,
             ),
           ),
       ],
