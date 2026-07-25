@@ -1,7 +1,8 @@
 import 'dart:ui' show PlatformDispatcher;
-import 'dart:io' show Platform;
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, kIsWeb, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
 import 'package:flutter_gemma_litertlm/flutter_gemma_litertlm.dart';
@@ -88,7 +89,15 @@ Future<void> main() async {
   } catch (e) {
     debugPrint('Model auto-select failed: $e');
   }
-  if (Platform.isAndroid) {
+  // Deliberately NOT `dart:io`'s Platform.isAndroid. That compiles fine for
+  // web but throws `Unsupported operation: Platform._operatingSystem` at
+  // runtime — and because this check sits outside the try/catch below, the
+  // throw aborted main() before runApp(), leaving the web build stuck on the
+  // #89CFF0 HTML splash forever. defaultTargetPlatform is web-safe, and the
+  // kIsWeb guard keeps it honest: on web it reports the host OS, which can
+  // legitimately be `android` in a mobile browser where this plugin has no
+  // implementation.
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
     try {
       await FlutterDisplayMode.setHighRefreshRate();
     } catch (e) {
