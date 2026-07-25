@@ -136,6 +136,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                   ),
                 ],
               ),
+            ),
           );
         },
       ),
@@ -679,7 +680,7 @@ class _CampaignRequestsTabState extends State<_CampaignRequestsTab> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                        '${request.type.labelBn} অনুমোদিত — মানচিত্রে যোগ করা হয়েছে'),
+                                        '${request.type.label(context)} অনুমোদিত — মানচিত্রে যোগ করা হয়েছে'),
                                     backgroundColor: ShongjogTheme.success,
                                   ),
                                 );
