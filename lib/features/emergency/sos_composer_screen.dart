@@ -12,6 +12,12 @@ import 'sos_function_schema.dart';
 ///
 /// Note: the actual model call requires a device with the model loaded.
 /// On this screen the user can manually edit all fields as a fallback.
+///
+/// When the triage wizard hands off to 999 it pushes this screen with
+/// `arguments: triageState.shareableSosText()`. The composer reads that
+/// argument from [ModalRoute] in [didChangeDependencies] and seeds the
+/// input field so the operator sees the casualty state without the
+/// bystander re-typing under stress.
 class SosComposerScreen extends StatefulWidget {
   const SosComposerScreen({super.key});
 
@@ -30,6 +36,25 @@ class _SosComposerScreenState extends State<SosComposerScreen> {
 
   final ModelManager _model = modelManager;
   bool _isProcessing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initialBodySeededed = false;
+  }
+
+  bool _initialBodySeededed = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initialBodySeededed) return;
+    _initialBodySeededed = true;
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is String && args.isNotEmpty) {
+      _inputController.text = args;
+    }
+  }
 
   @override
   void dispose() {

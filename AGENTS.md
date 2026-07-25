@@ -115,8 +115,14 @@ incoming bytes to the engine and re-broadcasts). `meshService.ensureRelayEngine(
 is called from `_StartupGate` on app startup. `broadcastSos()` sends a payload
 to all peers and adds a local `hopCount: 0` message to the chat stream.
 **Triage wizard:** pure-Dart `TriageTree` in `lib/features/triage/decision_tree.dart`
-routes 5 yes/no questions to 5 terminal first-aid routes (cpr, bleeding, drowning,
-snakebite, escalation999). No LLM involved; cannot hallucinate.
+routes 8 yes/no questions to 8 terminal first-aid routes (cpr, bleeding, drowning,
+snakebite, unconscious breathing, burn, choking, escalation999). No LLM involved; cannot
+hallucinate. `TriageState` tracks answers and generates shareable SOS text.
+`TriageTts` abstract interface with `SilentTriageTts` and `LiveTriageTts` for
+auto-read (gated by `pref_auto_read`). Terminal screen shows inline first-3-step
+preview, "কার্ড দেখুন" full-card view, "৯৯৯ কে জানান" handoff to SOS composer
+with triage summary pre-filled. AppBar uses `surfaceContainerHighest` with leading
+"ট্রায়াজ" chip and elapsed-time badge. 15 quick cards total.
 **Safe beacon:** `SafeBeaconScreen` broadcasts a "নিরাপদ" payload over the mesh
 and queues SMSes to emergency contacts via `SmsQueue`, draining when
 `connectivityProvider` reports online.

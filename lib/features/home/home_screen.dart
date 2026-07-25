@@ -770,7 +770,7 @@ class _TriageTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      AppLocalizations.of(context).firstAid,
+                      '১০+ ধরনের জরুরি অবস্থায় প্রাথমিক চিকিৎসা',
                       style: TextStyle(
                         fontSize: 12,
                         color: cs.onErrorContainer.withValues(alpha: 0.8),

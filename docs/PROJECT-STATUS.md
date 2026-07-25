@@ -6,7 +6,7 @@
 > whole state.
 
 **Date of this report:** 2026-07-18 (post-upgrade-rounds)  
-**Status:** 🟢 Upgraded: 319 tests pass, 48-chunk corpus, 179-example SFT dataset, SOS composer wired to model function-calling, global error handler in place, 10 bare catch blocks replaced. `flutter analyze` clean.  
+**Status:** 🟢 Upgraded: 571 tests pass (1 skipped), 48-chunk corpus, 179-example SFT dataset, SOS composer wired to model function-calling, global error handler in place, 10 bare catch blocks replaced. `flutter analyze` clean.  
 **Branch:** `main` (v2 + ahnaf work merged; 13 commits this session).  
 **Demo readiness:** Phase 0 (device spikes) and Phase 5 (live demo) are the only
 remaining work, both requiring a physical arm64-v8a Android device.
@@ -17,7 +17,7 @@ remaining work, both requiring a physical arm64-v8a Android device.
 
 | Metric | Value |
 |---|---|
-| Tests passing | 319 (1 skipped) |
+| Tests passing | 571 (1 skipped) |
 | `flutter analyze` | 0 issues |
 | Dart files in `lib/` | 89 |
 | Lines of Dart in `lib/` | ~10,500+ |
@@ -53,8 +53,9 @@ Everything below runs on the Android emulator and in `flutter test`:
 - **All 7 verification queries** pass (`tools/verify_kb.py` exit code 0).
 
 ### Static UI
-- **8 expandable quick cards** (ORS, water purification, snakebite, diarrhea, cyclone
-  shelter, bleeding control, fever, drowning). Works without the model.
+- **15 expandable quick cards** (ORS, water purification, snakebite, diarrhea, cyclone
+  shelter, bleeding control, fever, drowning, CPR, escalation, choking, burn,
+  recovery position). Works without the model.
 - **Onboarding screen** (welcome / permissions / model download).
 - **Settings screen** with model download card, voice toggles, clear-cache.
 - **About page** with WHO/BDRCS/MoDMR/BMD/CDC/IFRC source attribution.
@@ -94,12 +95,25 @@ Everything below runs on the Android emulator and in `flutter test`:
 
 ### Triage wizard (LLM-free, deterministic)
 - **Pure-Dart decision tree** (`lib/features/triage/decision_tree.dart`) —
-  5 yes/no questions, 5 terminal routes: cpr, bleeding, drowning,
-  snakebite, escalation999. Cannot hallucinate.
+  8 yes/no questions, 8 terminal routes: cpr, bleeding, drowning,
+  snakebite, unconscious breathing, burn, choking, escalation999. Cannot hallucinate.
+- **`TriageState`** tracks answers, elapsed time, and generates Bangla
+  numeral summaries + shareable SOS text for 999 handoff.
 - **Full-screen wizard UI** with giant হ্যাঁ/না buttons, Bengali
-  numerals (প্রশ্ন ১ / ৫), terminal node shows first-aid title +
-  subtitle + "কার্ড দেখুন" and "৯৯৯ কল করুন" CTAs.
-- **Home-screen tile** (red accent) routes to `/triage`.
+  numerals (প্রশ্ন ১ / ৮), live elapsed-time chip (`_RecapChip`), and
+  auto-read TTS for each question (gated by `pref_auto_read`).
+- **Terminal screen** shows: first-aid title + subtitle, inline first-3-step
+  preview (`_InlineSteps`), "কার্ড দেখুন" (view full card), "৯৯৯ কল করুন"
+  (call 999), "৯৯৯ কে জানান" (handoff SOS with triage summary pre-filled),
+  and "আবার চেষ্টা করুন" (restart).
+- **`QuickCardDetailScreen`** — full-screen card view with steps rendered as
+  numbered tiles. 15 total cards (ORS, water purification, snakebite, diarrhea,
+  cyclone shelter, bleeding control, fever, drowning, CPR, escalation,
+  choking, burn, recovery position).
+- **AppBar** uses `surfaceContainerHighest` with a leading "ট্রায়াজ" chip
+  on question screens and an elapsed-time badge in actions.
+- **Home-screen tile** (red accent) with subtitle "১০+ ধরনের জরুরি
+  অবস্থায় প্রাথমিক চিকিৎসা", routes to `/triage`.
 
 ### Safe beacon ("I'm safe" check-in)
 - **`SafeBeaconPayload`** (reuses SosPayload wire format with `state=safe`).
@@ -167,8 +181,12 @@ Everything below runs on the Android emulator and in `flutter test`:
 - **`HapticService`** (`lib/core/haptics.dart`) codified per design spec — 6 events.
 - **`SoundService`** (`lib/features/audio/sound_service.dart`) — chime + knock,
   5-second debounce, gated by prefs.
-- **Test suite** — 246 pass, 1 skip, organized into unit/widget/integration.
-  36 new tests added on the `ahnaf` branch across 7 new test files.
+- **Test suite** — 571 pass, 1 skip, organized into unit/widget/integration.
+  Unit tests: decision tree (14), triage state (9), triage TTS (3), model manager, prompt builder,
+  chat repository, retriever, keyword retriever, chat store, nearest shelter, STT provider,
+  SOS SMS template, haptic service, hazards (GDACS/EONET label extensions).
+  Widget tests: triage wizard (32), home screen, quick cards, emergency sheet, settings,
+  typewriter text, onboarding, model picker, cloud AI, main shell.
 
 ---
 
@@ -227,8 +245,9 @@ scenarios. Trim to 60s. Save as `docs/demo-fallback.mp4`. Transfer to demo phone
 - [ ] **"I'm safe" beacon** — GPS capture + mesh broadcast + SMS composer
       open. All logic unit-tested; `Geolocator` + `url_launcher` dialogs
       are device-only.
-- [ ] **Triage wizard** — walk every branch on device, verify Bengali
-      numerals + terminal node CTAs render correctly under real fonts.
+- [ ] **Triage wizard** — walk every branch on device (8 routes), verify Bengali
+      numerals + terminal node CTAs render correctly under real fonts. TTS
+      auto-read, elapsed-time chip, and 999 SOS handoff all unit+widget tested.
 - [ ] **Offline directory** — tap-to-call opens dialer, division filter
       works, 22 entries display with Bengali-digit phones.
 - [ ] **Demo seeder** — first launch shows 3 Q&A pairs in chat; second
