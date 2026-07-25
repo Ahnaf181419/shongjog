@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../core/model_manager.dart';
 import '../../core/device_capability.dart';
+import '../../l10n/app_localizations.dart';
 import '../../main.dart';
 
 class ModelPickerSection extends StatefulWidget {
@@ -81,17 +82,18 @@ class _ModelPickerSectionState extends State<ModelPickerSection> {
     // Convert tier to user-friendly string
     String ramText = '';
     String tierBadge = '';
+    final l10n = AppLocalizations.of(context);
     if (_tier == DeviceTier.low) {
-      ramText = '৪GB বা কম';
-      tierBadge = 'হালকা';
+      ramText = l10n.modelRamLow;
+      tierBadge = l10n.modelTierLight;
     }
     if (_tier == DeviceTier.mid) {
-      ramText = '৬-৮GB';
-      tierBadge = 'মাঝারি';
+      ramText = l10n.modelRamMid;
+      tierBadge = l10n.modelTierMedium;
     }
     if (_tier == DeviceTier.high) {
-      ramText = '১২GB+';
-      tierBadge = 'শক্তিশালী';
+      ramText = l10n.modelRamHigh;
+      tierBadge = l10n.modelTierPowerful;
     }
 
     return Column(
@@ -107,7 +109,7 @@ class _ModelPickerSectionState extends State<ModelPickerSection> {
               // fixed-width, so on a narrow phone (or with a large system
               // text scale) an unconstrained Text overflows the row.
               Flexible(
-                child: Text('আপনার RAM: $ramText', style: TextStyle(
+                child: Text(l10n.modelRamLabel(ramText), style: TextStyle(
                   fontFamily: ShongjogTheme.fontFamily,
                   color: cs.onSurfaceVariant,
                   fontWeight: FontWeight.w500,
@@ -122,7 +124,7 @@ class _ModelPickerSectionState extends State<ModelPickerSection> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Text(
-              'ডাউনলোড করা: ${DeviceCapability.formatBytesBn(_totalStorage)}',
+              l10n.modelStorageUsed(DeviceCapability.formatBytesBn(_totalStorage)),
               style: TextStyle(
                 fontFamily: ShongjogTheme.fontFamily,
                 color: cs.onSurfaceVariant,
@@ -134,6 +136,7 @@ class _ModelPickerSectionState extends State<ModelPickerSection> {
         ..._recommendations!.where((r) => r.available).map((r) => _ModelCard(
           rec: r,
           storageUsage: _storageUsage[r.variant] ?? 0,
+          l10n: l10n,
         )),
       ],
     );
@@ -166,7 +169,8 @@ class _TierBadge extends StatelessWidget {
 class _ModelCard extends StatelessWidget {
   final ModelRecommendation rec;
   final int storageUsage;
-  const _ModelCard({required this.rec, required this.storageUsage});
+  final AppLocalizations l10n;
+  const _ModelCard({required this.rec, required this.storageUsage, required this.l10n});
 
   /// The app-wide `filledButtonTheme` sets `minimumSize: Size.fromHeight(52)`
   /// — a full-width CTA default, where the width is `double.infinity`. A Row
@@ -234,17 +238,22 @@ class _ModelCard extends StatelessWidget {
                         runSpacing: 4,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          Text(rec.label, style: const TextStyle(
-                            fontFamily: ShongjogTheme.fontFamily,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          )),
+                          Text(
+                            rec.variant == ModelVariant.e2b
+                                ? AppLocalizations.of(context).modelLightLabel
+                                : AppLocalizations.of(context).modelPowerfulLabel,
+                            style: const TextStyle(
+                              fontFamily: ShongjogTheme.fontFamily,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
                           if (rec.recommended && !rec.advancedOnly)
-                            _Badge('✅ প্রত্যাশিত', isLight ? ShongjogTheme.success : ShongjogTheme.successBright)
+                            _Badge(l10n.modelBadgeExpected, isLight ? ShongjogTheme.success : ShongjogTheme.successBright)
                           else if (rec.advancedOnly)
-                            _Badge('⚠️ উন্নত', isLight ? ShongjogTheme.alert : ShongjogTheme.alertBright)
+                            _Badge(l10n.modelBadgeAdvanced, isLight ? ShongjogTheme.alert : ShongjogTheme.alertBright)
                           else
-                            _Badge('⚠️ ভারী', isLight ? ShongjogTheme.alert : ShongjogTheme.alertBright)
+                            _Badge(l10n.modelBadgeHeavy, isLight ? ShongjogTheme.alert : ShongjogTheme.alertBright)
                         ],
                       ),
                       Text(rec.sizeLabel(context), style: TextStyle(
@@ -293,7 +302,7 @@ class _ModelCard extends StatelessWidget {
                       onPressed: () => _download(context),
                       icon: const Icon(Icons.download, size: 18),
                       label: Text(
-                          state == ModelState.failed ? 'আবার চেষ্টা করুন' : 'ডাউনলোড'),
+                          state == ModelState.failed ? l10n.modelRetry : l10n.modelDownload),
                       style: _inRowButtonStyle,
                     ),
 
@@ -301,14 +310,14 @@ class _ModelCard extends StatelessWidget {
                     FilledButton.icon(
                       onPressed: () => modelManager.setActiveVariant(rec.variant),
                       icon: const Icon(Icons.check, size: 18),
-                      label: const Text('সক্রিয় করুন'),
+                      label: Text(l10n.modelActivate),
                       style: _inRowButtonStyle,
                     ),
                     
                   if (state == ModelState.ready && isActive)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
-                      child: Text('মডেল সক্রিয় আছে', style: TextStyle(fontWeight: FontWeight.bold, color: ShongjogTheme.calmTeal)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
+                      child: Text(l10n.modelActiveStatus, style: const TextStyle(fontWeight: FontWeight.bold, color: ShongjogTheme.calmTeal)),
                     ),
 
                   if (storageUsage > 0) ...[
@@ -333,7 +342,7 @@ class _ModelCard extends StatelessWidget {
                         visualDensity: VisualDensity.compact,
                         foregroundColor: cs.error,
                       ),
-                      child: const Text('মুছুন'),
+                      child: Text(l10n.modelDelete),
                     )
                   ]
                 ],
@@ -356,7 +365,7 @@ class _ModelCard extends StatelessWidget {
     });
     scaffoldMessengerKey.currentState?.showSnackBar(
       SnackBar(
-        content: Text('${rec.label} ডাউনলোড শুরু হয়েছে — পটভূমিতে চলবে।'),
+        content: Text(l10n.modelDownloadStarted(rec.label)),
         duration: const Duration(seconds: 3),
       ),
     );
@@ -366,16 +375,18 @@ class _ModelCard extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('মডেল মুছে ফেলবেন?'),
-        content: Text('${rec.label} (${rec.sizeLabel(context)}) মুছে যাবে।'),
+        title: Text(l10n.modelDeleteTitle),
+        content: Text(
+          l10n.modelDeleteBody(rec.variant == ModelVariant.e2b ? l10n.modelLightLabel : l10n.modelPowerfulLabel, rec.sizeLabel(context)),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('বাতিল'),
+            child: Text(l10n.modelCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('মুছুন'),
+            child: Text(l10n.modelDelete),
           ),
         ],
       ),
@@ -384,7 +395,7 @@ class _ModelCard extends StatelessWidget {
       await modelManager.deleteVariant(rec.variant);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('মডেল মুছে ফেলা হয়েছে')),
+          SnackBar(content: Text(l10n.modelDeleted)),
         );
       }
     }
