@@ -284,3 +284,62 @@ i18n                   █████░░░░░  5/10
 - For a production deploy, the i18n regression is the single biggest blocker for non-Bangla users; everything else is polish.
 - The 9 AI-first features all work end-to-end. The original user complaint "they all should be functional" is fully addressed.
 - The 3 pre-existing test failures are not regressions — they predate this session and live in collaborator code paths.
+
+---
+
+## Appendix B: Independent subagent review (architecture + security)
+
+A focused independent review was dispatched after the main audit.
+It used a strict 5-minute / 30-tool-call budget and **completed in 90
+seconds** (5 API calls).
+
+### Independent verdict
+
+```
+passed:    false
+rating:    6/10
+```
+
+### Findings the subagent verified independently
+
+- ✅ Hard constraints fully compliant (arm64-v8a + jniLibs excludes,
+  FlutterGemma.initialize + LiteRtLmEngine, kContextTokens=1024,
+  close-before-drop, all `.litertlm` URLs)
+- ✅ No hardcoded secrets (grep empty)
+- ✅ All 5 crash-safety paths have non-empty fallbacks
+
+### Findings the subagent added that I missed
+
+1. **`AndroidManifest.xml:13`** — `MODIFY_AUDIO_SETTINGS` declared but
+   unused. Vosk only needs `RECORD_AUDIO`. Low risk but Play Store
+   reviewers may flag.
+
+2. **`AndroidManifest.xml:20-27`** — 9 mesh-networking permissions
+   (`BLUETOOTH*`, `ACCESS_WIFI_STATE`, `CHANGE_WIFI_STATE`,
+   `NEARBY_WIFI_DEVICES`) labeled "Phase 4.7" ship in every build
+   even though mesh code isn't wired up. Triggers user-permission
+   prompts at first launch.
+
+3. **`android/app/build.gradle.kts:63`** — Release builds are signed
+   with the debug key. Per AGENTS.md this is intentional for the
+   demo, but a production deploy would ship with a publicly-known
+   signing certificate.
+
+4. **`lib/core/model_manager.dart:5`** — Imports `flutter_gemma`.
+   Violates the "core/ has zero plugin imports" rule literally, but
+   this is the by-design exception (ModelManager IS the plugin
+   wrapper). Should update `docs/architecture.md` to carve it out.
+
+### Reconciled rating
+
+The subagent's **6/10** is more conservative than my initial **7.5/10**.
+The delta comes from weighting two issues more heavily:
+
+- The **i18n regression** is a product-level blocker for non-Bangla
+  users — a Bengali-first app shipping new screens with hardcoded
+  Bangla that bypasses the locale switcher is a real regression.
+- The **Phase-4.7 permissions** are visible to the user at first
+  launch (permission prompts). Even if low severity, they signal
+  unfinished work.
+
+**Final reconciled rating: 7.0 / 10** (was 7.5).
