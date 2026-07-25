@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/app/router.dart';
 import 'package:shongjog/features/admin/admin_login_screen.dart';
+import 'package:shongjog/features/admin/admin_pages.dart';
 import 'package:shongjog/features/admin/admin_panel_screen.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
 
@@ -16,6 +17,10 @@ void main() {
       home: const AdminLoginScreen(),
       routes: {
         AppRoutes.adminPanel: (_) => const AdminPanelScreen(),
+        AppRoutes.adminDashboard: (_) => const AdminDashboardPage(),
+        AppRoutes.adminUsers: (_) => const AdminUsersPage(),
+        AppRoutes.adminCampaigns: (_) => const AdminCampaignsPage(),
+        AppRoutes.adminBroadcast: (_) => const AdminBroadcastPage(),
       },
     );
   }
@@ -26,6 +31,12 @@ void main() {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: const AdminPanelScreen(),
+      routes: {
+        AppRoutes.adminDashboard: (_) => const AdminDashboardPage(),
+        AppRoutes.adminUsers: (_) => const AdminUsersPage(),
+        AppRoutes.adminCampaigns: (_) => const AdminCampaignsPage(),
+        AppRoutes.adminBroadcast: (_) => const AdminBroadcastPage(),
+      },
     );
   }
 
@@ -81,35 +92,108 @@ void main() {
     });
   });
 
-  group('AdminPanelScreen', () {
-    testWidgets('renders tab bar with three tabs', (tester) async {
+  group('AdminPanelScreen (grid entry, no tabs)', () {
+    testWidgets('renders hero + stat row + 4 quick-action tiles',
+        (tester) async {
+      // Use a tall viewport so the 2x2 grid is on-screen.
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
       await tester.pumpWidget(wrapPanel());
       await tester.pumpAndSettle();
 
-      expect(find.text('ড্যাশবোর্ড'), findsOneWidget);
-      expect(find.text('ব্যবহারকারী'), findsOneWidget);
-      expect(find.text('বার্তা ব্রডকাস্ট'), findsOneWidget);
-    });
+      // Hero: title and subtitle appear at least once.
+      // (The title also labels the Dashboard tile, so it may appear 2x.)
+      expect(find.text('সিস্টেম সারসংক্ষেপ'), findsAtLeastNWidgets(2));
+      expect(
+          find.text('মেশ পিয়ার এবং অভিযানের রিয়েল-টাইম অবস্থা'),
+          findsOneWidget);
 
-    testWidgets('dashboard tab shows stat cards', (tester) async {
-      await tester.pumpWidget(wrapPanel());
-      await tester.pumpAndSettle();
-
+      // Stat row labels — each exactly once on the entry screen.
       expect(find.text('মোট ব্যবহারকারী'), findsOneWidget);
       expect(find.text('অফলাইন সেশন'), findsOneWidget);
       expect(find.text('মেশ পিয়ার'), findsOneWidget);
+
+      // Quick Actions section header.
+      expect(find.text('দ্রুত অ্যাকশন'), findsOneWidget);
+
+      // 4 grid tiles — each label appears at least once.
+      // The Dashboard tile uses adminDashboardTitle (সিস্টেম সারসংক্ষেপ),
+      // so it appears 2x (hero + tile). The other 3 are unique.
+      expect(find.text('সিস্টেম সারসংক্ষেপ'), findsAtLeastNWidgets(2));
+      expect(find.text('ব্যবহারকারী'), findsAtLeastNWidgets(1));
+      expect(find.text('অভিযান অনুরোধ'), findsAtLeastNWidgets(1));
+      expect(find.text('বার্তা ব্রডকাস্ট'), findsAtLeastNWidgets(1));
+
+      // No TabBar (regression guard for the old layout).
+      expect(find.byType(TabBar), findsNothing);
     });
 
-    testWidgets('broadcast tab shows message input', (tester) async {
+    testWidgets('tapping the campaigns tile pushes AdminCampaignsPage',
+        (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
       await tester.pumpWidget(wrapPanel());
       await tester.pumpAndSettle();
 
-      // Tap on broadcast tab
-      await tester.tap(find.text('বার্তা ব্রডকাস্ট'));
+      // Find the first matching tile (one per Card in the grid).
+      final tiles = find.descendant(
+        of: find.byType(Card),
+        matching: find.text('অভিযান অনুরোধ'),
+      );
+      // The tile is the InkWell inside the Card; tap the first one.
+      await tester.tap(tiles.first, warnIfMissed: false);
       await tester.pumpAndSettle();
 
+      // AdminCampaignsPage renders the empty-state copy when there are
+      // no campaigns in the test environment.
+      expect(find.text('কোনো অভিযান অনুরোধ নেই'), findsOneWidget);
+    });
+
+    testWidgets('tapping the users tile pushes AdminUsersPage',
+        (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(wrapPanel());
+      await tester.pumpAndSettle();
+
+      final tiles = find.descendant(
+        of: find.byType(Card),
+        matching: find.text('ব্যবহারকারী'),
+      );
+      await tester.tap(tiles.first, warnIfMissed: false);
+      await tester.pumpAndSettle();
+
+      // AdminUsersPage renders the empty-state copy when there are
+      // no mesh peers in the test environment.
+      expect(find.text('কোনো সংযুক্ত ডিভাইস নেই'), findsOneWidget);
+    });
+
+    testWidgets('tapping the broadcast tile pushes AdminBroadcastPage',
+        (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(wrapPanel());
+      await tester.pumpAndSettle();
+
+      final tiles = find.descendant(
+        of: find.byType(Card),
+        matching: find.text('বার্তা ব্রডকাস্ট'),
+      );
+      await tester.tap(tiles.first, warnIfMissed: false);
+      await tester.pumpAndSettle();
+
+      // AdminBroadcastPage shows its section title + send button.
       expect(find.text('গ্লোবাল ব্রডকাস্ট'), findsOneWidget);
-      expect(find.text('বার্তা পাঠান'), findsWidgets);
+      // The send button uses the short i18n key (পাঠান).
+      expect(find.text('পাঠান'), findsOneWidget);
     });
   });
 }

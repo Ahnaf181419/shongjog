@@ -17,6 +17,20 @@ class AdminDashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('সিস্টেম সারসংক্ষেপ'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          tooltip: AppLocalizations.of(context).adminPageBackTooltip,
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: _buildBody(context),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
     return SingleChildScrollView(
@@ -78,6 +92,20 @@ class AdminUsersPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context).adminTabUsers),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          tooltip: AppLocalizations.of(context).adminPageBackTooltip,
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: _buildBody(context),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
     final peers = meshService.peerList;
@@ -157,6 +185,20 @@ class _AdminCampaignsPageState extends State<AdminCampaignsPage> {
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context).adminTabCampaigns),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          tooltip: AppLocalizations.of(context).adminPageBackTooltip,
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: _buildBody(context),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final pending = campaignRequestService.pendingRequests;
     final reviewed = campaignRequestService.approvedRequests;
@@ -222,6 +264,20 @@ class _AdminBroadcastPageState extends State<AdminBroadcastPage> {
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context).adminTabBroadcast),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          tooltip: AppLocalizations.of(context).adminPageBackTooltip,
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: _buildBody(context),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
     return Padding(
