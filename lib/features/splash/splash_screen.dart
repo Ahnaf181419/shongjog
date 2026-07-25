@@ -15,8 +15,8 @@ import '../../l10n/app_localizations.dart';
 class SplashColors {
   SplashColors._();
 
-  static const Color teal = Color(0xFF0D9488);
-  static const Color deepBlue = Color(0xFF0C4A6E);
+  static const Color ocean = Color(0xFF0369A1);
+  static const Color deepBlue = Color(0xFF075985);
   static const Color amber = Color(0xFFF59E0B);
   static const Color white = Color(0xFFFFFFFF);
 }
@@ -158,7 +158,7 @@ class _SplashScreenState extends State<SplashScreen>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              SplashColors.teal,
+              SplashColors.ocean,
               SplashColors.deepBlue,
             ],
           ),

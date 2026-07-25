@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import 'package:geolocator/geolocator.dart';
 
 import '../admin/campaign_request.dart';
@@ -64,29 +65,8 @@ class ProximityNotificationService {
 }
 
 extension _DoubleExt on double {
-  double sin() => (this * 3.14159265359 / 180.0).sin();
-  double cos() => (this * 3.14159265359 / 180.0).cos();
-  double sqrt() => this < 0 ? double.nan : this == 0 ? 0.0 : _sqrt(this);
-  double asin() => this < -1 || this > 1 ? double.nan : _asin(this);
-
-  static double _sqrt(double x) {
-    if (x == 0) return 0.0;
-    double guess = x / 2;
-    for (int i = 0; i < 10; i++) {
-      guess = 0.5 * (guess + x / guess);
-    }
-    return guess;
-  }
-
-  static double _asin(double x) {
-    // Simple Taylor series approximation for asin
-    double result = x;
-    double term = x;
-    double x2 = x * x;
-    for (int n = 1; n < 10; n++) {
-      term *= x2 * (2 * n - 1) / (2 * n);
-      result += term / (2 * n + 1);
-    }
-    return result;
-  }
+  double sin() => math.sin(this);
+  double cos() => math.cos(this);
+  double sqrt() => math.sqrt(this);
+  double asin() => math.asin(this);
 }

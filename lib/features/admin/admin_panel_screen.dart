@@ -109,15 +109,98 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
               ),
               body: TabBarView(
                 children: [
-                  const _DashboardTab(),
-                  const _UsersTab(),
-                  _CampaignRequestsTab(pendingCount: pendingCount),
-                  const _BroadcastTab(),
+                  _buildGridCard(
+                    context,
+                    title: 'ড্যাশবোর্ড',
+                    icon: Icons.dashboard_rounded,
+                    content: const _DashboardTab(),
+                  ),
+                  _buildGridCard(
+                    context,
+                    title: 'ব্যবহারকারী',
+                    icon: Icons.people_rounded,
+                    content: const _UsersTab(),
+                  ),
+                  _buildGridCard(
+                    context,
+                    title: 'অভিযান অনুরোধ',
+                    icon: Icons.campaign_rounded,
+                    badgeCount: pendingCount,
+                    content: _CampaignRequestsTab(pendingCount: pendingCount),
+                  ),
+                  _buildGridCard(
+                    context,
+                    title: 'বার্তা ব্রডকাস্ট',
+                    icon: Icons.podcasts_rounded,
+                    content: const _BroadcastTab(),
+                  ),
                 ],
+              ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildGridCard(BuildContext context, {required String title, required IconData icon, required Widget content, int? badgeCount}) {
+    final cs = Theme.of(context).colorScheme;
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Scaffold(
+                appBar: AppBar(title: Text(title)),
+                body: content,
               ),
             ),
           );
         },
+        child: Stack(
+          children: [
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, size: 48, color: cs.primary),
+                  const SizedBox(height: 16),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (badgeCount != null && badgeCount > 0)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: cs.error,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    _bnNum(badgeCount),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -585,25 +668,21 @@ class _CampaignRequestsTabState extends State<_CampaignRequestsTab> {
                           child: FilledButton.icon(
                             onPressed: () async {
                               Navigator.pop(ctx);
-                              final notes = await _showNotesDialog(
-                                  context, l10n.adminApproveLabel);
-                              if (notes != null && context.mounted) {
-                                await campaignRequestService.updateRequestStatus(
-                                  request.id,
-                                  CampaignStatus.approved,
-                                  adminNotes: notes,
+                              await campaignRequestService.updateRequestStatus(
+                                request.id,
+                                CampaignStatus.approved,
+                                adminNotes: null,
+                              );
+                              // Trigger proximity check for nearby users
+                              _fireProximityNotification(request);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        '${request.type.labelBn} অনুমোদিত — মানচিত্রে যোগ করা হয়েছে'),
+                                    backgroundColor: ShongjogTheme.success,
+                                  ),
                                 );
-                                // Trigger proximity check for nearby users
-                                _fireProximityNotification(request);
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                          l10n.adminApproveSuccess(request.type.label(context))),
-                                      backgroundColor: ShongjogTheme.success,
-                                    ),
-                                  );
-                                }
                               }
                             },
                             icon: const Icon(Icons.check_rounded, size: 18),
