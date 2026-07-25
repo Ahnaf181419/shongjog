@@ -216,3 +216,12 @@ extension GdacsSeverityLabel on GdacsSeverity {
         GdacsSeverity.unknown => AppLocalizations.of(context).severityUnknown,
       };
 }
+
+extension GdacsSeverityLabelBn on GdacsSeverity {
+  String get labelBn => switch (this) {
+        GdacsSeverity.green => 'সবুজ',
+        GdacsSeverity.orange => 'কমলা',
+        GdacsSeverity.red => 'লাল',
+        GdacsSeverity.unknown => 'অজানা',
+      };
+}

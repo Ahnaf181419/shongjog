@@ -226,4 +226,18 @@ enum EonetCategory {
         EonetCategory.manmade => AppLocalizations.of(context).hazardManmade,
         EonetCategory.other => AppLocalizations.of(context).hazardOther,
       };
+
+  String get labelBn => switch (this) {
+        EonetCategory.severeStorms => 'ঘূর্ণিঝড়',
+        EonetCategory.floods => 'বন্যা',
+        EonetCategory.earthquakes => 'ভূমিকম্প',
+        EonetCategory.wildfires => 'দাবানল',
+        EonetCategory.volcanoes => 'আগ্নেয়গিরি',
+        EonetCategory.landslides => 'ভূমিধস',
+        EonetCategory.extremeTemperatures => 'চরম তাপমাত্রা',
+        EonetCategory.drought => 'খরা',
+        EonetCategory.seaLakeIce => 'সমুদ্র/হ্রদের বরফ',
+        EonetCategory.manmade => 'মানবসৃষ্ট',
+        EonetCategory.other => 'অন্যান্য',
+      };
 }
