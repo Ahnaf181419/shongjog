@@ -17,6 +17,7 @@ import '../features/safe_beacon/safe_beacon_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/triage/triage_wizard_screen.dart';
 import '../features/admin/admin_login_screen.dart';
+import '../features/admin/admin_pages.dart';
 import '../features/admin/admin_panel_screen.dart';
 import '../features/notifications/notifications_screen.dart';
 import '../features/damage_scanner/damage_scan_screen.dart';
@@ -70,6 +71,10 @@ class ShongjogApp extends StatelessWidget {
             AppRoutes.sosComposer: (_) => const SosComposerScreen(),
             AppRoutes.adminLogin: (_) => const AdminLoginScreen(),
             AppRoutes.adminPanel: (_) => const AdminPanelScreen(),
+            AppRoutes.adminDashboard: (_) => const AdminDashboardPage(),
+            AppRoutes.adminUsers: (_) => const AdminUsersPage(),
+            AppRoutes.adminCampaigns: (_) => const AdminCampaignsPage(),
+            AppRoutes.adminBroadcast: (_) => const AdminBroadcastPage(),
             AppRoutes.notifications: (_) => const NotificationsScreen(),
             AppRoutes.profile: (_) => const ProfileScreen(),
             AppRoutes.planner: (_) => const PlannerScreen(),

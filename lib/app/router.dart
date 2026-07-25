@@ -15,6 +15,10 @@ class AppRoutes {
   static const notifications = '/notifications';
   static const sosComposer = '/sos-composer';
   static const profile = '/profile';
+  static const adminDashboard = '/admin-dashboard';
+  static const adminUsers = '/admin-users';
+  static const adminCampaigns = '/admin-campaigns';
+  static const adminBroadcast = '/admin-broadcast';
   static const planner = '/planner';
   static const kit = '/kit';
   static const risk = '/risk';
