@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../app/router.dart';
 import '../../app/theme.dart';
@@ -38,7 +39,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       Navigator.pushReplacementNamed(context, AppRoutes.adminPanel);
     } else {
       setState(() {
-        _errorMessage = 'ভুল ব্যবহারকারীর নাম অথবা পাসওয়ার্ড।';
+        _errorMessage = AppLocalizations.of(context).adminLoginError;
       });
     }
   }
@@ -46,10 +47,11 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('অ্যাডমিন লগইন'),
+        title: Text(l10n.adminLoginTitle),
       ),
       body: SafeArea(
         child: Center(
@@ -67,9 +69,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     color: cs.primary,
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'অ্যাডমিন প্যানেল প্রবেশাধিকার',
-                    style: TextStyle(
+                  Text(
+                    l10n.adminLoginHeading,
+                    style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
@@ -77,7 +79,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'অনুগ্রহ করে আপনার সঠিক পরিচয় পত্র প্রদান করুন।',
+                    l10n.adminLoginSubtitle,
                     style: TextStyle(
                       fontSize: 14,
                       color: ShongjogTheme.bodySecondary(context),
@@ -107,14 +109,14 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                   ],
                   TextFormField(
                     controller: _usernameController,
-                    decoration: const InputDecoration(
-                      labelText: 'ব্যবহারকারীর নাম',
-                      prefixIcon: Icon(Icons.person_rounded),
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n.adminUsernameLabel,
+                      prefixIcon: const Icon(Icons.person_rounded),
+                      border: const OutlineInputBorder(),
                     ),
                     validator: (v) {
                       if (v == null || v.trim().isEmpty) {
-                        return 'ব্যবহারকারীর নাম লিখুন';
+                        return l10n.adminUsernameValidator;
                       }
                       return null;
                     },
@@ -124,14 +126,14 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                   TextFormField(
                     controller: _passwordController,
                     obscureText: true,
-                    decoration: const InputDecoration(
-                      labelText: 'পাসওয়ার্ড',
-                      prefixIcon: Icon(Icons.lock_rounded),
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n.adminPasswordLabel,
+                      prefixIcon: const Icon(Icons.lock_rounded),
+                      border: const OutlineInputBorder(),
                     ),
                     validator: (v) {
                       if (v == null || v.isEmpty) {
-                        return 'পাসওয়ার্ড লিখুন';
+                        return l10n.adminPasswordValidator;
                       }
                       return null;
                     },
@@ -147,9 +149,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                         borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
                       ),
                     ),
-                    child: const Text(
-                      'প্রবেশ করুন',
-                      style: TextStyle(
+                    child: Text(
+                      l10n.adminLoginButton,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),

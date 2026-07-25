@@ -6,7 +6,7 @@ const String kMeshSelfId = 'me';
 /// Advertised-name prefix that scopes discovery to Shongjog peers.
 const String kMeshPeerPrefix = 'Shongjog-';
 
-enum MessageType { text, voice }
+enum MessageType { text, voice, image, video }
 
 enum PeerStatus { connected, reconnecting, disconnected }
 

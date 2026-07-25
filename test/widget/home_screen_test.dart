@@ -8,7 +8,6 @@ import 'package:shongjog/features/weather/weather_card.dart';
 import 'package:shongjog/main.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
 
-import 'test_app.dart';
 
 void main() {
   Widget wrapHome({ValueChanged<int>? onNavigateToTab}) {
@@ -129,19 +128,6 @@ void main() {
       // Every state label contains 'আবহাওয়া' for consistency.
       final hasBangla = find.textContaining('আবহাওয়া').evaluate().isNotEmpty;
       expect(hasBangla, isTrue);
-    });
-
-    testWidgets('renders insight card after scrolling', (tester) async {
-      await tester.pumpWidget(wrapHome());
-      await pumpOnce(tester);
-      // With no chat history the intelligence engine yields the default
-      // insight, so its title is the stable thing to assert on.
-      await tester.scrollUntilVisible(
-        find.text('অফলাইন AI প্রস্তুত'),
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      expect(find.text('অফলাইন AI প্রস্তুত'), findsOneWidget);
     });
 
   });

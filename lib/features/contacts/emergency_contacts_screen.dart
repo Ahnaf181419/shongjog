@@ -261,7 +261,7 @@ class _ContactRow extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        meta.labelBn,
+                        contact.category.label(context),
                         style: TextStyle(
                           fontSize: 13,
                           fontFamily: ShongjogTheme.fontFamily,
@@ -461,7 +461,7 @@ class _AddContactSheetState extends State<_AddContactSheet> {
                   children: [
                     Icon(meta.icon, size: 20),
                     const SizedBox(width: 10),
-                    Text(meta.labelBn),
+                    Text(c.label(context)),
                   ],
                 ),
               );

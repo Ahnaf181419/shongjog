@@ -1,7 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/hazards/usgs_earthquake_service.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 void main() {
+
   group('UsgsEarthquakeService', () {
     test('returns null when offline', () async {
       final result = await UsgsEarthquakeService.fetchRecent(isOnline: false);
@@ -159,11 +162,18 @@ void main() {
       );
     });
 
-    test('severity labels are Bangla', () {
+    testWidgets('severity labels are localized', (tester) async {
+      late BuildContext ctx;
+      await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(builder: (context) {
+          ctx = context;
+          return const SizedBox();
+        }),
+      ));
       for (final s in EarthquakeSeverity.values) {
-        final hasBangla =
-            s.labelBn.codeUnits.any((u) => u >= 0x0980 && u <= 0x09FF);
-        expect(hasBangla, isTrue, reason: '$s must have a Bangla label');
+        expect(s.label(ctx).isNotEmpty, isTrue, reason: '$s must have a label');
       }
     });
   });

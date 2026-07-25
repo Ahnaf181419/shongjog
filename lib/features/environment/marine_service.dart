@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/widgets.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Open-Meteo Marine client — wave height + direction for the coast.
 ///
@@ -127,11 +129,14 @@ class MarineDay {
 
 enum WaveSeverity { calm, moderate, rough, veryRough }
 
-extension WaveSeverityBn on WaveSeverity {
-  String get labelBn => switch (this) {
-        WaveSeverity.calm => 'শান্ত',
-        WaveSeverity.moderate => 'মাঝারি',
-        WaveSeverity.rough => 'অস্থির',
-        WaveSeverity.veryRough => 'অত্যন্ত অস্থির',
-      };
+extension WaveSeverityL10n on WaveSeverity {
+  String label(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return switch (this) {
+      WaveSeverity.calm => l10n.waveCalm,
+      WaveSeverity.moderate => l10n.waveModerate,
+      WaveSeverity.rough => l10n.waveRough,
+      WaveSeverity.veryRough => l10n.waveVeryRough,
+    };
+  }
 }

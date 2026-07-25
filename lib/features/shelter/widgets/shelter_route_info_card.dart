@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../../app/theme.dart';
 import '../shelter_model.dart';
@@ -27,6 +28,7 @@ class ShelterRouteInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final bnName = selected.nameBn.isNotEmpty ? selected.nameBn : selected.name;
     return Material(
       elevation: 8,
@@ -63,7 +65,7 @@ class ShelterRouteInfoCard extends StatelessWidget {
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.w600)),
                       if (selected.capacity != null)
-                        Text('ধারণক্ষমতা: ${selected.capacity} জন',
+                        Text(l10n.shelterCapacityCount('${selected.capacity}'),
                             style: const TextStyle(
                                 fontSize: 13,
                                 color: ShongjogTheme.inkSecondary)),
@@ -74,14 +76,14 @@ class ShelterRouteInfoCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             if (loading)
-              const Row(
+              Row(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                       width: 16,
                       height: 16,
                       child: CircularProgressIndicator(strokeWidth: 2)),
-                  SizedBox(width: 8),
-                  Text('রুট খুঁজছি...', style: TextStyle(fontSize: 14)),
+                  const SizedBox(width: 8),
+                  Text(l10n.shelterFindingRoute, style: const TextStyle(fontSize: 14)),
                 ],
               )
             else
@@ -98,7 +100,7 @@ class ShelterRouteInfoCard extends StatelessWidget {
                         color: ShongjogTheme.ocean, size: 18),
                     const SizedBox(width: 8),
                     Text(
-                      '${(distanceKm?.toStringAsFixed(1) ?? '—')} কিমি',
+                      '${(distanceKm?.toStringAsFixed(1) ?? '—')} ${l10n.shelterKm}',
                       style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -114,7 +116,7 @@ class ShelterRouteInfoCard extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: onCancel,
                     icon: const Icon(Icons.close, size: 18),
-                    label: const Text('বাতিল'),
+                    label: Text(l10n.cancel),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: ShongjogTheme.inkSecondary,
                     ),
@@ -125,7 +127,7 @@ class ShelterRouteInfoCard extends StatelessWidget {
                   child: FilledButton.icon(
                     onPressed: onDetails,
                     icon: const Icon(Icons.info_outline, size: 18),
-                    label: const Text('বিস্তারিত'),
+                    label: Text(l10n.shelterDetails),
                   ),
                 ),
               ],

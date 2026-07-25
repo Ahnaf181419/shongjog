@@ -276,7 +276,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       items: CampaignType.values.map((type) {
                         return DropdownMenuItem(
                           value: type,
-                          child: Text(type.labelBn),
+                          child: Text(type.label(context)),
                         );
                       }).toList(),
                       onChanged: (v) => setDialogState(() => selectedType = v!),

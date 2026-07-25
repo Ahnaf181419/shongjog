@@ -74,5 +74,43 @@ void main() {
       expect(isEmergencyQuery('I have chest pain'), isTrue);
       expect(isEmergencyQuery('what is the weather'), isFalse);
     });
+
+    test('history turns appear between context and current query', () {
+      final history = [
+        ChatTurn(text: 'তোমার নাম কি', isUser: true),
+        ChatTurn(text: 'আমার নাম শঞ্জোগ', isUser: false),
+      ];
+      final prompt = buildPrompt(
+        query: 'আবার বলো',
+        hits: const [],
+        history: history,
+      );
+      expect(prompt, contains('User: তোমার নাম কি'));
+      expect(prompt, contains('Assistant: আমার নাম শঞ্জোগ'));
+      final historyIdx = prompt.indexOf('User: তোমার নাম কি');
+      final queryIdx = prompt.indexOf('User: আবার বলো');
+      expect(historyIdx, lessThan(queryIdx));
+    });
+
+    test('empty history produces same prompt as before', () {
+      final without = buildPrompt(query: 'হাই', hits: const []);
+      final withEmpty =
+          buildPrompt(query: 'হাই', hits: const [], history: const []);
+      expect(without, equals(withEmpty));
+    });
+
+    test('history is capped at 4 turns', () {
+      final history = List.generate(
+          10, (i) => ChatTurn(text: 'turn $i', isUser: i.isEven));
+      final prompt = buildPrompt(
+        query: 'latest',
+        hits: const [],
+        history: history,
+      );
+      expect(prompt, isNot(contains('User: turn 0')));
+      expect(prompt, isNot(contains('User: turn 1')));
+      expect(prompt, contains('User: turn 8'));
+      expect(prompt, contains('Assistant: turn 9'));
+    });
   });
 }

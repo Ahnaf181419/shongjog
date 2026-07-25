@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_sound/flutter_sound.dart';
+import 'package:flutter/services.dart';
+import 'package:record/record.dart';
 
 import 'mesh_models.dart';
 import 'mesh_service.dart';
@@ -51,10 +52,10 @@ enum CallState { idle, ringing, active, ended }
 /// Full-duplex offline voice call over Nearby Connections.
 ///
 /// Architecture:
-///   MIC → FlutterSoundRecorder (PCM 8kHz mono 16-bit) → raw Uint8List chunks
+///   MIC → record package startStream (PCM 8kHz mono 16-bit) → Uint8List chunks
 ///        → Nearby().sendBytesPayload(peer) (via a special payload prefix)
 ///
-///   Nearby bytes payload → strip prefix → FlutterSoundPlayer PCM stream
+///   Nearby bytes payload → strip prefix → MethodChannel → Android AudioTrack
 ///        → speaker (earpiece or loudspeaker)
 ///
 /// The 8kHz/16-bit mono rate (~16 KB/s) is intentionally conservative to
@@ -63,18 +64,16 @@ enum CallState { idle, ringing, active, ended }
 class MeshCallService {
   static const _audioPrefix = 'CALL_AUDIO:';
   static const _signalPrefix = 'CALL_SIG:';
+  static const _audioChannel = MethodChannel('com.example.shongjog/audio_track');
 
-  final _recorder = FlutterSoundRecorder();
-  final _player = FlutterSoundPlayer();
-
-  bool _recorderReady = false;
-  bool _playerReady = false;
+  final AudioRecorder _recorder = AudioRecorder();
 
   String? _remotePeerId;
   String? _remoteName;
   CallState _state = CallState.idle;
   bool _muted = false;
-  bool _speakerOn = false;
+  bool _speakerOn = true;
+  bool _audioStarted = false;
 
   final _stateController = StreamController<CallState>.broadcast();
   final _incomingCallController = StreamController<CallSignalMessage>.broadcast();
@@ -88,15 +87,12 @@ class MeshCallService {
   String? get remoteName => _remoteName;
 
   StreamSubscription? _msgSub;
+  StreamSubscription? _micSub;
 
   Future<void> initialize() async {
-    await _recorder.openRecorder();
-    await _player.openPlayer();
-    _recorderReady = true;
-    _playerReady = true;
-
     // Listen for signalling messages coming in from mesh peers.
     _msgSub = meshService.messages.listen(_onMeshMessage);
+    debugPrint('MeshCallService: initialized');
   }
 
   void _onMeshMessage(MeshMessage msg) {
@@ -109,7 +105,15 @@ class MeshCallService {
     }
   }
 
-  void _handleSignal(CallSignalMessage sig, String senderEndpointId) {
+  /// Called directly by [MeshService._onPayloadReceived] when raw bytes
+  /// start with the CALL_SIG prefix.  This is the primary path; the
+  /// [_msgSub] subscription is a fallback.
+  void handleRawSignal(String rawJson, String senderEndpointId) {
+    final sig = CallSignalMessage.tryParse(rawJson);
+    if (sig != null) _handleSignal(sig, senderEndpointId);
+  }
+
+  Future<void> _handleSignal(CallSignalMessage sig, String senderEndpointId) async {
     switch (sig.signal) {
       case CallSignal.invite:
         if (_state == CallState.idle) {
@@ -124,7 +128,7 @@ class MeshCallService {
       case CallSignal.accept:
         if (_state == CallState.ringing) {
           _setState(CallState.active);
-          _startAudio();
+          await _startAudio();
         }
         break;
       case CallSignal.reject:
@@ -169,53 +173,77 @@ class MeshCallService {
 
   void toggleMute() {
     _muted = !_muted;
-    if (_muted) {
-      _recorder.pauseRecorder();
-    } else {
-      _recorder.resumeRecorder();
-    }
-    _stateController.add(_state); // Notify UI to refresh mute icon.
-  }
-
-  void toggleSpeaker() {
-    _speakerOn = !_speakerOn;
-    _player.setVolume(_speakerOn ? 1.0 : 0.5);
     _stateController.add(_state);
   }
 
-  StreamController<Uint8List>? _micStreamCtrl;
+  Future<void> toggleSpeaker() async {
+    _speakerOn = !_speakerOn;
+    try {
+      await _audioChannel.invokeMethod('setSpeaker', {'on': _speakerOn});
+    } catch (e) {
+      debugPrint('MeshCallService: setSpeaker error $e');
+    }
+    _stateController.add(_state);
+  }
 
   Future<void> _startAudio() async {
-    if (!_recorderReady || !_playerReady) return;
+    debugPrint('MeshCallService: _startAudio called');
+    final hasPerm = await _recorder.hasPermission();
+    if (!hasPerm) {
+      debugPrint('MeshCallService: no microphone permission');
+      return;
+    }
 
-    // Open the player to accept raw PCM from a stream.
-    await _player.startPlayerFromStream(
-      codec: Codec.pcm16,
-      numChannels: 1,
-      sampleRate: 8000,
-      bufferSize: 8192,
-      interleaved: true,
-    );
+    try {
+      // Start AudioTrack playback on the native side.
+      await _audioChannel.invokeMethod('start', {
+        'sampleRate': 8000,
+        'numChannels': 1,
+      });
+      _audioStarted = true;
+      debugPrint('MeshCallService: AudioTrack started');
+    } catch (e) {
+      debugPrint('MeshCallService: AudioTrack start failed: $e');
+      return;
+    }
 
-    _micStreamCtrl = StreamController<Uint8List>.broadcast();
-    _micStreamCtrl?.stream.listen((data) {
-      if (!_muted && _remotePeerId != null) {
-        _sendAudioChunk(data);
-      }
-    });
+    // Default to speaker for mesh calls (user holds phone in front, not at ear).
+    try {
+      await _audioChannel.invokeMethod('setSpeaker', {'on': true});
+    } catch (_) {}
 
     // Start recording and stream mic PCM chunks to the peer.
-    await _recorder.startRecorder(
-      codec: Codec.pcm16,
-      numChannels: 1,
-      sampleRate: 8000,
-      toStream: _micStreamCtrl?.sink,
-    );
+    try {
+      final stream = await _recorder.startStream(
+        RecordConfig(
+          encoder: AudioEncoder.pcm16bits,
+          sampleRate: 8000,
+          numChannels: 1,
+          echoCancel: true,
+          noiseSuppress: true,
+          androidConfig: const AndroidRecordConfig(
+            audioSource: AndroidAudioSource.voiceCommunication,
+            audioManagerMode: AudioManagerMode.modeInCommunication,
+            speakerphone: true,
+          ),
+        ),
+      );
+      _micSub = stream.listen((data) {
+        if (!_muted && _remotePeerId != null) {
+          _sendAudioChunk(data);
+        }
+      });
+      debugPrint('MeshCallService: recorder stream started');
+    } catch (e) {
+      debugPrint('MeshCallService: recorder start failed: $e');
+    }
   }
 
   void feedIncomingAudio(Uint8List data) {
-    if (_state != CallState.active || !_playerReady) return;
-    _player.feedUint8FromStream(data);
+    if (_state != CallState.active || !_audioStarted) return;
+    _audioChannel.invokeMethod('feed', {'data': data}).catchError((e) {
+      debugPrint('MeshCallService: audio feed error $e');
+    });
   }
 
   void _sendSignal(CallSignal sig, String targetId) {
@@ -238,9 +266,6 @@ class MeshCallService {
       final packet = Uint8List(prefix.length + data.length);
       packet.setAll(0, prefix);
       packet.setAll(prefix.length, data);
-      // H5 FIX: route through meshService transport (which may be Nearby OR
-      // WifiDirect) rather than hardcoding Nearby(). Hardcoding Nearby()
-      // crashed on GMS-free devices that fall back to WifiDirectTransport.
       meshService.sendBytesToPeer(_remotePeerId!, packet);
     } catch (e) {
       debugPrint('MeshCallService: audio send error $e');
@@ -249,15 +274,21 @@ class MeshCallService {
 
   Future<void> _endCallLocally() async {
     _setState(CallState.ended);
-    await _recorder.stopRecorder();
-    await _player.stopPlayer();
-    await _micStreamCtrl?.close();
-    _micStreamCtrl = null;
+    _audioStarted = false;
+    await _micSub?.cancel();
+    _micSub = null;
+    try {
+      await _recorder.stop();
+    } catch (_) {}
+    try {
+      await _audioChannel.invokeMethod('stop');
+    } catch (_) {}
     _remotePeerId = null;
     _remoteName = null;
     _muted = false;
     await Future.delayed(const Duration(milliseconds: 300));
     _setState(CallState.idle);
+    debugPrint('MeshCallService: call ended');
   }
 
   void _setState(CallState s) {
@@ -267,12 +298,9 @@ class MeshCallService {
 
   Future<void> dispose() async {
     _msgSub?.cancel();
-    await _recorder.closeRecorder();
-    await _player.closePlayer();
+    _micSub?.cancel();
     _stateController.close();
     _incomingCallController.close();
-    _recorderReady = false;
-    _playerReady = false;
   }
 }
 

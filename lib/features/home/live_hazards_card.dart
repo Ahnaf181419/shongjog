@@ -4,6 +4,8 @@ import '../../core/connectivity_provider.dart';
 import '../hazards/eonet_service.dart';
 import '../hazards/gdacs_service.dart';
 import '../hazards/usgs_earthquake_service.dart';
+import 'hazards_item.dart';
+import 'hazards_list_screen.dart';
 
 /// Home-screen card showing live natural hazards near Bangladesh.
 ///
@@ -26,7 +28,7 @@ class LiveHazardsCard extends StatefulWidget {
 }
 
 class _LiveHazardsCardState extends State<LiveHazardsCard> {
-  List<_HazardsItem>? _items;
+  List<HazardsItem>? _items;
   bool _loading = true;
   bool _allFailed = false;
   bool _wasOnline = false;
@@ -45,8 +47,6 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
     super.dispose();
   }
 
-  /// Auto-refresh when the network comes back online — a user returning
-  /// from airplane mode should see fresh hazards without a manual tap.
   void _onConnectivityChanged() {
     final now = connectivityProvider.isOnline;
     if (now && !_wasOnline) {
@@ -64,8 +64,6 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
 
     final isOnline = connectivityProvider.isOnline;
 
-    // Fire all three in parallel. Each returns null on failure (offline,
-    // transport error, parse error) — null is distinct from an empty list.
     final results = await Future.wait([
       EonetService.fetchOpenHazards(isOnline: isOnline),
       UsgsEarthquakeService.fetchRecent(isOnline: isOnline),
@@ -78,20 +76,17 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
     final quakes = results[1] as List<EarthquakeEvent>?;
     final gdacs = results[2] as List<GdacsAlert>?;
 
-    final allFailed =
-        eonet == null && quakes == null && gdacs == null;
-    final items = <_HazardsItem>[];
+    final allFailed = eonet == null && quakes == null && gdacs == null;
+    final items = <HazardsItem>[];
 
-    // Severity ordering: red GDACS > strong quake > active EONET > moderate
-    // quake > orange GDACS > weak quake > everything else.
     for (final e in eonet ?? const <EonetEvent>[]) {
-      items.add(_HazardsItem.fromEonet(e));
+      items.add(HazardsItem.fromEonet(e, context));
     }
     for (final q in quakes ?? const <EarthquakeEvent>[]) {
-      items.add(_HazardsItem.fromQuake(q));
+      items.add(HazardsItem.fromQuake(q));
     }
     for (final g in gdacs ?? const <GdacsAlert>[]) {
-      items.add(_HazardsItem.fromGdacs(g));
+      items.add(HazardsItem.fromGdacs(g, context));
     }
     items.sort((a, b) => b.weight.compareTo(a.weight));
 
@@ -102,10 +97,18 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
     });
   }
 
+  void _openFullList() {
+    if (_items == null || _items!.isEmpty) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => HazardsListScreen(items: _items!),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Don't render the card at all when offline — it would only ever
-    // show a spinner-then-retry, which adds noise to the home screen.
     if (!connectivityProvider.isOnline) return const SizedBox.shrink();
 
     final cs = Theme.of(context).colorScheme;
@@ -195,9 +198,8 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
       );
     }
 
-    final items = _items ?? const <_HazardsItem>[];
+    final items = _items ?? const <HazardsItem>[];
     if (items.isEmpty) {
-      // Every reachable feed returned zero items — a genuinely good signal.
       return Row(
         children: [
           Icon(Icons.check_circle_outline_rounded,
@@ -213,24 +215,40 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
       );
     }
 
-    // Cap to 3 to keep the card compact — the full list isn't more useful
-    // than the top hazards, and longer cards push the rest of the home
-    // screen below the fold.
     final top = items.take(3).toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         for (final item in top) ...[
-          _HazardsRow(item: item),
+          HazardsRow(item: item),
           if (item != top.last) const SizedBox(height: 6),
         ],
         if (items.length > 3)
           Padding(
             padding: const EdgeInsets.only(top: 6),
-            child: Text(
-              'আরও ${items.length - 3}টি',
-              style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+            child: InkWell(
+              onTap: _openFullList,
+              borderRadius: BorderRadius.circular(4),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'আরও ${items.length - 3}টি দেখুন',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: cs.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    Icon(Icons.chevron_right_rounded,
+                        size: 14, color: cs.primary),
+                  ],
+                ),
+              ),
             ),
           ),
       ],
@@ -238,128 +256,46 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
   }
 }
 
-/// Normalised hazard item — the three feeds have different shapes, so we
-/// project each into a common (icon, title, severity) triple for display.
-class _HazardsItem {
-  final IconData icon;
-  final String title;
-  final Color color;
-  final int weight; // higher = more urgent
-
-  const _HazardsItem({
-    required this.icon,
-    required this.title,
-    required this.color,
-    required this.weight,
-  });
-
-  factory _HazardsItem.fromEonet(EonetEvent e) {
-    return _HazardsItem(
-      icon: _iconForEonet(e.category),
-      title: e.title,
-      color: _colorForEonet(e.category),
-      // Active EONET events (cyclones, floods) are high-urgency.
-      weight: 60 + (e.isActive ? 20 : 0) + _eonetBoost(e.category),
-    );
-  }
-
-  factory _HazardsItem.fromQuake(EarthquakeEvent q) {
-    return _HazardsItem(
-      icon: Icons.public,
-      title: 'M ${q.magnitude.toStringAsFixed(1)} — ${q.place}',
-      color: _colorForQuake(q.severity),
-      weight: 80 + q.magnitude.toInt() * 5,
-    );
-  }
-
-  factory _HazardsItem.fromGdacs(GdacsAlert g) {
-    final w = switch (g.severity) {
-      GdacsSeverity.red => 200,
-      GdacsSeverity.orange => 110,
-      GdacsSeverity.green => 30,
-      GdacsSeverity.unknown => 50,
-    };
-    return _HazardsItem(
-      icon: Icons.campaign_rounded,
-      title: g.title,
-      color: _colorForGdacs(g.severity),
-      weight: w,
-    );
-  }
-
-  static IconData _iconForEonet(EonetCategory c) => switch (c) {
-        EonetCategory.severeStorms => Icons.thunderstorm_rounded,
-        EonetCategory.floods => Icons.water_rounded,
-        EonetCategory.earthquakes => Icons.public,
-        EonetCategory.wildfires => Icons.local_fire_department_rounded,
-        EonetCategory.volcanoes => Icons.whatshot_rounded,
-        EonetCategory.landslides => Icons.landscape_rounded,
-        EonetCategory.extremeTemperatures => Icons.thermostat_rounded,
-        EonetCategory.drought => Icons.grain_rounded,
-        EonetCategory.seaLakeIce => Icons.ac_unit_rounded,
-        EonetCategory.manmade || EonetCategory.other => Icons.crisis_alert_rounded,
-      };
-
-  static Color _colorForEonet(EonetCategory c) {
-    // Cyclones + floods + volcanoes are the most dangerous for Bangladesh.
-    return switch (c) {
-      EonetCategory.severeStorms ||
-      EonetCategory.floods ||
-      EonetCategory.volcanoes ||
-      EonetCategory.landslides =>
-        const Color(0xFFD32F2F), // red
-      EonetCategory.earthquakes ||
-      EonetCategory.wildfires =>
-        const Color(0xFFE65100), // deep orange
-      _ => const Color(0xFFEF6C00), // amber
-    };
-  }
-
-  static int _eonetBoost(EonetCategory c) => switch (c) {
-        EonetCategory.severeStorms => 30,
-        EonetCategory.floods => 25,
-        EonetCategory.volcanoes => 20,
-        EonetCategory.earthquakes => 15,
-        _ => 0,
-      };
-
-  static Color _colorForQuake(EarthquakeSeverity s) => switch (s) {
-        EarthquakeSeverity.strong => const Color(0xFFD32F2F),
-        EarthquakeSeverity.moderate => const Color(0xFFE65100),
-        EarthquakeSeverity.light => const Color(0xFFEF6C00),
-      };
-
-  static Color _colorForGdacs(GdacsSeverity s) => switch (s) {
-        GdacsSeverity.red => const Color(0xFFD32F2F),
-        GdacsSeverity.orange => const Color(0xFFE65100),
-        GdacsSeverity.green => const Color(0xFF2E7D32),
-        GdacsSeverity.unknown => const Color(0xFFEF6C00),
-      };
-}
-
-class _HazardsRow extends StatelessWidget {
-  const _HazardsRow({required this.item});
-  final _HazardsItem item;
+/// A single hazard row — icon + one-line title · subtitle.
+class HazardsRow extends StatelessWidget {
+  const HazardsRow({super.key, required this.item});
+  final HazardsItem item;
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 2),
-          child: Icon(item.icon, size: 16, color: item.color),
-        ),
+        Icon(item.icon, size: 16, color: item.color),
         const SizedBox(width: 10),
         Expanded(
-          child: Text(
-            item.title,
-            maxLines: 2,
+          child: RichText(
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 13,
-              color: Theme.of(context).colorScheme.onSurface,
-              height: 1.25,
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: item.title,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: cs.onSurface,
+                    height: 1.25,
+                  ),
+                ),
+                if (item.subtitle.isNotEmpty) ...[
+                  const TextSpan(text: ' · '),
+                  TextSpan(
+                    text: item.subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: cs.onSurfaceVariant,
+                      height: 1.25,
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
         ),

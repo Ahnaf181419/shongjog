@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:flutter/material.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 /// GDACS disaster-alerts client — UN/JRC global alerts feed.
 ///
@@ -207,11 +208,11 @@ GdacsSeverity parseGdacsSeverity(String block) {
   }
 }
 
-extension GdacsSeverityBn on GdacsSeverity {
-  String get labelBn => switch (this) {
-        GdacsSeverity.green => 'সবুজ',
-        GdacsSeverity.orange => 'কমলা',
-        GdacsSeverity.red => 'লাল',
-        GdacsSeverity.unknown => 'অজানা',
+extension GdacsSeverityLabel on GdacsSeverity {
+  String label(BuildContext context) => switch (this) {
+        GdacsSeverity.green => AppLocalizations.of(context).severityGreen,
+        GdacsSeverity.orange => AppLocalizations.of(context).severityOrange,
+        GdacsSeverity.red => AppLocalizations.of(context).severityRed,
+        GdacsSeverity.unknown => AppLocalizations.of(context).severityUnknown,
       };
 }

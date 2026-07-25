@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import '../../core/model_manager.dart';
+import '../../l10n/app_localizations.dart';
 import 'sos_function_schema.dart';
 
 /// SOS composer — takes panicked voice/text input, passes it through
@@ -64,10 +65,11 @@ class _SosComposerScreenState extends State<SosComposerScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('SOS রিপোর্ট'),
+        title: Text(l10n.sosReportTitle),
         backgroundColor: cs.errorContainer,
         foregroundColor: cs.onErrorContainer,
       ),
@@ -75,18 +77,18 @@ class _SosComposerScreenState extends State<SosComposerScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           // Input section
-          Text('জরুরি অবস্থা বর্ণনা করুন',
+          Text(l10n.sosDescribeHeading,
               style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           TextField(
             controller: _inputController,
             maxLines: 3,
             decoration: InputDecoration(
-              hintText: 'কী হয়েছে, কোথায়, কে আহত...',
+              hintText: l10n.sosDescribeHint,
               border: const OutlineInputBorder(),
               suffixIcon: IconButton(
                 icon: const Icon(Icons.auto_fix_high),
-                tooltip: 'AI দিয়ে গঠন করুন',
+                tooltip: l10n.sosAiTooltip,
                 onPressed: _isProcessing ? null : _processWithAi,
               ),
             ),
@@ -94,15 +96,15 @@ class _SosComposerScreenState extends State<SosComposerScreen> {
           const SizedBox(height: 24),
 
           // Structured fields
-          Text('গঠিত রিপোর্ট',
+          Text(l10n.sosStructuredHeading,
               style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
-          _field('স্থান (Location)', _locationController, 'এলাকা/ঠিকানা'),
-          _field('ধরন (Hazard)', _hazardController, 'বন্যা/অগ্নিকাণ্ড/সাপ/...'),
-          _field('আহতের সংখ্যা', _casualtyController, '০', keyboard: true),
-          _field('আঘাতের বিবরণ', _injuriesController, 'কী ধরনের আঘাত'),
-          _field('তাৎক্ষণিক প্রয়োজন', _needsController, 'অ্যাম্বুলেন্স/উদ্ধার/চিকিৎসা'),
-          _field('প্রবেশপথ তথ্য', _accessController, 'রাস্তা/ল্যান্ডমার্ক/বাধা'),
+          _field(l10n.sosFieldLocation, _locationController, l10n.sosFieldLocationHint),
+          _field(l10n.sosFieldHazard, _hazardController, l10n.sosFieldHazardHint),
+          _field(l10n.sosFieldInjured, _casualtyController, l10n.sosFieldInjuredHint, keyboard: true),
+          _field(l10n.sosFieldInjury, _injuriesController, l10n.sosFieldInjuryHint),
+          _field(l10n.sosFieldUrgent, _needsController, l10n.sosFieldUrgentHint),
+          _field(l10n.sosFieldAccess, _accessController, l10n.sosFieldAccessHint),
           const SizedBox(height: 24),
 
           // SMS Preview
@@ -120,7 +122,7 @@ class _SosComposerScreenState extends State<SosComposerScreen> {
                   children: [
                     Icon(Icons.sms, size: 16, color: cs.primary),
                     const SizedBox(width: 4),
-                    Text('SMS প্রিভিউ',
+                    Text(l10n.sosSmsPreview,
                         style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -145,7 +147,7 @@ class _SosComposerScreenState extends State<SosComposerScreen> {
           child: FilledButton.icon(
             onPressed: _sendSos,
             icon: const Icon(Icons.call),
-            label: const Text('৯৯৯ কল করুন'),
+            label: Text(l10n.sosCall999Button),
             style: FilledButton.styleFrom(
               backgroundColor: cs.error,
               foregroundColor: cs.onError,
@@ -175,10 +177,11 @@ class _SosComposerScreenState extends State<SosComposerScreen> {
   }
 
   Future<void> _processWithAi() async {
+    final l10n = AppLocalizations.of(context);
     final input = _inputController.text.trim();
     if (input.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('আগে অবস্থা বর্ণনা লিখুন।')),
+        SnackBar(content: Text(l10n.sosEmptyInputError)),
       );
       return;
     }
@@ -188,8 +191,8 @@ class _SosComposerScreenState extends State<SosComposerScreen> {
     if (!_model.isReady) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('মডেল লোড করা নেই — নিজে পূরণ করুন।'),
+        SnackBar(
+          content: Text(l10n.sosModelNotReady),
           duration: Duration(seconds: 2),
         ),
       );
@@ -206,8 +209,8 @@ class _SosComposerScreenState extends State<SosComposerScreen> {
       if (!mounted) return;
       if (raw == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('AI গঠন করতে পারেনি — নিজে পূরণ করুন।'),
+          SnackBar(
+            content: Text(l10n.sosAiFailed),
             duration: Duration(seconds: 2),
           ),
         );
@@ -280,8 +283,8 @@ class _SosComposerScreenState extends State<SosComposerScreen> {
       _accessController.text = fields['access_notes'].toString();
     }
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('AI দিয়ে গঠন সম্পন্ন — যাচাই করুন।'),
+      SnackBar(
+        content: Text(AppLocalizations.of(context).sosAiSuccess),
         duration: Duration(seconds: 2),
       ),
     );

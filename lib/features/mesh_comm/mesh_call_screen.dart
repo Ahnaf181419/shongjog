@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../core/haptics.dart';
+import '../../l10n/app_localizations.dart';
 import 'mesh_call_service.dart';
 import 'mesh_models.dart';
 
@@ -73,6 +74,7 @@ class _MeshCallScreenState extends State<MeshCallScreen>
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     final isRinging = _state == CallState.ringing;
     final isActive = _state == CallState.active;
 
@@ -136,8 +138,8 @@ class _MeshCallScreenState extends State<MeshCallScreen>
               isActive
                   ? _formatDuration(_callDuration)
                   : widget.isIncoming
-                      ? 'ইনকামিং কল...'
-                      : 'কল করা হচ্ছে...',
+                      ? l10n.meshIncomingCall
+                      : l10n.meshCalling,
               style: TextStyle(
                 fontSize: 16,
                 color: cs.onSurfaceVariant,
@@ -156,7 +158,7 @@ class _MeshCallScreenState extends State<MeshCallScreen>
                     _CallButton(
                       icon: Icons.call_end_rounded,
                       color: cs.error,
-                      label: 'প্রত্যাখ্যান',
+                      label: l10n.meshRejectCall,
                       onTap: () {
                         HapticService.warn();
                         meshCallService.reject();
@@ -165,7 +167,7 @@ class _MeshCallScreenState extends State<MeshCallScreen>
                     _CallButton(
                       icon: Icons.call_rounded,
                       color: Colors.green,
-                      label: 'গ্রহণ',
+                      label: l10n.meshAcceptCall,
                       onTap: () {
                         HapticService.lightTap();
                         meshCallService.accept();
@@ -192,7 +194,7 @@ class _MeshCallScreenState extends State<MeshCallScreen>
                       iconColor: meshCallService.muted
                           ? cs.onError
                           : cs.onSurface,
-                      label: meshCallService.muted ? 'মিউটেড' : 'মিউট',
+                      label: meshCallService.muted ? l10n.meshMuted : l10n.meshMute,
                       onTap: () {
                         HapticService.lightTap();
                         setState(() => meshCallService.toggleMute());
@@ -202,7 +204,7 @@ class _MeshCallScreenState extends State<MeshCallScreen>
                       icon: Icons.call_end_rounded,
                       color: cs.error,
                       iconColor: cs.onError,
-                      label: 'শেষ করুন',
+                      label: l10n.meshEndCall,
                       onTap: () async {
                         HapticService.warn();
                         await meshCallService.hangUp();
@@ -218,7 +220,7 @@ class _MeshCallScreenState extends State<MeshCallScreen>
                       iconColor: meshCallService.speakerOn
                           ? cs.onPrimaryContainer
                           : cs.onSurface,
-                      label: meshCallService.speakerOn ? 'স্পিকার' : 'ইয়ারপিস',
+                      label: meshCallService.speakerOn ? l10n.meshSpeaker : l10n.meshEarpiece,
                       onTap: () {
                         HapticService.lightTap();
                         setState(() => meshCallService.toggleSpeaker());

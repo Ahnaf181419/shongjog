@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:gal/gal.dart';
 import 'package:nearby_connections/nearby_connections.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -20,6 +21,10 @@ import 'sos_relay_listener.dart';
 import 'wifi_direct_transport.dart';
 
 const _kServiceId = 'com.shongjog.mesh';
+
+/// Prefix for media (image / video) filename hints sent alongside FILE payloads.
+/// Format: `media:<payloadId>:<basename>:<type>` where type is `image` or `video`.
+const _kMediaHintPrefix = 'media:';
 
 /// Structured outcome of [MeshService.start].
 ///
@@ -320,6 +325,16 @@ class MeshService {
       status: PeerStatus.disconnected,
     );
     _peersController.add(peerList);
+
+    // Auto-reconnect if this peer was previously connected or reconnecting
+    // (i.e. we had an active session that dropped). This avoids requiring
+    // the user to manually tap to reconnect every time discovery finds the
+    // peer again.
+    if (existing != null &&
+        (existing.status == PeerStatus.reconnecting ||
+         existing.status == PeerStatus.connected)) {
+      connectToEndpoint(id);
+    }
   }
 
   /// Initiate a connection to a discovered peer.
@@ -450,6 +465,25 @@ class MeshService {
         }
         return;
       }
+      // Media (image/video) filename hint: "media:<payloadId>:<basename>:<type>"
+      if (text.startsWith(_kMediaHintPrefix)) {
+        final parts = text.split(':');
+        if (parts.length >= 4) {
+          final id = int.tryParse(parts[1]);
+          if (id != null) {
+            // Store basename + type separated by '|'
+            _incomingFilenames[id] = '${parts[2]}|${parts[3]}';
+          }
+        }
+        return;
+      }
+      if (text.startsWith('CALL_SIG:')) {
+        meshCallService.handleRawSignal(
+          text.substring('CALL_SIG:'.length),
+          endpointId,
+        );
+        return;
+      }
       final peerName = _peers[endpointId]?.name ?? endpointId;
       final msg = MeshMessage(
         senderId: endpointId,
@@ -473,29 +507,46 @@ class MeshService {
     }
   }
 
-  /// Copy a received voice payload out of the nearby_connections plugin's
-  /// `content://` URI into app-private storage so `audioplayers` can read it.
-  /// The plugin stores FILE payloads under `Downloads/.nearby/` with a
-  /// generic name — `UrlSource('content://…')` does NOT work, only a real
-  /// filesystem path does.
-  Future<String?> _materializeVoiceFile(int payloadId, String sourceUri) async {
+  /// Materialize a received FILE payload from a `content://` URI into real
+  /// storage. For voice: app-private documents dir. For image/video: also
+  /// saved to the device gallery via `gal`.
+  Future<_MaterializedFile?> _materializeFile(
+      int payloadId, String sourceUri) async {
     try {
       final dir = await getApplicationDocumentsDirectory();
-      // Prefer the basename from the paired voice-hint bytes payload; fall
-      // back to a generic .m4a extension if the hint hasn't arrived yet.
-      final basename = _incomingFilenames.remove(payloadId);
-      final safeName = (basename != null && basename.isNotEmpty)
-          ? basename
-          : 'mesh_voice_$payloadId.m4a';
-      final dest = '${dir.path}/$safeName';
-      // copyFileAndDeleteOriginal: documented convenience on the plugin
-      // (https://pub.dev/packages/nearby_connections — "Convenience method to
-      // copy file using its uri"). It accepts the content:// URI directly.
+      final hint = _incomingFilenames.remove(payloadId) ?? '';
+
+      // hint format: "basename" (voice) or "basename|type" (media)
+      String basename;
+      MessageType msgType;
+      if (hint.contains('|')) {
+        final parts = hint.split('|');
+        basename = parts[0];
+        msgType = parts[1] == 'video' ? MessageType.video : MessageType.image;
+      } else {
+        basename = hint.isNotEmpty ? hint : 'mesh_voice_$payloadId.m4a';
+        msgType = MessageType.voice;
+      }
+
+      final dest = '${dir.path}/$basename';
       await Nearby().copyFileAndDeleteOriginal(sourceUri, dest);
-      return dest;
+
+      // Save images/videos to the device gallery automatically
+      if (msgType == MessageType.image || msgType == MessageType.video) {
+        try {
+          if (msgType == MessageType.image) {
+            await Gal.putImage(dest);
+          } else {
+            await Gal.putVideo(dest);
+          }
+        } catch (e) {
+          debugPrint('MeshService: gallery save failed (non-fatal): $e');
+        }
+      }
+
+      return _MaterializedFile(dest, msgType);
     } catch (e) {
-      debugPrint('MeshService: failed to materialize voice file: $e');
-      // Hint is consumed; if a retry comes through we'll fall back to .m4a.
+      debugPrint('MeshService: failed to materialize file: $e');
       _incomingFilenames.remove(payloadId);
       return null;
     }
@@ -509,14 +560,15 @@ class MeshService {
       // Copy the content:// URI into real storage asynchronously; emit the
       // message once the copy completes. If the copy fails we surface a
       // text-fallback so the chat bubble is never a silent dead tap.
-      _materializeVoiceFile(update.id, sourceUri).then((filePath) {
+      _materializeFile(update.id, sourceUri).then((result) {
+        if (result == null) return;
         final peerName = _peers[endpointId]?.name ?? endpointId;
         _messagesController.add(MeshMessage(
           senderId: endpointId,
           senderName: peerName,
-          text: filePath == null ? '⚠ ভয়েস ফাইল সংরক্ষণ ব্যর্থ' : '',
-          type: MessageType.voice,
-          filePath: filePath,
+          text: '',
+          type: result.type,
+          filePath: result.path,
         ));
       });
     } else if (update.status == PayloadStatus.FAILURE || update.status == PayloadStatus.CANCELED) {
@@ -690,6 +742,79 @@ class MeshService {
     });
     return sendPath;
   }
+  /// Send an image or video file to a peer over the mesh.
+  ///
+  /// Mirrors [sendVoiceMessage]: sends a FILE payload + a bytes hint
+  /// so the receiver can name it correctly and knows whether to treat
+  /// it as [MessageType.image] or [MessageType.video].
+  /// The received file is automatically saved to the device gallery.
+  Future<String?> sendMediaMessage(
+    String filePath, {
+    required MessageType type,
+    String? targetEndpointId,
+  }) async {
+    assert(type == MessageType.image || type == MessageType.video);
+    if (_peers.isEmpty) return null;
+    final basename = filePath.split('/').last;
+    final typeTag = type == MessageType.video ? 'video' : 'image';
+
+    // Persist into app-private storage so the sender's bubble can display it.
+    String? localPath;
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final dest = '${dir.path}/$basename';
+      final src = File(filePath);
+      if (await src.exists()) {
+        await src.copy(dest);
+        localPath = dest;
+      }
+    } catch (e) {
+      debugPrint('MeshService: failed to persist sender media: $e');
+      localPath = filePath;
+    }
+
+    final sendPath = localPath ?? filePath;
+    for (final peer in _peers.values) {
+      if (peer.status == PeerStatus.connected) {
+        if (targetEndpointId == null || peer.endpointId == targetEndpointId) {
+          try {
+            final filePayloadId =
+                Nearby().sendFilePayload(peer.endpointId, sendPath);
+            filePayloadId.then((payloadId) {
+              // hint: "media:<id>:<basename>:<type>"
+              final hint = utf8.encode(
+                  '$_kMediaHintPrefix$payloadId:$basename:$typeTag');
+              Nearby().sendBytesPayload(
+                peer.endpointId,
+                Uint8List.fromList(hint),
+              );
+            }).catchError((_) {});
+          } catch (e) {
+            debugPrint('MeshService: sendMediaMessage failed: $e');
+          }
+        }
+      }
+    }
+
+    final selfName = userName.startsWith(kMeshPeerPrefix)
+        ? userName.substring(kMeshPeerPrefix.length)
+        : userName;
+    _messagesController.add(MeshMessage(
+      senderId: kMeshSelfId,
+      senderName: selfName,
+      text: '',
+      type: type,
+      filePath: sendPath,
+    ));
+    return sendPath;
+  }
+}
+
+/// Result of materializing a received FILE payload.
+class _MaterializedFile {
+  final String path;
+  final MessageType type;
+  const _MaterializedFile(this.path, this.type);
 }
 
 final meshService = MeshService._(

@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 
 import '../../app/theme.dart';
 import '../../core/connectivity_provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../environment/air_quality_service.dart';
 
 /// Air-quality card for the home screen.
@@ -121,7 +122,7 @@ class _AirQualityCardState extends State<AirQualityCard> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'বায়ুর গুণমান',
+                    AppLocalizations.of(context).airQualityTitle,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -152,6 +153,7 @@ class _AirQualityCardState extends State<AirQualityCard> {
 
   Widget _buildBody(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     if (_loading) {
       return Row(
         children: [
@@ -162,7 +164,7 @@ class _AirQualityCardState extends State<AirQualityCard> {
                 strokeWidth: 2, color: cs.onSurfaceVariant),
           ),
           const SizedBox(width: 10),
-          Text('তথ্য আনা হচ্ছে…',
+          Text(l10n.fetchingData,
               style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
         ],
       );
@@ -176,7 +178,7 @@ class _AirQualityCardState extends State<AirQualityCard> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'তথ্য আনা যায়নি। আবার চেষ্টা করুন।',
+                l10n.failedToFetchTryAgain,
                 style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
               ),
             ),
@@ -207,7 +209,7 @@ class _AirQualityCardState extends State<AirQualityCard> {
               Icon(_iconForSeverity(s.severity), size: 14, color: sevColor),
               const SizedBox(width: 4),
               Text(
-                s.severity.labelBn,
+                s.severity.label(context),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,

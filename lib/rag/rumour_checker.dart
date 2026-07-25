@@ -8,6 +8,7 @@
 /// with a verified corpus can.
 library;
 
+import 'prompt_builder.dart' show kMaxHistoryTurns;
 import 'types.dart';
 
 /// Detects whether a query is a rumour-check request.
@@ -55,6 +56,7 @@ Rules:
 String buildRumourCheckPrompt({
   required String query,
   required List<RetrievalHit> hits,
+  List<ChatTurn> history = const [],
 }) {
   // Strip the rumour prefix to extract the actual claim.
   final claim = query.replaceAll(_rumourPrefix, '').trim();
@@ -69,6 +71,15 @@ String buildRumourCheckPrompt({
       ..writeln(
           hits.map((h) => '[${h.chunk.source}] ${h.chunk.text}').join('\n\n'))
       ..writeln();
+  }
+
+  // Conversation history — capped to stay within context window.
+  final capped = history.length > kMaxHistoryTurns
+      ? history.sublist(history.length - kMaxHistoryTurns)
+      : history;
+  for (final turn in capped) {
+    final role = turn.isUser ? 'User' : 'Assistant';
+    buf.writeln('$role: ${turn.text}');
   }
 
   buf

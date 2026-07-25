@@ -1,7 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/hazards/eonet_service.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 void main() {
+
   group('EonetService', () {
     test('returns null when offline', () async {
       final result = await EonetService.fetchOpenHazards(isOnline: false);
@@ -100,14 +103,19 @@ void main() {
   });
 
   group('EonetCategory', () {
-    test('labelBn returns Bangla for each category', () {
+    testWidgets('label returns localized string for each category', (tester) async {
+      late BuildContext ctx;
+      await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(builder: (context) {
+          ctx = context;
+          return const SizedBox();
+        }),
+      ));
       for (final c in EonetCategory.values) {
-        expect(c.labelBn.isNotEmpty, isTrue,
-            reason: '$c must have a non-empty Bangla label');
-        // Asserts at least one Bangla Unicode character is present.
-        final hasBangla =
-            c.labelBn.codeUnits.any((u) => u >= 0x0980 && u <= 0x09FF);
-        expect(hasBangla, isTrue, reason: '$c.labelBn must contain Bangla');
+        expect(c.label(ctx).isNotEmpty, isTrue,
+            reason: '$c must have a non-empty localized label');
       }
     });
 

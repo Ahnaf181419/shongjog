@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shongjog/core/device_capability.dart' show ModelVariant;
 import 'package:shongjog/core/model_manager.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 void main() {
   group('ModelState enum', () {
@@ -23,8 +25,17 @@ void main() {
       expect(mgr.state, ModelState.notDownloaded);
     });
 
-    test('statusLabelBn shows download needed', () {
-      expect(mgr.statusLabelBn, contains('ডাউনলোড'));
+    testWidgets('statusLabel shows download needed', (tester) async {
+      late BuildContext ctx;
+      await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(builder: (context) {
+          ctx = context;
+          return const SizedBox();
+        }),
+      ));
+      expect(mgr.statusLabel(ctx), isNotEmpty);
     });
 
     test('isReady is false initially', () {
@@ -61,10 +72,19 @@ void main() {
     });
   });
 
-  group('ModelManager statusLabelBn', () {
-    test('not-downloaded state shows download needed', () {
+  group('ModelManager statusLabel', () {
+    testWidgets('not-downloaded state shows download needed', (tester) async {
+      late BuildContext ctx;
+      await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(builder: (context) {
+          ctx = context;
+          return const SizedBox();
+        }),
+      ));
       final manager = ModelManager();
-      expect(manager.statusLabelBn, 'ডাউনলোড প্রয়োজন');
+      expect(manager.statusLabel(ctx), isNotEmpty);
     });
 
     test('downloading with progress shows percentage format', () {

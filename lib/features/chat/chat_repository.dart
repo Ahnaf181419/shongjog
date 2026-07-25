@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../knowledge/kb_loader.dart';
 import '../../rag/prompt_builder.dart';
@@ -70,8 +72,8 @@ class ChatRepository {
     // the model to verify the claim against the corpus.
     final isRumour = isRumourQuery(userQuery);
     final prompt = isRumour
-        ? buildRumourCheckPrompt(query: userQuery, hits: hits)
-        : buildPrompt(query: userQuery, hits: hits);
+        ? buildRumourCheckPrompt(query: userQuery, hits: hits, history: history)
+        : buildPrompt(query: userQuery, hits: hits, history: history);
 
     // Adaptive thinking mode — classify urgency before generation.
     // Critical emergencies get thinking OFF (reflex, max speed); complex
@@ -192,16 +194,16 @@ enum GenerationPath {
   corpus,
   canned;
 
-  String get labelBn {
+  String label(BuildContext context) {
     switch (this) {
       case GenerationPath.cloud:
-        return 'ক্লাউড';
+        return AppLocalizations.of(context).chatPathCloud;
       case GenerationPath.device:
-        return 'ডিভাইস';
+        return AppLocalizations.of(context).chatPathDevice;
       case GenerationPath.corpus:
-        return 'কোরপাস';
+        return AppLocalizations.of(context).chatPathCorpus;
       case GenerationPath.canned:
-        return '৯৯৯';
+        return AppLocalizations.of(context).chatPathCanned;
     }
   }
 }

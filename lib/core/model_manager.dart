@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 import 'package:shongjog/features/chat/local_llm.dart';
 import 'package:shongjog/rag/repetition_detector.dart';
@@ -779,21 +780,22 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
   bool get isLoading =>
       state == ModelState.loading || state == ModelState.downloading;
 
-  String get statusLabelBn {
+  String statusLabel(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     switch (state) {
       case ModelState.notDownloaded:
-        return 'ডাউনলোড প্রয়োজন';
+        return l10n.modelStatusNotDownloaded;
       case ModelState.downloading:
         final pct = downloadProgress != null
             ? '${(downloadProgress! * 100).round()}%'
             : '';
-        return 'ডাউনলোড হচ্ছে $pct';
+        return l10n.modelStatusDownloading(pct);
       case ModelState.ready:
-        return 'প্রস্তুত';
+        return l10n.modelStatusReady;
       case ModelState.loading:
-        return 'প্রস্তুত হচ্ছে...';
+        return l10n.modelStatusLoading;
       case ModelState.failed:
-        return 'ব্যর্থ';
+        return l10n.modelStatusFailed;
     }
   }
 

@@ -38,3 +38,11 @@ class RetrievalHit {
 List<Chunk> parseCorpus(String jsonString) => (jsonDecode(jsonString) as List)
     .map((e) => Chunk.fromJson(e as Map<String, dynamic>))
     .toList(growable: false);
+
+/// A single conversation turn for multi-turn prompts.
+class ChatTurn {
+  final String text;
+  final bool isUser;
+
+  const ChatTurn({required this.text, required this.isUser});
+}

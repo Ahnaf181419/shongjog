@@ -108,7 +108,17 @@ class _ChatScreenState extends State<ChatScreen> {
 
     final saved = await _store.load();
     var restored = saved.reversed
-        .map((m) => _Msg(m.text, m.isUser))
+        .map((m) {
+          GenerationPath? genPath;
+          if (m.path != null) {
+            try {
+              genPath = GenerationPath.values.firstWhere(
+                (e) => e.name == m.path,
+              );
+            } catch (_) {}
+          }
+          return _Msg(m.text, m.isUser, path: genPath);
+        })
         .toList();
 
     // First-run demo pack: if no chat history exists AND we haven't
@@ -255,7 +265,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _persist() {
     final storeMsgs = _messages.reversed
-        .map((m) => ChatMessage(text: m.text, isUser: m.isUser))
+        .map((m) => ChatMessage(
+              text: m.text,
+              isUser: m.isUser,
+              path: m.path?.name,
+            ))
         .toList();
     _store.save(storeMsgs);
   }

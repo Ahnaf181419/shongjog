@@ -9,23 +9,27 @@ class ChatMessage {
   final String text;
   final bool isUser;
   final DateTime timestamp;
+  final String? path;
 
   ChatMessage({
     required this.text,
     required this.isUser,
     DateTime? timestamp,
+    this.path,
   }) : timestamp = timestamp ?? DateTime.now();
 
   Map<String, dynamic> toJson() => {
         'text': text,
         'isUser': isUser,
         'ts': timestamp.toIso8601String(),
+        if (path != null) 'path': path,
       };
 
   factory ChatMessage.fromJson(Map<String, dynamic> j) => ChatMessage(
         text: j['text'] as String,
         isUser: j['isUser'] as bool,
         timestamp: DateTime.tryParse(j['ts'] as String? ?? '') ?? DateTime.now(),
+        path: j['path'] as String?,
       );
 }
 

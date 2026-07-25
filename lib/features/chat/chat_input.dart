@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../app/theme.dart';
 import '../../core/haptics.dart';
@@ -99,8 +100,9 @@ class ChatInputState extends State<ChatInput>
 
   void _handleMic() {
     if (!widget.voiceInputEnabled) {
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('সেটিংসে ভয়েস ইনপুট চালু করুন')),
+        SnackBar(content: Text(l10n.chatVoiceInputDisabled)),
       );
       return;
     }
@@ -112,6 +114,7 @@ class ChatInputState extends State<ChatInput>
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final isDark = cs.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context);
     // Listening-state color must adapt: `alert` (red-600) reads OK on
     // light, but on dark scaffold a brighter tone (red-400) keeps the
     // FAB and its glow visible. Both guaranteed ≥AAA on the surrounding
@@ -120,8 +123,8 @@ class ChatInputState extends State<ChatInput>
         ? (isDark ? ShongjogTheme.alertBright : ShongjogTheme.alert)
         : cs.primary;
     final micLabel = widget.isListening
-        ? 'শুনছি, থামাতে আবার চাপুন'
-        : 'প্রশ্ন বলুন';
+        ? l10n.chatListening
+        : l10n.chatEmptyPrompt;
 
     return SafeArea(
       child: Padding(
@@ -190,8 +193,8 @@ class ChatInputState extends State<ChatInput>
                       fontSize: ShongjogTheme.bodyFloor,
                       height: 1.4,
                     ),
-                    decoration: const InputDecoration(
-                      hintText: 'আপনার প্রশ্ন লিখুন...',
+                    decoration: InputDecoration(
+                      hintText: l10n.chatEmptyPrompt,
                       contentPadding:
                           EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     ),
@@ -219,7 +222,7 @@ class ChatInputState extends State<ChatInput>
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                child: const Text('পাঠান'),
+                child: Text(l10n.chatSend),
               ),
             ),
           ],

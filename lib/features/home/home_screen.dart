@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/main_shell.dart';
 import '../../l10n/app_localizations.dart';
@@ -12,8 +11,6 @@ import '../../core/device_capability.dart';
 import '../../core/haptics.dart';
 import '../../core/model_manager.dart';
 import '../../main.dart';
-import '../intelligence/intelligence_engine.dart';
-import '../intelligence/notification_service.dart';
 import '../profile/profile_screen.dart';
 import '../quick_cards/cards_data.dart';
 import '../weather/weather_card.dart';
@@ -66,11 +63,12 @@ class HomeScreen extends StatelessWidget {
                 //   Optional network feature — degrades to a tap-to-load affordance.
                 const WeatherCard(),
                 const SizedBox(height: 8),
+                const LiveHazardsCard(),
+                const SizedBox(height: 8),
                 const AirQualityCard(),
                 const SizedBox(height: 8),
                 const MarineCard(),
-                const SizedBox(height: 16),
-
+                const SizedBox(height: 8),
                 // ── 2 emergency tiles (cards / shelter). The 999 entry point
                 //   lives in the AppBar pill — always reachable while scrolling.
                 _EmergencyTriad(),
@@ -658,6 +656,19 @@ class _TipCard extends StatelessWidget {
     'অগ্নিকাণ্ডে ধোঁয়া থেকে বাঁচতে মাটি পর্যন্ত নিচু হয়ে যান। ধোঁয়া ঘুরি উপরে ওঠে।',
     'গ্রীষ্মে প্রতি ৩০ মিনিটে পানি পান করুন। তাপঘূর্ণণ থেকে বাঁচতে হালকা রঙের কাপড় পরুন।',
     'ডায়রিয়ায় ORS ঘরে তৈরি করুন: ১ লিটার ফুটিয়ে ঠান্ডা পানিতে ১ চা চামচ চিনি + আধা চা চামচ লবণ মিশান।',
+    'সাপে কামড়ালে কামড়ানো জায়গাটি হৃদয়ের নিচে রাখুন। কাঁচি বা ছুরি দিয়ে কাটবেন না।',
+    'বন্যায় পানিতে নামার আগে বৈদ্যুতিক সরঞ্জাম বিচ্ছিন্ন করুন। গ্যাস সিলিন্ডার ও লাইটার দূরে সরিয়ে রাখুন।',
+    'মাঠে বা খোলা জায়গায় ভূমিকম্প অনুভব হলে দাঁড়িয়ে থাকুন, গাছের পাশে যাবেন না।',
+    'ঘরের ভেতরে আগুন লাগলে তালিকাবদ্ধভাবে বাইরে যান। ধোঁয়া বেশি হলে ভেজা কাপড় মুখে রেখে যান।',
+    'গরমে শিশুদের হাটুড়ে গরম লাগতে পারে। সবার আগে তাদের পানি খাইয়ে ছায়ায় বসান।',
+    'তীব্র ঝড়ে বাড়ির বাইরে থাকলে নিচু জায়গায় মাটিতে শুয়ে পড়ুন। গাছের পাশে দাঁড়াবেন না।',
+    'প্রতি পরিবারে অন্তত ৩ দিনের খাবার পানি ও শুকনো খাদ্য মজুত রাখুন। ফ্লাশ করার জল আলাদায় রাখুন।',
+    'বাড়িতে প্রাথমিক চিকিৎসা বাক্স রাখুন: ব্যান্ডেজ, অ্যান্টিসেপটিক, প্যারাসিটামল, ORS প্যাকেট।',
+    'বন্যার পর পুকুরের পানি ব্যবহার করবেন না। ফুটিয়ে বা ক্লোরিন পাউডার দিয়ে শুদ্ধ করুন।',
+    'ভূমিকম্পের পর ভবনের ক্ষতিগ্রস্ত অংশ পরীক্ষা করার আগে ভেতরে ঢুকবেন না।',
+    'জ্বর হলে গায়ে ভেজা কাপড় দিন এবং প্রচুর পানি পান করুন। ৪০° সেলসিয়াস বেশি হলে হাসপাতালে যান।',
+    'সামুদ্রিক ঝড়ের সময় সমুদ্র থেকে দূরে থাকুন। ঢেউয়ের চেহারা স্বাভাবিক না হলে তাৎক্ষণিক উঁচু জায়গায় যান।',
+    'বিদ্যুৎ বিপদে হাত ভেজা অবস্থায় সুইচে স্পর্শ করবেন না। রাবারের জুতা পরে থাকুন।',
   ];
 
   @override
@@ -896,134 +907,6 @@ class _OfflineMessageTile extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _InsightsList extends StatefulWidget {
-  const _InsightsList();
-
-  @override
-  State<_InsightsList> createState() => _InsightsListState();
-}
-
-class _InsightsListState extends State<_InsightsList> {
-  /// Insight cards read local chat history — like auto-read TTS, unsolicited
-  /// behavior stays behind a pref. Default is on; Settings exposes a toggle.
-  bool _enabled = true;
-
-  @override
-  void initState() {
-    super.initState();
-    intelligenceEngine.addListener(_onChange);
-    _loadPrefAndAnalyze();
-  }
-
-  Future<void> _loadPrefAndAnalyze() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final enabled = prefs.getBool('pref_show_insights') ?? true;
-      if (mounted && enabled != _enabled) setState(() => _enabled = enabled);
-      if (!enabled) return;
-    } catch (_) {
-      // Prefs unavailable (tests) — keep the default.
-    }
-    intelligenceEngine.analyzeBehavior();
-  }
-
-  @override
-  void dispose() {
-    intelligenceEngine.removeListener(_onChange);
-    super.dispose();
-  }
-
-  void _onChange() {
-    if (mounted) setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (!_enabled) return const SizedBox.shrink();
-    final insights = NotificationService.generateInsights(intelligenceEngine.profile);
-    if (insights.isEmpty) return const SizedBox.shrink();
-
-    // Just show the top 2 insights to avoid clutter
-    final displayInsights = insights.take(2).toList();
-
-    return Column(
-      children: displayInsights.map((insight) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: _InsightCard(insight: insight),
-      )).toList(),
-    );
-  }
-}
-
-class _InsightCard extends StatelessWidget {
-  final ProactiveInsight insight;
-  const _InsightCard({required this.insight});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: cs.primary.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(ShongjogTheme.radius),
-        border: Border.all(
-          color: cs.primary.withValues(alpha: 0.14),
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: cs.primary.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(Icons.lightbulb_rounded,
-                color: cs.primary, size: 22),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  insight.title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: cs.primary,
-                    height: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  insight.message,
-                  style: TextStyle(
-                    fontSize: ShongjogTheme.bodyFloor,
-                    height: 1.5,
-                    color: cs.onSurface,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (insight.route != '/')
-            IconButton(
-              icon: Icon(Icons.arrow_forward_ios_rounded, size: 16, color: cs.primary),
-              onPressed: () {
-                if (insight.route == '/shelter') MainShellRoute.goTo(context, 3);
-                if (insight.route == '/cards') MainShellRoute.goTo(context, 2);
-              },
-            ),
-        ],
       ),
     );
   }

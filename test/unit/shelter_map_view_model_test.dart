@@ -38,6 +38,7 @@ void main() {
         repository: repo,
         resolvePosition: resolveGeoStub,
         routeService: _FakeRouteService(),
+        checkPermission: () async => LocationPermission.always,
       );
       addTearDown(vm.dispose);
 
@@ -57,6 +58,7 @@ void main() {
         repository: _FakeRepo([sampleA]),
         resolvePosition: resolveGeoStub,
         routeService: _FakeRouteService(handler: (_, _) => route),
+        checkPermission: () async => LocationPermission.always,
       )..isOnline = true;
       addTearDown(vm.dispose);
       await vm.init();
@@ -76,6 +78,7 @@ void main() {
         final vm = ShelterMapViewModel(
           repository: _FakeRepo([sampleA]),
           resolvePosition: resolveGeoStub,
+          checkPermission: () async => LocationPermission.always,
           routeService: _FakeRouteService(
             handler: (_, _) async {
               networkCalled = true;
@@ -106,6 +109,7 @@ void main() {
         final vm = ShelterMapViewModel(
           repository: _FakeRepo([sampleA]),
           resolvePosition: resolveGeoStub,
+          checkPermission: () async => LocationPermission.always,
           routeService: _FakeRouteService(handler: (_, _) => null),
         )..isOnline = true;
         addTearDown(vm.dispose);
@@ -151,6 +155,7 @@ void main() {
         final vm = ShelterMapViewModel(
           repository: _FakeRepo([sampleA, sampleB]),
           resolvePosition: resolveGeoStub,
+          checkPermission: () async => LocationPermission.always,
           routeService: delayedRouteService,
         )..isOnline = true;
         addTearDown(vm.dispose);
@@ -178,6 +183,7 @@ void main() {
       final vm = ShelterMapViewModel(
         repository: _FakeRepo([sampleA]),
         resolvePosition: resolveGeoStub,
+        checkPermission: () async => LocationPermission.always,
         routeService: _FakeRouteService(handler: (_, _) => route),
       )..isOnline = true;
       addTearDown(vm.dispose);
@@ -199,6 +205,7 @@ void main() {
       final vm = ShelterMapViewModel(
         repository: _FakeRepo([sampleA, sampleB]),
         resolvePosition: resolveGeoStub,
+        checkPermission: () async => LocationPermission.always,
         routeService: _FakeRouteService(),
       )..isOnline = true;
       addTearDown(vm.dispose);
@@ -222,6 +229,7 @@ void main() {
         final vm = ShelterMapViewModel(
           repository: _FakeRepo([sampleA, sampleB]),
           resolvePosition: resolveGeoStub,
+          checkPermission: () async => LocationPermission.always,
           routeService: _FakeRouteService(handler: (_, _) => route),
         )..isOnline = true;
         addTearDown(vm.dispose);
@@ -254,6 +262,7 @@ void main() {
         final vm = ShelterMapViewModel(
           repository: _FakeRepo([sampleA]),
           resolvePosition: resolveGeoStub,
+          checkPermission: () async => LocationPermission.always,
           routeService: delayedRouteService,
         )..isOnline = true;
         await vm.init();
@@ -277,6 +286,7 @@ void main() {
         final vm = ShelterMapViewModel(
           repository: _FakeRepo([sampleA]),
           resolvePosition: resolveGeoStub,
+          checkPermission: () async => LocationPermission.always,
           routeService: _FakeRouteService(handler: (_, _) async {
             await Future<void>.delayed(const Duration(milliseconds: 10));
             return route;

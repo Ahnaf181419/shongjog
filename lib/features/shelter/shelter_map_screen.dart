@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../app/theme.dart';
 import '../admin/campaign_request.dart';
@@ -104,18 +105,19 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('নিকটস্থ আশ্রয়কেন্দ্র'),
+        title: Text(l10n.shelterTitle),
         actions: [
           IconButton(
-            tooltip: 'আশ্রয় খুঁজুন',
+            tooltip: l10n.shelterSearchTooltip,
             icon: Icon(_vm.showSearchPanel ? Icons.close : Icons.search),
             onPressed: _vm.toggleSearchPanel,
           ),
           if (_vm.selectedShelter != null)
             IconButton(
-              tooltip: 'রুট মুছুন',
+              tooltip: l10n.shelterClearRoute,
               icon: const Icon(Icons.alt_route),
               onPressed: _vm.clearRoute,
             ),
@@ -150,10 +152,10 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                                           ShelterConstants.bannerFgAlpha),
                               size: 16),
                           const SizedBox(width: 6),
-                          const Expanded(
+                          Expanded(
                             child: Text(
-                              'অফলাইন — ক্যাশ টাইলস দেখাচ্ছে',
-                              style: TextStyle(fontSize: 13),
+                              l10n.shelterOfflineBanner,
+                              style: const TextStyle(fontSize: 13),
                             ),
                           ),
                         ],
@@ -164,16 +166,16 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                   const Spacer(),
                 const SizedBox(width: 8),
                 SegmentedButton<bool>(
-                  segments: const [
+                  segments: [
                     ButtonSegment(
                       value: true,
-                      label: Text('মানচিত্র'),
-                      icon: Icon(Icons.map_outlined, size: 18),
+                      label: Text(l10n.shelterMapView),
+                      icon: const Icon(Icons.map_outlined, size: 18),
                     ),
                     ButtonSegment(
                       value: false,
-                      label: Text('তালিকা'),
-                      icon: Icon(Icons.list_rounded, size: 18),
+                      label: Text(l10n.shelterListView),
+                      icon: const Icon(Icons.list_rounded, size: 18),
                     ),
                   ],
                   selected: {_showMap},
@@ -225,6 +227,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
   bool _showMap = true;
 
   Widget _buildMap(List<Shelter> shelters, List<RankedShelter>? ranked) {
+    final l10n = AppLocalizations.of(context);
     return Stack(
       children: [
         FlutterMap(
@@ -318,7 +321,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
             children: [
               _MapZoomButton(
                 icon: Icons.add_rounded,
-                tooltip: 'জুম ইন',
+                tooltip: l10n.shelterZoomIn,
                 onTap: () {
                   final newZoom = (_currentZoom + 1).clamp(1.0, 18.0);
                   setState(() => _currentZoom = newZoom);
@@ -328,7 +331,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
               const SizedBox(height: 4),
               _MapZoomButton(
                 icon: Icons.remove_rounded,
-                tooltip: 'জুম আউট',
+                tooltip: l10n.shelterZoomOut,
                 onTap: () {
                   final newZoom = (_currentZoom - 1).clamp(1.0, 18.0);
                   setState(() => _currentZoom = newZoom);
@@ -383,6 +386,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
   }
 
   void _showShelterSheet(Shelter s) {
+    final l10n = AppLocalizations.of(context);
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -425,10 +429,10 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                             Theme.of(context).colorScheme.onSurfaceVariant)),
               const SizedBox(height: 16),
               if (km != null)
-                _row('দূরত্ব', '${km.toStringAsFixed(1)} কিমি'),
+                _row(l10n.shelterDistLabel, '${km.toStringAsFixed(1)} ${l10n.shelterKm}'),
               if (s.capacity != null)
-                _row('ধারণক্ষমতা', '${s.capacity} জন'),
-              _row('উৎস', s.source),
+                _row(l10n.shelterCapacityLabel, '${s.capacity} ${l10n.shelterPeopleUnit}'),
+              _row(l10n.shelterSource, s.source),
               _row('GPS',
                   '${s.lat.toStringAsFixed(4)}, ${s.lon.toStringAsFixed(4)}'),
             ],
@@ -439,6 +443,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
   }
 
   void _showCampaignSheet(CampaignRequest c) {
+    final l10n = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
     showModalBottomSheet(
       context: context,
@@ -474,7 +479,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        c.type.labelBn,
+                        c.type.label(context),
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 2),
@@ -486,7 +491,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          'অনুমোদিত',
+                          l10n.shelterApproved,
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -500,12 +505,12 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
               ],
             ),
             const SizedBox(height: 16),
-            _row('ঠিকানা', c.address),
-            if (c.landmark.isNotEmpty) _row('ল্যান্ডমার্ক', c.landmark),
+            _row(l10n.shelterAddress, c.address),
+            if (c.landmark.isNotEmpty) _row(l10n.shelterLandmark, c.landmark),
             _row('GPS', '${c.latitude.toStringAsFixed(4)}, ${c.longitude.toStringAsFixed(4)}'),
             if (c.description.isNotEmpty) ...[
               const SizedBox(height: 8),
-              Text('বিবরণ',
+              Text(l10n.shelterDesc,
                   style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,

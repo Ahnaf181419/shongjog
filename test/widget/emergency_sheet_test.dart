@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/emergency/emergency_sheet.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 void main() {
   Widget wrapEmergency() {
-    return const MaterialApp(
-      home: EmergencySheet(),
+    return MaterialApp(
+      locale: const Locale('bn'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: const EmergencySheet(),
     );
   }
 

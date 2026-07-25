@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../../app/theme.dart';
 import '../nearest_shelter.dart';
@@ -71,6 +72,7 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Material(
       color: Theme.of(context).scaffoldBackgroundColor,
       child: SafeArea(
@@ -82,7 +84,7 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
                 controller: _ctrl,
                 autofocus: true,
                 decoration: InputDecoration(
-                  hintText: 'আশ্রয়কেন্দ্র খুঁজুন...',
+                  hintText: l10n.shelterSearchHint,
                   prefixIcon: const Icon(Icons.search),
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.close),
@@ -93,8 +95,8 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
             ),
             Expanded(
               child: _displayed.isEmpty
-                  ? const Center(
-                      child: Text('কোনো আশ্রয়কেন্দ্র পাওয়া যায়নি'))
+                  ? Center(
+                      child: Text(l10n.shelterSearchEmpty))
                   : ListView.separated(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 4),
@@ -121,8 +123,8 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
                               style: const TextStyle(
                                   fontWeight: FontWeight.w500)),
                           subtitle: Text(
-                            '${r.km.toStringAsFixed(1)} কিমি'
-                            '${s.capacity != null ? '  •  ${s.capacity} জন' : ''}'
+                            '${r.km.toStringAsFixed(1)} ${l10n.shelterKm}'
+                            '${s.capacity != null ? '  •  ${s.capacity} ${l10n.shelterPeopleUnit}' : ''}'
                             '  •  ${s.source}',
                             style: const TextStyle(fontSize: 13),
                           ),

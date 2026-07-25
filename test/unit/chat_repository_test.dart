@@ -15,11 +15,13 @@ class _FakeLlm implements LocalLlm {
     this.onDisk = false,
     this.generateResult,
     this.generateError,
+    this.onGenerate,
   });
   final bool ready;
   final bool onDisk;
   final String? generateResult;
   final Object? generateError;
+  final void Function(String prompt)? onGenerate;
 
   @override
   bool get isReady => ready;
@@ -32,6 +34,7 @@ class _FakeLlm implements LocalLlm {
 
   @override
   Future<String> generate(String prompt) async {
+    onGenerate?.call(prompt);
     if (generateError != null) throw generateError!;
     return generateResult ?? 'fake-answer';
   }
@@ -222,6 +225,31 @@ void main() {
       final answer = await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
       expect(answer, 'ORS বানাতে ১ লিটার পানি নিন।');
       expect(paths, [GenerationPath.device]);
+    });
+  });
+
+  group('ChatRepository history passthrough', () {
+    test('history is included in the prompt sent to the local model', () async {
+      String? capturedPrompt;
+      final repo = ChatRepository(
+        kb: testKb,
+        model: _FakeLlm(
+          ready: true,
+          onDisk: true,
+          generateResult: 'answer',
+          onGenerate: (prompt) => capturedPrompt = prompt,
+        ),
+      );
+      await repo.ask(
+        'আবার বলো',
+        history: const [
+          ChatTurn(text: 'তোমার নাম কি', isUser: true),
+          ChatTurn(text: 'শঞ্জোগ', isUser: false),
+        ],
+      );
+      expect(capturedPrompt, contains('User: তোমার নাম কি'));
+      expect(capturedPrompt, contains('Assistant: শঞ্জোগ'));
+      expect(capturedPrompt, contains('User: আবার বলো'));
     });
   });
 }

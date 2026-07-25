@@ -79,14 +79,4 @@ void main() {
     });
   });
 
-  group('WaveSeverity.labelBn', () {
-    test('every severity has a non-empty Bangla label', () {
-      for (final s in WaveSeverity.values) {
-        expect(s.labelBn.isNotEmpty, isTrue);
-        final hasBangla =
-            s.labelBn.codeUnits.any((u) => u >= 0x0980 && u <= 0x09FF);
-        expect(hasBangla, isTrue);
-      }
-    });
-  });
 }

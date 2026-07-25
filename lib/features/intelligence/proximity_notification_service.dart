@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../admin/campaign_request.dart';
@@ -12,6 +13,7 @@ class ProximityNotificationService {
   /// Checks if the user's current position is near any approved campaigns.
   /// Returns a list of proximity insights for campaigns within the radius.
   static Future<List<ProactiveInsight>> checkProximity({
+    required BuildContext context,
     required Position userPosition,
     required List<CampaignRequest> approvedCampaigns,
     double radiusKm = _defaultProximityRadiusKm,
@@ -28,9 +30,9 @@ class ProximityNotificationService {
 
       if (distance <= radiusKm) {
         insights.add(ProactiveInsight(
-          title: 'নিকটস্থ ${campaign.type.labelBn}',
+          title: 'নিকটস্থ ${campaign.type.label(context)}',
           message:
-              '${campaign.type.labelBn} চলছে: ${campaign.address} (${distance.toStringAsFixed(1)} কিমি দূরত্বে)',
+              '${campaign.type.label(context)} চলছে: ${campaign.address} (${distance.toStringAsFixed(1)} কিমি দূরত্বে)',
           route: '/shelter',
         ));
       }

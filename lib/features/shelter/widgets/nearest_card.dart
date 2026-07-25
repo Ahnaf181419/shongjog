@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../nearest_shelter.dart';
 
@@ -17,6 +18,7 @@ class NearestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Material(
       elevation: 8,
       borderRadius: BorderRadius.circular(16),
@@ -30,7 +32,7 @@ class NearestCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('নিকটতম ৩টি',
+            Text(l10n.shelterNearest3,
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -61,6 +63,7 @@ class _ShelterRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final nameBn = shelter.nameBn as String;
     final name = shelter.name as String;
     final shown = nameBn.isNotEmpty ? nameBn : name;
@@ -84,7 +87,7 @@ class _ShelterRow extends StatelessWidget {
               ),
             ),
             Text(
-              '${km.toStringAsFixed(1)} কিমি',
+              '${km.toStringAsFixed(1)} ${l10n.shelterKm}',
               style: TextStyle(
                   fontSize: 13,
                   color: Theme.of(context).colorScheme.onSurfaceVariant),
