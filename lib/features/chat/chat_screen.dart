@@ -575,6 +575,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _emptyState() {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -611,10 +612,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 runSpacing: 8,
                 alignment: WrapAlignment.center,
                 children: [
-                  _suggestion('ORS কীভাবে বানাবো?'),
-                  _suggestion('নিকটস্থ আশ্রয়কেন্দ্র'),
-                  _suggestion('সাপে কামড়ালে কী করবো?'),
-                  _suggestion('গুজব: সাপে কামড়ালে কেটে ফেলা ঠিক?'),
+                  _suggestion(l10n.chatSuggestionOrs),
+                  _suggestion(l10n.chatSuggestionShelter),
+                  _suggestion(l10n.chatSuggestionSnakebite),
+                  _suggestion(l10n.chatSuggestionRumorSnakebite),
                 ],
               ),
               const SizedBox(height: 20),
