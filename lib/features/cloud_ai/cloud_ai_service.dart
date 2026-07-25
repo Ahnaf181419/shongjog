@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 import '../../core/connectivity_provider.dart';
 import '../../rag/prompt_builder.dart';
+import '../../rag/types.dart';
 
 /// Cloud AI service with multi-model routing.
 ///
@@ -150,14 +151,6 @@ class CloudAiService {
     final errStr = e.toString().toLowerCase();
     return errStr.contains('429') || errStr.contains('resource exhausted');
   }
-}
-
-/// A single conversation turn for history.
-class ChatTurn {
-  final String text;
-  final bool isUser;
-
-  const ChatTurn({required this.text, required this.isUser});
 }
 
 class CloudAiUnavailableException implements Exception {

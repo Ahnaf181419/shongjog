@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
+
 /// NASA EONET client — live natural hazards near Bangladesh.
 ///
 /// EONET (Earth Observatory Natural Event Tracker) is a NASA open API
@@ -209,18 +212,18 @@ enum EonetCategory {
         EonetCategory.other => 'other',
       };
 
-  /// Bangla label.
-  String get labelBn => switch (this) {
-        EonetCategory.severeStorms => 'ঘূর্ণিঝড়',
-        EonetCategory.floods => 'বন্যা',
-        EonetCategory.earthquakes => 'ভূমিকম্প',
-        EonetCategory.wildfires => 'দাবানল',
-        EonetCategory.volcanoes => 'আগ্নেয়গিরি',
-        EonetCategory.landslides => 'ভূমিধস',
-        EonetCategory.extremeTemperatures => 'তীব্র তাপ',
-        EonetCategory.drought => 'খরা',
-        EonetCategory.seaLakeIce => 'সমুদ্রের বরফ',
-        EonetCategory.manmade => 'মানবসৃষ্ট',
-        EonetCategory.other => 'অন্যান্য',
+  /// Localized label.
+  String label(BuildContext context) => switch (this) {
+        EonetCategory.severeStorms => AppLocalizations.of(context).hazardCyclone,
+        EonetCategory.floods => AppLocalizations.of(context).hazardFlood,
+        EonetCategory.earthquakes => AppLocalizations.of(context).hazardEarthquake,
+        EonetCategory.wildfires => AppLocalizations.of(context).hazardWildfire,
+        EonetCategory.volcanoes => AppLocalizations.of(context).hazardVolcano,
+        EonetCategory.landslides => AppLocalizations.of(context).hazardLandslide,
+        EonetCategory.extremeTemperatures => AppLocalizations.of(context).hazardExtremeHeat,
+        EonetCategory.drought => AppLocalizations.of(context).hazardDrought,
+        EonetCategory.seaLakeIce => AppLocalizations.of(context).hazardSeaIce,
+        EonetCategory.manmade => AppLocalizations.of(context).hazardManmade,
+        EonetCategory.other => AppLocalizations.of(context).hazardOther,
       };
 }

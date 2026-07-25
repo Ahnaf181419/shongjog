@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:shongjog/features/shelter/shelter_model.dart';
 import 'package:shongjog/features/shelter/widgets/shelter_route_info_card.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 const _shelter = Shelter(
   name: 'Khulna Shelter A',
@@ -18,6 +19,9 @@ void main() {
     testWidgets('shows the Bangla shelter name + capacity in the header',
         (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('bn'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: ShelterRouteInfoCard(
             selected: _shelter,
@@ -40,6 +44,9 @@ void main() {
       // "14.2" (banker's-rounding) in Dart, which is fragile against
       // future Dart changes.
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('bn'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: ShelterRouteInfoCard(
             selected: _shelter,
@@ -56,6 +63,9 @@ void main() {
 
     testWidgets('shows "—" placeholder when distance is null', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('bn'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: ShelterRouteInfoCard(
             selected: _shelter,
@@ -73,6 +83,9 @@ void main() {
     testWidgets('shows "রুট খুঁজছি…" + a CircularProgressIndicator when loading',
         (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('bn'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: ShelterRouteInfoCard(
             selected: _shelter,
@@ -95,6 +108,9 @@ void main() {
       var cancelCount = 0;
       var detailsCount = 0;
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('bn'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: ShelterRouteInfoCard(
             selected: _shelter,

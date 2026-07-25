@@ -1,28 +1,38 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 enum CampaignType {
-  foodDonation('খাদ্য দান'),
-  rescueOperation('উদ্ধার আপারেশন'),
-  medicalCamp('চিকিৎসা শিবির'),
-  shelterSupport('আশ্রয় সহায়তা'),
-  clothingDonation('পোশাক দান'),
-  waterSupply('পানি সরবরাহ');
+  foodDonation,
+  rescueOperation,
+  medicalCamp,
+  shelterSupport,
+  clothingDonation,
+  waterSupply;
 
-  final String labelBn;
-  const CampaignType(this.labelBn);
+  String label(BuildContext context) => switch (this) {
+    CampaignType.foodDonation => AppLocalizations.of(context).campaignTypeFoodDonation,
+    CampaignType.rescueOperation => AppLocalizations.of(context).campaignTypeRescue,
+    CampaignType.medicalCamp => AppLocalizations.of(context).campaignTypeMedical,
+    CampaignType.shelterSupport => AppLocalizations.of(context).campaignTypeShelter,
+    CampaignType.clothingDonation => AppLocalizations.of(context).campaignTypeClothing,
+    CampaignType.waterSupply => AppLocalizations.of(context).campaignTypeWater,
+  };
 }
 
 enum CampaignStatus {
-  pending('অপেক্ষমান'),
-  approved('অনুমোদিত'),
-  rejected('প্রত্যাখ্যাত');
+  pending,
+  approved,
+  rejected;
 
-  final String labelBn;
-  const CampaignStatus(this.labelBn);
+  String label(BuildContext context) => switch (this) {
+    CampaignStatus.pending => AppLocalizations.of(context).campaignStatusPending,
+    CampaignStatus.approved => AppLocalizations.of(context).campaignStatusApproved,
+    CampaignStatus.rejected => AppLocalizations.of(context).campaignStatusRejected,
+  };
 }
 
 class CampaignRequest {

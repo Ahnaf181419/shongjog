@@ -106,7 +106,16 @@ String buildUserMessage({
 /// `ModelManager.generate`. The `User:` / `Assistant:` literals
 /// inside the body are decoration only; if the SDK exposes a
 /// future flag to control them, we'll switch then.
-String buildPrompt({required String query, required List<RetrievalHit> hits}) {
+/// Maximum prior turns to include in the on-device prompt.
+/// The context window is 1024 tokens; persona + rules + context + 4 turns
+/// stays well within budget for short Bangla exchanges.
+const int kMaxHistoryTurns = 4;
+
+String buildPrompt({
+  required String query,
+  required List<RetrievalHit> hits,
+  List<ChatTurn> history = const [],
+}) {
   final buf = StringBuffer()
     ..writeln(_kPersona)
     ..writeln(_kRules)
@@ -119,6 +128,15 @@ String buildPrompt({required String query, required List<RetrievalHit> hits}) {
       ..writeln('=== Verified context (cite the source in your answer) ===')
       ..writeln(hits.map((h) => '[Source: ${h.chunk.source}] ${h.chunk.text}').join('\n\n'))
       ..writeln();
+  }
+
+  // Conversation history — capped to stay within context window.
+  final capped = history.length > kMaxHistoryTurns
+      ? history.sublist(history.length - kMaxHistoryTurns)
+      : history;
+  for (final turn in capped) {
+    final role = turn.isUser ? 'User' : 'Assistant';
+    buf.writeln('$role: ${turn.text}');
   }
 
   buf

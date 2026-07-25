@@ -1,0 +1,1574 @@
+﻿00:00 +0: loading D:/Gemma - 4 Hackathon/shongjog/test/unit/admin_broadcast_service_test.dart
+00:00 +0: D:/Gemma - 4 Hackathon/shongjog/test/unit/admin_broadcast_service_test.dart: AdminMessage toJson serializes all fields
+[Catch] admin_broadcast: Binding has not yet been initialized.
+The "instance" getter on the ServicesBinding binding mixin is only available once that binding has been initialized.
+Typically, this is done by calling "WidgetsFlutterBinding.ensureInitialized()" or "runApp()" (the latter calls the former). Typically this call is done in the "void main()" method. The "ensureInitialized" method is idempotent; calling it multiple times is not harmful. After calling that method, the "instance" getter will return the binding.
+In a test, one can call "TestWidgetsFlutterBinding.ensureInitialized()" as the first line in the test's "main()" method to initialize the binding.
+If ServicesBinding is a custom binding mixin, there must also be a custom binding class, like WidgetsFlutterBinding, but that mixes in the selected binding, and that is the class that must be constructed before using the "instance" getter.
+00:00 +1: D:/Gemma - 4 Hackathon/shongjog/test/unit/admin_broadcast_service_test.dart: AdminMessage fromJson deserializes correctly
+[Catch] admin_broadcast: Binding has not yet been initialized.
+The "instance" getter on the ServicesBinding binding mixin is only available once that binding has been initialized.
+Typically, this is done by calling "WidgetsFlutterBinding.ensureInitialized()" or "runApp()" (the latter calls the former). Typically this call is done in the "void main()" method. The "ensureInitialized" method is idempotent; calling it multiple times is not harmful. After calling that method, the "instance" getter will return the binding.
+In a test, one can call "TestWidgetsFlutterBinding.ensureInitialized()" as the first line in the test's "main()" method to initialize the binding.
+If ServicesBinding is a custom binding mixin, there must also be a custom binding class, like WidgetsFlutterBinding, but that mixes in the selected binding, and that is the class that must be constructed before using the "instance" getter.
+00:00 +2: D:/Gemma - 4 Hackathon/shongjog/test/unit/admin_broadcast_service_test.dart: AdminMessage fromJson handles missing fields gracefully
+[Catch] admin_broadcast: Binding has not yet been initialized.
+The "instance" getter on the ServicesBinding binding mixin is only available once that binding has been initialized.
+Typically, this is done by calling "WidgetsFlutterBinding.ensureInitialized()" or "runApp()" (the latter calls the former). Typically this call is done in the "void main()" method. The "ensureInitialized" method is idempotent; calling it multiple times is not harmful. After calling that method, the "instance" getter will return the binding.
+In a test, one can call "TestWidgetsFlutterBinding.ensureInitialized()" as the first line in the test's "main()" method to initialize the binding.
+If ServicesBinding is a custom binding mixin, there must also be a custom binding class, like WidgetsFlutterBinding, but that mixes in the selected binding, and that is the class that must be constructed before using the "instance" getter.
+00:00 +3: D:/Gemma - 4 Hackathon/shongjog/test/unit/admin_broadcast_service_test.dart: AdminMessage toJson/fromJson round trip preserves data
+[Catch] admin_broadcast: Binding has not yet been initialized.
+The "instance" getter on the ServicesBinding binding mixin is only available once that binding has been initialized.
+Typically, this is done by calling "WidgetsFlutterBinding.ensureInitialized()" or "runApp()" (the latter calls the former). Typically this call is done in the "void main()" method. The "ensureInitialized" method is idempotent; calling it multiple times is not harmful. After calling that method, the "instance" getter will return the binding.
+In a test, one can call "TestWidgetsFlutterBinding.ensureInitialized()" as the first line in the test's "main()" method to initialize the binding.
+If ServicesBinding is a custom binding mixin, there must also be a custom binding class, like WidgetsFlutterBinding, but that mixes in the selected binding, and that is the class that must be constructed before using the "instance" getter.
+00:00 +4: D:/Gemma - 4 Hackathon/shongjog/test/unit/admin_broadcast_service_test.dart: AdminBroadcastService starts with no messages
+[Catch] admin_broadcast: Binding has not yet been initialized.
+The "instance" getter on the ServicesBinding binding mixin is only available once that binding has been initialized.
+Typically, this is done by calling "WidgetsFlutterBinding.ensureInitialized()" or "runApp()" (the latter calls the former). Typically this call is done in the "void main()" method. The "ensureInitialized" method is idempotent; calling it multiple times is not harmful. After calling that method, the "instance" getter will return the binding.
+In a test, one can call "TestWidgetsFlutterBinding.ensureInitialized()" as the first line in the test's "main()" method to initialize the binding.
+If ServicesBinding is a custom binding mixin, there must also be a custom binding class, like WidgetsFlutterBinding, but that mixes in the selected binding, and that is the class that must be constructed before using the "instance" getter.
+00:00 +5: D:/Gemma - 4 Hackathon/shongjog/test/unit/admin_broadcast_service_test.dart: AdminBroadcastService addMessage stores message and increments count
+[Catch] admin_broadcast: Binding has not yet been initialized.
+The "instance" getter on the ServicesBinding binding mixin is only available once that binding has been initialized.
+Typically, this is done by calling "WidgetsFlutterBinding.ensureInitialized()" or "runApp()" (the latter calls the former). Typically this call is done in the "void main()" method. The "ensureInitialized" method is idempotent; calling it multiple times is not harmful. After calling that method, the "instance" getter will return the binding.
+In a test, one can call "TestWidgetsFlutterBinding.ensureInitialized()" as the first line in the test's "main()" method to initialize the binding.
+If ServicesBinding is a custom binding mixin, there must also be a custom binding class, like WidgetsFlutterBinding, but that mixes in the selected binding, and that is the class that must be constructed before using the "instance" getter.
+00:00 +6: D:/Gemma - 4 Hackathon/shongjog/test/unit/admin_broadcast_service_test.dart: AdminBroadcastService addMessage increments unread count
+[Catch] admin_broadcast: Binding has not yet been initialized.
+The "instance" getter on the ServicesBinding binding mixin is only available once that binding has been initialized.
+Typically, this is done by calling "WidgetsFlutterBinding.ensureInitialized()" or "runApp()" (the latter calls the former). Typically this call is done in the "void main()" method. The "ensureInitialized" method is idempotent; calling it multiple times is not harmful. After calling that method, the "instance" getter will return the binding.
+In a test, one can call "TestWidgetsFlutterBinding.ensureInitialized()" as the first line in the test's "main()" method to initialize the binding.
+If ServicesBinding is a custom binding mixin, there must also be a custom binding class, like WidgetsFlutterBinding, but that mixes in the selected binding, and that is the class that must be constructed before using the "instance" getter.
+00:00 +7: D:/Gemma - 4 Hackathon/shongjog/test/unit/admin_broadcast_service_test.dart: AdminBroadcastService messages are sorted newest-first
+[Catch] admin_broadcast: Binding has not yet been initialized.
+The "instance" getter on the ServicesBinding binding mixin is only available once that binding has been initialized.
+Typically, this is done by calling "WidgetsFlutterBinding.ensureInitialized()" or "runApp()" (the latter calls the former). Typically this call is done in the "void main()" method. The "ensureInitialized" method is idempotent; calling it multiple times is not harmful. After calling that method, the "instance" getter will return the binding.
+In a test, one can call "TestWidgetsFlutterBinding.ensureInitialized()" as the first line in the test's "main()" method to initialize the binding.
+If ServicesBinding is a custom binding mixin, there must also be a custom binding class, like WidgetsFlutterBinding, but that mixes in the selected binding, and that is the class that must be constructed before using the "instance" getter.
+00:00 +8: D:/Gemma - 4 Hackathon/shongjog/test/unit/admin_broadcast_service_test.dart: AdminBroadcastService markAllAsRead clears unread count
+[Catch] admin_broadcast: Binding has not yet been initialized.
+The "instance" getter on the ServicesBinding binding mixin is only available once that binding has been initialized.
+Typically, this is done by calling "WidgetsFlutterBinding.ensureInitialized()" or "runApp()" (the latter calls the former). Typically this call is done in the "void main()" method. The "ensureInitialized" method is idempotent; calling it multiple times is not harmful. After calling that method, the "instance" getter will return the binding.
+In a test, one can call "TestWidgetsFlutterBinding.ensureInitialized()" as the first line in the test's "main()" method to initialize the binding.
+If ServicesBinding is a custom binding mixin, there must also be a custom binding class, like WidgetsFlutterBinding, but that mixes in the selected binding, and that is the class that must be constructed before using the "instance" getter.
+00:00 +9: D:/Gemma - 4 Hackathon/shongjog/test/unit/admin_broadcast_service_test.dart: AdminBroadcastService markAllAsRead is idempotent
+[Catch] admin_broadcast: Binding has not yet been initialized.
+The "instance" getter on the ServicesBinding binding mixin is only available once that binding has been initialized.
+Typically, this is done by calling "WidgetsFlutterBinding.ensureInitialized()" or "runApp()" (the latter calls the former). Typically this call is done in the "void main()" method. The "ensureInitialized" method is idempotent; calling it multiple times is not harmful. After calling that method, the "instance" getter will return the binding.
+In a test, one can call "TestWidgetsFlutterBinding.ensureInitialized()" as the first line in the test's "main()" method to initialize the binding.
+If ServicesBinding is a custom binding mixin, there must also be a custom binding class, like WidgetsFlutterBinding, but that mixes in the selected binding, and that is the class that must be constructed before using the "instance" getter.
+00:00 +10: D:/Gemma - 4 Hackathon/shongjog/test/unit/admin_broadcast_service_test.dart: AdminBroadcastService clear empties messages and file
+[Catch] admin_broadcast: Binding has not yet been initialized.
+The "instance" getter on the ServicesBinding binding mixin is only available once that binding has been initialized.
+Typically, this is done by calling "WidgetsFlutterBinding.ensureInitialized()" or "runApp()" (the latter calls the former). Typically this call is done in the "void main()" method. The "ensureInitialized" method is idempotent; calling it multiple times is not harmful. After calling that method, the "instance" getter will return the binding.
+In a test, one can call "TestWidgetsFlutterBinding.ensureInitialized()" as the first line in the test's "main()" method to initialize the binding.
+If ServicesBinding is a custom binding mixin, there must also be a custom binding class, like WidgetsFlutterBinding, but that mixes in the selected binding, and that is the class that must be constructed before using the "instance" getter.
+00:00 +11: D:/Gemma - 4 Hackathon/shongjog/test/unit/admin_broadcast_service_test.dart: AdminBroadcastService initialize loads persisted messages
+[Catch] admin_broadcast: Binding has not yet been initialized.
+The "instance" getter on the ServicesBinding binding mixin is only available once that binding has been initialized.
+Typically, this is done by calling "WidgetsFlutterBinding.ensureInitialized()" or "runApp()" (the latter calls the former). Typically this call is done in the "void main()" method. The "ensureInitialized" method is idempotent; calling it multiple times is not harmful. After calling that method, the "instance" getter will return the binding.
+In a test, one can call "TestWidgetsFlutterBinding.ensureInitialized()" as the first line in the test's "main()" method to initialize the binding.
+If ServicesBinding is a custom binding mixin, there must also be a custom binding class, like WidgetsFlutterBinding, but that mixes in the selected binding, and that is the class that must be constructed before using the "instance" getter.
+00:00 +12: D:/Gemma - 4 Hackathon/shongjog/test/unit/admin_broadcast_service_test.dart: AdminBroadcastService initialize handles corrupted file gracefully
+AdminBroadcastService init failed: FormatException: Unexpected character (at character 1)
+not valid json
+^
+
+[Catch] admin_broadcast: Binding has not yet been initialized.
+The "instance" getter on the ServicesBinding binding mixin is only available once that binding has been initialized.
+Typically, this is done by calling "WidgetsFlutterBinding.ensureInitialized()" or "runApp()" (the latter calls the former). Typically this call is done in the "void main()" method. The "ensureInitialized" method is idempotent; calling it multiple times is not harmful. After calling that method, the "instance" getter will return the binding.
+In a test, one can call "TestWidgetsFlutterBinding.ensureInitialized()" as the first line in the test's "main()" method to initialize the binding.
+If ServicesBinding is a custom binding mixin, there must also be a custom binding class, like WidgetsFlutterBinding, but that mixes in the selected binding, and that is the class that must be constructed before using the "instance" getter.
+00:00 +13: D:/Gemma - 4 Hackathon/shongjog/test/unit/admin_broadcast_service_test.dart: AdminBroadcastService notifyListeners fires on addMessage
+[Catch] admin_broadcast: Binding has not yet been initialized.
+The "instance" getter on the ServicesBinding binding mixin is only available once that binding has been initialized.
+Typically, this is done by calling "WidgetsFlutterBinding.ensureInitialized()" or "runApp()" (the latter calls the former). Typically this call is done in the "void main()" method. The "ensureInitialized" method is idempotent; calling it multiple times is not harmful. After calling that method, the "instance" getter will return the binding.
+00:00 +14: D:/Gemma - 4 Hackathon/shongjog/test/unit/admin_broadcast_service_test.dart: AdminBroadcastService notifyListeners fires on markAllAsRead
+00:00 +15: D:/Gemma - 4 Hackathon/shongjog/test/unit/admin_broadcast_service_test.dart: AdminBroadcastService notifyListeners does not fire when markAllAsRead has nothing to mark
+00:00 +16: D:/Gemma - 4 Hackathon/shongjog/test/unit/air_quality_service_test.dart: AirQualityService returns null when offline
+00:00 +17: D:/Gemma - 4 Hackathon/shongjog/test/unit/air_quality_service_test.dart: AirQualitySnapshot.fromOpenMeteo parses a complete payload
+00:00 +18: D:/Gemma - 4 Hackathon/shongjog/test/unit/air_quality_service_test.dart: AirQualitySnapshot.fromOpenMeteo parses a minimal payload (pm fields only)
+00:00 +19: D:/Gemma - 4 Hackathon/shongjog/test/unit/air_quality_service_test.dart: AirQualitySnapshot.fromOpenMeteo coerces missing pm to 0 without throwing
+00:00 +20: D:/Gemma - 4 Hackathon/shongjog/test/unit/air_quality_service_test.dart: AirQualitySnapshot.severity (WHO 2021 thresholds) PM2.5 <= 15 is good
+00:00 +21: D:/Gemma - 4 Hackathon/shongjog/test/unit/air_quality_service_test.dart: AirQualitySnapshot.severity (WHO 2021 thresholds) PM2.5 16-40 is moderate
+00:00 +22: D:/Gemma - 4 Hackathon/shongjog/test/unit/air_quality_service_test.dart: AirQualitySnapshot.severity (WHO 2021 thresholds) PM2.5 41-65 is unhealthy for sensitive groups
+00:00 +23: D:/Gemma - 4 Hackathon/shongjog/test/unit/air_quality_service_test.dart: AirQualitySnapshot.severity (WHO 2021 thresholds) PM2.5 66-150 is unhealthy
+00:00 +24: D:/Gemma - 4 Hackathon/shongjog/test/unit/air_quality_service_test.dart: AirQualitySnapshot.severity (WHO 2021 thresholds) PM2.5 > 150 is very unhealthy
+00:00 +25: D:/Gemma - 4 Hackathon/shongjog/test/unit/chat_repository_test.dart: ChatRepository fallback path (no model, no cloud) returns retrieved chunk text when no model available
+00:00 +26: D:/Gemma - 4 Hackathon/shongjog/test/unit/chat_repository_test.dart: ChatRepository fallback path (no model, no cloud) returns snakebite text for snake query
+00:00 +27: D:/Gemma - 4 Hackathon/shongjog/test/unit/chat_repository_test.dart: ChatRepository fallback path (no model, no cloud) returns water text for water query
+00:00 +28: D:/Gemma - 4 Hackathon/shongjog/test/unit/chat_repository_test.dart: ChatRepository fallback path (no model, no cloud) returns "no answer" message when retrieval finds nothing
+00:00 +29: D:/Gemma - 4 Hackathon/shongjog/test/unit/chat_repository_test.dart: ChatRepository with empty KB returns "no answer" for any query
+00:00 +30: D:/Gemma - 4 Hackathon/shongjog/test/unit/chat_repository_test.dart: ChatRepository Tier-2 surface-on-failure reports device path when local model generates successfully (regression guard for GREEN)
+[ChatRepo/Tier2] entered for q="ORS αªòαª┐αª¡αª╛αª¼αºç αª¼αª╛αª¿αª╛αª¼αºïΓÇª" isReady=false
+[ChatRepo/Tier2] shouldTryDevice=true
+[ChatRepo/Tier2] device path success len=13 (raw 13)
+00:00 +31: D:/Gemma - 4 Hackathon/shongjog/test/unit/chat_repository_test.dart: ChatRepository Tier-2 surface-on-failure when the local model says it is ready but generate() throws, ChatRepository falls through to Tier-3 corpus instead of showing an error bubble
+[ChatRepo/Tier2] entered for q="ORS αªòαª┐αª¡αª╛αª¼αºç αª¼αª╛αª¿αª╛αª¼αºïΓÇª" isReady=true
+[ChatRepo/Tier2] shouldTryDevice=true
+[ChatRepo/Tier2] device path FAILED: Bad state: Gemma runtime died
+[ChatRepo/Tier2] stack: #0      _FakeLlm.generate (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/unit/chat_repository_test.dart:35:32)
+#1      ChatRepository.ask (package:shongjog/features/chat/chat_repository.dart:91:42)
+#2      main.<anonymous closure>.<anonymous closure> (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/unit/chat_repository_test.dart:169:33)
+#3      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:25)
+<asynchronous suspension>
+#4      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#5      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+
+00:00 +32: D:/Gemma - 4 Hackathon/shongjog/test/unit/chat_repository_test.dart: ChatRepository Tier-2 surface-on-failure when the model emits only control tokens, Tier-2 falls through to corpus instead of returning a blank bubble
+[ChatRepo/Tier2] entered for q="ORS αªòαª┐αª¡αª╛αª¼αºç αª¼αª╛αª¿αª╛αª¼αºïΓÇª" isReady=true
+[ChatRepo/Tier2] shouldTryDevice=true
+[ChatRepo/Tier2] device path produced no usable text (raw 74 chars, all control tokens) ΓÇö falling through to corpus
+00:00 +33: D:/Gemma - 4 Hackathon/shongjog/test/unit/chat_repository_test.dart: ChatRepository Tier-2 surface-on-failure a real answer followed by a channel leak still reports the device path (the guard must not over-trigger)
+[ChatRepo/Tier2] entered for q="ORS αªòαª┐αª¡αª╛αª¼αºç αª¼αª╛αª¿αª╛αª¼αºïΓÇª" isReady=true
+[ChatRepo/Tier2] shouldTryDevice=true
+[ChatRepo/Tier2] device path success len=28 (raw 52)
+00:00 +34: D:/Gemma - 4 Hackathon/shongjog/test/unit/chat_store_test.dart: ChatMessage toJson serializes all fields
+00:00 +35: D:/Gemma - 4 Hackathon/shongjog/test/unit/chat_store_test.dart: ChatMessage fromJson deserializes correctly
+00:00 +36: D:/Gemma - 4 Hackathon/shongjog/test/unit/chat_store_test.dart: ChatMessage fromJson handles missing timestamp
+00:00 +37: D:/Gemma - 4 Hackathon/shongjog/test/unit/chat_store_test.dart: ChatMessage toJson/fromJson round trip preserves data
+00:00 +38: D:/Gemma - 4 Hackathon/shongjog/test/unit/chat_store_test.dart: ChatMessage fromJson handles invalid timestamp gracefully
+00:00 +39: D:/Gemma - 4 Hackathon/shongjog/test/unit/chat_store_test.dart: ChatStore JSON file format save writes valid JSON array
+00:00 +40: D:/Gemma - 4 Hackathon/shongjog/test/unit/chat_store_test.dart: ChatStore JSON file format empty file list is valid
+00:00 +41: D:/Gemma - 4 Hackathon/shongjog/test/unit/chat_store_test.dart: ChatStore JSON file format invalid JSON throws FormatException
+00:00 +42: D:/Gemma - 4 Hackathon/shongjog/test/unit/chat_store_test.dart: ChatStore file lifecycle file can be written and read
+00:00 +43: D:/Gemma - 4 Hackathon/shongjog/test/unit/chat_store_test.dart: ChatStore file lifecycle file can be deleted
+00:00 +44: D:/Gemma - 4 Hackathon/shongjog/test/unit/decision_tree_test.dart: TriageTree.walk unconscious + not breathing -> cpr
+00:00 +45: D:/Gemma - 4 Hackathon/shongjog/test/unit/decision_tree_test.dart: TriageTree.walk conscious + not breathing -> cpr
+00:00 +46: D:/Gemma - 4 Hackathon/shongjog/test/unit/decision_tree_test.dart: TriageTree.walk conscious + breathing + severe bleeding -> bleeding
+00:00 +47: D:/Gemma - 4 Hackathon/shongjog/test/unit/decision_tree_test.dart: TriageTree.walk conscious + breathing + no bleeding + was in water -> drowning
+00:00 +48: D:/Gemma - 4 Hackathon/shongjog/test/unit/decision_tree_test.dart: TriageTree.walk conscious + breathing + no bleeding + no water + snakebite -> snakebite
+00:00 +49: D:/Gemma - 4 Hackathon/shongjog/test/unit/decision_tree_test.dart: TriageTree.walk all-no path -> escalation999
+00:00 +50: D:/Gemma - 4 Hackathon/shongjog/test/unit/decision_tree_test.dart: TriageTree.walk empty answers -> escalation999 (safe default)
+00:00 +51: D:/Gemma - 4 Hackathon/shongjog/test/unit/decision_tree_test.dart: TriageTree.walk short answers -> escalation999 (safe default)
+00:00 +52: D:/Gemma - 4 Hackathon/shongjog/test/unit/decision_tree_test.dart: TriageTree.walk every TriageRoute is reachable from some answer sequence
+00:00 +53: D:/Gemma - 4 Hackathon/shongjog/test/unit/demo_seeder_test.dart: DemoSeeder.seeds returns 3 seed Q&A pairs
+00:00 +54: D:/Gemma - 4 Hackathon/shongjog/test/unit/demo_seeder_test.dart: DemoSeeder.seeds each seed has a non-empty question and answer
+00:00 +55: D:/Gemma - 4 Hackathon/shongjog/test/unit/demo_seeder_test.dart: DemoSeeder.seeds seeds are idempotent ΓÇö calling twice returns the same data
+00:01 +56: D:/Gemma - 4 Hackathon/shongjog/test/unit/device_capability_test.dart: DeviceCapability.getRecommendations covers every ModelVariant so on-disk lookups stay total
+00:01 +57: D:/Gemma - 4 Hackathon/shongjog/test/unit/device_capability_test.dart: DeviceCapability.getRecommendations verified sizes match the published model files
+00:01 +58: D:/Gemma - 4 Hackathon/shongjog/test/unit/device_capability_test.dart: DeviceCapability.getRecommendations downloads the .litertlm build, never the web .task
+00:01 +59: D:/Gemma - 4 Hackathon/shongjog/test/unit/device_capability_test.dart: DeviceCapability.getRecommendations unverified 12B variant is not offered for download
+00:01 +60: D:/Gemma - 4 Hackathon/shongjog/test/unit/device_capability_test.dart: DeviceCapability.formatBytesBn formats across magnitudes
+00:01 +61: D:/Gemma - 4 Hackathon/shongjog/test/unit/eonet_service_test.dart: EonetService returns null when offline
+00:01 +62: D:/Gemma - 4 Hackathon/shongjog/test/unit/eonet_service_test.dart: EonetService Bangladesh bbox covers the expected region
+00:01 +63: D:/Gemma - 4 Hackathon/shongjog/test/unit/eonet_service_test.dart: EonetEvent.tryParse parses a well-formed event with point geometry
+00:01 +64: D:/Gemma - 4 Hackathon/shongjog/test/unit/eonet_service_test.dart: EonetEvent.tryParse returns null when geometry is missing
+00:01 +65: D:/Gemma - 4 Hackathon/shongjog/test/unit/eonet_service_test.dart: EonetEvent.tryParse parses a closed (inactive) flood event
+00:01 +66: D:/Gemma - 4 Hackathon/shongjog/test/unit/eonet_service_test.dart: EonetEvent.tryParse maps unknown category id to EonetCategory.other
+00:01 +67: D:/Gemma - 4 Hackathon/shongjog/test/unit/eonet_service_test.dart: EonetCategory labelBn returns Bangla for each category
+00:01 +68: D:/Gemma - 4 Hackathon/shongjog/test/unit/eonet_service_test.dart: EonetCategory iconKey is a non-empty snake_case slug
+00:01 +69: D:/Gemma - 4 Hackathon/shongjog/test/unit/eval_test.dart: eval test set file exists
+00:01 +70: D:/Gemma - 4 Hackathon/shongjog/test/unit/eval_test.dart: eval test set has exactly 50 entries with all required fields
+00:01 +71: D:/Gemma - 4 Hackathon/shongjog/test/unit/eval_test.dart: eval test set has 10 queries per category
+00:01 +72: D:/Gemma - 4 Hackathon/shongjog/test/unit/eval_test.dart: eval test set all myth queries have a myth_to_correct
+00:01 +73: D:/Gemma - 4 Hackathon/shongjog/test/unit/eval_test.dart: eval test set all out_of_scope queries expect a safety refusal
+00:01 +74: D:/Gemma - 4 Hackathon/shongjog/test/unit/gdacs_service_test.dart: GdacsService returns null when offline
+00:01 +75: D:/Gemma - 4 Hackathon/shongjog/test/unit/gdacs_service_test.dart: GdacsService.parseRssForTest parses a cyclone alert inside the Bangladesh box
+00:01 +76: D:/Gemma - 4 Hackathon/shongjog/test/unit/gdacs_service_test.dart: GdacsService.parseRssForTest excludes alerts outside the Bangladesh bounding box
+00:01 +77: D:/Gemma - 4 Hackathon/shongjog/test/unit/gdacs_service_test.dart: GdacsService.parseRssForTest returns empty list when feed has no items
+00:01 +78: D:/Gemma - 4 Hackathon/shongjog/test/unit/gdacs_service_test.dart: GdacsService.parseRssForTest skips items missing required georss:point
+00:01 +79: D:/Gemma - 4 Hackathon/shongjog/test/unit/gdacs_service_test.dart: GdacsService.parseRssForTest handles CDATA-wrapped title
+00:01 +80: D:/Gemma - 4 Hackathon/shongjog/test/unit/gdacs_service_test.dart: GdacsSeverity.labelBn every severity has a non-empty Bangla label
+00:01 +81: D:/Gemma - 4 Hackathon/shongjog/test/unit/gen_config_test.dart: nextRandomSeed (Int32 contract) always fits a non-negative Int32
+00:01 +82: D:/Gemma - 4 Hackathon/shongjog/test/unit/gen_config_test.dart: nextRandomSeed (Int32 contract) a raw microsecond timestamp would NOT satisfy that contract
+00:01 +83: D:/Gemma - 4 Hackathon/shongjog/test/unit/gen_config_test.dart: nextRandomSeed (Int32 contract) still varies between calls (seed diversity is the whole point)
+00:01 +84: D:/Gemma - 4 Hackathon/shongjog/test/unit/gen_config_test.dart: nextRandomSeed (Int32 contract) still varies between calls (seed diversity is the whole point)
+00:01 +85: D:/Gemma - 4 Hackathon/shongjog/test/unit/gen_config_test.dart: nextRandomSeed (Int32 contract) still varies between calls (seed diversity is the whole point)
+00:01 +86: D:/Gemma - 4 Hackathon/shongjog/test/unit/gen_config_test.dart: nextRandomSeed (Int32 contract) still varies between calls (seed diversity is the whole point)
+00:01 +87: D:/Gemma - 4 Hackathon/shongjog/test/unit/gen_config_test.dart: nextRandomSeed (Int32 contract) still varies between calls (seed diversity is the whole point)
+00:01 +88: D:/Gemma - 4 Hackathon/shongjog/test/unit/haptic_service_test.dart: HapticService strong does not throw
+00:01 +89: D:/Gemma - 4 Hackathon/shongjog/test/unit/gen_config_test.dart: thinking mode stays disabled while the .litertlm engine leaks the thought channel
+00:01 +90: D:/Gemma - 4 Hackathon/shongjog/test/unit/haptic_service_test.dart: HapticService tick does not throw
+00:01 +91: D:/Gemma - 4 Hackathon/shongjog/test/unit/gen_config_test.dart: Gen config (size cap, topP, temperature) max output tokens is at most 256 (not the legacy 512)
+00:01 +92: D:/Gemma - 4 Hackathon/shongjog/test/unit/haptic_service_test.dart: HapticService setEnabled(false) suppresses calls (no-op)
+00:01 +93: D:/Gemma - 4 Hackathon/shongjog/test/unit/gen_config_test.dart: Gen config (size cap, topP, temperature) topP is set in the 0.9-0.99 range (nucleus sampling safety net)
+00:01 +94: D:/Gemma - 4 Hackathon/shongjog/test/unit/haptic_service_test.dart: HapticService all haptic constants are defined
+00:01 +95: D:/Gemma - 4 Hackathon/shongjog/test/unit/haptic_service_test.dart: HapticService all haptic constants are defined
+00:01 +96: D:/Gemma - 4 Hackathon/shongjog/test/unit/haptic_service_test.dart: HapticService all haptic constants are defined
+00:01 +97: D:/Gemma - 4 Hackathon/shongjog/test/unit/haptic_service_test.dart: HapticService all haptic constants are defined
+00:01 +98: D:/Gemma - 4 Hackathon/shongjog/test/unit/haptic_service_test.dart: HapticService all haptic constants are defined
+00:01 +99: D:/Gemma - 4 Hackathon/shongjog/test/unit/haptic_service_test.dart: HapticService all haptic constants are defined
+00:01 +100: D:/Gemma - 4 Hackathon/shongjog/test/unit/haptic_service_test.dart: HapticService all haptic constants are defined
+00:01 +101: D:/Gemma - 4 Hackathon/shongjog/test/unit/haptic_service_test.dart: HapticService all haptic constants are defined
+00:02 +102: D:/Gemma - 4 Hackathon/shongjog/test/unit/marine_service_test.dart: MarineService returns null when offline
+00:02 +103: D:/Gemma - 4 Hackathon/shongjog/test/unit/marine_service_test.dart: MarineSnapshot.fromOpenMeteo parses up to 3 days
+00:02 +104: D:/Gemma - 4 Hackathon/shongjog/test/unit/marine_service_test.dart: MarineSnapshot.fromOpenMeteo truncates to 3 days if the API returns more
+00:02 +105: D:/Gemma - 4 Hackathon/shongjog/test/unit/marine_service_test.dart: MarineSnapshot.fromOpenMeteo today() returns the first day
+00:02 +106: D:/Gemma - 4 Hackathon/shongjog/test/unit/marine_service_test.dart: MarineSnapshot.fromOpenMeteo missing fields default to 0 without throwing
+00:02 +107: D:/Gemma - 4 Hackathon/shongjog/test/unit/marine_service_test.dart: MarineDay.severity (wave-height thresholds) < 1.2 m is calm
+00:02 +108: D:/Gemma - 4 Hackathon/shongjog/test/unit/marine_service_test.dart: MarineDay.severity (wave-height thresholds) 1.2ΓÇô2.5 m is moderate
+00:02 +109: D:/Gemma - 4 Hackathon/shongjog/test/unit/marine_service_test.dart: MarineDay.severity (wave-height thresholds) 2.6ΓÇô4.0 m is rough
+00:02 +110: D:/Gemma - 4 Hackathon/shongjog/test/unit/marine_service_test.dart: MarineDay.severity (wave-height thresholds) > 4.0 m is very rough
+00:02 +111: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_models_test.dart: MessageType has text and voice types
+00:02 +112: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_models_test.dart: PeerStatus has connected, reconnecting, disconnected
+00:02 +113: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_models_test.dart: MeshMessage text message stores fields
+00:02 +114: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_models_test.dart: MeshMessage voice message stores filePath
+00:02 +115: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_models_test.dart: MeshMessage isMe returns true when senderId is "me"
+00:02 +116: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_models_test.dart: MeshMessage belongsToChatWith keeps own and that peer's messages only
+00:02 +117: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_models_test.dart: MeshMessage defaults timestamp to now when null
+00:02 +118: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_models_test.dart: MeshPeer initial state is connected
+00:02 +119: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_models_test.dart: MeshPeer copyWith updates status
+00:02 +120: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_models_test.dart: MeshPeer copyWith updates reconnectAttempts
+00:02 +121: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_models_test.dart: MeshPeer displayName strips Shongjog- prefix
+00:02 +122: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_models_test.dart: MeshPeer displayName keeps full name if no prefix
+00:02 +123: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: MeshMessage stores senderId and text
+00:02 +124: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: MeshMessage isMe returns true for senderId "me"
+00:02 +125: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: UTF-8 message encoding round-trip Bangla text survives encode ΓåÆ decode
+00:02 +126: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: UTF-8 message encoding round-trip mixed Bangla + ASCII survives encode ΓåÆ decode
+00:02 +127: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: UTF-8 message encoding round-trip codeUnits (old approach) is identity in-memory but NOT wire-safe
+00:02 +128: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: meshService singleton is a single instance
+00:02 +129: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: meshService singleton peerList starts empty
+00:02 +130: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: meshService singleton isRunning starts false
+00:02 +131: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: meshService singleton peerCount starts at 0
+00:02 +132: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: MeshPeer deduplication logic (Map-based) adding same peer twice overwrites
+00:02 +133: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: MeshPeer deduplication logic (Map-based) removing a non-existent peer is a no-op
+00:02 +134: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: MeshPeer deduplication logic (Map-based) clear empties the map
+00:02 +135: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: MeshService initial state isRunning is false initially
+00:02 +136: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: MeshService initial state peerList starts empty
+00:02 +137: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: isPlayableVoicePath (receive-path gate) accepts absolute filesystem path
+00:02 +138: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: isPlayableVoicePath (receive-path gate) rejects content:// URI from nearby_connections plugin
+00:02 +139: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: isPlayableVoicePath (receive-path gate) rejects null path
+00:02 +140: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: isPlayableVoicePath (receive-path gate) rejects relative path
+00:02 +141: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: isPlayableVoicePath (receive-path gate) rejects empty string
+00:02 +142: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: MeshStartResult ok result exposes both advertising and discovery as true
+00:02 +143: D:/Gemma - 4 Hackathon/shongjog/test/unit/mesh_service_test.dart: MeshStartResult fail result is not ok and carries a reason
+00:02 +144: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_lora_test.dart: ModelManager LoRA + thinking mode setLoraAdapter stores the path
+00:02 +145: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_lora_test.dart: ModelManager LoRA + thinking mode clearLoraAdapter nulls the path
+00:02 +146: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_lora_test.dart: ModelManager LoRA + thinking mode setThinkingMode stores the override
+00:02 +147: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_lora_test.dart: ModelManager LoRA + thinking mode setThinkingMode(null) resets to SDK default
+00:02 +148: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: ModelState enum has all expected states
+00:02 +149: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: ModelManager default state initial state is notDownloaded
+00:02 +150: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: ModelManager default state statusLabelBn shows download needed
+00:02 +151: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: ModelManager default state isReady is false initially
+00:02 +152: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: ModelManager default state isLoading is false initially
+00:02 +153: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: ModelManager default state downloadProgress is null initially
+00:02 +154: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: ModelManager markReadyIfOnDisk does NOT mark ready when nothing is on disk
+00:02 +155: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: ModelManager markReadyIfOnDisk does not notify listeners when nothing is on disk
+00:02 +156: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: ModelManager statusLabelBn not-downloaded state shows download needed
+00:02 +157: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: ModelManager statusLabelBn downloading with progress shows percentage format
+00:02 +158: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: modelManager singleton is a ModelManager instance
+00:02 +159: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: model file layout variant files use the .litertlm extension
+00:02 +160: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: model file layout ModelState.failed still exists (guards the init error path)
+00:02 +161: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: ModelManager download-query API isAnyVariantDownloading is false initially
+00:02 +162: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: ModelManager download-query API activeDownloadProgress is null initially
+00:02 +163: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: ModelManager download-query API isAnyVariantDownloading is true when a variant is downloading
+00:02 +164: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: ModelManager download-query API activeDownloadProgress returns the downloading variant progress
+00:02 +165: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: ModelManager download-query API isAnyVariantDownloading is false after download completes
+00:02 +166: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: ModelManager download-query API activeDownloadProgress is null after download completes
+00:02 +167: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: ModelManager single-flight ensureModel concurrent ensureModel calls for same variant share one download (isDownloading set exactly once, cleared after failure)
+00:02 +168: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: ModelManager single-flight ensureModel ensureModel for a different variant does not collide with an ongoing download
+00:02 +169: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: autoSelectBestModel fallback when saved variant is missing on disk marks ready and activates the on-disk variant when saved is missing
+00:02 +170: D:/Gemma - 4 Hackathon/shongjog/test/unit/model_manager_test.dart: autoSelectBestModel fallback when saved variant is missing on disk preferred variant still wins when both saved and recommended are absent
+00:02 +171: D:/Gemma - 4 Hackathon/shongjog/test/unit/nearest_shelter_test.dart: nearestShelters returns closest shelter by haversine distance
+00:02 +172: D:/Gemma - 4 Hackathon/shongjog/test/unit/nearest_shelter_test.dart: nearestShelters returns sorted by distance ascending
+00:02 +173: D:/Gemma - 4 Hackathon/shongjog/test/unit/nearest_shelter_test.dart: nearestShelters k clamps to available shelters
+00:02 +174: D:/Gemma - 4 Hackathon/shongjog/test/unit/nearest_shelter_test.dart: nearestShelters zero distance when at the exact shelter location
+00:03 +175: D:/Gemma - 4 Hackathon/shongjog/test/unit/notification_service_test.dart: NotificationService.generateInsights empty profile yields exactly the default insight
+00:03 +176: D:/Gemma - 4 Hackathon/shongjog/test/unit/notification_service_test.dart: NotificationService.generateInsights cyclone interest yields shelter preparation insight
+00:03 +177: D:/Gemma - 4 Hackathon/shongjog/test/unit/notification_service_test.dart: NotificationService.generateInsights medical interest yields medical insight routed to cards
+00:03 +178: D:/Gemma - 4 Hackathon/shongjog/test/unit/osrm_route_service_test.dart: OsrmRouteService returns parsed route on 200 + code Ok
+00:03 +179: D:/Gemma - 4 Hackathon/shongjog/test/unit/osrm_route_service_test.dart: OsrmRouteService returns null when OSRM returns code != Ok
+00:03 +180: D:/Gemma - 4 Hackathon/shongjog/test/unit/osrm_route_service_test.dart: OsrmRouteService returns null when routes array is empty
+00:03 +181: D:/Gemma - 4 Hackathon/shongjog/test/unit/osrm_route_service_test.dart: OsrmRouteService returns null on non-200 status (e.g. 429 rate limit)
+00:03 +182: D:/Gemma - 4 Hackathon/shongjog/test/unit/osrm_route_service_test.dart: OsrmRouteService returns null on timeout
+00:03 +183: D:/Gemma - 4 Hackathon/shongjog/test/unit/osrm_route_service_test.dart: OsrmRouteService returns null on malformed JSON body
+00:03 +184: D:/Gemma - 4 Hackathon/shongjog/test/unit/osrm_route_service_test.dart: OsrmRouteService returns null when body is valid JSON but not an object
+00:03 +185: D:/Gemma - 4 Hackathon/shongjog/test/unit/osrm_route_service_test.dart: OsrmRouteService builds URL in correct lon,lat;lon,lat order with full overview
+00:03 +186: D:/Gemma - 4 Hackathon/shongjog/test/unit/prompt_builder_test.dart: buildPrompt assembles persona + rules + context + query for emergency topic
+00:03 +187: D:/Gemma - 4 Hackathon/shongjog/test/unit/prompt_builder_test.dart: buildPrompt empty hits omits context section entirely
+00:03 +188: D:/Gemma - 4 Hackathon/shongjog/test/unit/prompt_builder_test.dart: buildPrompt 999 only appended for emergency queries
+00:03 +189: D:/Gemma - 4 Hackathon/shongjog/test/unit/prompt_builder_test.dart: buildPrompt multiple hits are joined with source brackets
+00:03 +190: D:/Gemma - 4 Hackathon/shongjog/test/unit/prompt_builder_test.dart: buildPrompt isEmergencyQuery detects Bangla and English keywords
+00:03 +191: D:/Gemma - 4 Hackathon/shongjog/test/unit/repetition_detector_test.dart: RepetitionDetector does NOT fire on a clean, varied Bangla answer
+00:03 +192: D:/Gemma - 4 Hackathon/shongjog/test/unit/repetition_detector_test.dart: RepetitionDetector fires on immediate single-token stall (αªåαª«αª┐ αªåαª«αª┐ αªåαª«αª┐ ΓÇª)
+00:03 +193: D:/Gemma - 4 Hackathon/shongjog/test/unit/repetition_detector_test.dart: RepetitionDetector fires on character-run stall (αÑñ αÑñ αÑñ ΓÇª)
+00:03 +194: D:/Gemma - 4 Hackathon/shongjog/test/unit/repetition_detector_test.dart: RepetitionDetector fires on 3-token n-gram repeat (foo bar baz foo bar baz)
+00:03 +195: D:/Gemma - 4 Hackathon/shongjog/test/unit/repetition_detector_test.dart: RepetitionDetector does NOT fire on legitimate emphasis (αª╣αºìαª»αª╛αªü αª╣αºìαª»αª╛αªü)
+00:03 +196: D:/Gemma - 4 Hackathon/shongjog/test/unit/repetition_detector_test.dart: RepetitionDetector fires on vocabulary collapse (cycles through tiny vocabulary)
+00:03 +197: D:/Gemma - 4 Hackathon/shongjog/test/unit/repetition_detector_test.dart: RepetitionDetector trimmed() strips the trailing partial-repetition tail
+00:03 +198: D:/Gemma - 4 Hackathon/shongjog/test/unit/repetition_detector_test.dart: RepetitionDetector feed after shouldStop is a no-op (sticky stop)
+00:03 +199: D:/Gemma - 4 Hackathon/shongjog/test/unit/repetition_detector_test.dart: RepetitionDetector does not fire before minTokensBeforeCheck
+00:03 +200: D:/Gemma - 4 Hackathon/shongjog/test/unit/repetition_detector_test.dart: RepetitionDetector detects repetition when full degenerate text is fed at once
+00:03 +201: D:/Gemma - 4 Hackathon/shongjog/test/unit/repetition_detector_test.dart: RepetitionDetector does NOT fire when fed a long clean answer in one chunk
+00:03 +202: D:/Gemma - 4 Hackathon/shongjog/test/unit/repetition_detector_test.dart: _safeTrimRepetition contract (never empty) returns raw text when no repetition detected
+00:03 +203: D:/Gemma - 4 Hackathon/shongjog/test/unit/repetition_detector_test.dart: _safeTrimRepetition contract (never empty) trims the repetition loop and keeps the clean prefix
+00:03 +204: D:/Gemma - 4 Hackathon/shongjog/test/unit/repetition_detector_test.dart: _safeTrimRepetition contract (never empty) NEVER returns empty even on all-repetition input
+00:03 +205: D:/Gemma - 4 Hackathon/shongjog/test/unit/retriever_test.dart: BruteForceRetriever topK returns chunks ordered by cosine similarity, above floor
+00:03 +206: D:/Gemma - 4 Hackathon/shongjog/test/unit/retriever_test.dart: BruteForceRetriever floor filters out low-similarity hits
+00:03 +207: D:/Gemma - 4 Hackathon/shongjog/test/unit/retriever_test.dart: BruteForceRetriever empty index returns empty hits
+00:03 +208: D:/Gemma - 4 Hackathon/shongjog/test/unit/retriever_test.dart: BruteForceRetriever parseCorpus round-trips Chunk fields
+00:03 +209: D:/Gemma - 4 Hackathon/shongjog/test/unit/rumour_checker_test.dart: isRumourQuery "αªùαºüαª£αª¼:" prefix ΓåÆ true
+00:03 +210: D:/Gemma - 4 Hackathon/shongjog/test/unit/rumour_checker_test.dart: isRumourQuery "αªòαºçαªë αª¼αª▓αª▓αºï" prefix ΓåÆ true
+00:03 +211: D:/Gemma - 4 Hackathon/shongjog/test/unit/rumour_checker_test.dart: isRumourQuery "αª╢αºüαª¿αºçαª¢αª┐" prefix ΓåÆ true
+00:03 +212: D:/Gemma - 4 Hackathon/shongjog/test/unit/rumour_checker_test.dart: isRumourQuery normal query ΓåÆ false
+00:03 +213: D:/Gemma - 4 Hackathon/shongjog/test/unit/rumour_checker_test.dart: isRumourQuery leading whitespace handled
+00:03 +214: D:/Gemma - 4 Hackathon/shongjog/test/unit/rumour_checker_test.dart: buildRumourCheckPrompt contains verdict structure
+00:03 +215: D:/Gemma - 4 Hackathon/shongjog/test/unit/rumour_checker_test.dart: buildRumourCheckPrompt strips rumour prefix for the claim
+00:03 +216: D:/Gemma - 4 Hackathon/shongjog/test/unit/rumour_checker_test.dart: buildRumourCheckPrompt includes retrieved context when hits provided
+00:03 +217: D:/Gemma - 4 Hackathon/shongjog/test/unit/rumour_checker_test.dart: buildRumourCheckPrompt empty context still produces a valid prompt
+00:03 +218: D:/Gemma - 4 Hackathon/shongjog/test/unit/safe_beacon_payload_test.dart: SafeBeaconPayload encodes to JSON with state=safe by default
+00:03 +219: D:/Gemma - 4 Hackathon/shongjog/test/unit/safe_beacon_payload_test.dart: SafeBeaconPayload round-trips through encode/decode
+00:03 +220: D:/Gemma - 4 Hackathon/shongjog/test/unit/safe_beacon_payload_test.dart: SafeBeaconPayload decodes default state as safe when missing
+00:03 +221: D:/Gemma - 4 Hackathon/shongjog/test/unit/safe_beacon_payload_test.dart: SafeBeaconPayload toSosPayload wraps with safe message
+00:03 +222: D:/Gemma - 4 Hackathon/shongjog/test/unit/safe_beacon_payload_test.dart: SafeBeaconPayload encode handles hop history
+00:04 +223: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel init() loads shelters via injected repository
+00:04 +223 -1: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel init() loads shelters via injected repository [E]
+  Expected: <Instance of '_FakePosition'>
+    Actual: <null>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\unit\shelter_map_view_model_test.dart 47:7     main.<fn>.<fn>
+  
+00:04 +223 -1: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel fetchRoute happy path online ΓÇö sets route + clears loading
+00:04 +223 -2: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel fetchRoute happy path online ΓÇö sets route + clears loading [E]
+  Expected: Shelter:<Shelter(name: A, nameBn: αªÅ, lat: 23.0, lon: 90.0, capacity: null, source: OSM)>
+    Actual: <null>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\unit\shelter_map_view_model_test.dart 66:7     main.<fn>.<fn>
+  
+00:04 +223 -2: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel fetchRoute offline uses straight-line haversine fallback (no network)
+00:04 +223 -3: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel fetchRoute offline uses straight-line haversine fallback (no network) [E]
+  Expected: Shelter:<Shelter(name: A, nameBn: αªÅ, lat: 23.0, lon: 90.0, capacity: null, source: OSM)>
+    Actual: <null>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\unit\shelter_map_view_model_test.dart 93:9     main.<fn>.<fn>
+  
+00:04 +223 -3: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel fetchRoute online but service returns null ΓÇö falls back to haversine
+00:04 +223 -4: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel fetchRoute online but service returns null ΓÇö falls back to haversine [E]
+  Expected: an object with length of <2>
+    Actual: []
+     Which: has length of <0>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\unit\shelter_map_view_model_test.dart 116:9    main.<fn>.<fn>
+  
+00:04 +223 -4: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel fetchRoute race ΓÇö newer request supersedes older (TIER 1 bug regression)
+00:04 +223 -5: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel fetchRoute race ΓÇö newer request supersedes older (TIER 1 bug regression) [E]
+  Expected: Shelter:<Shelter(name: B, nameBn: αª¼αª┐, lat: 23.1, lon: 90.1, capacity: null, source: OSM)>
+    Actual: <null>
+  newer request must win
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\unit\shelter_map_view_model_test.dart 166:9    main.<fn>.<fn>
+  
+00:04 +223 -5: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel clearRoute wipes route state without disturbing shelters
+00:04 +224 -5: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel toggleSearchPanel ΓÇö first tap opens + ranks, second tap closes
+00:04 +224 -6: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel toggleSearchPanel ΓÇö first tap opens + ranks, second tap closes [E]
+  Expected: an object with length of <2>
+    Actual: []
+     Which: has length of <0>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\unit\shelter_map_view_model_test.dart 209:7    main.<fn>.<fn>
+  
+00:04 +224 -6: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel onSearchSelect closes panel then routes the selected shelter
+00:04 +224 -7: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel onSearchSelect closes panel then routes the selected shelter [E]
+  Bad state: No element
+  dart:core                                          _Array.first
+  test\unit\shelter_map_view_model_test.dart 233:41  main.<fn>.<fn>
+  
+00:04 +224 -7: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel fetchRoute after dispose is a no-op (TIER 1 post-await safety)
+00:04 +225 -7: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel fetchRoute calls notifyListeners for each phase a UI would care about
+00:04 +225 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel fetchRoute calls notifyListeners for each phase a UI would care about [E]
+  Expected: a value greater than or equal to <2>
+    Actual: <0>
+     Which: is not a value greater than or equal to <2>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\unit\shelter_map_view_model_test.dart 293:9    main.<fn>.<fn>
+  
+00:04 +225 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_repository_test.dart: ShelterRepository loadAll() parses a canonical GeoJSON FeatureCollection
+00:04 +226 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_repository_test.dart: ShelterRepository loadAll() defaults missing capacity to null
+00:04 +227 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_repository_test.dart: ShelterRepository loadAll() defaults missing source to "OSM"
+00:04 +228 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_repository_test.dart: ShelterRepository loadAll() throws FormatException on malformed JSON
+00:04 +229 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_repository_test.dart: Shelter ==, hashCode, toString
+00:04 +230 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sms_queue_test.dart: enqueue increases pending
+00:04 +231 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sms_queue_test.dart: drain happy path sends everything and returns count
+00:04 +232 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sms_queue_test.dart: drain skips failed entries and retries them at the end
+00:04 +233 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sms_queue_test.dart: drain empty queue returns 0 without calling sendOne
+00:04 +234 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_function_test.dart: sosReportTool Tool name is submit_sos_report
+00:04 +235 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_function_test.dart: sosReportTool Tool has all 6 parameter properties
+00:04 +236 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_function_test.dart: sosReportTool Tool hazard_type property lists common Bangla emergencies
+00:04 +237 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_function_test.dart: sosReportTool Tool immediate_needs is an array of strings
+00:04 +238 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_function_test.dart: buildSosSmsBody includes all filled fields with labels
+00:04 +239 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_function_test.dart: buildSosSmsBody omits empty/null fields
+00:04 +240 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_function_test.dart: buildSosSmsBody handles empty immediate_needs array
+00:04 +241 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_function_test.dart: buildSosSmsBody handles completely empty map
+00:04 +242 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_payload_test.dart: encode then decode round-trips all fields
+00:04 +243 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_payload_test.dart: hop count is incremented on relay
+00:04 +244 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_payload_test.dart: rejects payload past max hops
+00:04 +245 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_relay_listener_test.dart: SosRelayListener on non-SOS payload, listener emits with no hopCount
+00:04 +246 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_relay_listener_test.dart: SosRelayListener on first SOS, listener re-broadcasts the relayed payload
+00:04 +247 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_relay_listener_test.dart: SosRelayListener on second SOS with the same id, listener does NOT re-broadcast
+00:04 +248 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_relay_listener_test.dart: SosRelayListener emitted message carries the original payload hopCount
+00:04 +249 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_relay_test.dart: SosRelayEngine first time a payload is seen, it should be re-broadcast
+00:04 +250 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_relay_test.dart: SosRelayEngine second time the same payload is seen, no relay
+00:04 +251 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_relay_test.dart: SosRelayEngine payload past max hops is never re-broadcast
+00:04 +252 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_relay_test.dart: SosRelayEngine local-originated payload is not re-broadcast back to mesh
+00:04 +253 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_relay_test.dart: SosRelayEngine TTL expiry: payload older than 1h is dropped
+00:05 +254 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_sms_template_test.dart: sosSmsBody includes emergency cue, name, phone, and coords
+00:05 +255 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_sms_template_test.dart: sosSmsBody includes a clickable maps link
+00:05 +256 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_sms_template_test.dart: sosSmsBody handles negative coordinates (southern/western hemisphere)
+00:05 +257 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_sms_template_test.dart: sosSmsBody does NOT silently send 0,0 when GPS is missing
+00:05 +258 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/sos_sms_template_test.dart: sosSmsBody falls back to generic warning when gpsWarning is null but coords are null
+00:05 +259 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/stt_provider_test.dart: SttProvider interface VoskSttProvider is offline
+00:05 +260 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/stt_provider_test.dart: SttProvider interface VoskSttProvider isModelBundled returns false (plugin not active)
+00:05 +261 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/stt_provider_test.dart: SttProvider interface VoskSttProvider init returns false (plugin not active)
+00:05 +262 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/stt_provider_test.dart: SttProvider contract all providers implement required interface
+00:05 +263 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/turn_marker_truncate_test.dart: truncateAtTurnMarker (production code) keeps a clean short answer intact
+00:05 +264 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/turn_marker_truncate_test.dart: truncateAtTurnMarker (production code) cuts at the first User: marker
+00:05 +265 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/turn_marker_truncate_test.dart: truncateAtTurnMarker (production code) cuts at <start_of_turn>
+00:05 +266 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/turn_marker_truncate_test.dart: truncateAtTurnMarker (production code) cuts at Assistant (case-insensitive)
+00:05 +267 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/turn_marker_truncate_test.dart: truncateAtTurnMarker (production code) preserves multibyte Bangla characters intact
+00:05 +268 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/turn_marker_truncate_test.dart: truncateAtTurnMarker (production code) handles empty input
+00:05 +269 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/turn_marker_truncate_test.dart: truncateAtTurnMarker (production code) chose the EARLIEST marker when multiple are present
+00:05 +270 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/turn_marker_truncate_test.dart: truncateAtTurnMarker (production code) strips <|channel|>thought ... <|channel|> blocks (the user-reported symptom)
+00:05 +271 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/turn_marker_truncate_test.dart: truncateAtTurnMarker (production code) strips <|channel|>...<|channel|> with non-thinking content
+00:05 +272 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/turn_marker_truncate_test.dart: truncateAtTurnMarker (production code) strips multiple <|channel|> blocks in a row
+00:05 +273 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/turn_marker_truncate_test.dart: truncateAtTurnMarker (production code) handles <|channel|> at the very start of output
+00:05 +274 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/turn_marker_truncate_test.dart: truncateAtTurnMarker (production code) strips <channel|> variant without leading pipe
+00:05 +275 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/urgency_classifier_test.dart: UrgencyClassifier critical (thinking OFF) αª╢αºìαª¼αª╛αª╕αªòαª╖αºìαªƒ ΓåÆ critical
+00:05 +276 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/urgency_classifier_test.dart: UrgencyClassifier critical (thinking OFF) αªíαºüαª¼αºç αªùαºçαª¢αºç ΓåÆ critical
+00:05 +277 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/urgency_classifier_test.dart: UrgencyClassifier critical (thinking OFF) αªàαª£αºìαª₧αª╛αª¿ ΓåÆ critical
+00:05 +278 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/urgency_classifier_test.dart: UrgencyClassifier critical (thinking OFF) αª¬αºìαª░αªÜαºüαª░ αª░αªòαºìαªñ ΓåÆ critical
+00:05 +279 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/urgency_classifier_test.dart: UrgencyClassifier urgent (thinking ON) αª╕αª╛αª¬αºç αªòαª╛αª«αªíαª╝ ΓåÆ urgent
+00:05 +280 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/urgency_classifier_test.dart: UrgencyClassifier urgent (thinking ON) αª£αºìαª¼αª░ ΓåÆ urgent
+00:05 +281 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/urgency_classifier_test.dart: UrgencyClassifier urgent (thinking ON) αªíαª╛αª»αª╝αª░αª┐αª»αª╝αª╛ ΓåÆ urgent
+00:05 +282 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/urgency_classifier_test.dart: UrgencyClassifier routine (thinking ON) αª¬αºìαª░αª╕αºìαªñαºüαªñαª┐ ΓåÆ routine
+00:05 +283 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/urgency_classifier_test.dart: UrgencyClassifier routine (thinking ON) αª¿αª╛αª«αºçαª░ αªàαª░αºìαªÑ ΓåÆ routine
+00:05 +284 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/urgency_classifier_test.dart: UrgencyClassifier routine (thinking ON) αªàαª½αª▓αª╛αªçαª¿ αªíαª┐αª░αºçαªòαºìαªƒαª░αª┐ ΓåÆ routine
+00:05 +285 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/urgency_classifier_test.dart: UrgencyClassifier labels critical label is αª£αª░αºüαª░αª┐
+00:05 +286 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/urgency_classifier_test.dart: UrgencyClassifier labels urgent label is αªñαª╛αªùαª┐αªªαª¬αºéαª░αºìαªú
+00:05 +287 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/urgency_classifier_test.dart: UrgencyClassifier labels routine label is αª╕αª╛αªºαª╛αª░αªú
+00:05 +288 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/usgs_earthquake_service_test.dart: UsgsEarthquakeService returns null when offline
+00:05 +289 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/usgs_earthquake_service_test.dart: EarthquakeEvent.tryParse parses a well-formed earthquake Feature
+00:05 +290 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/usgs_earthquake_service_test.dart: EarthquakeEvent.tryParse returns null when geometry is missing
+00:05 +291 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/usgs_earthquake_service_test.dart: EarthquakeEvent.tryParse returns null when magnitude is missing
+00:05 +292 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/usgs_earthquake_service_test.dart: EarthquakeEvent.tryParse returns null when time is missing
+00:05 +293 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/usgs_earthquake_service_test.dart: EarthquakeEvent.tryParse handles features with 2-coordinate geometry (no depth)
+00:05 +294 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/usgs_earthquake_service_test.dart: EarthquakeSeverity magnitude < 5.0 is light
+00:05 +295 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/usgs_earthquake_service_test.dart: EarthquakeSeverity magnitude 5.0ΓÇô5.9 is moderate
+00:05 +296 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/usgs_earthquake_service_test.dart: EarthquakeSeverity magnitude >= 6.0 is strong
+00:05 +297 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/usgs_earthquake_service_test.dart: EarthquakeSeverity severity labels are Bangla
+00:05 +298 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/vosk_stt_provider_test.dart: VoskSttProvider (blocked ΓÇö fallback path) name is offline Bangla
+00:05 +299 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/vosk_stt_provider_test.dart: VoskSttProvider (blocked ΓÇö fallback path) isOffline is true
+00:05 +300 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/vosk_stt_provider_test.dart: VoskSttProvider (blocked ΓÇö fallback path) isInitialized is false before init
+00:05 +301 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/vosk_stt_provider_test.dart: VoskSttProvider (blocked ΓÇö fallback path) init() returns false (plugin blocked)
+00:05 +302 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/vosk_stt_provider_test.dart: VoskSttProvider (blocked ΓÇö fallback path) listen() throws UnimplementedError (plugin blocked)
+00:05 +303 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/vosk_stt_provider_test.dart: VoskSttProvider (blocked ΓÇö fallback path) stop() is a no-op (no crash)
+00:05 +304 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/weather_service_test.dart: WeatherSnapshot.fromOpenMeteo parses 4-day forecast into daily list
+00:05 +305 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/weather_service_test.dart: WeatherSnapshot.fromOpenMeteo falls back to zeros when current block is missing
+00:05 +306 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/weather_service_test.dart: WeatherSnapshot.fromOpenMeteo returns empty daily list when daily block is missing
+00:05 +307 -8: D:/Gemma - 4 Hackathon/shongjog/test/unit/weather_service_test.dart: WeatherSnapshot.fromOpenMeteo WMO codes map to correct Bangla conditions
+00:06 +308 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/admin_panel_test.dart: AdminLoginScreen renders login form fields
+00:06 +309 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/directory_screen_test.dart: renders entries with phone numbers and call buttons
+00:06 +310 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/directory_screen_test.dart: renders entries with phone numbers and call buttons
+00:06 +311 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/directory_screen_test.dart: renders entries with phone numbers and call buttons
+00:06 +312 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/directory_screen_test.dart: renders entries with phone numbers and call buttons
+00:06 +313 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/directory_screen_test.dart: renders entries with phone numbers and call buttons
+00:06 +314 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/directory_screen_test.dart: renders entries with phone numbers and call buttons
+00:06 +315 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/directory_screen_test.dart: renders entries with phone numbers and call buttons
+00:07 +316 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/directory_screen_test.dart: renders entries with phone numbers and call buttons
+00:07 +317 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/home_screen_test.dart: HomeScreen renders app bar with profile title
+00:07 +318 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/home_screen_test.dart: HomeScreen renders app bar with profile title
+00:07 +319 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/home_screen_test.dart: HomeScreen renders app bar with profile title
+00:07 +320 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/home_screen_test.dart: HomeScreen renders app bar with profile title
+00:07 +321 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/home_screen_test.dart: HomeScreen renders app bar with profile title
+00:07 +322 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/home_screen_test.dart: HomeScreen renders app bar with profile title
+00:07 +323 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/home_screen_test.dart: HomeScreen renders app bar with profile title
+00:07 +324 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/home_screen_test.dart: HomeScreen renders app bar with profile title
+00:07 +325 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/home_screen_test.dart: HomeScreen renders app bar with profile title
+00:07 +326 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/home_screen_test.dart: HomeScreen renders app bar with profile title
+00:07 +327 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/home_screen_test.dart: HomeScreen renders app bar with profile title
+00:07 +328 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/home_screen_test.dart: HomeScreen renders app bar with profile title
+00:07 +329 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/home_screen_test.dart: HomeScreen renders app bar with profile title
+00:07 +330 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/message_bubble_test.dart: calls onAnimateComplete when typewriter finishes
+00:07 +331 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/home_screen_test.dart: HomeScreen renders 2-tile emergency triad + AppBar 999 pill
+00:07 +332 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/model_picker_section_test.dart: ModelPickerSection under the real app theme renders a download button per available variant
+00:07 +333 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/model_picker_section_test.dart: ModelPickerSection under the real app theme renders a download button per available variant
+00:07 +334 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/model_picker_section_test.dart: ModelPickerSection under the real app theme renders a download button per available variant
+00:07 +335 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/model_picker_section_test.dart: ModelPickerSection under the real app theme renders a download button per available variant
+00:08 +336 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/model_picker_section_test.dart: ModelPickerSection under the real app theme renders a download button per available variant
+00:08 +337 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/model_picker_section_test.dart: ModelPickerSection under the real app theme renders a download button per available variant
+00:08 +338 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/model_picker_section_test.dart: ModelPickerSection under the real app theme renders a download button per available variant
+00:08 +339 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/model_picker_section_test.dart: ModelPickerSection under the real app theme renders a download button per available variant
+00:08 +340 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/model_picker_section_test.dart: ModelPickerSection under the real app theme renders a download button per available variant
+00:08 +341 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/onboarding_screen_test.dart: OnboardingScreen renders welcome page on first show
+00:08 +342 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/onboarding_screen_test.dart: OnboardingScreen renders welcome page on first show
+00:08 +343 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/onboarding_screen_test.dart: OnboardingScreen renders welcome page on first show
+00:08 +344 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/quick_cards_screen_test.dart: renders all quick cards
+00:08 +344 -8: D:/Gemma - 4 Hackathon/shongjog/test/widget/home_screen_test.dart: HomeScreen renders insight card after scrolling
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following StateError was thrown running a test:
+Bad state: No element
+
+When the exception was thrown, this was the stack:
+#0      Iterable.single (dart:core/iterable.dart:694:25)
+#1      WidgetController.element (package:flutter_test/src/controller.dart:888:30)
+#2      WidgetController.dragUntilVisible.<anonymous closure> (package:flutter_test/src/controller.dart:2482:38)
+<asynchronous suspension>
+#3      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#4      WidgetController.scrollUntilVisible.<anonymous closure> (package:flutter_test/src/controller.dart:2439:7)
+<asynchronous suspension>
+#5      TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#6      main.<anonymous closure>.<anonymous closure> (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/home_screen_test.dart:138:7)
+<asynchronous suspension>
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  renders insight card after scrolling
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+00:08 +344 -9: D:/Gemma - 4 Hackathon/shongjog/test/widget/quick_cards_screen_test.dart: renders all quick cards
+00:08 +344 -9: D:/Gemma - 4 Hackathon/shongjog/test/widget/home_screen_test.dart: HomeScreen renders insight card after scrolling [E]
+  Test failed. See exception logs above.
+  The test description was: renders insight card after scrolling
+  
+00:08 +345 -9: D:/Gemma - 4 Hackathon/shongjog/test/widget/quick_cards_screen_test.dart: renders all quick cards
+00:08 +346 -9: D:/Gemma - 4 Hackathon/shongjog/test/widget/quick_cards_screen_test.dart: renders all quick cards
+00:09 +347 -9: D:/Gemma - 4 Hackathon/shongjog/test/widget/quick_cards_screen_test.dart: renders all quick cards
+00:09 +348 -9: D:/Gemma - 4 Hackathon/shongjog/test/widget/settings_screen_test.dart: SettingsScreen renders theme section
+00:09 +349 -9: D:/Gemma - 4 Hackathon/shongjog/test/widget/settings_screen_test.dart: SettingsScreen renders theme section
+00:09 +350 -9: D:/Gemma - 4 Hackathon/shongjog/test/widget/settings_screen_test.dart: SettingsScreen renders theme section
+00:09 +351 -9: D:/Gemma - 4 Hackathon/shongjog/test/widget/settings_screen_test.dart: SettingsScreen renders theme section
+00:09 +352 -9: D:/Gemma - 4 Hackathon/shongjog/test/widget/settings_screen_test.dart: SettingsScreen renders theme section
+00:09 +353 -9: D:/Gemma - 4 Hackathon/shongjog/test/widget/settings_screen_test.dart: SettingsScreen renders theme section
+00:09 +354 -9: D:/Gemma - 4 Hackathon/shongjog/test/widget/onboarding_screen_test.dart: OnboardingScreen navigates to permissions page on next
+00:09 +355 -9: D:/Gemma - 4 Hackathon/shongjog/test/widget/onboarding_screen_test.dart: OnboardingScreen navigates to permissions page on next
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "αªàαª¿αºüαª«αªñαª┐ αª¬αºìαª░αª»αª╝αºïαª£αª¿": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/onboarding_screen_test.dart:58:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/onboarding_screen_test.dart line 58
+The test description was:
+  navigates to permissions page on next
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+00:09 +355 -10: D:/Gemma - 4 Hackathon/shongjog/test/widget/shelter_route_info_card_test.dart: ShelterRouteInfoCard shows the Bangla shelter name + capacity in the header
+00:09 +355 -10: D:/Gemma - 4 Hackathon/shongjog/test/widget/onboarding_screen_test.dart: OnboardingScreen navigates to permissions page on next [E]
+  Test failed. See exception logs above.
+  The test description was: navigates to permissions page on next
+  
+00:09 +356 -10: D:/Gemma - 4 Hackathon/shongjog/test/widget/shelter_search_panel_test.dart: ShelterSearchPanel renders every ranked shelter by default (no filter)
+00:09 +357 -10: D:/Gemma - 4 Hackathon/shongjog/test/widget/shelter_search_panel_test.dart: ShelterSearchPanel renders every ranked shelter by default (no filter)
+00:09 +358 -10: D:/Gemma - 4 Hackathon/shongjog/test/widget/shelter_search_panel_test.dart: ShelterSearchPanel renders every ranked shelter by default (no filter)
+00:09 +359 -10: D:/Gemma - 4 Hackathon/shongjog/test/widget/shelter_search_panel_test.dart: ShelterSearchPanel renders every ranked shelter by default (no filter)
+00:09 +360 -10: D:/Gemma - 4 Hackathon/shongjog/test/widget/shelter_search_panel_test.dart: ShelterSearchPanel renders every ranked shelter by default (no filter)
+00:09 +360 -10: D:/Gemma - 4 Hackathon/shongjog/test/widget/onboarding_screen_test.dart: OnboardingScreen navigates back from permissions page via back arrow
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "αªàαª¿αºüαª«αªñαª┐ αª¬αºìαª░αª»αª╝αºïαª£αª¿": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/onboarding_screen_test.dart:70:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/onboarding_screen_test.dart line 70
+The test description was:
+  navigates back from permissions page via back arrow
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+00:09 +360 -11: D:/Gemma - 4 Hackathon/shongjog/test/widget/shelter_search_panel_test.dart: ShelterSearchPanel renders every ranked shelter by default (no filter)
+00:09 +360 -11: D:/Gemma - 4 Hackathon/shongjog/test/widget/onboarding_screen_test.dart: OnboardingScreen navigates back from permissions page via back arrow [E]
+  Test failed. See exception logs above.
+  The test description was: navigates back from permissions page via back arrow
+  
+00:09 +361 -11: D:/Gemma - 4 Hackathon/shongjog/test/widget/shelter_search_panel_test.dart: ShelterSearchPanel renders every ranked shelter by default (no filter)
+00:09 +362 -11: D:/Gemma - 4 Hackathon/shongjog/test/widget/shelter_search_panel_test.dart: ShelterSearchPanel renders every ranked shelter by default (no filter)
+00:10 +363 -11: D:/Gemma - 4 Hackathon/shongjog/test/widget/onboarding_screen_test.dart: OnboardingScreen navigates to model page on second next
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "AI αª«αªíαºçαª▓ αªíαª╛αªëαª¿αª▓αºïαªí": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/onboarding_screen_test.dart:87:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/onboarding_screen_test.dart line 87
+The test description was:
+  navigates to model page on second next
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+00:10 +363 -12: D:/Gemma - 4 Hackathon/shongjog/test/widget/settings_screen_test.dart: SettingsScreen toggling auto-read persists to prefs
+00:10 +363 -12: D:/Gemma - 4 Hackathon/shongjog/test/widget/onboarding_screen_test.dart: OnboardingScreen navigates to model page on second next [E]
+  Test failed. See exception logs above.
+  The test description was: navigates to model page on second next
+  
+00:10 +364 -12: D:/Gemma - 4 Hackathon/shongjog/test/widget/shelter_search_panel_test.dart: ShelterSearchPanel filters by English name (case-insensitive substring)
+00:10 +365 -12: D:/Gemma - 4 Hackathon/shongjog/test/widget/onboarding_screen_test.dart: OnboardingScreen last page shows settings and home buttons, no forward arrow
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "αª╕αºçαªƒαª┐αªéαª╕": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/onboarding_screen_test.dart:100:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/onboarding_screen_test.dart line 100
+The test description was:
+  last page shows settings and home buttons, no forward arrow
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+00:10 +365 -13: D:/Gemma - 4 Hackathon/shongjog/test/widget/settings_screen_test.dart: SettingsScreen shows clear cache option
+00:10 +365 -13: D:/Gemma - 4 Hackathon/shongjog/test/widget/onboarding_screen_test.dart: OnboardingScreen last page shows settings and home buttons, no forward arrow [E]
+  Test failed. See exception logs above.
+  The test description was: last page shows settings and home buttons, no forward arrow
+  
+00:10 +366 -13: D:/Gemma - 4 Hackathon/shongjog/test/widget/settings_screen_test.dart: SettingsScreen shows clear cache option
+00:10 +367 -13: D:/Gemma - 4 Hackathon/shongjog/test/widget/triage_wizard_test.dart: renders the first question and big yes/no buttons
+00:10 +368 -13: D:/Gemma - 4 Hackathon/shongjog/test/widget/triage_wizard_test.dart: renders the first question and big yes/no buttons
+00:10 +368 -13: D:/Gemma - 4 Hackathon/shongjog/test/widget/onboarding_screen_test.dart: OnboardingScreen home button completes onboarding
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following assertion was thrown running a test:
+The finder "Found 0 widgets with text "αª╣αºïαª«αºç αª»αª╛αª¿": []" (used in a call to "tap()") could not find any
+matching widgets.
+
+When the exception was thrown, this was the stack:
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2095:7)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1947:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1080:7)
+#3      main.<anonymous closure>.<anonymous closure> (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/onboarding_screen_test.dart:116:20)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  home button completes onboarding
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+00:10 +368 -14: D:/Gemma - 4 Hackathon/shongjog/test/widget/triage_wizard_test.dart: renders the first question and big yes/no buttons
+00:10 +368 -14: D:/Gemma - 4 Hackathon/shongjog/test/widget/onboarding_screen_test.dart: OnboardingScreen home button completes onboarding [E]
+  Test failed. See exception logs above.
+  The test description was: home button completes onboarding
+  
+00:10 +369 -14: D:/Gemma - 4 Hackathon/shongjog/test/widget/triage_wizard_test.dart: renders the first question and big yes/no buttons
+00:10 +369 ~1 -14: D:/Gemma - 4 Hackathon/shongjog/test/widget/triage_wizard_test.dart: renders the first question and big yes/no buttons
+00:10 +370 ~1 -14: D:/Gemma - 4 Hackathon/shongjog/test/widget/triage_wizard_test.dart: renders the first question and big yes/no buttons
+00:10 +371 ~1 -14: D:/Gemma - 4 Hackathon/shongjog/test/widget/triage_wizard_test.dart: renders the first question and big yes/no buttons
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY WIDGETS LIBRARY Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following _TypeError was thrown building TriageWizardScreen(dirty, dependencies:
+[_LocalizationsScope-[GlobalKey#47437]], state: _TriageWizardScreenState#9dfc5):
+Null check operator used on a null value
+
+The relevant error-causing widget was:
+  TriageWizardScreen
+  TriageWizardScreen:file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/triage_wizard_test.dart:9:31
+
+When the exception was thrown, this was the stack:
+#0      AppLocalizations.of (package:shongjog/l10n/app_localizations.dart:71:73)
+#1      _TriageWizardScreenState.build (package:shongjog/features/triage/triage_wizard_screen.dart:81:38)
+#2      StatefulElement.build (package:flutter/src/widgets/framework.dart:5931:27)
+#3      ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5817:15)
+#4      StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#5      Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#6      ComponentElement._firstBuild (package:flutter/src/widgets/framework.dart:5799:5)
+#7      StatefulElement._firstBuild (package:flutter/src/widgets/framework.dart:5973:11)
+#8      ComponentElement.mount (package:flutter/src/widgets/framework.dart:5793:5)
+...     Normal element mounting (260 frames)
+#268    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4587:20)
+#269    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7264:36)
+#270    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7279:32)
+...     Normal element mounting (467 frames)
+#737    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4587:20)
+#738    Element.updateChild (package:flutter/src/widgets/framework.dart:4053:20)
+#739    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#740    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#741    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#742    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#743    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#744    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#745    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#746    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#747    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#748    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#749    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#750    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#751    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#752    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#753    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#754    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#755    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#756    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#757    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#758    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#759    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#760    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#761    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#762    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#763    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#764    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#765    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#766    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#767    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#768    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#769    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#770    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#771    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#772    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#773    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#774    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#775    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#776    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#777    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#778    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#779    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#780    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#781    _RawViewElement._updateChild (package:flutter/src/widgets/view.dart:481:16)
+#782    _RawViewElement.update (package:flutter/src/widgets/view.dart:568:5)
+#783    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#784    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#785    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#786    StatelessElement.update (package:flutter/src/widgets/framework.dart:5895:5)
+#787    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#788    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#789    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#790    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#791    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#792    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#793    RootElement._rebuild (package:flutter/src/widgets/binding.dart:2091:16)
+#794    RootElement.update (package:flutter/src/widgets/binding.dart:2069:5)
+#795    RootElement.performRebuild (package:flutter/src/widgets/binding.dart:2083:7)
+#796    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#797    BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
+#798    BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
+#799    BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
+#800    AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:2431:19)
+#801    RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:509:5)
+#802    SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1430:15)
+#803    SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1345:9)
+#804    AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:2260:9)
+#807    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#808    AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:2249:27)
+#809    WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
+#812    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#813    WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
+#814    main.<anonymous closure> (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/triage_wizard_test.dart:8:18)
+#815    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
+<asynchronous suspension>
+#816    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 5 frames from dart:async and package:stack_trace)
+
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "αª¼αºìαª»αªòαºìαªñαª┐ αªòαª┐ αª╕αªÜαºçαªñαª¿?": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/triage_wizard_test.dart:11:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/triage_wizard_test.dart line 11
+The test description was:
+  renders the first question and big yes/no buttons
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following message was thrown:
+Multiple exceptions (2) were detected during the running of the current test, and at least one was
+unexpected.
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+00:10 +371 ~1 -15: D:/Gemma - 4 Hackathon/shongjog/test/widget/typewriter_text_test.dart: TypewriterText shows full text immediately when animate is false
+00:10 +371 ~1 -15: D:/Gemma - 4 Hackathon/shongjog/test/widget/triage_wizard_test.dart: renders the first question and big yes/no buttons [E]
+  Test failed. See exception logs above.
+  The test description was: renders the first question and big yes/no buttons
+  
+00:10 +371 ~1 -15: D:/Gemma - 4 Hackathon/shongjog/test/widget/triage_wizard_test.dart: tapping αª╣αºìαª»αª╛αªü advances to the next question
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY WIDGETS LIBRARY Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following _TypeError was thrown building TriageWizardScreen(dirty, dependencies:
+[_LocalizationsScope-[GlobalKey#142bb]], state: _TriageWizardScreenState#35bc3):
+Null check operator used on a null value
+
+The relevant error-causing widget was:
+  TriageWizardScreen
+  TriageWizardScreen:file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/triage_wizard_test.dart:20:31
+
+When the exception was thrown, this was the stack:
+#0      AppLocalizations.of (package:shongjog/l10n/app_localizations.dart:71:73)
+#1      _TriageWizardScreenState.build (package:shongjog/features/triage/triage_wizard_screen.dart:81:38)
+#2      StatefulElement.build (package:flutter/src/widgets/framework.dart:5931:27)
+#3      ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5817:15)
+#4      StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#5      Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#6      ComponentElement._firstBuild (package:flutter/src/widgets/framework.dart:5799:5)
+#7      StatefulElement._firstBuild (package:flutter/src/widgets/framework.dart:5973:11)
+#8      ComponentElement.mount (package:flutter/src/widgets/framework.dart:5793:5)
+...     Normal element mounting (260 frames)
+#268    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4587:20)
+#269    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7264:36)
+#270    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7279:32)
+...     Normal element mounting (467 frames)
+#737    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4587:20)
+#738    Element.updateChild (package:flutter/src/widgets/framework.dart:4053:20)
+#739    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#740    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#741    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#742    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#743    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#744    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#745    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#746    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#747    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#748    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#749    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#750    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#751    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#752    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#753    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#754    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#755    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#756    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#757    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#758    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#759    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#760    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#761    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#762    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#763    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#764    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#765    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#766    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#767    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#768    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#769    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#770    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#771    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#772    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#773    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#774    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#775    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#776    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#777    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#778    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#779    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#780    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#781    _RawViewElement._updateChild (package:flutter/src/widgets/view.dart:481:16)
+#782    _RawViewElement.update (package:flutter/src/widgets/view.dart:568:5)
+#783    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#784    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#785    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#786    StatelessElement.update (package:flutter/src/widgets/framework.dart:5895:5)
+#787    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#788    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#789    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#790    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#791    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#792    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#793    RootElement._rebuild (package:flutter/src/widgets/binding.dart:2091:16)
+#794    RootElement.update (package:flutter/src/widgets/binding.dart:2069:5)
+#795    RootElement.performRebuild (package:flutter/src/widgets/binding.dart:2083:7)
+#796    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#797    BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
+#798    BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
+#799    BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
+#800    AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:2431:19)
+#801    RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:509:5)
+#802    SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1430:15)
+#803    SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1345:9)
+#804    AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:2260:9)
+#807    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#808    AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:2249:27)
+#809    WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
+#812    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#813    WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
+#814    main.<anonymous closure> (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/triage_wizard_test.dart:19:18)
+#815    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
+<asynchronous suspension>
+#816    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 5 frames from dart:async and package:stack_trace)
+
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following assertion was thrown running a test:
+The finder "Found 0 widgets with text "αª╣αºìαª»αª╛αªü": []" (used in a call to "tap()") could not find any
+matching widgets.
+
+When the exception was thrown, this was the stack:
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2095:7)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1947:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1080:7)
+#3      main.<anonymous closure> (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/triage_wizard_test.dart:22:18)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  tapping αª╣αºìαª»αª╛αªü advances to the next question
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following message was thrown:
+Multiple exceptions (2) were detected during the running of the current test, and at least one was
+unexpected.
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+00:10 +371 ~1 -16: D:/Gemma - 4 Hackathon/shongjog/test/widget/typewriter_text_test.dart: TypewriterText shows full text immediately when animate is false
+00:10 +371 ~1 -16: D:/Gemma - 4 Hackathon/shongjog/test/widget/triage_wizard_test.dart: tapping αª╣αºìαª»αª╛αªü advances to the next question [E]
+  Test failed. See exception logs above.
+  The test description was: tapping αª╣αºìαª»αª╛αªü advances to the next question
+  
+00:10 +371 ~1 -16: D:/Gemma - 4 Hackathon/shongjog/test/widget/onboarding_screen_test.dart: OnboardingScreen settings button completes onboarding and pushes /settings
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following assertion was thrown running a test:
+The finder "Found 0 widgets with text "αª╕αºçαªƒαª┐αªéαª╕": []" (used in a call to "tap()") could not find any
+matching widgets.
+
+When the exception was thrown, this was the stack:
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2095:7)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1947:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1080:7)
+#3      main.<anonymous closure>.<anonymous closure> (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/onboarding_screen_test.dart:137:20)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  settings button completes onboarding and pushes /settings
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+00:10 +371 ~1 -17: D:/Gemma - 4 Hackathon/shongjog/test/widget/typewriter_text_test.dart: TypewriterText shows full text immediately when animate is false
+00:10 +371 ~1 -17: D:/Gemma - 4 Hackathon/shongjog/test/widget/onboarding_screen_test.dart: OnboardingScreen settings button completes onboarding and pushes /settings [E]
+  Test failed. See exception logs above.
+  The test description was: settings button completes onboarding and pushes /settings
+  
+00:10 +371 ~1 -17: D:/Gemma - 4 Hackathon/shongjog/test/widget/triage_wizard_test.dart: first-question αª¿αª╛ lands directly on cpr terminal
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY WIDGETS LIBRARY Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following _TypeError was thrown building TriageWizardScreen(dirty, dependencies:
+[_LocalizationsScope-[GlobalKey#6952c]], state: _TriageWizardScreenState#2d224):
+Null check operator used on a null value
+
+The relevant error-causing widget was:
+  TriageWizardScreen
+  TriageWizardScreen:file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/triage_wizard_test.dart:31:31
+
+When the exception was thrown, this was the stack:
+#0      AppLocalizations.of (package:shongjog/l10n/app_localizations.dart:71:73)
+#1      _TriageWizardScreenState.build (package:shongjog/features/triage/triage_wizard_screen.dart:81:38)
+#2      StatefulElement.build (package:flutter/src/widgets/framework.dart:5931:27)
+#3      ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5817:15)
+#4      StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#5      Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#6      ComponentElement._firstBuild (package:flutter/src/widgets/framework.dart:5799:5)
+#7      StatefulElement._firstBuild (package:flutter/src/widgets/framework.dart:5973:11)
+#8      ComponentElement.mount (package:flutter/src/widgets/framework.dart:5793:5)
+...     Normal element mounting (260 frames)
+#268    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4587:20)
+#269    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7264:36)
+#270    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7279:32)
+...     Normal element mounting (467 frames)
+#737    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4587:20)
+#738    Element.updateChild (package:flutter/src/widgets/framework.dart:4053:20)
+#739    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#740    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#741    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#742    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#743    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#744    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#745    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#746    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#747    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#748    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#749    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#750    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#751    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#752    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#753    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#754    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#755    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#756    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#757    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#758    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#759    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#760    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#761    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#762    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#763    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#764    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#765    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#766    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#767    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#768    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#769    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#770    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#771    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#772    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#773    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#774    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#775    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#776    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#777    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#778    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#779    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#780    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#781    _RawViewElement._updateChild (package:flutter/src/widgets/view.dart:481:16)
+#782    _RawViewElement.update (package:flutter/src/widgets/view.dart:568:5)
+#783    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#784    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#785    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#786    StatelessElement.update (package:flutter/src/widgets/framework.dart:5895:5)
+#787    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#788    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#789    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#790    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#791    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#792    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#793    RootElement._rebuild (package:flutter/src/widgets/binding.dart:2091:16)
+#794    RootElement.update (package:flutter/src/widgets/binding.dart:2069:5)
+#795    RootElement.performRebuild (package:flutter/src/widgets/binding.dart:2083:7)
+#796    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#797    BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
+#798    BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
+#799    BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
+#800    AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:2431:19)
+#801    RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:509:5)
+#802    SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1430:15)
+#803    SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1345:9)
+#804    AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:2260:9)
+#807    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#808    AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:2249:27)
+#809    WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
+#812    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#813    WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
+#814    main.<anonymous closure> (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/triage_wizard_test.dart:30:18)
+#815    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
+<asynchronous suspension>
+#816    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 5 frames from dart:async and package:stack_trace)
+
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following assertion was thrown running a test:
+The finder "Found 0 widgets with text "αª¿αª╛": []" (used in a call to "tap()") could not find any
+matching widgets.
+
+When the exception was thrown, this was the stack:
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2095:7)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1947:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1080:7)
+#3      main.<anonymous closure> (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/triage_wizard_test.dart:33:18)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  first-question αª¿αª╛ lands directly on cpr terminal
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following message was thrown:
+Multiple exceptions (2) were detected during the running of the current test, and at least one was
+unexpected.
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+00:10 +371 ~1 -18: D:/Gemma - 4 Hackathon/shongjog/test/widget/typewriter_text_test.dart: TypewriterText shows full text immediately when animate is false
+00:10 +371 ~1 -18: D:/Gemma - 4 Hackathon/shongjog/test/widget/triage_wizard_test.dart: first-question αª¿αª╛ lands directly on cpr terminal [E]
+  Test failed. See exception logs above.
+  The test description was: first-question αª¿αª╛ lands directly on cpr terminal
+  
+00:10 +372 ~1 -18: D:/Gemma - 4 Hackathon/shongjog/test/widget/settings_screen_test.dart: SettingsScreen clear cache shows confirmation dialog and cancel
+00:10 +373 ~1 -18: D:/Gemma - 4 Hackathon/shongjog/test/widget/settings_screen_test.dart: SettingsScreen clear cache shows confirmation dialog and cancel
+00:10 +374 ~1 -18: D:/Gemma - 4 Hackathon/shongjog/test/widget/settings_screen_test.dart: SettingsScreen clear cache shows confirmation dialog and cancel
+00:10 +374 ~1 -18: D:/Gemma - 4 Hackathon/shongjog/test/widget/triage_wizard_test.dart: yes-yes-yes lands on bleeding route
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY WIDGETS LIBRARY Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following _TypeError was thrown building TriageWizardScreen(dirty, dependencies:
+[_LocalizationsScope-[GlobalKey#e25b2]], state: _TriageWizardScreenState#a6134):
+Null check operator used on a null value
+
+The relevant error-causing widget was:
+  TriageWizardScreen
+  TriageWizardScreen:file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/triage_wizard_test.dart:41:31
+
+When the exception was thrown, this was the stack:
+#0      AppLocalizations.of (package:shongjog/l10n/app_localizations.dart:71:73)
+#1      _TriageWizardScreenState.build (package:shongjog/features/triage/triage_wizard_screen.dart:81:38)
+#2      StatefulElement.build (package:flutter/src/widgets/framework.dart:5931:27)
+#3      ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5817:15)
+#4      StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#5      Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#6      ComponentElement._firstBuild (package:flutter/src/widgets/framework.dart:5799:5)
+#7      StatefulElement._firstBuild (package:flutter/src/widgets/framework.dart:5973:11)
+#8      ComponentElement.mount (package:flutter/src/widgets/framework.dart:5793:5)
+...     Normal element mounting (260 frames)
+#268    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4587:20)
+#269    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7264:36)
+#270    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7279:32)
+...     Normal element mounting (467 frames)
+#737    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4587:20)
+#738    Element.updateChild (package:flutter/src/widgets/framework.dart:4053:20)
+#739    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#740    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#741    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#742    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#743    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#744    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#745    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#746    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#747    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#748    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#749    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#750    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#751    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#752    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#753    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#754    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#755    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#756    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#757    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#758    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#759    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#760    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#761    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#762    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#763    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#764    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#765    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#766    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#767    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#768    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#769    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#770    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#771    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#772    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#773    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#774    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#775    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#776    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#777    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#778    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#779    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#780    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#781    _RawViewElement._updateChild (package:flutter/src/widgets/view.dart:481:16)
+#782    _RawViewElement.update (package:flutter/src/widgets/view.dart:568:5)
+#783    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#784    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#785    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#786    StatelessElement.update (package:flutter/src/widgets/framework.dart:5895:5)
+#787    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#788    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#789    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#790    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#791    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#792    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#793    RootElement._rebuild (package:flutter/src/widgets/binding.dart:2091:16)
+#794    RootElement.update (package:flutter/src/widgets/binding.dart:2069:5)
+#795    RootElement.performRebuild (package:flutter/src/widgets/binding.dart:2083:7)
+#796    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#797    BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
+#798    BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
+#799    BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
+#800    AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:2431:19)
+#801    RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:509:5)
+#802    SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1430:15)
+#803    SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1345:9)
+#804    AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:2260:9)
+#807    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#808    AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:2249:27)
+#809    WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
+#812    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#813    WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
+#814    main.<anonymous closure> (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/triage_wizard_test.dart:40:18)
+#815    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
+<asynchronous suspension>
+#816    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 5 frames from dart:async and package:stack_trace)
+
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following assertion was thrown running a test:
+The finder "Found 0 widgets with text "αª╣αºìαª»αª╛αªü": []" (used in a call to "tap()") could not find any
+matching widgets.
+
+When the exception was thrown, this was the stack:
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2095:7)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1947:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1080:7)
+#3      main.<anonymous closure> (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/triage_wizard_test.dart:43:18)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  yes-yes-yes lands on bleeding route
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following message was thrown:
+Multiple exceptions (2) were detected during the running of the current test, and at least one was
+unexpected.
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+00:10 +374 ~1 -19: D:/Gemma - 4 Hackathon/shongjog/test/widget/settings_screen_test.dart: SettingsScreen clear cache shows confirmation dialog and cancel
+00:10 +374 ~1 -19: D:/Gemma - 4 Hackathon/shongjog/test/widget/triage_wizard_test.dart: yes-yes-yes lands on bleeding route [E]
+  Test failed. See exception logs above.
+  The test description was: yes-yes-yes lands on bleeding route
+  
+00:10 +375 ~1 -19: D:/Gemma - 4 Hackathon/shongjog/test/widget/typewriter_text_test.dart: TypewriterText reveals all text after enough time
+00:10 +376 ~1 -19: D:/Gemma - 4 Hackathon/shongjog/test/widget/triage_wizard_test.dart: yes-no-yes lands on bleeding route (no breathing)
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY WIDGETS LIBRARY Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following _TypeError was thrown building TriageWizardScreen(dirty, dependencies:
+[_LocalizationsScope-[GlobalKey#3d25d]], state: _TriageWizardScreenState#6f2bd):
+Null check operator used on a null value
+
+The relevant error-causing widget was:
+  TriageWizardScreen
+  TriageWizardScreen:file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/triage_wizard_test.dart:55:31
+
+When the exception was thrown, this was the stack:
+#0      AppLocalizations.of (package:shongjog/l10n/app_localizations.dart:71:73)
+#1      _TriageWizardScreenState.build (package:shongjog/features/triage/triage_wizard_screen.dart:81:38)
+#2      StatefulElement.build (package:flutter/src/widgets/framework.dart:5931:27)
+#3      ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5817:15)
+#4      StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#5      Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#6      ComponentElement._firstBuild (package:flutter/src/widgets/framework.dart:5799:5)
+#7      StatefulElement._firstBuild (package:flutter/src/widgets/framework.dart:5973:11)
+#8      ComponentElement.mount (package:flutter/src/widgets/framework.dart:5793:5)
+...     Normal element mounting (260 frames)
+#268    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4587:20)
+#269    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7264:36)
+#270    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7279:32)
+...     Normal element mounting (467 frames)
+#737    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4587:20)
+#738    Element.updateChild (package:flutter/src/widgets/framework.dart:4053:20)
+#739    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#740    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#741    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#742    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#743    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#744    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#745    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#746    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#747    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#748    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#749    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#750    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#751    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#752    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#753    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#754    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#755    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#756    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#757    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#758    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#759    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#760    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#761    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#762    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#763    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#764    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#765    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#766    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#767    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#768    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#769    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#770    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#771    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#772    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#773    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#774    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#775    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#776    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#777    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#778    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#779    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#780    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#781    _RawViewElement._updateChild (package:flutter/src/widgets/view.dart:481:16)
+#782    _RawViewElement.update (package:flutter/src/widgets/view.dart:568:5)
+#783    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#784    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#785    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#786    StatelessElement.update (package:flutter/src/widgets/framework.dart:5895:5)
+#787    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#788    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#789    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#790    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#791    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#792    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#793    RootElement._rebuild (package:flutter/src/widgets/binding.dart:2091:16)
+#794    RootElement.update (package:flutter/src/widgets/binding.dart:2069:5)
+#795    RootElement.performRebuild (package:flutter/src/widgets/binding.dart:2083:7)
+#796    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#797    BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
+#798    BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
+#799    BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
+#800    AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:2431:19)
+#801    RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:509:5)
+#802    SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1430:15)
+#803    SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1345:9)
+#804    AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:2260:9)
+#807    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#808    AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:2249:27)
+#809    WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
+#812    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#813    WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
+#814    main.<anonymous closure> (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/triage_wizard_test.dart:54:18)
+#815    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
+<asynchronous suspension>
+#816    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 5 frames from dart:async and package:stack_trace)
+
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following assertion was thrown running a test:
+The finder "Found 0 widgets with text "αª╣αºìαª»αª╛αªü": []" (used in a call to "tap()") could not find any
+matching widgets.
+
+When the exception was thrown, this was the stack:
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2095:7)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1947:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1080:7)
+#3      main.<anonymous closure> (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/triage_wizard_test.dart:57:18)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  yes-no-yes lands on bleeding route (no breathing)
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following message was thrown:
+Multiple exceptions (2) were detected during the running of the current test, and at least one was
+unexpected.
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+00:10 +376 ~1 -20: D:/Gemma - 4 Hackathon/shongjog/test/widget/settings_screen_test.dart: SettingsScreen AI model section shows model name and download CTA
+00:10 +376 ~1 -20: D:/Gemma - 4 Hackathon/shongjog/test/widget/triage_wizard_test.dart: yes-no-yes lands on bleeding route (no breathing) [E]
+  Test failed. See exception logs above.
+  The test description was: yes-no-yes lands on bleeding route (no breathing)
+  
+00:10 +377 ~1 -20: D:/Gemma - 4 Hackathon/shongjog/test/widget/settings_screen_test.dart: SettingsScreen AI model section shows model name and download CTA
+00:10 +377 ~1 -20: D:/Gemma - 4 Hackathon/shongjog/test/widget/triage_wizard_test.dart: reset button clears answers
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY WIDGETS LIBRARY Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following _TypeError was thrown building TriageWizardScreen(dirty, dependencies:
+[_LocalizationsScope-[GlobalKey#c0479]], state: _TriageWizardScreenState#092be):
+Null check operator used on a null value
+
+The relevant error-causing widget was:
+  TriageWizardScreen
+  TriageWizardScreen:file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/triage_wizard_test.dart:66:31
+
+When the exception was thrown, this was the stack:
+#0      AppLocalizations.of (package:shongjog/l10n/app_localizations.dart:71:73)
+#1      _TriageWizardScreenState.build (package:shongjog/features/triage/triage_wizard_screen.dart:81:38)
+#2      StatefulElement.build (package:flutter/src/widgets/framework.dart:5931:27)
+#3      ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5817:15)
+#4      StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#5      Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#6      ComponentElement._firstBuild (package:flutter/src/widgets/framework.dart:5799:5)
+#7      StatefulElement._firstBuild (package:flutter/src/widgets/framework.dart:5973:11)
+#8      ComponentElement.mount (package:flutter/src/widgets/framework.dart:5793:5)
+...     Normal element mounting (260 frames)
+#268    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4587:20)
+#269    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7264:36)
+#270    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7279:32)
+...     Normal element mounting (467 frames)
+#737    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4587:20)
+#738    Element.updateChild (package:flutter/src/widgets/framework.dart:4053:20)
+#739    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#740    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#741    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#742    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#743    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#744    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#745    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#746    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#747    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#748    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#749    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#750    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#751    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#752    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#753    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#754    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#755    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#756    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#757    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#758    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#759    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#760    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#761    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#762    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#763    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#764    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#765    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#766    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#767    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#768    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#769    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#770    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#771    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#772    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#773    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#774    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#775    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#776    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#777    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#778    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#779    ProxyElement.update (package:flutter/src/widgets/framework.dart:6149:5)
+#780    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#781    _RawViewElement._updateChild (package:flutter/src/widgets/view.dart:481:16)
+#782    _RawViewElement.update (package:flutter/src/widgets/view.dart:568:5)
+#783    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#784    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#785    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#786    StatelessElement.update (package:flutter/src/widgets/framework.dart:5895:5)
+#787    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#788    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5841:16)
+#789    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#790    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#791    StatefulElement.update (package:flutter/src/widgets/framework.dart:6007:5)
+#792    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#793    RootElement._rebuild (package:flutter/src/widgets/binding.dart:2091:16)
+#794    RootElement.update (package:flutter/src/widgets/binding.dart:2069:5)
+#795    RootElement.performRebuild (package:flutter/src/widgets/binding.dart:2083:7)
+#796    Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#797    BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
+#798    BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
+#799    BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
+#800    AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:2431:19)
+#801    RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:509:5)
+#802    SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1430:15)
+#803    SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1345:9)
+#804    AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:2260:9)
+#807    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#808    AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:2249:27)
+#809    WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
+#812    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#813    WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
+#814    main.<anonymous closure> (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/triage_wizard_test.dart:65:18)
+#815    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
+<asynchronous suspension>
+#816    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 5 frames from dart:async and package:stack_trace)
+
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following assertion was thrown running a test:
+The finder "Found 0 widgets with text "αª¿αª╛": []" (used in a call to "tap()") could not find any
+matching widgets.
+
+When the exception was thrown, this was the stack:
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2095:7)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1947:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1080:7)
+#3      main.<anonymous closure> (file:///D:/Gemma%20-%204%20Hackathon/shongjog/test/widget/triage_wizard_test.dart:68:18)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  reset button clears answers
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+ΓòÉΓòÉΓòí EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK Γò₧ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+The following message was thrown:
+Multiple exceptions (2) were detected during the running of the current test, and at least one was
+unexpected.
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+00:10 +377 ~1 -21: D:/Gemma - 4 Hackathon/shongjog/test/widget/settings_screen_test.dart: SettingsScreen AI model section shows model name and download CTA
+00:10 +377 ~1 -21: D:/Gemma - 4 Hackathon/shongjog/test/widget/triage_wizard_test.dart: reset button clears answers [E]
+  Test failed. See exception logs above.
+  The test description was: reset button clears answers
+  
+00:10 +378 ~1 -21: D:/Gemma - 4 Hackathon/shongjog/test/widget/typewriter_text_test.dart: TypewriterText does not re-animate after completion when parent rebuilds
+00:11 +379 ~1 -21: Some tests failed.
+
+Failing tests:
+  D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel fetchRoute calls notifyListeners for each phase a UI would care about
+  D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel fetchRoute happy path online ΓÇö sets route + clears loading
+  D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel fetchRoute offline uses straight-line haversine fallback (no network)
+  D:/Gemma - 4 Hackathon/shongjog/test/unit/shelter_map_view_model_test.dart: ShelterMapViewModel fetchRoute online but service returns null ΓÇö falls back to haversine
+  ... and 17 more

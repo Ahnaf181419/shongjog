@@ -50,6 +50,7 @@ dependencies:
   collection: ^1.18.0
   vector_math: ^2.1.4
   audioplayers: ^6.8.1
+  video_player: ^2.9.0
 
   # Cloud AI & Mesh Networking (Phase 4.6 & 4.7)
   google_generative_ai: ^0.4.6
@@ -65,8 +66,8 @@ dependencies:
 
   # Profile photo picker
   image_picker: ^1.0.0
-  flutter_sound: ^9.30.0
   flutter_displaymode: ^0.7.0
+  gal: ^2.3.2
 
 dev_dependencies:
   flutter_test:

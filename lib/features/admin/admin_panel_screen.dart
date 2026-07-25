@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../app/theme.dart';
 import '../../core/admin_broadcast_service.dart';
@@ -20,20 +21,23 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
   Future<bool> _confirmLogout() async {
     final result = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('লগআউট করবেন?'),
-        content: const Text('আপনি কি অ্যাডমিন প্যানেল থেকে বের হতে চান?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('বাতিল'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('লগআউট'),
-          ),
-        ],
-      ),
+      builder: (ctx) {
+        final l10n = AppLocalizations.of(context);
+        return AlertDialog(
+          title: Text(l10n.adminLogoutTitle),
+          content: Text(l10n.adminLogoutBody),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(l10n.adminLogoutButton),
+            ),
+          ],
+        );
+      },
     );
     return result ?? false;
   }
@@ -61,7 +65,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
             length: 4,
             child: Scaffold(
               appBar: AppBar(
-                title: const Text('অ্যাডমিন প্যানেল'),
+                title: Text(AppLocalizations.of(context).adminPanelTitle),
                 actions: [
                   if (pendingCount > 0)
                     Padding(
@@ -86,7 +90,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                       ),
                     ),
                   IconButton(
-                    tooltip: 'লগআউট',
+                    tooltip: AppLocalizations.of(context).adminLogoutButton,
                     icon: const Icon(Icons.logout_rounded),
                     onPressed: () async {
                       final shouldLogout = await _confirmLogout();
@@ -94,12 +98,12 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                     },
                   ),
                 ],
-                bottom: const TabBar(
+                bottom: TabBar(
                   tabs: [
-                    Tab(text: 'ড্যাশবোর্ড'),
-                    Tab(text: 'ব্যবহারকারী'),
-                    Tab(text: 'অভিযান অনুরোধ'),
-                    Tab(text: 'বার্তা ব্রডকাস্ট'),
+                    Tab(text: AppLocalizations.of(context).adminTabDashboard),
+                    Tab(text: AppLocalizations.of(context).adminTabUsers),
+                    Tab(text: AppLocalizations.of(context).adminTabCampaigns),
+                    Tab(text: AppLocalizations.of(context).adminTabBroadcast),
                   ],
                 ),
               ),
@@ -134,26 +138,27 @@ class _DashboardTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         _StatCard(
           icon: Icons.people_rounded,
-          label: 'মোট ব্যবহারকারী',
+          label: l10n.adminStatUsers,
           value: '৫',
           tint: cs.primary,
         ),
         const SizedBox(height: 12),
         _StatCard(
           icon: Icons.offline_bolt_rounded,
-          label: 'অফলাইন সেশন',
+          label: l10n.adminStatOffline,
           value: '৩',
           tint: cs.tertiary,
         ),
         const SizedBox(height: 12),
         _StatCard(
           icon: Icons.bluetooth_rounded,
-          label: 'মেশ পিয়ার',
+          label: l10n.adminStatMesh,
           value: _bnNum(meshService.peerCount),
           tint: cs.secondary,
         ),
@@ -227,6 +232,7 @@ class _UsersTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     final peers = meshService.peerList;
 
     if (peers.isEmpty) {
@@ -237,7 +243,7 @@ class _UsersTab extends StatelessWidget {
             Icon(Icons.devices_rounded, size: 48, color: cs.outline),
             const SizedBox(height: 12),
             Text(
-              'কোনো সংযুক্ত ডিভাইস নেই',
+              l10n.adminNoDevices,
               style: TextStyle(fontSize: 16, color: cs.onSurfaceVariant),
             ),
           ],
@@ -259,7 +265,7 @@ class _UsersTab extends StatelessWidget {
               shape: BoxShape.circle,
             ),
           ),
-          title: Text(peer.name.isNotEmpty ? peer.name : 'অজ্ঞাত ডিভাইস'),
+          title: Text(peer.name.isNotEmpty ? peer.name : l10n.adminUnknownDevice),
           subtitle: Text(
             peer.endpointId.length > 12
                 ? '${peer.endpointId.substring(0, 12)}…'
@@ -326,8 +332,8 @@ class _CampaignRequestsTabState extends State<_CampaignRequestsTab> {
     }
   }
 
-  String _statusLabel(CampaignStatus status) {
-    return status.labelBn;
+  String _statusLabel(BuildContext context, CampaignStatus status) {
+    return status.label(context);
   }
 
   @override
@@ -343,7 +349,7 @@ class _CampaignRequestsTabState extends State<_CampaignRequestsTab> {
             Icon(Icons.campaign_outlined, size: 48, color: cs.outline),
             const SizedBox(height: 12),
             Text(
-              'কোনো অভিযান অনুরোধ নেই',
+              AppLocalizations.of(context).adminNoCampaigns,
               style: TextStyle(fontSize: 16, color: cs.onSurfaceVariant),
             ),
           ],
@@ -360,7 +366,7 @@ class _CampaignRequestsTabState extends State<_CampaignRequestsTab> {
           request: request,
           timestamp: _formatTimestamp(request.timestamp),
           statusColor: _statusColor(context, request.status),
-          statusLabel: _statusLabel(request.status),
+          statusLabel: _statusLabel(context, request.status),
           onTap: () => _showDetailDialog(context, request),
         );
       },
@@ -369,6 +375,7 @@ class _CampaignRequestsTabState extends State<_CampaignRequestsTab> {
 
   void _showDetailDialog(BuildContext context, CampaignRequest request) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     final campaignLoc = LatLng(request.latitude, request.longitude);
     showDialog<void>(
       context: context,
@@ -408,7 +415,7 @@ class _CampaignRequestsTabState extends State<_CampaignRequestsTab> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              request.type.labelBn,
+                              request.type.label(context),
                               style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.w700,
@@ -425,7 +432,7 @@ class _CampaignRequestsTabState extends State<_CampaignRequestsTab> {
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                _statusLabel(request.status),
+                                _statusLabel(context, request.status),
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -503,18 +510,18 @@ class _CampaignRequestsTabState extends State<_CampaignRequestsTab> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _detailRow('ব্যবহারকারী', request.userName),
-                      _detailRow('ফোন',
+                      _detailRow(l10n.adminDetailUser, request.userName),
+                      _detailRow(l10n.adminDetailPhone,
                           request.userPhone.isEmpty ? '—' : request.userPhone),
-                      _detailRow('ঠিকানা', request.address),
+                      _detailRow(l10n.adminDetailAddress, request.address),
                       if (request.landmark.isNotEmpty)
-                        _detailRow('ল্যান্ডমার্ক', request.landmark),
-                      _detailRow('স্থানাঙ্ক',
+                        _detailRow(l10n.adminDetailLandmark, request.landmark),
+                      _detailRow(l10n.adminDetailCoords,
                           '${request.latitude.toStringAsFixed(4)}, ${request.longitude.toStringAsFixed(4)}'),
-                      _detailRow('সময়', _formatTimestamp(request.timestamp)),
+                      _detailRow(l10n.adminDetailTime, _formatTimestamp(request.timestamp)),
                       if (request.description.isNotEmpty) ...[
                         const SizedBox(height: 8),
-                        Text('বিবরণ',
+                        Text(l10n.adminDetailDesc,
                             style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -527,7 +534,7 @@ class _CampaignRequestsTabState extends State<_CampaignRequestsTab> {
                       if (request.adminNotes != null &&
                           request.adminNotes!.isNotEmpty) ...[
                         const SizedBox(height: 8),
-                        Text('অ্যাডমিন নোট',
+                        Text(l10n.adminDetailNotes,
                             style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -552,7 +559,7 @@ class _CampaignRequestsTabState extends State<_CampaignRequestsTab> {
                             onPressed: () async {
                               Navigator.pop(ctx);
                               final notes = await _showNotesDialog(
-                                  context, 'প্রত্যাখ্যাত');
+                                  context, l10n.adminRejectLabel);
                               if (notes != null && context.mounted) {
                                 await campaignRequestService.updateRequestStatus(
                                   request.id,
@@ -562,7 +569,7 @@ class _CampaignRequestsTabState extends State<_CampaignRequestsTab> {
                               }
                             },
                             icon: const Icon(Icons.close_rounded, size: 18),
-                            label: const Text('প্রত্যাখ্যাত'),
+                            label: Text(l10n.adminRejectLabel),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: cs.error,
                               side: BorderSide(color: cs.error),
@@ -579,7 +586,7 @@ class _CampaignRequestsTabState extends State<_CampaignRequestsTab> {
                             onPressed: () async {
                               Navigator.pop(ctx);
                               final notes = await _showNotesDialog(
-                                  context, 'অনুমোদন');
+                                  context, l10n.adminApproveLabel);
                               if (notes != null && context.mounted) {
                                 await campaignRequestService.updateRequestStatus(
                                   request.id,
@@ -592,7 +599,7 @@ class _CampaignRequestsTabState extends State<_CampaignRequestsTab> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                          '${request.type.labelBn} অনুমোদিত — মানচিত্রে যোগ করা হয়েছে'),
+                                          l10n.adminApproveSuccess(request.type.label(context))),
                                       backgroundColor: ShongjogTheme.success,
                                     ),
                                   );
@@ -600,7 +607,7 @@ class _CampaignRequestsTabState extends State<_CampaignRequestsTab> {
                               }
                             },
                             icon: const Icon(Icons.check_rounded, size: 18),
-                            label: const Text('অনুমোদন'),
+                            label: Text(l10n.adminApproveLabel),
                             style: FilledButton.styleFrom(
                               backgroundColor: ShongjogTheme.success,
                               minimumSize: const Size.fromHeight(48),
@@ -616,9 +623,9 @@ class _CampaignRequestsTabState extends State<_CampaignRequestsTab> {
                 else
                   Padding(
                     padding: const.fromLTRB(20, 0, 20, 20),
-                    child: TextButton(
-                      onPressed: () => Navigator.pop(ctx),
-                      child: const Text('বন্ধ করুন'),
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: Text(l10n.adminCloseButton),
                     ),
                   ),
               ],
@@ -631,8 +638,11 @@ class _CampaignRequestsTabState extends State<_CampaignRequestsTab> {
 
   void _fireProximityNotification(CampaignRequest request) async {
     try {
+      final userPosition = await _getPosition();
+      if (!mounted) return;
       final pos = await ProximityNotificationService.checkProximity(
-        userPosition: await _getPosition(),
+        context: context,
+        userPosition: userPosition,
         approvedCampaigns: [request],
         radiusKm: 999, // Always fire on approval
       );
@@ -640,7 +650,7 @@ class _CampaignRequestsTabState extends State<_CampaignRequestsTab> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-                'নিকটস্থ ব্যবহারকারীদের বিজ্ঞপ্তি পাঠানো হয়েছে'),
+                AppLocalizations.of(context).adminProximityNotified),
             backgroundColor: ShongjogTheme.success,
           ),
         );
@@ -676,6 +686,7 @@ class _CampaignRequestsTabState extends State<_CampaignRequestsTab> {
 
   Future<String?> _showNotesDialog(BuildContext context, String action) async {
     final controller = TextEditingController();
+    final l10n = AppLocalizations.of(context);
     return showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -683,15 +694,15 @@ class _CampaignRequestsTabState extends State<_CampaignRequestsTab> {
         content: TextField(
           controller: controller,
           maxLines: 3,
-          decoration: const InputDecoration(
-            hintText: 'নোট লিখুন...',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            hintText: l10n.adminNotesHint,
+            border: const OutlineInputBorder(),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('বাতিল'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, controller.text.trim()),
@@ -826,7 +837,7 @@ class _CampaignRequestTile extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            request.type.labelBn,
+                            request.type.label(context),
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
@@ -957,7 +968,7 @@ class _BroadcastTabState extends State<_BroadcastTab> {
     if (mounted) {
       setState(() => _sending = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('বার্তা পাঠানো হয়েছে')),
+        SnackBar(content: Text(AppLocalizations.of(context).adminBroadcastSuccess)),
       );
     }
   }
@@ -965,13 +976,14 @@ class _BroadcastTabState extends State<_BroadcastTab> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'গ্লোবাল ব্রডকাস্ট',
+            l10n.adminBroadcastSection,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -980,15 +992,15 @@ class _BroadcastTabState extends State<_BroadcastTab> {
           ),
           const SizedBox(height: 8),
           Text(
-            'সব ব্যবহারকারীকে একটি বার্তা পাঠান',
+            l10n.adminBroadcastSubtitle,
             style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _controller,
             maxLines: 4,
-            decoration: const InputDecoration(
-              hintText: 'বার্তা লিখুন…',
+            decoration: InputDecoration(
+              hintText: l10n.adminBroadcastHint,
               alignLabelWithHint: true,
             ),
           ),
@@ -1002,7 +1014,7 @@ class _BroadcastTabState extends State<_BroadcastTab> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.send_rounded),
-            label: const Text('বার্তা পাঠান'),
+            label: Text(l10n.adminBroadcastButton),
           ),
         ],
       ),

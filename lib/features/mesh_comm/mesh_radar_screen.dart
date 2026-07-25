@@ -118,7 +118,11 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
     _peerSub = meshService.peers.listen((peers) {
       if (mounted) setState(() => _peers = peers);
     });
-    
+
+    // Kick off a fresh scan immediately on (re-)entry so the peer list
+    // populates without waiting for the first periodic tick.
+    meshService.restartDiscovery();
+
     _refreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
       meshService.restartDiscovery();
     });
@@ -200,13 +204,13 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
           if (_started)
             IconButton(
               icon: const Icon(Icons.refresh_rounded),
-              tooltip: 'পুনরায় স্ক্যান করুন',
+              tooltip: AppLocalizations.of(context).meshRescanTooltip,
               onPressed: () {
                 HapticService.lightTap();
                 meshService.restartDiscovery();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('আবার স্ক্যান করা হচ্ছে...'),
+                  SnackBar(
+                    content: Text(AppLocalizations.of(context).meshRescanning),
                     duration: Duration(seconds: 2),
                   ),
                 );
@@ -302,25 +306,25 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
                     onTap: () async {
                       if (peer.status != PeerStatus.connected) {
                         HapticService.lightTap();
-                        if (!mounted) return;
+                        if (!context.mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('সংযোগ করা হচ্ছে...'),
+                          SnackBar(
+                            content: Text(AppLocalizations.of(context).meshConnectingStatus),
                             duration: Duration(seconds: 2),
                           ),
                         );
                         final ok = await meshService.connectToEndpoint(peer.endpointId);
                         if (!ok) {
-                          if (!mounted) return;
+                          if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('সংযোগ ব্যর্থ হয়েছে'),
+                            SnackBar(
+                              content: Text(AppLocalizations.of(context).meshConnectFailed),
                             ),
                           );
                           return;
                         }
                       }
-                      if (!mounted) return;
+                      if (!context.mounted) return;
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -469,7 +473,7 @@ class _PeerTile extends StatelessWidget {
         style: const TextStyle(fontWeight: FontWeight.w500),
       ),
       subtitle: Text(
-        isOfflineSaved ? 'অফলাইন' :
+        isOfflineSaved ? AppLocalizations.of(context).meshOfflineContact :
         peer.status == PeerStatus.connected
             ? AppLocalizations.of(context).meshConnected
             : peer.status == PeerStatus.reconnecting

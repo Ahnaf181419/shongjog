@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/widgets.dart';
+import '../../l10n/app_localizations.dart';
 import 'dart:io';
 
 /// Open-Meteo Air Quality client — PM2.5 / PM10 / European AQI for a point.
@@ -111,12 +113,16 @@ enum AirQualitySeverity {
   veryUnhealthy,
 }
 
-extension AirQualitySeverityBn on AirQualitySeverity {
-  String get labelBn => switch (this) {
-        AirQualitySeverity.good => 'ভালো',
-        AirQualitySeverity.moderate => 'মাঝারি',
-        AirQualitySeverity.unhealthySensitive => 'সংবেদনশীলদের জন্য ক্ষতিকর',
-        AirQualitySeverity.unhealthy => 'ক্ষতিকর',
-        AirQualitySeverity.veryUnhealthy => 'অত্যন্ত ক্ষতিকর',
-      };
+extension AirQualitySeverityL10n on AirQualitySeverity {
+  String label(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return switch (this) {
+      AirQualitySeverity.good => l10n.airGood,
+      AirQualitySeverity.moderate => l10n.airModerate,
+      AirQualitySeverity.unhealthySensitive => l10n.airUnhealthySensitive,
+      AirQualitySeverity.unhealthy => l10n.airUnhealthy,
+      AirQualitySeverity.veryUnhealthy => l10n.airVeryUnhealthy,
+    };
+  }
 }
+

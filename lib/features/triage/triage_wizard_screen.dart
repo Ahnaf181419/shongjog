@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
 import 'decision_tree.dart';
 
 /// Convert Latin digits to Bengali numerals for UI strings.
@@ -77,13 +78,13 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
     final route = _route;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ট্রায়াজ উইজার্ড'),
+        title: Text(AppLocalizations.of(context).triageTitle),
         backgroundColor: Theme.of(context).colorScheme.errorContainer,
         foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
         actions: [
           if (_answers.isNotEmpty)
             IconButton(
-              tooltip: 'পুনরায় শুরু',
+              tooltip: AppLocalizations.of(context).triageRestart,
               onPressed: _reset,
               icon: const Icon(Icons.refresh),
             ),
@@ -108,7 +109,10 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
           ),
           const SizedBox(height: 32),
           Text(
-            'প্রশ্ন ${_bn(_answers.length + 1)} / ${_bn(TriageTree.questions.length)}',
+            AppLocalizations.of(context).triageQuestion(
+              _bn(_answers.length + 1),
+              _bn(TriageTree.questions.length),
+            ),
             style: TextStyle(
               fontSize: 14,
               color: cs.onSurfaceVariant,
@@ -129,7 +133,7 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
             children: [
               Expanded(
                 child: _BigAnswerButton(
-                  label: 'হ্যাঁ',
+                  label: AppLocalizations.of(context).triageYes,
                   color: cs.primary,
                   onPressed: () => _answer(true),
                 ),
@@ -137,7 +141,7 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
               const SizedBox(width: 16),
               Expanded(
                 child: _BigAnswerButton(
-                  label: 'না',
+                  label: AppLocalizations.of(context).triageNo,
                   color: cs.error,
                   onPressed: () => _answer(false),
                 ),
@@ -152,6 +156,7 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
 
   Widget _buildRoute(BuildContext context, TriageRoute route) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     final title = _titleFor(route);
     final subtitle = _subtitleFor(route);
     return Padding(
@@ -188,7 +193,7 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
           FilledButton.icon(
             onPressed: () => Navigator.of(context).pop(),
             icon: const Icon(Icons.check),
-            label: const Text('কার্ড দেখুন'),
+            label: Text(l10n.triageViewCard),
             style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(64),
               backgroundColor: cs.primary,
@@ -198,7 +203,7 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
           FilledButton.icon(
             onPressed: () => _call999(context),
             icon: const Icon(Icons.phone),
-            label: const Text('৯৯৯ কল করুন'),
+            label: Text(l10n.triageCall999),
             style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(64),
               backgroundColor: cs.error,
@@ -208,7 +213,7 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
           OutlinedButton.icon(
             onPressed: _reset,
             icon: const Icon(Icons.refresh),
-            label: const Text('পুনরায় শুরু'),
+            label: Text(l10n.triageRestart),
             style: OutlinedButton.styleFrom(
               minimumSize: const Size.fromHeight(56),
             ),
@@ -224,9 +229,9 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
     // shared callback wired from the route — defer to the host
     // navigation stack.
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('৯৯৯ কল করুন — ফোন অ্যাপে ডায়াল করুন'),
-        duration: Duration(seconds: 3),
+      SnackBar(
+        content: Text(AppLocalizations.of(context).triageCalling999),
+        duration: const Duration(seconds: 3),
       ),
     );
   }

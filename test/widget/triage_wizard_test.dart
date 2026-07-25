@@ -1,12 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/triage/triage_wizard_screen.dart';
+
+import 'test_app.dart';
 
 void main() {
   testWidgets('renders the first question and big yes/no buttons',
       (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(home: TriageWizardScreen()),
+      localizedApp(const TriageWizardScreen()),
     );
     expect(find.text('ব্যক্তি কি সচেতন?'), findsOneWidget);
     expect(find.text('হ্যাঁ'), findsOneWidget);
@@ -17,7 +18,7 @@ void main() {
 
   testWidgets('tapping হ্যাঁ advances to the next question', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(home: TriageWizardScreen()),
+      localizedApp(const TriageWizardScreen()),
     );
     await tester.tap(find.text('হ্যাঁ'));
     await tester.pumpAndSettle();
@@ -28,7 +29,7 @@ void main() {
   testWidgets('first-question না lands directly on cpr terminal',
       (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(home: TriageWizardScreen()),
+      localizedApp(const TriageWizardScreen()),
     );
     await tester.tap(find.text('না'));
     await tester.pumpAndSettle();
@@ -38,7 +39,7 @@ void main() {
 
   testWidgets('yes-yes-yes lands on bleeding route', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(home: TriageWizardScreen()),
+      localizedApp(const TriageWizardScreen()),
     );
     await tester.tap(find.text('হ্যাঁ'));
     await tester.pumpAndSettle();
@@ -52,7 +53,7 @@ void main() {
   testWidgets('yes-no-yes lands on bleeding route (no breathing)', (tester) async {
     // breathing=no -> cpr (terminal).
     await tester.pumpWidget(
-      const MaterialApp(home: TriageWizardScreen()),
+      localizedApp(const TriageWizardScreen()),
     );
     await tester.tap(find.text('হ্যাঁ'));
     await tester.pumpAndSettle();
@@ -63,7 +64,7 @@ void main() {
 
   testWidgets('reset button clears answers', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(home: TriageWizardScreen()),
+      localizedApp(const TriageWizardScreen()),
     );
     await tester.tap(find.text('না'));
     await tester.pumpAndSettle();

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../../core/connectivity_provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../environment/marine_service.dart';
 
 /// Marine wave-forecast card — coast-aware.
@@ -144,7 +145,7 @@ class _MarineCardState extends State<MarineCard> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'সমুদ্রের উত্তালতা',
+                    AppLocalizations.of(context).marineTitle,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -154,7 +155,7 @@ class _MarineCardState extends State<MarineCard> {
                 ),
                 if (_reference != null)
                   Text(
-                    _reference!.labelBn,
+                    _reference!.label(context),
                     style: TextStyle(
                       fontSize: 11,
                       color: cs.onSurfaceVariant,
@@ -184,6 +185,7 @@ class _MarineCardState extends State<MarineCard> {
 
   Widget _buildBody(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     if (_loading) {
       return Row(
         children: [
@@ -194,7 +196,7 @@ class _MarineCardState extends State<MarineCard> {
                 strokeWidth: 2, color: cs.onSurfaceVariant),
           ),
           const SizedBox(width: 10),
-          Text('তথ্য আনা হচ্ছে…',
+          Text(l10n.fetchingData,
               style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
         ],
       );
@@ -208,7 +210,7 @@ class _MarineCardState extends State<MarineCard> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'তথ্য আনা যায়নি। আবার চেষ্টা করুন।',
+                l10n.failedToFetchTryAgain,
                 style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
               ),
             ),
@@ -228,7 +230,7 @@ class _MarineCardState extends State<MarineCard> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'তথ্য আনা যায়নি। আবার চেষ্টা করুন।',
+                l10n.failedToFetchTryAgain,
                 style: TextStyle(
                     fontSize: 13,
                     color: Theme.of(context).colorScheme.onSurfaceVariant),
@@ -260,7 +262,7 @@ class _MarineCardState extends State<MarineCard> {
                       size: 14, color: sevColor),
                   const SizedBox(width: 4),
                   Text(
-                    today.severity.labelBn,
+                    today.severity.label(context),
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -276,7 +278,7 @@ class _MarineCardState extends State<MarineCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('সর্বোচ্চ তরঙ্গ',
+                  Text(l10n.maxWave,
                       style: TextStyle(
                           fontSize: 11,
                           color: cs.onSurfaceVariant,
@@ -294,7 +296,7 @@ class _MarineCardState extends State<MarineCard> {
                         ),
                       ),
                       const SizedBox(width: 4),
-                      Text('মিটার',
+                      Text(l10n.meter,
                           style: TextStyle(
                               fontSize: 11, color: cs.onSurfaceVariant)),
                     ],
@@ -351,7 +353,7 @@ class _MarineDayCell extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            _label(day.date),
+            _label(context, day.date),
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -360,7 +362,7 @@ class _MarineDayCell extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            '${day.waveHeightMaxM.toStringAsFixed(1)} মি',
+            '${day.waveHeightMaxM.toStringAsFixed(1)} ${AppLocalizations.of(context).meterShort}',
             style: TextStyle(
               fontSize: 12,
               color: cs.onSurfaceVariant,
@@ -371,9 +373,10 @@ class _MarineDayCell extends StatelessWidget {
     );
   }
 
-  static String _label(DateTime d) {
-    const names = [
-      'সোম', 'মঙ্গল', 'বুধ', 'বৃহ', 'শুক্র', 'শনি', 'রবি',
+  static String _label(BuildContext context, DateTime d) {
+    final l10n = AppLocalizations.of(context);
+    final names = [
+      l10n.dayMon, l10n.dayTue, l10n.dayWed, l10n.dayThu, l10n.dayFri, l10n.daySat, l10n.daySun,
     ];
     return names[d.weekday - 1];
   }
@@ -383,9 +386,22 @@ class _MarineDayCell extends StatelessWidget {
 class _CoastalPoint {
   final double lat;
   final double lon;
-  final String labelBn;
+  final String labelKey;
   final double distanceKm;
-  const _CoastalPoint(this.lat, this.lon, this.labelBn, this.distanceKm);
+  const _CoastalPoint(this.lat, this.lon, this.labelKey, this.distanceKm);
+
+  String label(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    switch (labelKey) {
+      case 'CoxsBazar': return l10n.locCoxsBazar;
+      case 'Chattogram': return l10n.locChattogram;
+      case 'Bhola': return l10n.locBhola;
+      case 'Patuakhali': return l10n.locPatuakhali;
+      case 'Sundarbans': return l10n.locSundarbans;
+      case 'Teknaf': return l10n.locTeknaf;
+      default: return labelKey;
+    }
+  }
 }
 
 /// Bangladesh's southern coastal reference points — the marine API is
@@ -394,19 +410,19 @@ class _CoastalPoint {
 /// their lat/lon" problem, and matches how coastal radio broadcasts
 /// report sea state for named stretches of coast.
 const _coastalPoints = <_CoastalPointDef>[
-  _CoastalPointDef(20.45, 92.34, 'কক্সবাজার'),
-  _CoastalPointDef(22.33, 91.82, 'চট্টগ্রাম'),
-  _CoastalPointDef(22.17, 90.76, 'ভোলা'),
-  _CoastalPointDef(22.35, 90.43, 'পটুয়াখালী'),
-  _CoastalPointDef(21.95, 89.08, 'সুন্দরবন'),
-  _CoastalPointDef(21.65, 91.97, 'টেকনাফ'),
+  _CoastalPointDef(20.45, 92.34, 'CoxsBazar'),
+  _CoastalPointDef(22.33, 91.82, 'Chattogram'),
+  _CoastalPointDef(22.17, 90.76, 'Bhola'),
+  _CoastalPointDef(22.35, 90.43, 'Patuakhali'),
+  _CoastalPointDef(21.95, 89.08, 'Sundarbans'),
+  _CoastalPointDef(21.65, 91.97, 'Teknaf'),
 ];
 
 class _CoastalPointDef {
   final double lat;
   final double lon;
-  final String labelBn;
-  const _CoastalPointDef(this.lat, this.lon, this.labelBn);
+  final String labelKey;
+  const _CoastalPointDef(this.lat, this.lon, this.labelKey);
 }
 
 /// Return the nearest coastal reference point + its haversine distance
@@ -425,7 +441,7 @@ _CoastalPoint? _nearestCoastalPoint(Position pos) {
   return _CoastalPoint(
     nearestDef.lat,
     nearestDef.lon,
-    nearestDef.labelBn,
+    nearestDef.labelKey,
     nearestKm,
   );
 }

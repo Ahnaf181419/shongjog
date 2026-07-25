@@ -1,7 +1,8 @@
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 enum DeviceTier { low, mid, high }
 enum ModelVariant { e2b, e4b, twelveb }
@@ -9,7 +10,6 @@ enum ModelVariant { e2b, e4b, twelveb }
 class ModelRecommendation {
   final ModelVariant variant;
   final String label;
-  final String sizeBn;
   final int sizeBytes;
   final bool recommended;
   final bool advancedOnly;
@@ -18,19 +18,28 @@ class ModelRecommendation {
   /// the live host. Unavailable variants must not be offered for download.
   final bool available;
   final String downloadUrl;
-  final String description;
 
   const ModelRecommendation({
     required this.variant,
     required this.label,
-    required this.sizeBn,
     required this.sizeBytes,
     required this.recommended,
     required this.advancedOnly,
     this.available = true,
     required this.downloadUrl,
-    required this.description,
   });
+
+  String sizeLabel(BuildContext context) => switch (variant) {
+    ModelVariant.e2b => AppLocalizations.of(context).modelE2bSize,
+    ModelVariant.e4b => AppLocalizations.of(context).modelE4bSize,
+    ModelVariant.twelveb => AppLocalizations.of(context).model12bSize,
+  };
+
+  String descriptionLabel(BuildContext context) => switch (variant) {
+    ModelVariant.e2b => AppLocalizations.of(context).modelE2bDesc,
+    ModelVariant.e4b => AppLocalizations.of(context).modelE4bDesc,
+    ModelVariant.twelveb => AppLocalizations.of(context).model12bDesc,
+  };
 }
 
 class DeviceCapability {
@@ -117,29 +126,24 @@ class DeviceCapability {
       ModelRecommendation(
         variant: ModelVariant.e2b,
         label: 'Gemma 4 E2B',
-        sizeBn: '~২.৫ GB',
         sizeBytes: _e2bBytes,
         recommended: true,
         advancedOnly: false,
-        description: 'হালকা ও দ্রুত। সব ডিভাইসে কাজ করবে।',
         downloadUrl:
             'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it.litertlm',
       ),
       ModelRecommendation(
         variant: ModelVariant.e4b,
         label: 'Gemma 4 E4B',
-        sizeBn: '~৩.৫ GB',
         sizeBytes: _e4bBytes,
         recommended: tier == DeviceTier.mid || tier == DeviceTier.high,
         advancedOnly: false,
-        description: 'ভালো মানের উত্তর। ৬GB+ র‍্যাম প্রয়োজন।',
         downloadUrl:
             'https://huggingface.co/litert-community/gemma-4-E4B-it-litert-lm/resolve/main/gemma-4-E4B-it.litertlm',
       ),
       ModelRecommendation(
         variant: ModelVariant.twelveb,
         label: 'Gemma 4 12B',
-        sizeBn: '~৭-১০ GB',
         sizeBytes: _twelveBBytes,
         recommended: false,
         advancedOnly: true,
@@ -147,7 +151,6 @@ class DeviceCapability {
         // Kept in the catalog so on-disk lookups stay total, but hidden
         // from the picker until spike-tested (docs/spike-results.md).
         available: false,
-        description: 'সেরা মানের উত্তর। ১২GB+ র‍্যাম প্রয়োজন।',
         downloadUrl:
             'https://huggingface.co/litert-community/gemma-4-12B-it-litert-lm/resolve/main/gemma-4-12B-it-web.task',
       ),

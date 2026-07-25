@@ -62,40 +62,43 @@ class _MainShellState extends State<MainShell> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        title: Text('নতুন সংযোগের অনুরোধ'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircleAvatar(
-              radius: 30,
-              child: Icon(Icons.person, size: 30),
+      builder: (ctx) {
+        final l10n = AppLocalizations.of(ctx);
+        return AlertDialog(
+          title: Text(l10n.meshConnectionRequest),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircleAvatar(
+                radius: 30,
+                child: Icon(Icons.person, size: 30),
+              ),
+              SizedBox(height: 16),
+              Text(
+                l10n.meshWantsToConnect(displayName),
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                meshService.rejectConnection(event.endpointId);
+                Navigator.pop(ctx);
+              },
+              child: Text(l10n.meshReject),
             ),
-            SizedBox(height: 16),
-            Text(
-              '$displayName আপনার সাথে কানেক্ট হতে চাচ্ছে।',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16),
+            FilledButton(
+              onPressed: () {
+                meshService.acceptConnection(event.endpointId);
+                Navigator.pop(ctx);
+              },
+              child: Text(l10n.meshAccept),
             ),
           ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              meshService.rejectConnection(event.endpointId);
-              Navigator.pop(ctx);
-            },
-            child: Text('প্রত্যাখ্যান'),
-          ),
-          FilledButton(
-            onPressed: () {
-              meshService.acceptConnection(event.endpointId);
-              Navigator.pop(ctx);
-            },
-            child: Text('গ্রহণ করুন'),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 

@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/shelter/nearest_shelter.dart';
 import 'package:shongjog/features/shelter/shelter_model.dart';
 import 'package:shongjog/features/shelter/widgets/shelter_search_panel.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 const _shelters = [
   Shelter(
@@ -47,6 +48,9 @@ void main() {
         source: '',
       );
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('bn'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: ShelterSearchPanel(
             ranked: _buildRanked(),
@@ -68,6 +72,9 @@ void main() {
     testWidgets('filters by English name (case-insensitive substring)',
         (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('bn'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: ShelterSearchPanel(
             ranked: _buildRanked(),
@@ -86,6 +93,9 @@ void main() {
 
     testWidgets('filters by Bangla name', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('bn'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: ShelterSearchPanel(
             ranked: _buildRanked(),
@@ -106,6 +116,9 @@ void main() {
       'shows empty-state message when no shelter matches the filter',
       (tester) async {
         await tester.pumpWidget(MaterialApp(
+          locale: const Locale('bn'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: ShelterSearchPanel(
               ranked: _buildRanked(),
@@ -126,6 +139,9 @@ void main() {
         (tester) async {
       var closeCount = 0;
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('bn'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: ShelterSearchPanel(
             ranked: _buildRanked(),
@@ -152,6 +168,9 @@ void main() {
       (tester) async {
         RankedShelter? captured;
         await tester.pumpWidget(MaterialApp(
+          locale: const Locale('bn'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: ShelterSearchPanel(
               ranked: _buildRanked(),

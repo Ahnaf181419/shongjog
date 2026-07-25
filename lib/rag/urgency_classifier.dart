@@ -8,6 +8,9 @@
 /// Pure-Dart, no dependencies. Keyword-based, deterministic.
 library;
 
+import 'package:flutter/material.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
+
 /// Three urgency tiers.
 enum UrgencyLevel {
   /// Life-threatening, seconds matter (choking, cardiac, severe bleeding).
@@ -38,6 +41,14 @@ class UrgencyResult {
       UrgencyResult._(UrgencyLevel.urgent, true, 'তাগিদপূর্ণ');
   static const routine =
       UrgencyResult._(UrgencyLevel.routine, true, 'সাধারণ');
+}
+
+extension UrgencyLevelLabel on UrgencyLevel {
+  String label(BuildContext context) => switch (this) {
+    UrgencyLevel.critical => AppLocalizations.of(context).urgencyCritical,
+    UrgencyLevel.urgent => AppLocalizations.of(context).urgencyUrgent,
+    UrgencyLevel.routine => AppLocalizations.of(context).urgencyNormal,
+  };
 }
 
 /// Classifies a Bangla emergency query into an urgency tier.

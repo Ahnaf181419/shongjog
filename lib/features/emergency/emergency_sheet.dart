@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/theme.dart';
+import '../../l10n/app_localizations.dart';
 import 'emergency_actions.dart';
 import 'sos_sms_template.dart';
 
@@ -43,6 +44,7 @@ class _EmergencySheetState extends State<EmergencySheet> {
   @override
   Widget build(BuildContext context) {
     final reduceMotion = MediaQuery.of(context).disableAnimations;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: ShongjogTheme.scaffoldDark,
@@ -52,10 +54,10 @@ class _EmergencySheetState extends State<EmergencySheet> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close),
-          tooltip: 'বাতিল',
+          tooltip: l10n.emergencyCloseTooltip,
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('জরুরি কল'),
+        title: Text(l10n.emergencyCallTitle),
       ),
       body: SafeArea(
         child: Padding(
@@ -66,9 +68,9 @@ class _EmergencySheetState extends State<EmergencySheet> {
               const Icon(Icons.phone_in_talk,
                   size: 56, color: ShongjogTheme.alertBright),
               const SizedBox(height: 16),
-              const Text(
-                '৯৯৯',
-                style: TextStyle(
+              Text(
+                l10n.emergencyCallNumber,
+                style: const TextStyle(
                   fontSize: 96,
                   fontWeight: FontWeight.w600,
                   color: ShongjogTheme.alertBright,
@@ -77,7 +79,7 @@ class _EmergencySheetState extends State<EmergencySheet> {
               ),
               const SizedBox(height: 12),
               Text(
-                'জরুরি সেবায় কল করতে ডানে স্লাইড করুন',
+                l10n.emergencySlideInstruction,
                 style: TextStyle(
                   fontSize: ShongjogTheme.bodyFloor,
                   color: ShongjogTheme.inkDark.withValues(alpha: 0.7),
@@ -98,7 +100,7 @@ class _EmergencySheetState extends State<EmergencySheet> {
                     Icon(Icons.message_outlined,
                         color: ShongjogTheme.oceanBright),
                     const SizedBox(width: 8),
-                    Text('পরিবর্তে SOS পাঠান',
+                    Text(l10n.emergencySendSos,
                         style: TextStyle(color: ShongjogTheme.oceanBright)),
                   ],
                 ),
@@ -120,6 +122,7 @@ class _EmergencySheetState extends State<EmergencySheet> {
 
         return StatefulBuilder(
           builder: (context, setLocalState) {
+            final l10n = AppLocalizations.of(context);
             return Container(
               height: knobSize + 8,
               decoration: BoxDecoration(
@@ -131,8 +134,8 @@ class _EmergencySheetState extends State<EmergencySheet> {
                   Center(
                     child: Text(
                       _dragProgress >= 0.9
-                          ? 'ছেড়ে দিন'
-                          : 'ডানে স্লাইড করুন',
+                          ? l10n.emergencySlideRelease
+                          : l10n.emergencySlideHint,
                       style: TextStyle(
                         fontSize: ShongjogTheme.bodyFloor,
                         color: ShongjogTheme.inkDark.withValues(alpha: 0.4),
@@ -203,13 +206,14 @@ class _EmergencySheetState extends State<EmergencySheet> {
   }
 
   Widget _reducedMotionButton() {
+    final l10n = AppLocalizations.of(context);
     return SizedBox(
       width: double.infinity,
       height: 56,
       child: FilledButton.icon(
         onPressed: _confirmDial,
         icon: const Icon(Icons.phone),
-        label: const Text('কল করুন'),
+        label: Text(l10n.emergencyCallButton),
       ),
     );
   }
@@ -225,10 +229,11 @@ class _EmergencySheetState extends State<EmergencySheet> {
   }
 
   Future<void> _sendSos() async {
+    final l10n = AppLocalizations.of(context);
     double? lat;
     double? lon;
-    String name = 'ব্যবহারকারী';
-    String phone = 'অজানা';
+    String name = l10n.emergencyDefaultUser;
+    String phone = l10n.emergencyDefaultPhone;
     String? gpsWarning;
 
     try {
@@ -238,7 +243,7 @@ class _EmergencySheetState extends State<EmergencySheet> {
       }
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
-        gpsWarning = 'GPS অনুমতি দেওয়া হয়নি';
+        gpsWarning = l10n.emergencyGpsDenied;
       } else {
         final pos = await Geolocator.getCurrentPosition(
           locationSettings: const LocationSettings(
@@ -250,7 +255,7 @@ class _EmergencySheetState extends State<EmergencySheet> {
         lon = pos.longitude;
       }
     } catch (_) {
-      gpsWarning = 'GPS পাওয়া যায়নি (স্যাটেলাইট সিগন্যাল নেই?)';
+      gpsWarning = l10n.emergencyGpsNotFound;
     }
 
     try {
@@ -274,7 +279,7 @@ class _EmergencySheetState extends State<EmergencySheet> {
     if (!smsOk) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('SOS পাঠানো যায়নি — স্মস অ্যাপ খুঁজে পাওয়া যায়নি'),
+          content: Text(l10n.emergencySosFailed),
           backgroundColor: ShongjogTheme.alertBright,
           duration: const Duration(seconds: 5),
         ),
@@ -285,7 +290,7 @@ class _EmergencySheetState extends State<EmergencySheet> {
     if (gpsWarning != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('$gpsWarning — $phone কে কল করুন বা ৯৯৯।'),
+          content: Text('$gpsWarning — $phone ${l10n.emergencyCallFallback}'),
           backgroundColor: ShongjogTheme.alertBright,
           duration: const Duration(seconds: 5),
         ),

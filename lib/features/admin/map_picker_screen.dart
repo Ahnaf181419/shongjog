@@ -6,6 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../shelter/cached_tile_provider.dart';
 
@@ -164,7 +165,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('মানচিত্রে অবস্থান নির্বাচন'),
+        title: Text(AppLocalizations.of(context).mapPickerTitle),
         actions: [
           if (_selectedPoint != null)
             Padding(
@@ -288,7 +289,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                     controller: _searchController,
                     focusNode: _searchFocusNode,
                     decoration: InputDecoration(
-                      hintText: 'এলাকা খুঁজুন (যেমন: ঢাকা, চট্টগ্রাম)',
+                      hintText: AppLocalizations.of(context).mapPickerSearchHint,
                       prefixIcon: _searching
                           ? const Padding(
                               padding: EdgeInsets.all(12),
@@ -384,19 +385,19 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
               children: [
                 _ZoomButton(
                   icon: Icons.add_rounded,
-                  tooltip: 'জুম ইন',
+                  tooltip: AppLocalizations.of(context).mapPickerZoomIn,
                   onTap: _zoomIn,
                 ),
                 const SizedBox(height: 4),
                 _ZoomButton(
                   icon: Icons.remove_rounded,
-                  tooltip: 'জুম আউট',
+                  tooltip: AppLocalizations.of(context).mapPickerZoomOut,
                   onTap: _zoomOut,
                 ),
                 const SizedBox(height: 4),
                 _ZoomButton(
                   icon: Icons.my_location_rounded,
-                  tooltip: 'আমার অবস্থান',
+                  tooltip: AppLocalizations.of(context).mapPickerMyLocation,
                   onTap: _tryLocateUser,
                 ),
               ],
@@ -428,7 +429,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'মানচিত্রে যেকোনো স্থানে ট্যাপ করে পিন দিন',
+                        AppLocalizations.of(context).mapPickerInstruction,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -450,7 +451,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
               child: FilledButton.icon(
                 onPressed: _confirm,
                 icon: const Icon(Icons.check_rounded),
-                label: const Text('অবস্থান নিশ্চিত করুন'),
+                label: Text(AppLocalizations.of(context).mapPickerConfirm),
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(52),
                 ),

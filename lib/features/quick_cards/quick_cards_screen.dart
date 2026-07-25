@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../app/theme.dart';
 import 'cards_data.dart';
@@ -35,8 +36,9 @@ class _QuickCardsScreenState extends State<QuickCardsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('জরুরি সহায়তা কার্ড')),
+      appBar: AppBar(title: Text(l10n.quickCardsTitle)),
       body: Column(
         children: [
           Padding(
@@ -44,7 +46,7 @@ class _QuickCardsScreenState extends State<QuickCardsScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'খুঁজুন: অরএস, সাপের কামড়, বন্যা...',
+                hintText: l10n.quickCardsSearchHint,
                 hintStyle: TextStyle(
                   color: ShongjogTheme.bodySecondary(context),
                   fontSize: 16,

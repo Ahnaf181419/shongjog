@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../../app/theme.dart';
 import '../nearest_shelter.dart';
@@ -18,6 +19,7 @@ class ShelterListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     if (shelters.isEmpty) {
       return Center(
         child: Column(
@@ -27,7 +29,7 @@ class ShelterListView extends StatelessWidget {
                 size: 56,
                 color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(height: 16),
-            const Text('কোনো আশ্রয়কেন্দ্রের তথ্য নেই'),
+            Text(l10n.shelterNoData),
           ],
         ),
       );
@@ -54,8 +56,8 @@ class ShelterListView extends StatelessWidget {
             ),
             subtitle: Text(
               [
-                if (r.km > 0) '${r.km.toStringAsFixed(1)} কিমি',
-                if (s.capacity != null) 'ধারণক্ষমতা: ${s.capacity} জন',
+                if (r.km > 0) '${r.km.toStringAsFixed(1)} ${l10n.shelterKm}',
+                if (s.capacity != null) l10n.shelterCapacityCount('${s.capacity}'),
                 if (r.km == 0 && s.capacity == null) s.source,
               ].join(' • '),
             ),

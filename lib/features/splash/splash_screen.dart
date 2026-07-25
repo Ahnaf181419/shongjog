@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../app/main_shell.dart';
+import '../../l10n/app_localizations.dart';
 
 // ═══════════════════════════════════════════════════════════════════
 //  Shongjog Splash Screen
@@ -244,10 +245,10 @@ class _SplashScreenState extends State<SplashScreen>
                   opacity: _textOpacity.value,
                   child: Transform.translate(
                     offset: Offset(0, _textSlide.value),
-                    child: const Text(
-                      'সঙ্গী — Food · Rescue · Community',
+                    child: Text(
+                      AppLocalizations.of(context).splashTagline1,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w400,
                         color: Color(0xCCFFFFFF),
@@ -267,9 +268,9 @@ class _SplashScreenState extends State<SplashScreen>
                   animation: _textCtrl,
                   builder: (_, _) => Opacity(
                     opacity: _textOpacity.value * 0.5,
-                    child: const Text(
-                      'জরুরি সঙ্গী',
-                      style: TextStyle(
+                    child: Text(
+                      AppLocalizations.of(context).splashTagline2,
+                      style: const TextStyle(
                         fontSize: 13,
                         color: Colors.white,
                         letterSpacing: 1.2,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 import 'contact_model.dart';
 
@@ -45,23 +46,35 @@ final List<Contact> nationalContacts = [
   ),
 ];
 
-/// Per-category icon + Bangla label metadata.
-const categoryMeta = <ContactCategory, ({IconData icon, String labelBn})>{
+/// Per-category icon metadata.
+const categoryMeta = <ContactCategory, ({IconData icon})>{
   ContactCategory.police:
-      (icon: Icons.local_police_rounded, labelBn: 'পুলিশ'),
+      (icon: Icons.local_police_rounded),
   ContactCategory.fire:
-      (icon: Icons.local_fire_department_rounded, labelBn: 'ফায়ার'),
+      (icon: Icons.local_fire_department_rounded),
   ContactCategory.ambulance:
-      (icon: Icons.medical_services_rounded, labelBn: 'অ্যাম্বুলেন্স'),
+      (icon: Icons.medical_services_rounded),
   ContactCategory.disaster:
-      (icon: Icons.tornado_rounded, labelBn: 'দুর্যোগ'),
+      (icon: Icons.tornado_rounded),
   ContactCategory.redCrescent:
-      (icon: Icons.volunteer_activism_rounded, labelBn: 'রেড ক্রিসেন্ট'),
+      (icon: Icons.volunteer_activism_rounded),
   ContactCategory.health:
-      (icon: Icons.support_agent_rounded, labelBn: 'স্বাস্থ্য'),
+      (icon: Icons.support_agent_rounded),
   ContactCategory.other:
-      (icon: Icons.person_rounded, labelBn: 'অন্যান্য'),
+      (icon: Icons.person_rounded),
 };
+
+extension ContactCategoryLabel on ContactCategory {
+  String label(BuildContext context) => switch (this) {
+    ContactCategory.police => AppLocalizations.of(context).contactPolice,
+    ContactCategory.fire => AppLocalizations.of(context).contactFire,
+    ContactCategory.ambulance => AppLocalizations.of(context).contactAmbulance,
+    ContactCategory.disaster => AppLocalizations.of(context).contactDisaster,
+    ContactCategory.redCrescent => AppLocalizations.of(context).contactRedCrescent,
+    ContactCategory.health => AppLocalizations.of(context).contactHealth,
+    ContactCategory.other => AppLocalizations.of(context).contactOther,
+  };
+}
 
 /// CRUD for user-added custom contacts, stored as JSON in shared_preferences.
 class ContactsRepository {

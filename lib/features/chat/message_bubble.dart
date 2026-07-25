@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../app/theme.dart';
 import 'chat_repository.dart';
@@ -42,6 +43,7 @@ class MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final isDark = cs.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context);
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -98,7 +100,7 @@ class MessageBubble extends StatelessWidget {
                 child: TextButton.icon(
                   onPressed: onSpeak,
                   icon: const Icon(Icons.volume_up, size: 18),
-                  label: const Text('পড়ুন'),
+                  label: Text(l10n.chatReadAloud),
                   style: TextButton.styleFrom(
                     foregroundColor: cs.primary,
                     padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -145,7 +147,7 @@ class _PathChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        path.labelBn,
+        path.label(context),
         style: TextStyle(
           fontFamily: ShongjogTheme.fontFamily,
           fontSize: 11,

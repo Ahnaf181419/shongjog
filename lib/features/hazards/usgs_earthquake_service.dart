@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
+
 /// USGS Earthquake Hazards client — recent seismic activity near Bangladesh.
 ///
 /// The USGS FDSN event API is free, requires no key, and returns GeoJSON
@@ -154,10 +157,10 @@ class EarthquakeEvent {
 
 enum EarthquakeSeverity { light, moderate, strong }
 
-extension EarthquakeSeverityBn on EarthquakeSeverity {
-  String get labelBn => switch (this) {
-        EarthquakeSeverity.light => 'হালকা',
-        EarthquakeSeverity.moderate => 'মাঝারি',
-        EarthquakeSeverity.strong => 'শক্তিশালী',
+extension EarthquakeSeverityLabel on EarthquakeSeverity {
+  String label(BuildContext context) => switch (this) {
+        EarthquakeSeverity.light => AppLocalizations.of(context).earthquakeLight,
+        EarthquakeSeverity.moderate => AppLocalizations.of(context).earthquakeModerate,
+        EarthquakeSeverity.strong => AppLocalizations.of(context).earthquakeStrong,
       };
 }

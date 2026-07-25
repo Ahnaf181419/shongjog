@@ -247,12 +247,12 @@ class _ModelCard extends StatelessWidget {
                             _Badge('⚠️ ভারী', isLight ? ShongjogTheme.alert : ShongjogTheme.alertBright)
                         ],
                       ),
-                      Text(rec.sizeBn, style: TextStyle(
+                      Text(rec.sizeLabel(context), style: TextStyle(
                         fontFamily: ShongjogTheme.fontFamily,
                         color: cs.onSurfaceVariant,
                         fontSize: 13,
                       )),
-                      Text(rec.description, style: TextStyle(
+                      Text(rec.descriptionLabel(context), style: TextStyle(
                         fontFamily: ShongjogTheme.fontFamily,
                         color: cs.onSurfaceVariant,
                         fontSize: 12,
@@ -367,7 +367,7 @@ class _ModelCard extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('মডেল মুছে ফেলবেন?'),
-        content: Text('${rec.label} (${rec.sizeBn}) মুছে যাবে।'),
+        content: Text('${rec.label} (${rec.sizeLabel(context)}) মুছে যাবে।'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),

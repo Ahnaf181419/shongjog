@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../app/theme.dart';
 import 'district_data.dart';
@@ -87,6 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _pickPhoto() async {
+    final l10n = AppLocalizations.of(context);
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       builder: (ctx) => SafeArea(
@@ -97,12 +99,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               ListTile(
                 leading: const Icon(Icons.photo_library_rounded),
-                title: const Text('গ্যালারি'),
+                title: Text(l10n.profileGallery),
                 onTap: () => Navigator.pop(ctx, ImageSource.gallery),
               ),
               ListTile(
                 leading: const Icon(Icons.camera_alt_rounded),
-                title: const Text('ক্যামেরা'),
+                title: Text(l10n.profileCamera),
                 onTap: () => Navigator.pop(ctx, ImageSource.camera),
               ),
             ],
@@ -137,10 +139,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _save() async {
+    final l10n = AppLocalizations.of(context);
     final name = _nameController.text.trim();
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('নাম লিখুন')),
+        SnackBar(content: Text(l10n.profileEnterName)),
       );
       return;
     }
@@ -160,7 +163,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (mounted) {
       setState(() => _saving = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('প্রোফাইল সংরক্ষিত হয়েছে')),
+        SnackBar(content: Text(l10n.profileSaveSuccess)),
       );
       Navigator.pop(context);
     }
@@ -169,9 +172,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('প্রোফাইল')),
+      appBar: AppBar(title: Text(l10n.profileTitle)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
@@ -218,16 +222,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onPressed: () => showDialog<bool>(
                         context: context,
                         builder: (ctx) => AlertDialog(
-                          title: const Text('ছবি মুছুন?'),
-                          content: const Text('প্রোফাইল থেকে ছবি সরিয়ে ফেলবে।'),
+                          title: Text(l10n.profileDeletePhotoTitle),
+                          content: Text(l10n.profileDeletePhotoBody),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(ctx, false),
-                              child: const Text('বাতিল'),
+                              child: Text(l10n.cancel),
                             ),
                             FilledButton(
                               onPressed: () => Navigator.pop(ctx, true),
-                              child: const Text('মুছুন'),
+                              child: Text(l10n.delete),
                             ),
                           ],
                         ),
@@ -235,7 +239,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         if (v == true) _removePhoto();
                       }),
                       child: Text(
-                        'ছবি মুছুন',
+                        l10n.profileRemovePhoto,
                         style: TextStyle(
                           fontSize: 14,
                           color: cs.error,
@@ -249,9 +253,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   controller: _nameController,
                   maxLength: 50,
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'নাম',
-                    hintText: 'আপনার নাম লিখুন',
+                  decoration: InputDecoration(
+                    labelText: l10n.nameLabel,
+                    hintText: l10n.nameHint,
                     counterText: '',
                   ),
                 ),
@@ -262,9 +266,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   keyboardType: TextInputType.phone,
                   maxLength: 14,
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'ফোন নম্বর',
-                    hintText: '০১XXXXXXXXX',
+                  decoration: InputDecoration(
+                    labelText: l10n.phoneLabel,
+                    hintText: l10n.phoneHint,
                     counterText: '',
                   ),
                 ),
@@ -273,9 +277,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 DropdownButtonFormField<String>(
                   initialValue: _district,
                   isExpanded: true,
-                  decoration: const InputDecoration(
-                    labelText: 'জেলা',
-                    hintText: 'বিভাগ ও জেলা নির্বাচন করুন',
+                  decoration: InputDecoration(
+                    labelText: l10n.profileDistrict,
+                    hintText: l10n.profileDistrictHint,
                   ),
                   items: _buildDistrictItems(),
                   onChanged: (v) => setState(() => _district = v),
@@ -293,7 +297,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text('সংরক্ষণ করুন'),
+                      : Text(l10n.save),
                 ),
               ],
             ),

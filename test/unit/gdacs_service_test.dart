@@ -1,7 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/hazards/gdacs_service.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 void main() {
+
   group('GdacsService', () {
     test('returns null when offline', () async {
       final result = await GdacsService.fetchBangladeshAlerts(isOnline: false);
@@ -106,13 +109,19 @@ void main() {
     });
   });
 
-  group('GdacsSeverity.labelBn', () {
-    test('every severity has a non-empty Bangla label', () {
+  group('GdacsSeverity.label', () {
+    testWidgets('every severity has a non-empty label', (tester) async {
+      late BuildContext ctx;
+      await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(builder: (context) {
+          ctx = context;
+          return const SizedBox();
+        }),
+      ));
       for (final s in GdacsSeverity.values) {
-        expect(s.labelBn.isNotEmpty, isTrue);
-        final hasBangla =
-            s.labelBn.codeUnits.any((u) => u >= 0x0980 && u <= 0x09FF);
-        expect(hasBangla, isTrue, reason: '$s needs a Bangla label');
+        expect(s.label(ctx).isNotEmpty, isTrue);
       }
     });
   });

@@ -1201,6 +1201,1590 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'অবস্থান আবার চেষ্টা করুন'**
   String get weatherLocationRetry;
+
+  /// No description provided for @meshConnectionRequest.
+  ///
+  /// In bn, this message translates to:
+  /// **'নতুন সংযোগের অনুরোধ'**
+  String get meshConnectionRequest;
+
+  /// No description provided for @meshWantsToConnect.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} আপনার সাথে কানেক্ট হতে চাচ্ছে।'**
+  String meshWantsToConnect(String name);
+
+  /// No description provided for @meshReject.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রত্যাখ্যান'**
+  String get meshReject;
+
+  /// No description provided for @meshAccept.
+  ///
+  /// In bn, this message translates to:
+  /// **'গ্রহণ করুন'**
+  String get meshAccept;
+
+  /// No description provided for @airQualityTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'বায়ুর গুণমান'**
+  String get airQualityTitle;
+
+  /// No description provided for @fetchingData.
+  ///
+  /// In bn, this message translates to:
+  /// **'তথ্য আনা হচ্ছে…'**
+  String get fetchingData;
+
+  /// No description provided for @failedToFetchTryAgain.
+  ///
+  /// In bn, this message translates to:
+  /// **'তথ্য আনা যায়নি। আবার চেষ্টা করুন।'**
+  String get failedToFetchTryAgain;
+
+  /// No description provided for @airGood.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভালো'**
+  String get airGood;
+
+  /// No description provided for @airModerate.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাঝারি'**
+  String get airModerate;
+
+  /// No description provided for @airUnhealthySensitive.
+  ///
+  /// In bn, this message translates to:
+  /// **'সংবেদনশীলদের জন্য ক্ষতিকর'**
+  String get airUnhealthySensitive;
+
+  /// No description provided for @airUnhealthy.
+  ///
+  /// In bn, this message translates to:
+  /// **'ক্ষতিকর'**
+  String get airUnhealthy;
+
+  /// No description provided for @airVeryUnhealthy.
+  ///
+  /// In bn, this message translates to:
+  /// **'অত্যন্ত ক্ষতিকর'**
+  String get airVeryUnhealthy;
+
+  /// No description provided for @marineTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'সমুদ্রের উত্তালতা'**
+  String get marineTitle;
+
+  /// No description provided for @maxWave.
+  ///
+  /// In bn, this message translates to:
+  /// **'সর্বোচ্চ তরঙ্গ'**
+  String get maxWave;
+
+  /// No description provided for @meter.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিটার'**
+  String get meter;
+
+  /// No description provided for @meterShort.
+  ///
+  /// In bn, this message translates to:
+  /// **'মি'**
+  String get meterShort;
+
+  /// No description provided for @waveCalm.
+  ///
+  /// In bn, this message translates to:
+  /// **'শান্ত'**
+  String get waveCalm;
+
+  /// No description provided for @waveModerate.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাঝারি'**
+  String get waveModerate;
+
+  /// No description provided for @waveRough.
+  ///
+  /// In bn, this message translates to:
+  /// **'অস্থির'**
+  String get waveRough;
+
+  /// No description provided for @waveVeryRough.
+  ///
+  /// In bn, this message translates to:
+  /// **'অত্যন্ত অস্থির'**
+  String get waveVeryRough;
+
+  /// No description provided for @locCoxsBazar.
+  ///
+  /// In bn, this message translates to:
+  /// **'কক্সবাজার'**
+  String get locCoxsBazar;
+
+  /// No description provided for @locChattogram.
+  ///
+  /// In bn, this message translates to:
+  /// **'চট্টগ্রাম'**
+  String get locChattogram;
+
+  /// No description provided for @locBhola.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভোলা'**
+  String get locBhola;
+
+  /// No description provided for @locPatuakhali.
+  ///
+  /// In bn, this message translates to:
+  /// **'পটুয়াখালী'**
+  String get locPatuakhali;
+
+  /// No description provided for @locSundarbans.
+  ///
+  /// In bn, this message translates to:
+  /// **'সুন্দরবন'**
+  String get locSundarbans;
+
+  /// No description provided for @locTeknaf.
+  ///
+  /// In bn, this message translates to:
+  /// **'টেকনাফ'**
+  String get locTeknaf;
+
+  /// No description provided for @dayMon.
+  ///
+  /// In bn, this message translates to:
+  /// **'সোম'**
+  String get dayMon;
+
+  /// No description provided for @dayTue.
+  ///
+  /// In bn, this message translates to:
+  /// **'মঙ্গল'**
+  String get dayTue;
+
+  /// No description provided for @dayWed.
+  ///
+  /// In bn, this message translates to:
+  /// **'বুধ'**
+  String get dayWed;
+
+  /// No description provided for @dayThu.
+  ///
+  /// In bn, this message translates to:
+  /// **'বৃহ'**
+  String get dayThu;
+
+  /// No description provided for @dayFri.
+  ///
+  /// In bn, this message translates to:
+  /// **'শুক্র'**
+  String get dayFri;
+
+  /// No description provided for @daySat.
+  ///
+  /// In bn, this message translates to:
+  /// **'শনি'**
+  String get daySat;
+
+  /// No description provided for @daySun.
+  ///
+  /// In bn, this message translates to:
+  /// **'রবি'**
+  String get daySun;
+
+  /// No description provided for @splashTagline1.
+  ///
+  /// In bn, this message translates to:
+  /// **'সঙ্গী — Food · Rescue · Community'**
+  String get splashTagline1;
+
+  /// No description provided for @splashTagline2.
+  ///
+  /// In bn, this message translates to:
+  /// **'জরুরি সঙ্গী'**
+  String get splashTagline2;
+
+  /// No description provided for @meshIncomingCall.
+  ///
+  /// In bn, this message translates to:
+  /// **'ইনকামিং কল...'**
+  String get meshIncomingCall;
+
+  /// No description provided for @meshCalling.
+  ///
+  /// In bn, this message translates to:
+  /// **'কল করা হচ্ছে...'**
+  String get meshCalling;
+
+  /// No description provided for @meshRejectCall.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রত্যাখ্যান'**
+  String get meshRejectCall;
+
+  /// No description provided for @meshAcceptCall.
+  ///
+  /// In bn, this message translates to:
+  /// **'গ্রহণ'**
+  String get meshAcceptCall;
+
+  /// No description provided for @meshMute.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিউট'**
+  String get meshMute;
+
+  /// No description provided for @meshMuted.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিউটেড'**
+  String get meshMuted;
+
+  /// No description provided for @meshEndCall.
+  ///
+  /// In bn, this message translates to:
+  /// **'শেষ করুন'**
+  String get meshEndCall;
+
+  /// No description provided for @meshSpeaker.
+  ///
+  /// In bn, this message translates to:
+  /// **'স্পিকার'**
+  String get meshSpeaker;
+
+  /// No description provided for @meshEarpiece.
+  ///
+  /// In bn, this message translates to:
+  /// **'ইয়ারপিস'**
+  String get meshEarpiece;
+
+  /// No description provided for @triageTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'ট্রায়াজ উইজার্ড'**
+  String get triageTitle;
+
+  /// No description provided for @triageRestart.
+  ///
+  /// In bn, this message translates to:
+  /// **'পুনরায় শুরু'**
+  String get triageRestart;
+
+  /// No description provided for @triageQuestion.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রশ্ন {num} / {total}'**
+  String triageQuestion(String num, String total);
+
+  /// No description provided for @triageYes.
+  ///
+  /// In bn, this message translates to:
+  /// **'হ্যাঁ'**
+  String get triageYes;
+
+  /// No description provided for @triageNo.
+  ///
+  /// In bn, this message translates to:
+  /// **'না'**
+  String get triageNo;
+
+  /// No description provided for @triageViewCard.
+  ///
+  /// In bn, this message translates to:
+  /// **'কার্ড দেখুন'**
+  String get triageViewCard;
+
+  /// No description provided for @triageCall999.
+  ///
+  /// In bn, this message translates to:
+  /// **'৯৯৯ কল করুন'**
+  String get triageCall999;
+
+  /// No description provided for @triageCalling999.
+  ///
+  /// In bn, this message translates to:
+  /// **'৯৯৯ কল করুন — ফোন অ্যাপে ডায়াল করুন'**
+  String get triageCalling999;
+
+  /// No description provided for @shelterTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিকটস্থ আশ্রয়কেন্দ্র'**
+  String get shelterTitle;
+
+  /// No description provided for @shelterSearchTooltip.
+  ///
+  /// In bn, this message translates to:
+  /// **'আশ্রয় খুঁজুন'**
+  String get shelterSearchTooltip;
+
+  /// No description provided for @shelterClearRoute.
+  ///
+  /// In bn, this message translates to:
+  /// **'রুট মুছুন'**
+  String get shelterClearRoute;
+
+  /// No description provided for @shelterOfflineBanner.
+  ///
+  /// In bn, this message translates to:
+  /// **'অফলাইন — ক্যাশ টাইলস দেখাচ্ছে'**
+  String get shelterOfflineBanner;
+
+  /// No description provided for @shelterMapView.
+  ///
+  /// In bn, this message translates to:
+  /// **'মানচিত্র'**
+  String get shelterMapView;
+
+  /// No description provided for @shelterListView.
+  ///
+  /// In bn, this message translates to:
+  /// **'তালিকা'**
+  String get shelterListView;
+
+  /// No description provided for @shelterZoomIn.
+  ///
+  /// In bn, this message translates to:
+  /// **'জুম ইন'**
+  String get shelterZoomIn;
+
+  /// No description provided for @shelterZoomOut.
+  ///
+  /// In bn, this message translates to:
+  /// **'জুম আউট'**
+  String get shelterZoomOut;
+
+  /// No description provided for @shelterDistLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'দূরত্ব'**
+  String get shelterDistLabel;
+
+  /// No description provided for @shelterCapacityLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'ধারণক্ষমতা'**
+  String get shelterCapacityLabel;
+
+  /// No description provided for @shelterPeopleUnit.
+  ///
+  /// In bn, this message translates to:
+  /// **'জন'**
+  String get shelterPeopleUnit;
+
+  /// No description provided for @shelterSource.
+  ///
+  /// In bn, this message translates to:
+  /// **'উৎস'**
+  String get shelterSource;
+
+  /// No description provided for @shelterApproved.
+  ///
+  /// In bn, this message translates to:
+  /// **'অনুমোদিত'**
+  String get shelterApproved;
+
+  /// No description provided for @shelterAddress.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঠিকানা'**
+  String get shelterAddress;
+
+  /// No description provided for @shelterLandmark.
+  ///
+  /// In bn, this message translates to:
+  /// **'ল্যান্ডমার্ক'**
+  String get shelterLandmark;
+
+  /// No description provided for @shelterDesc.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিবরণ'**
+  String get shelterDesc;
+
+  /// No description provided for @shelterCapacityCount.
+  ///
+  /// In bn, this message translates to:
+  /// **'ধারণক্ষমতা: {count} জন'**
+  String shelterCapacityCount(String count);
+
+  /// No description provided for @shelterFindingRoute.
+  ///
+  /// In bn, this message translates to:
+  /// **'রুট খুঁজছি...'**
+  String get shelterFindingRoute;
+
+  /// No description provided for @shelterDetails.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিস্তারিত'**
+  String get shelterDetails;
+
+  /// No description provided for @shelterNoData.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোনো আশ্রয়কেন্দ্রের তথ্য নেই'**
+  String get shelterNoData;
+
+  /// No description provided for @shelterKm.
+  ///
+  /// In bn, this message translates to:
+  /// **'কিমি'**
+  String get shelterKm;
+
+  /// No description provided for @shelterSearchHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'আশ্রয়কেন্দ্র খুঁজুন...'**
+  String get shelterSearchHint;
+
+  /// No description provided for @shelterSearchEmpty.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোনো আশ্রয়কেন্দ্র পাওয়া যায়নি'**
+  String get shelterSearchEmpty;
+
+  /// No description provided for @shelterNearest3.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিকটতম ৩টি'**
+  String get shelterNearest3;
+
+  /// No description provided for @chatReadAloud.
+  ///
+  /// In bn, this message translates to:
+  /// **'পড়ুন'**
+  String get chatReadAloud;
+
+  /// No description provided for @chatPathCloud.
+  ///
+  /// In bn, this message translates to:
+  /// **'ক্লাউড'**
+  String get chatPathCloud;
+
+  /// No description provided for @chatPathDevice.
+  ///
+  /// In bn, this message translates to:
+  /// **'ডিভাইস'**
+  String get chatPathDevice;
+
+  /// No description provided for @chatPathCorpus.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোরপাস'**
+  String get chatPathCorpus;
+
+  /// No description provided for @chatPathCanned.
+  ///
+  /// In bn, this message translates to:
+  /// **'৯৯৯'**
+  String get chatPathCanned;
+
+  /// No description provided for @meshDeleteChatHistory.
+  ///
+  /// In bn, this message translates to:
+  /// **'চ্যাট ইতিহাস মুছুন?'**
+  String get meshDeleteChatHistory;
+
+  /// No description provided for @meshDeleteChatBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'\"{peer}\" এর সাথে সব মেসেজ মুছে ফেলা হবে। এই কাজ পূর্বাবস্থায় ফেরানো যাবে না।'**
+  String meshDeleteChatBody(String peer);
+
+  /// No description provided for @meshDeleteChatDone.
+  ///
+  /// In bn, this message translates to:
+  /// **'চ্যাট ইতিহাস মুছে ফেলা হয়েছে'**
+  String get meshDeleteChatDone;
+
+  /// No description provided for @meshDeleteChatButton.
+  ///
+  /// In bn, this message translates to:
+  /// **'মুছুন'**
+  String get meshDeleteChatButton;
+
+  /// No description provided for @meshSendMessageFailed.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেসেজ পাঠানো যায়নি — পিয়ার সংযুক্ত আছে কিনা দেখুন'**
+  String get meshSendMessageFailed;
+
+  /// No description provided for @meshSendMediaFailed.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিডিয়া পাঠানো যায়নি — পিয়ার সংযুক্ত আছে কিনা দেখুন'**
+  String get meshSendMediaFailed;
+
+  /// No description provided for @meshCallTooltip.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভয়েস কল'**
+  String get meshCallTooltip;
+
+  /// No description provided for @meshDeleteChatMenu.
+  ///
+  /// In bn, this message translates to:
+  /// **'চ্যাট ইতিহাস মুছুন'**
+  String get meshDeleteChatMenu;
+
+  /// No description provided for @meshEmptyChat.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোনো মেসেজ নেই\n\"{peer}\" এর সাথে কথা বলুন'**
+  String meshEmptyChat(String peer);
+
+  /// No description provided for @meshInputHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেসেজ লিখুন...'**
+  String get meshInputHint;
+
+  /// No description provided for @meshHopCount.
+  ///
+  /// In bn, this message translates to:
+  /// **'↻ {count} হপ'**
+  String meshHopCount(String count);
+
+  /// No description provided for @meshSendImage.
+  ///
+  /// In bn, this message translates to:
+  /// **'ছবি পাঠান'**
+  String get meshSendImage;
+
+  /// No description provided for @meshSendVideo.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভিডিও পাঠান'**
+  String get meshSendVideo;
+
+  /// No description provided for @meshImageMissing.
+  ///
+  /// In bn, this message translates to:
+  /// **'ছবি পাওয়া যায়নি'**
+  String get meshImageMissing;
+
+  /// No description provided for @meshImageLoadError.
+  ///
+  /// In bn, this message translates to:
+  /// **'ছবি লোড হয়নি'**
+  String get meshImageLoadError;
+
+  /// No description provided for @meshVideoMissing.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভিডিও পাওয়া যায়নি'**
+  String get meshVideoMissing;
+
+  /// No description provided for @meshVideoBadge.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভিডিও'**
+  String get meshVideoBadge;
+
+  /// No description provided for @meshVideoLoadError.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভিডিও লোড হয়নি'**
+  String get meshVideoLoadError;
+
+  /// No description provided for @meshRescanTooltip.
+  ///
+  /// In bn, this message translates to:
+  /// **'পুনরায় স্ক্যান করুন'**
+  String get meshRescanTooltip;
+
+  /// No description provided for @meshRescanning.
+  ///
+  /// In bn, this message translates to:
+  /// **'আবার স্ক্যান করা হচ্ছে...'**
+  String get meshRescanning;
+
+  /// No description provided for @meshConnectingStatus.
+  ///
+  /// In bn, this message translates to:
+  /// **'সংযোগ করা হচ্ছে...'**
+  String get meshConnectingStatus;
+
+  /// No description provided for @meshConnectFailed.
+  ///
+  /// In bn, this message translates to:
+  /// **'সংযোগ ব্যর্থ হয়েছে'**
+  String get meshConnectFailed;
+
+  /// No description provided for @meshOfflineContact.
+  ///
+  /// In bn, this message translates to:
+  /// **'অফলাইন'**
+  String get meshOfflineContact;
+
+  /// No description provided for @emergencyCloseTooltip.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাতিল'**
+  String get emergencyCloseTooltip;
+
+  /// No description provided for @emergencyCallTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'জরুরি কল'**
+  String get emergencyCallTitle;
+
+  /// No description provided for @emergencyCallNumber.
+  ///
+  /// In bn, this message translates to:
+  /// **'৯৯৯'**
+  String get emergencyCallNumber;
+
+  /// No description provided for @emergencySlideInstruction.
+  ///
+  /// In bn, this message translates to:
+  /// **'জরুরি সেবায় কল করতে ডানে স্লাইড করুন'**
+  String get emergencySlideInstruction;
+
+  /// No description provided for @emergencySendSos.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরিবর্তে SOS পাঠান'**
+  String get emergencySendSos;
+
+  /// No description provided for @emergencySlideRelease.
+  ///
+  /// In bn, this message translates to:
+  /// **'ছেড়ে দিন'**
+  String get emergencySlideRelease;
+
+  /// No description provided for @emergencySlideHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'ডানে স্লাইড করুন'**
+  String get emergencySlideHint;
+
+  /// No description provided for @emergencyCallButton.
+  ///
+  /// In bn, this message translates to:
+  /// **'কল করুন'**
+  String get emergencyCallButton;
+
+  /// No description provided for @emergencyDefaultUser.
+  ///
+  /// In bn, this message translates to:
+  /// **'ব্যবহারকারী'**
+  String get emergencyDefaultUser;
+
+  /// No description provided for @emergencyDefaultPhone.
+  ///
+  /// In bn, this message translates to:
+  /// **'অজানা'**
+  String get emergencyDefaultPhone;
+
+  /// No description provided for @emergencyGpsDenied.
+  ///
+  /// In bn, this message translates to:
+  /// **'GPS অনুমতি দেওয়া হয়নি'**
+  String get emergencyGpsDenied;
+
+  /// No description provided for @emergencyGpsNotFound.
+  ///
+  /// In bn, this message translates to:
+  /// **'GPS পাওয়া যায়নি (স্যাটেলাইট সিগন্যাল নেই?)'**
+  String get emergencyGpsNotFound;
+
+  /// No description provided for @emergencySosFailed.
+  ///
+  /// In bn, this message translates to:
+  /// **'SOS পাঠানো যায়নি — স্মস অ্যাপ খুঁজে পাওয়া যায়নি'**
+  String get emergencySosFailed;
+
+  /// No description provided for @emergencyCallFallback.
+  ///
+  /// In bn, this message translates to:
+  /// **'কে কল করুন বা ৯৯৯।'**
+  String get emergencyCallFallback;
+
+  /// No description provided for @sosReportTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'SOS রিপোর্ট'**
+  String get sosReportTitle;
+
+  /// No description provided for @sosDescribeHeading.
+  ///
+  /// In bn, this message translates to:
+  /// **'জরুরি অবস্থা বর্ণনা করুন'**
+  String get sosDescribeHeading;
+
+  /// No description provided for @sosDescribeHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'কী হয়েছে, কোথায়, কে আহত...'**
+  String get sosDescribeHint;
+
+  /// No description provided for @sosAiTooltip.
+  ///
+  /// In bn, this message translates to:
+  /// **'AI দিয়ে গঠন করুন'**
+  String get sosAiTooltip;
+
+  /// No description provided for @sosStructuredHeading.
+  ///
+  /// In bn, this message translates to:
+  /// **'গঠিত রিপোর্ট'**
+  String get sosStructuredHeading;
+
+  /// No description provided for @sosFieldLocation.
+  ///
+  /// In bn, this message translates to:
+  /// **'স্থান (Location)'**
+  String get sosFieldLocation;
+
+  /// No description provided for @sosFieldLocationHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'এলাকা/ঠিকানা'**
+  String get sosFieldLocationHint;
+
+  /// No description provided for @sosFieldHazard.
+  ///
+  /// In bn, this message translates to:
+  /// **'ধরন (Hazard)'**
+  String get sosFieldHazard;
+
+  /// No description provided for @sosFieldHazardHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্যা/অগ্নিকাণ্ড/সাপ/...'**
+  String get sosFieldHazardHint;
+
+  /// No description provided for @sosFieldInjured.
+  ///
+  /// In bn, this message translates to:
+  /// **'আহতের সংখ্যা'**
+  String get sosFieldInjured;
+
+  /// No description provided for @sosFieldInjuredHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'০'**
+  String get sosFieldInjuredHint;
+
+  /// No description provided for @sosFieldInjury.
+  ///
+  /// In bn, this message translates to:
+  /// **'আঘাতের বিবরণ'**
+  String get sosFieldInjury;
+
+  /// No description provided for @sosFieldInjuryHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'কী ধরনের আঘাত'**
+  String get sosFieldInjuryHint;
+
+  /// No description provided for @sosFieldUrgent.
+  ///
+  /// In bn, this message translates to:
+  /// **'তাৎক্ষণিক প্রয়োজন'**
+  String get sosFieldUrgent;
+
+  /// No description provided for @sosFieldUrgentHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাম্বুলেন্স/উদ্ধার/চিকিৎসা'**
+  String get sosFieldUrgentHint;
+
+  /// No description provided for @sosFieldAccess.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রবেশপথ তথ্য'**
+  String get sosFieldAccess;
+
+  /// No description provided for @sosFieldAccessHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'রাস্তা/ল্যান্ডমার্ক/বাধা'**
+  String get sosFieldAccessHint;
+
+  /// No description provided for @sosSmsPreview.
+  ///
+  /// In bn, this message translates to:
+  /// **'SMS প্রিভিউ'**
+  String get sosSmsPreview;
+
+  /// No description provided for @sosCall999Button.
+  ///
+  /// In bn, this message translates to:
+  /// **'৯৯৯ কল করুন'**
+  String get sosCall999Button;
+
+  /// No description provided for @sosEmptyInputError.
+  ///
+  /// In bn, this message translates to:
+  /// **'আগে অবস্থা বর্ণনা লিখুন।'**
+  String get sosEmptyInputError;
+
+  /// No description provided for @sosModelNotReady.
+  ///
+  /// In bn, this message translates to:
+  /// **'মডেল লোড করা নেই — নিজে পূরণ করুন।'**
+  String get sosModelNotReady;
+
+  /// No description provided for @sosAiFailed.
+  ///
+  /// In bn, this message translates to:
+  /// **'AI গঠন করতে পারেনি — নিজে পূরণ করুন।'**
+  String get sosAiFailed;
+
+  /// No description provided for @sosAiSuccess.
+  ///
+  /// In bn, this message translates to:
+  /// **'AI দিয়ে গঠন সম্পন্ন — যাচাই করুন।'**
+  String get sosAiSuccess;
+
+  /// No description provided for @hazardsAllAlerts.
+  ///
+  /// In bn, this message translates to:
+  /// **'সকল সতর্কতা'**
+  String get hazardsAllAlerts;
+
+  /// No description provided for @quickCardsTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'জরুরি সহায়তা কার্ড'**
+  String get quickCardsTitle;
+
+  /// No description provided for @quickCardsSearchHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'খুঁজুন: অরএস, সাপের কামড়, বন্যা...'**
+  String get quickCardsSearchHint;
+
+  /// No description provided for @adminLogoutTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'লগআউট করবেন?'**
+  String get adminLogoutTitle;
+
+  /// No description provided for @adminLogoutBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনি কি অ্যাডমিন প্যানেল থেকে বের হতে চান?'**
+  String get adminLogoutBody;
+
+  /// No description provided for @adminLogoutButton.
+  ///
+  /// In bn, this message translates to:
+  /// **'লগআউট'**
+  String get adminLogoutButton;
+
+  /// No description provided for @adminPanelTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাডমিন প্যানেল'**
+  String get adminPanelTitle;
+
+  /// No description provided for @adminTabDashboard.
+  ///
+  /// In bn, this message translates to:
+  /// **'ড্যাশবোর্ড'**
+  String get adminTabDashboard;
+
+  /// No description provided for @adminTabUsers.
+  ///
+  /// In bn, this message translates to:
+  /// **'ব্যবহারকারী'**
+  String get adminTabUsers;
+
+  /// No description provided for @adminTabCampaigns.
+  ///
+  /// In bn, this message translates to:
+  /// **'অভিযান অনুরোধ'**
+  String get adminTabCampaigns;
+
+  /// No description provided for @adminTabBroadcast.
+  ///
+  /// In bn, this message translates to:
+  /// **'বার্তা ব্রডকাস্ট'**
+  String get adminTabBroadcast;
+
+  /// No description provided for @adminStatUsers.
+  ///
+  /// In bn, this message translates to:
+  /// **'মোট ব্যবহারকারী'**
+  String get adminStatUsers;
+
+  /// No description provided for @adminStatOffline.
+  ///
+  /// In bn, this message translates to:
+  /// **'অফলাইন সেশন'**
+  String get adminStatOffline;
+
+  /// No description provided for @adminStatMesh.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেশ পিয়ার'**
+  String get adminStatMesh;
+
+  /// No description provided for @adminNoDevices.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোনো সংযুক্ত ডিভাইস নেই'**
+  String get adminNoDevices;
+
+  /// No description provided for @adminUnknownDevice.
+  ///
+  /// In bn, this message translates to:
+  /// **'অজ্ঞাত ডিভাইস'**
+  String get adminUnknownDevice;
+
+  /// No description provided for @adminNoCampaigns.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোনো অভিযান অনুরোধ নেই'**
+  String get adminNoCampaigns;
+
+  /// No description provided for @adminDetailUser.
+  ///
+  /// In bn, this message translates to:
+  /// **'ব্যবহারকারী'**
+  String get adminDetailUser;
+
+  /// No description provided for @adminDetailPhone.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফোন'**
+  String get adminDetailPhone;
+
+  /// No description provided for @adminDetailAddress.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঠিকানা'**
+  String get adminDetailAddress;
+
+  /// No description provided for @adminDetailLandmark.
+  ///
+  /// In bn, this message translates to:
+  /// **'ল্যান্ডমার্ক'**
+  String get adminDetailLandmark;
+
+  /// No description provided for @adminDetailCoords.
+  ///
+  /// In bn, this message translates to:
+  /// **'স্থানাঙ্ক'**
+  String get adminDetailCoords;
+
+  /// No description provided for @adminDetailTime.
+  ///
+  /// In bn, this message translates to:
+  /// **'সময়'**
+  String get adminDetailTime;
+
+  /// No description provided for @adminDetailDesc.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিবরণ'**
+  String get adminDetailDesc;
+
+  /// No description provided for @adminDetailNotes.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাডমিন নোট'**
+  String get adminDetailNotes;
+
+  /// No description provided for @adminRejectLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রত্যাখ্যাত'**
+  String get adminRejectLabel;
+
+  /// No description provided for @adminApproveLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'অনুমোদন'**
+  String get adminApproveLabel;
+
+  /// No description provided for @adminApproveSuccess.
+  ///
+  /// In bn, this message translates to:
+  /// **'{type} অনুমোদিত — মানচিত্রে যোগ করা হয়েছে'**
+  String adminApproveSuccess(String type);
+
+  /// No description provided for @adminCloseButton.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্ধ করুন'**
+  String get adminCloseButton;
+
+  /// No description provided for @adminProximityNotified.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিকটস্থ ব্যবহারকারীদের বিজ্ঞপ্তি পাঠানো হয়েছে'**
+  String get adminProximityNotified;
+
+  /// No description provided for @adminNotesHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'নোট লিখুন...'**
+  String get adminNotesHint;
+
+  /// No description provided for @adminBroadcastSuccess.
+  ///
+  /// In bn, this message translates to:
+  /// **'বার্তা পাঠানো হয়েছে'**
+  String get adminBroadcastSuccess;
+
+  /// No description provided for @adminBroadcastSection.
+  ///
+  /// In bn, this message translates to:
+  /// **'গ্লোবাল ব্রডকাস্ট'**
+  String get adminBroadcastSection;
+
+  /// No description provided for @adminBroadcastSubtitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'সব ব্যবহারকারীকে একটি বার্তা পাঠান'**
+  String get adminBroadcastSubtitle;
+
+  /// No description provided for @adminBroadcastHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'বার্তা লিখুন…'**
+  String get adminBroadcastHint;
+
+  /// No description provided for @adminBroadcastButton.
+  ///
+  /// In bn, this message translates to:
+  /// **'বার্তা পাঠান'**
+  String get adminBroadcastButton;
+
+  /// No description provided for @adminLoginError.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভুল ব্যবহারকারীর নাম অথবা পাসওয়ার্ড।'**
+  String get adminLoginError;
+
+  /// No description provided for @adminLoginTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাডমিন লগইন'**
+  String get adminLoginTitle;
+
+  /// No description provided for @adminLoginHeading.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাডমিন প্যানেল প্রবেশাধিকার'**
+  String get adminLoginHeading;
+
+  /// No description provided for @adminLoginSubtitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'অনুগ্রহ করে আপনার সঠিক পরিচয় পত্র প্রদান করুন।'**
+  String get adminLoginSubtitle;
+
+  /// No description provided for @adminUsernameLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'ব্যবহারকারীর নাম'**
+  String get adminUsernameLabel;
+
+  /// No description provided for @adminUsernameValidator.
+  ///
+  /// In bn, this message translates to:
+  /// **'ব্যবহারকারীর নাম লিখুন'**
+  String get adminUsernameValidator;
+
+  /// No description provided for @adminPasswordLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাসওয়ার্ড'**
+  String get adminPasswordLabel;
+
+  /// No description provided for @adminPasswordValidator.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাসওয়ার্ড লিখুন'**
+  String get adminPasswordValidator;
+
+  /// No description provided for @adminLoginButton.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রবেশ করুন'**
+  String get adminLoginButton;
+
+  /// No description provided for @mapPickerTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'মানচিত্রে অবস্থান নির্বাচন'**
+  String get mapPickerTitle;
+
+  /// No description provided for @mapPickerSearchHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'এলাকা খুঁজুন (যেমন: ঢাকা, চট্টগ্রাম)'**
+  String get mapPickerSearchHint;
+
+  /// No description provided for @mapPickerZoomIn.
+  ///
+  /// In bn, this message translates to:
+  /// **'জুম ইন'**
+  String get mapPickerZoomIn;
+
+  /// No description provided for @mapPickerZoomOut.
+  ///
+  /// In bn, this message translates to:
+  /// **'জুম আউট'**
+  String get mapPickerZoomOut;
+
+  /// No description provided for @mapPickerMyLocation.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমার অবস্থান'**
+  String get mapPickerMyLocation;
+
+  /// No description provided for @mapPickerInstruction.
+  ///
+  /// In bn, this message translates to:
+  /// **'মানচিত্রে যেকোনো স্থানে ট্যাপ করে পিন দিন'**
+  String get mapPickerInstruction;
+
+  /// No description provided for @mapPickerConfirm.
+  ///
+  /// In bn, this message translates to:
+  /// **'অবস্থান নিশ্চিত করুন'**
+  String get mapPickerConfirm;
+
+  /// No description provided for @profileGenderLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'লিঙ্গ'**
+  String get profileGenderLabel;
+
+  /// No description provided for @profileGenderMale.
+  ///
+  /// In bn, this message translates to:
+  /// **'পুরুষ'**
+  String get profileGenderMale;
+
+  /// No description provided for @profileGenderFemale.
+  ///
+  /// In bn, this message translates to:
+  /// **'মহিলা'**
+  String get profileGenderFemale;
+
+  /// No description provided for @profileHealthConditions.
+  ///
+  /// In bn, this message translates to:
+  /// **'স্বাস্থ্যগত অবস্থা'**
+  String get profileHealthConditions;
+
+  /// No description provided for @profilePregnant.
+  ///
+  /// In bn, this message translates to:
+  /// **'গর্ভবতী'**
+  String get profilePregnant;
+
+  /// No description provided for @profileDisabled.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রতিবন্ধী'**
+  String get profileDisabled;
+
+  /// No description provided for @profileElderly.
+  ///
+  /// In bn, this message translates to:
+  /// **'বয়স্ক'**
+  String get profileElderly;
+
+  /// No description provided for @profileChildrenPresent.
+  ///
+  /// In bn, this message translates to:
+  /// **'শিশু আছে'**
+  String get profileChildrenPresent;
+
+  /// No description provided for @profileDisasterProne.
+  ///
+  /// In bn, this message translates to:
+  /// **'দুর্যোগ-প্রবণ এলাকা'**
+  String get profileDisasterProne;
+
+  /// No description provided for @profileSaveSuccess.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রোফাইল সংরক্ষিত হয়েছে'**
+  String get profileSaveSuccess;
+
+  /// No description provided for @profileDefaultName.
+  ///
+  /// In bn, this message translates to:
+  /// **'ব্যবহারকারী'**
+  String get profileDefaultName;
+
+  /// No description provided for @profileNoLocation.
+  ///
+  /// In bn, this message translates to:
+  /// **'অবস্থান নেই'**
+  String get profileNoLocation;
+
+  /// No description provided for @profileLocationLoading.
+  ///
+  /// In bn, this message translates to:
+  /// **'অবস্থান লোড হচ্ছে...'**
+  String get profileLocationLoading;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রোফাইল'**
+  String get profileTitle;
+
+  /// No description provided for @profileGallery.
+  ///
+  /// In bn, this message translates to:
+  /// **'গ্যালারি'**
+  String get profileGallery;
+
+  /// No description provided for @profileCamera.
+  ///
+  /// In bn, this message translates to:
+  /// **'ক্যামেরা'**
+  String get profileCamera;
+
+  /// No description provided for @profileDeletePhotoTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'ছবি মুছুন?'**
+  String get profileDeletePhotoTitle;
+
+  /// No description provided for @profileDeletePhotoBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রোফাইল থেকে ছবি সরিয়ে ফেলবে।'**
+  String get profileDeletePhotoBody;
+
+  /// No description provided for @profileRemovePhoto.
+  ///
+  /// In bn, this message translates to:
+  /// **'ছবি মুছুন'**
+  String get profileRemovePhoto;
+
+  /// No description provided for @profileDistrict.
+  ///
+  /// In bn, this message translates to:
+  /// **'জেলা'**
+  String get profileDistrict;
+
+  /// No description provided for @profileDistrictHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিভাগ ও জেলা নির্বাচন করুন'**
+  String get profileDistrictHint;
+
+  /// No description provided for @profileEnterName.
+  ///
+  /// In bn, this message translates to:
+  /// **'নাম লিখুন'**
+  String get profileEnterName;
+
+  /// No description provided for @modelStatusNotDownloaded.
+  ///
+  /// In bn, this message translates to:
+  /// **'ডাউনলোড প্রয়োজন'**
+  String get modelStatusNotDownloaded;
+
+  /// No description provided for @modelStatusDownloading.
+  ///
+  /// In bn, this message translates to:
+  /// **'ডাউনলোড হচ্ছে {progress}'**
+  String modelStatusDownloading(String progress);
+
+  /// No description provided for @modelStatusReady.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রস্তুত'**
+  String get modelStatusReady;
+
+  /// No description provided for @modelStatusLoading.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রস্তুত হচ্ছে...'**
+  String get modelStatusLoading;
+
+  /// No description provided for @modelStatusFailed.
+  ///
+  /// In bn, this message translates to:
+  /// **'ব্যর্থ'**
+  String get modelStatusFailed;
+
+  /// No description provided for @modelE2bSize.
+  ///
+  /// In bn, this message translates to:
+  /// **'~২.৫ GB'**
+  String get modelE2bSize;
+
+  /// No description provided for @modelE2bDesc.
+  ///
+  /// In bn, this message translates to:
+  /// **'হালকা ও দ্রুত। সব ডিভাইসে কাজ করবে।'**
+  String get modelE2bDesc;
+
+  /// No description provided for @modelE4bSize.
+  ///
+  /// In bn, this message translates to:
+  /// **'~৩.৫ GB'**
+  String get modelE4bSize;
+
+  /// No description provided for @modelE4bDesc.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভালো মানের উত্তর। ৬GB+ র‍্যাম প্রয়োজন।'**
+  String get modelE4bDesc;
+
+  /// No description provided for @model12bSize.
+  ///
+  /// In bn, this message translates to:
+  /// **'~৭-১০ GB'**
+  String get model12bSize;
+
+  /// No description provided for @model12bDesc.
+  ///
+  /// In bn, this message translates to:
+  /// **'সেরা মানের উত্তর। ১২GB+ র‍্যাম প্রয়োজন।'**
+  String get model12bDesc;
+
+  /// No description provided for @hazardCyclone.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঘূর্ণিঝড়'**
+  String get hazardCyclone;
+
+  /// No description provided for @hazardFlood.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্যা'**
+  String get hazardFlood;
+
+  /// No description provided for @hazardEarthquake.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভূমিকম্প'**
+  String get hazardEarthquake;
+
+  /// No description provided for @hazardWildfire.
+  ///
+  /// In bn, this message translates to:
+  /// **'দাবানল'**
+  String get hazardWildfire;
+
+  /// No description provided for @hazardVolcano.
+  ///
+  /// In bn, this message translates to:
+  /// **'আগ্নেয়গিরি'**
+  String get hazardVolcano;
+
+  /// No description provided for @hazardLandslide.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভূমিধস'**
+  String get hazardLandslide;
+
+  /// No description provided for @hazardExtremeHeat.
+  ///
+  /// In bn, this message translates to:
+  /// **'তীব্র তাপ'**
+  String get hazardExtremeHeat;
+
+  /// No description provided for @hazardDrought.
+  ///
+  /// In bn, this message translates to:
+  /// **'খরা'**
+  String get hazardDrought;
+
+  /// No description provided for @hazardSeaIce.
+  ///
+  /// In bn, this message translates to:
+  /// **'সমুদ্রের বরফ'**
+  String get hazardSeaIce;
+
+  /// No description provided for @hazardManmade.
+  ///
+  /// In bn, this message translates to:
+  /// **'মানবসৃষ্ট'**
+  String get hazardManmade;
+
+  /// No description provided for @hazardOther.
+  ///
+  /// In bn, this message translates to:
+  /// **'অন্যান্য'**
+  String get hazardOther;
+
+  /// No description provided for @severityGreen.
+  ///
+  /// In bn, this message translates to:
+  /// **'সবুজ'**
+  String get severityGreen;
+
+  /// No description provided for @severityOrange.
+  ///
+  /// In bn, this message translates to:
+  /// **'কমলা'**
+  String get severityOrange;
+
+  /// No description provided for @severityRed.
+  ///
+  /// In bn, this message translates to:
+  /// **'লাল'**
+  String get severityRed;
+
+  /// No description provided for @severityUnknown.
+  ///
+  /// In bn, this message translates to:
+  /// **'অজানা'**
+  String get severityUnknown;
+
+  /// No description provided for @earthquakeLight.
+  ///
+  /// In bn, this message translates to:
+  /// **'হালকা'**
+  String get earthquakeLight;
+
+  /// No description provided for @earthquakeModerate.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাঝারি'**
+  String get earthquakeModerate;
+
+  /// No description provided for @earthquakeStrong.
+  ///
+  /// In bn, this message translates to:
+  /// **'শক্তিশালী'**
+  String get earthquakeStrong;
+
+  /// No description provided for @urgencyCritical.
+  ///
+  /// In bn, this message translates to:
+  /// **'জরুরি'**
+  String get urgencyCritical;
+
+  /// No description provided for @urgencyUrgent.
+  ///
+  /// In bn, this message translates to:
+  /// **'তাগিদপূর্ণ'**
+  String get urgencyUrgent;
+
+  /// No description provided for @urgencyNormal.
+  ///
+  /// In bn, this message translates to:
+  /// **'সাধারণ'**
+  String get urgencyNormal;
+
+  /// No description provided for @contactPolice.
+  ///
+  /// In bn, this message translates to:
+  /// **'পুলিশ'**
+  String get contactPolice;
+
+  /// No description provided for @contactFire.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফায়ার'**
+  String get contactFire;
+
+  /// No description provided for @contactAmbulance.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাম্বুলেন্স'**
+  String get contactAmbulance;
+
+  /// No description provided for @contactDisaster.
+  ///
+  /// In bn, this message translates to:
+  /// **'দুর্যোগ'**
+  String get contactDisaster;
+
+  /// No description provided for @contactRedCrescent.
+  ///
+  /// In bn, this message translates to:
+  /// **'রেড ক্রিসেন্ট'**
+  String get contactRedCrescent;
+
+  /// No description provided for @contactHealth.
+  ///
+  /// In bn, this message translates to:
+  /// **'স্বাস্থ্য'**
+  String get contactHealth;
+
+  /// No description provided for @contactOther.
+  ///
+  /// In bn, this message translates to:
+  /// **'অন্যান্য'**
+  String get contactOther;
+
+  /// No description provided for @campaignTypeFoodDonation.
+  ///
+  /// In bn, this message translates to:
+  /// **'খাদ্য দান'**
+  String get campaignTypeFoodDonation;
+
+  /// No description provided for @campaignTypeRescue.
+  ///
+  /// In bn, this message translates to:
+  /// **'উদ্ধার আপারেশন'**
+  String get campaignTypeRescue;
+
+  /// No description provided for @campaignTypeMedical.
+  ///
+  /// In bn, this message translates to:
+  /// **'চিকিৎসা শিবির'**
+  String get campaignTypeMedical;
+
+  /// No description provided for @campaignTypeShelter.
+  ///
+  /// In bn, this message translates to:
+  /// **'আশ্রয় সহায়তা'**
+  String get campaignTypeShelter;
+
+  /// No description provided for @campaignTypeClothing.
+  ///
+  /// In bn, this message translates to:
+  /// **'পোশাক দান'**
+  String get campaignTypeClothing;
+
+  /// No description provided for @campaignTypeWater.
+  ///
+  /// In bn, this message translates to:
+  /// **'পানি সরবরাহ'**
+  String get campaignTypeWater;
+
+  /// No description provided for @campaignStatusPending.
+  ///
+  /// In bn, this message translates to:
+  /// **'অপেক্ষমান'**
+  String get campaignStatusPending;
+
+  /// No description provided for @campaignStatusApproved.
+  ///
+  /// In bn, this message translates to:
+  /// **'অনুমোদিত'**
+  String get campaignStatusApproved;
+
+  /// No description provided for @campaignStatusRejected.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রত্যাখ্যাত'**
+  String get campaignStatusRejected;
+
+  /// No description provided for @chatSend.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাঠান'**
+  String get chatSend;
 }
 
 class _AppLocalizationsDelegate

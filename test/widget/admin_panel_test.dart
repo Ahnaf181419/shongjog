@@ -3,10 +3,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/app/router.dart';
 import 'package:shongjog/features/admin/admin_login_screen.dart';
 import 'package:shongjog/features/admin/admin_panel_screen.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   Widget wrapLogin({VoidCallback? onLogin}) {
     return MaterialApp(
+      locale: const Locale('bn'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: const AdminLoginScreen(),
       routes: {
         AppRoutes.adminPanel: (_) => const AdminPanelScreen(),
@@ -15,8 +21,11 @@ void main() {
   }
 
   Widget wrapPanel() {
-    return const MaterialApp(
-      home: AdminPanelScreen(),
+    return MaterialApp(
+      locale: const Locale('bn'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: const AdminPanelScreen(),
     );
   }
 

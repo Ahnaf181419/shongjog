@@ -48,10 +48,22 @@ void main() {
       expect(find.byIcon(Icons.arrow_back_rounded), findsNothing);
     });
 
-    testWidgets('navigates to permissions page on next', (tester) async {
+    testWidgets('navigates to profile page on next', (tester) async {
       await tester.pumpWidget(wrapOnboarding());
       await settle(tester);
 
+      await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
+      await settle(tester);
+
+      expect(find.text('আপনার নাম'), findsOneWidget);
+    });
+
+    testWidgets('navigates to permissions page on second next', (tester) async {
+      await tester.pumpWidget(wrapOnboarding());
+      await settle(tester);
+
+      await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
+      await settle(tester);
       await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
       await settle(tester);
 
@@ -67,18 +79,22 @@ void main() {
 
       await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
       await settle(tester);
+      await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
+      await settle(tester);
       expect(find.text('অনুমতি প্রয়োজন'), findsOneWidget);
 
       await tester.tap(find.byIcon(Icons.arrow_back_rounded));
       await settle(tester);
 
-      expect(find.text('সংযোগে স্বাগতম'), findsOneWidget);
+      expect(find.text('আপনার নাম'), findsOneWidget);
     });
 
-    testWidgets('navigates to model page on second next', (tester) async {
+    testWidgets('navigates to model page on third next', (tester) async {
       await tester.pumpWidget(wrapOnboarding());
       await settle(tester);
 
+      await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
+      await settle(tester);
       await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
       await settle(tester);
       await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
@@ -92,6 +108,8 @@ void main() {
       await tester.pumpWidget(wrapOnboarding());
       await settle(tester);
 
+      await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
+      await settle(tester);
       await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
       await settle(tester);
       await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
@@ -113,6 +131,8 @@ void main() {
       await settle(tester);
       await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
       await settle(tester);
+      await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
+      await settle(tester);
       await tester.tap(find.text('হোমে যান'));
       await settle(tester);
 
@@ -129,6 +149,8 @@ void main() {
       ));
       await settle(tester);
 
+      await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
+      await settle(tester);
       await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
       await settle(tester);
       await tester.tap(find.byIcon(Icons.arrow_forward_rounded));

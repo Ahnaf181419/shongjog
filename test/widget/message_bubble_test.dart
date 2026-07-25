@@ -3,9 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/app/theme.dart';
 import 'package:shongjog/features/chat/chat_repository.dart';
 import 'package:shongjog/features/chat/message_bubble.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 void main() {
   Widget wrap(Widget child) => MaterialApp(
+        locale: const Locale('bn'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         theme: ShongjogTheme.light(),
         home: Scaffold(body: child),
       );
@@ -83,6 +87,9 @@ void main() {
     var animationCount = 0;
 
     await tester.pumpWidget(MaterialApp(
+      locale: const Locale('bn'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(
         body: StatefulBuilder(
           builder: (context, setState) {

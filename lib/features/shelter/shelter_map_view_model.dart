@@ -34,6 +34,9 @@ class ShelterMapViewModel extends ChangeNotifier {
     required Duration timeLimit,
   }) _resolvePosition;
 
+  final Future<LocationPermission> Function() _checkPermission;
+  final Future<LocationPermission> Function() _requestPermission;
+
   /// Repository-provided shelter list. Empty until [init] completes.
   List<Shelter> shelters = const [];
 
@@ -82,11 +85,15 @@ class ShelterMapViewModel extends ChangeNotifier {
       required Duration timeLimit,
     })?
         resolvePosition,
+    Future<LocationPermission> Function()? checkPermission,
+    Future<LocationPermission> Function()? requestPermission,
     bool initialOnline = true,
   })  : _repository = repository ?? ShelterRepository(),
         _routeService = routeService ?? OsrmRouteService(),
         _connectivity = connectivity ?? connectivityProvider,
         _resolvePosition = resolvePosition ?? _defaultGeolocator,
+        _checkPermission = checkPermission ?? Geolocator.checkPermission,
+        _requestPermission = requestPermission ?? Geolocator.requestPermission,
         isOnline = initialOnline;
 
   static Future<Position?> _defaultGeolocator({
@@ -112,9 +119,9 @@ class ShelterMapViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      var permission = await Geolocator.checkPermission();
+      var permission = await _checkPermission();
       if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
+        permission = await _requestPermission();
       }
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
