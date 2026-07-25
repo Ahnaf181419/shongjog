@@ -1069,6 +1069,7 @@ class _AiToolsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -1085,7 +1086,7 @@ class _AiToolsGrid extends StatelessWidget {
                 Icon(Icons.auto_awesome_rounded,
                     size: 18, color: t.colorScheme.primary),
                 const SizedBox(width: 6),
-                Text('AI টুলস',
+                Text(l10n.homeAiTools,
                     style: t.textTheme.titleSmall
                         ?.copyWith(fontWeight: FontWeight.w600)),
               ],
@@ -1098,30 +1099,30 @@ class _AiToolsGrid extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               childAspectRatio: 0.95,
-              children: const [
+              children: [
                 _AiToolTile(
                   icon: Icons.assignment_turned_in_outlined,
-                  label: 'পরিকল্পনা',
+                  label: l10n.homeToolPlan,
                   route: AppRoutes.planner,
                 ),
                 _AiToolTile(
                   icon: Icons.luggage_outlined,
-                  label: 'কিট',
+                  label: l10n.homeToolKit,
                   route: AppRoutes.kit,
                 ),
                 _AiToolTile(
                   icon: Icons.shield_outlined,
-                  label: 'ঝুঁকি',
+                  label: l10n.homeToolRisk,
                   route: AppRoutes.risk,
                 ),
                 _AiToolTile(
                   icon: Icons.camera_alt_outlined,
-                  label: 'ড্যামেজ স্ক্যান',
+                  label: l10n.homeToolDamageScan,
                   route: AppRoutes.damageScanner,
                 ),
                 _AiToolTile(
                   icon: Icons.summarize_outlined,
-                  label: 'সারাংশ',
+                  label: l10n.homeToolSummary,
                   route: AppRoutes.situationSummary,
                 ),
               ],

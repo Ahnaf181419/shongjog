@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/connectivity_provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../hazards/eonet_service.dart';
 import '../hazards/gdacs_service.dart';
 import '../hazards/usgs_earthquake_service.dart';
@@ -112,6 +113,7 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
     if (!connectivityProvider.isOnline) return const SizedBox.shrink();
 
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     return Card(
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
@@ -127,7 +129,7 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'সতর্কতা',
+                    l10n.hazardsCardHeader,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -157,6 +159,7 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
 
   Widget _buildBody(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     if (_loading) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
@@ -172,7 +175,7 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
             ),
             const SizedBox(width: 10),
             Text(
-              'তথ্য আনা হচ্ছে…',
+              l10n.hazardsLoading,
               style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
             ),
           ],
@@ -189,7 +192,7 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'তথ্য আনা যায়নি। আবার চেষ্টা করুন।',
+                l10n.hazardsLoadError,
                 style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
               ),
             ),
@@ -207,7 +210,7 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'এই মুহূর্তে কোনো ঝুঁকি নেই',
+              l10n.hazardsNoAlerts,
               style: TextStyle(fontSize: 13, color: cs.onSurface),
             ),
           ),
@@ -236,7 +239,7 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'আরও ${items.length - 3}টি দেখুন',
+                      l10n.hazardsShowMore(items.length - 3),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
