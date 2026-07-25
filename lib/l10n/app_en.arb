@@ -455,5 +455,22 @@
   "adminApprove": "Approve",
   "adminApproved": "Approved",
   "adminBroadcastSend": "Send",
-  "adminPageBackTooltip": "Back"
+  "adminPageBackTooltip": "Back",
+  "safetyStatusTitle": "My Status",
+  "safetyStatusDesc": "Report your current status. Notify your contacts and emergency services.",
+  "safetySafeButton": "I'm Safe",
+  "safetyDangerButton": "I'm in Danger",
+  "safetyStatusSent": "Safe status sent",
+  "dangerAlertSent": "Danger alert sent — help is coming",
+  "safetyStatusNone": "No status reported yet",
+  "safetyCurrentSafe": "Current status: Safe",
+  "safetyCurrentDanger": "Current status",
+  "dangerTypePickerTitle": "What type of danger?",
+  "dangerTypePickerSubtitle": "Select your situation",
+  "adminSafetyTotal": "Total Users",
+  "adminSafetySafe": "Safe",
+  "adminSafetyDanger": "In Danger",
+  "adminDangerListTitle": "Users in Danger",
+  "adminDangerListEmpty": "No one in danger",
+  "adminDangerOpenMap": "View on Map"
 }

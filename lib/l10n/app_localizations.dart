@@ -2833,6 +2833,108 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'পিছনে'**
   String get adminPageBackTooltip;
+
+  /// No description provided for @safetyStatusTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমার অবস্থা'**
+  String get safetyStatusTitle;
+
+  /// No description provided for @safetyStatusDesc.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার বর্তমান অবস্থা জানান। বন্ধুবান্ধব ও জরুরি পরিষেবাকে অবহিত করুন।'**
+  String get safetyStatusDesc;
+
+  /// No description provided for @safetySafeButton.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমি নিরাপদ'**
+  String get safetySafeButton;
+
+  /// No description provided for @safetyDangerButton.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমি বিপদে আছি'**
+  String get safetyDangerButton;
+
+  /// No description provided for @safetyStatusSent.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিরাপদ বার্তা পাঠানো হয়েছে'**
+  String get safetyStatusSent;
+
+  /// No description provided for @dangerAlertSent.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিপদ সংকেত পাঠানো হয়েছে — সাহায্য আসছে'**
+  String get dangerAlertSent;
+
+  /// No description provided for @safetyStatusNone.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোনো অবস্থা জানানো হয়নি'**
+  String get safetyStatusNone;
+
+  /// No description provided for @safetyCurrentSafe.
+  ///
+  /// In bn, this message translates to:
+  /// **'বর্তমান অবস্থা: নিরাপদ'**
+  String get safetyCurrentSafe;
+
+  /// No description provided for @safetyCurrentDanger.
+  ///
+  /// In bn, this message translates to:
+  /// **'বর্তমান অবস্থা'**
+  String get safetyCurrentDanger;
+
+  /// No description provided for @dangerTypePickerTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোন ধরনের বিপদে আছেন?'**
+  String get dangerTypePickerTitle;
+
+  /// No description provided for @dangerTypePickerSubtitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার অবস্থা নির্বাচন করুন'**
+  String get dangerTypePickerSubtitle;
+
+  /// No description provided for @adminSafetyTotal.
+  ///
+  /// In bn, this message translates to:
+  /// **'মোট ব্যবহারকারী'**
+  String get adminSafetyTotal;
+
+  /// No description provided for @adminSafetySafe.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিরাপদ'**
+  String get adminSafetySafe;
+
+  /// No description provided for @adminSafetyDanger.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিপদে'**
+  String get adminSafetyDanger;
+
+  /// No description provided for @adminDangerListTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিপদে থাকা ব্যবহারকারী'**
+  String get adminDangerListTitle;
+
+  /// No description provided for @adminDangerListEmpty.
+  ///
+  /// In bn, this message translates to:
+  /// **'কেউ বিপদে নেই'**
+  String get adminDangerListEmpty;
+
+  /// No description provided for @adminDangerOpenMap.
+  ///
+  /// In bn, this message translates to:
+  /// **'মানচিত্রে দেখুন'**
+  String get adminDangerOpenMap;
 }
 
 class _AppLocalizationsDelegate

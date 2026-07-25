@@ -1430,4 +1430,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminPageBackTooltip => 'Back';
+
+  @override
+  String get safetyStatusTitle => 'My Status';
+
+  @override
+  String get safetyStatusDesc =>
+      'Report your current status. Notify your contacts and emergency services.';
+
+  @override
+  String get safetySafeButton => 'I\'m Safe';
+
+  @override
+  String get safetyDangerButton => 'I\'m in Danger';
+
+  @override
+  String get safetyStatusSent => 'Safe status sent';
+
+  @override
+  String get dangerAlertSent => 'Danger alert sent — help is coming';
+
+  @override
+  String get safetyStatusNone => 'No status reported yet';
+
+  @override
+  String get safetyCurrentSafe => 'Current status: Safe';
+
+  @override
+  String get safetyCurrentDanger => 'Current status';
+
+  @override
+  String get dangerTypePickerTitle => 'What type of danger?';
+
+  @override
+  String get dangerTypePickerSubtitle => 'Select your situation';
+
+  @override
+  String get adminSafetyTotal => 'Total Users';
+
+  @override
+  String get adminSafetySafe => 'Safe';
+
+  @override
+  String get adminSafetyDanger => 'In Danger';
+
+  @override
+  String get adminDangerListTitle => 'Users in Danger';
+
+  @override
+  String get adminDangerListEmpty => 'No one in danger';
+
+  @override
+  String get adminDangerOpenMap => 'View on Map';
 }

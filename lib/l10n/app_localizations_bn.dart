@@ -1434,4 +1434,56 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get adminPageBackTooltip => 'পিছনে';
+
+  @override
+  String get safetyStatusTitle => 'আমার অবস্থা';
+
+  @override
+  String get safetyStatusDesc =>
+      'আপনার বর্তমান অবস্থা জানান। বন্ধুবান্ধব ও জরুরি পরিষেবাকে অবহিত করুন।';
+
+  @override
+  String get safetySafeButton => 'আমি নিরাপদ';
+
+  @override
+  String get safetyDangerButton => 'আমি বিপদে আছি';
+
+  @override
+  String get safetyStatusSent => 'নিরাপদ বার্তা পাঠানো হয়েছে';
+
+  @override
+  String get dangerAlertSent => 'বিপদ সংকেত পাঠানো হয়েছে — সাহায্য আসছে';
+
+  @override
+  String get safetyStatusNone => 'কোনো অবস্থা জানানো হয়নি';
+
+  @override
+  String get safetyCurrentSafe => 'বর্তমান অবস্থা: নিরাপদ';
+
+  @override
+  String get safetyCurrentDanger => 'বর্তমান অবস্থা';
+
+  @override
+  String get dangerTypePickerTitle => 'কোন ধরনের বিপদে আছেন?';
+
+  @override
+  String get dangerTypePickerSubtitle => 'আপনার অবস্থা নির্বাচন করুন';
+
+  @override
+  String get adminSafetyTotal => 'মোট ব্যবহারকারী';
+
+  @override
+  String get adminSafetySafe => 'নিরাপদ';
+
+  @override
+  String get adminSafetyDanger => 'বিপদে';
+
+  @override
+  String get adminDangerListTitle => 'বিপদে থাকা ব্যবহারকারী';
+
+  @override
+  String get adminDangerListEmpty => 'কেউ বিপদে নেই';
+
+  @override
+  String get adminDangerOpenMap => 'মানচিত্রে দেখুন';
 }
