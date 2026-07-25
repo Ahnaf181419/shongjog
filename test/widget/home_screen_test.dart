@@ -8,8 +8,6 @@ import 'package:shongjog/features/weather/weather_card.dart';
 import 'package:shongjog/main.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
 
-import 'test_app.dart';
-
 void main() {
   Widget wrapHome({ValueChanged<int>? onNavigateToTab}) {
     return MaterialApp(

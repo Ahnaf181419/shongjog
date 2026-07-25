@@ -4,8 +4,6 @@ import 'package:shongjog/app/theme.dart';
 import 'package:shongjog/features/settings/model_picker_section.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
 
-import 'test_app.dart';
-
 void main() {
   // These tests MUST use the real ShongjogTheme. Under a bare MaterialApp the
   // picker renders fine, which is exactly why the layout crash below shipped:
