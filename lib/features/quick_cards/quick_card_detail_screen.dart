@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 
 import '../../app/theme.dart';
 import 'cards_data.dart';
@@ -16,7 +17,8 @@ class QuickCardDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final card = _findCard(cardId);
+    final l10n = AppLocalizations.of(context);
+    final card = _findCard(cardId, l10n);
     final cs = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: ShongjogTheme.cardSurface(context),
@@ -25,7 +27,7 @@ class QuickCardDetailScreen extends StatelessWidget {
         backgroundColor: cs.surfaceContainerHighest,
         foregroundColor: cs.onSurface,
         leading: IconButton(
-          tooltip: 'ফিরে যান',
+          tooltip: l10n.cardDetailBack,
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
@@ -35,7 +37,7 @@ class QuickCardDetailScreen extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Text(
-                  'এই কার্ডের জন্য কোনো পদক্ষেপ নেই',
+                  l10n.cardDetailNoSteps,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: cs.onSurfaceVariant),
                 ),
@@ -54,15 +56,15 @@ class QuickCardDetailScreen extends StatelessWidget {
     );
   }
 
-  static QuickCard _findCard(String id) {
+  static QuickCard _findCard(String id, AppLocalizations l10n) {
     for (final c in kQuickCards) {
       if (c.id == id) return c;
     }
     // Unknown id — render an empty fallback so callers never crash on
     // a stale route arg.
-    return const QuickCard(
+    return QuickCard(
       id: '__missing__',
-      titleBn: 'কার্ড পাওয়া যায়নি',
+      titleBn: l10n.cardDetailNotFound,
       icon: Icons.help_outline,
       color: Colors.grey,
       stepsBn: [],
