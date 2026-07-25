@@ -695,7 +695,7 @@ class _AiBriefRowState extends State<_AiBriefRow> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'AI ঝুঁকি মূল্যায়ন',
+                  AppLocalizations.of(context).shelterAiRiskAssessment,
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,

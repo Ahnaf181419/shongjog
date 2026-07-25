@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:shongjog/l10n/app_localizations.dart';
 import '../../../app/theme.dart';
 
 /// Top-positioned banner surfacing the offline state inside the
@@ -31,7 +32,7 @@ class OfflineBanner extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'অফলাইন — মানচিত্রের টাইলস লোড হবে না, তবে আশ্রয়কেন্দ্রের অবস্থান দেখা যাচ্ছে',
+                AppLocalizations.of(context).shelterOfflineTiles,
                 style: TextStyle(
                   fontSize: 14,
                   color: ShongjogTheme.inkDark.withValues(alpha: 0.85),

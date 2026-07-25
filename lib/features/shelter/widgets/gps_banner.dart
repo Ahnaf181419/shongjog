@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:shongjog/l10n/app_localizations.dart';
+
 /// Banner showing GPS status, surfaced when GPS isn't available
 /// (permission denied, service disabled, or a generic error).
 ///
@@ -49,8 +51,7 @@ class GpsBanner extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                error ??
-                    'সমগ্র বাংলাদেশ দেখানো হচ্ছে — GPS থেকে দূরত্ব নির্ণয় করা যাবে না',
+                error ?? AppLocalizations.of(context).shelterGpsUnavailable,
                 style: TextStyle(
                   fontSize: 13,
                   color: Theme.of(context).colorScheme.onSurface,

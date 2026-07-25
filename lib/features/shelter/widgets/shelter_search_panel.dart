@@ -200,6 +200,7 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
   /// Build the body: shelter list by default, semantic results when
   /// the query classified as geocode/poiQuery and returned hits.
   Widget _buildBody(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     // Semantic results take priority when we have them.
     final sem = _semanticResult;
     if (sem != null &&
@@ -209,7 +210,7 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
     }
 
     if (_displayed.isEmpty) {
-      return const Center(child: Text('কোনো আশ্রয়কেন্দ্র পাওয়া যায়নি'));
+      return Center(child: Text(l10n.shelterNoResults));
     }
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -233,8 +234,8 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
           title: Text(bnName,
               style: const TextStyle(fontWeight: FontWeight.w500)),
           subtitle: Text(
-            '${r.km.toStringAsFixed(1)} কিমি'
-            '${s.capacity != null ? '  •  ${s.capacity} জন' : ''}'
+            '${r.km.toStringAsFixed(1)} ${l10n.shelterUnitKm}'
+            '${s.capacity != null ? '  •  ${s.capacity} ${l10n.shelterUnitPeople}' : ''}'
             '  •  ${s.source}',
             style: const TextStyle(fontSize: 13),
           ),
@@ -247,6 +248,7 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
 
   /// Semantic results: geocoded places or POIs from Overpass.
   Widget _buildSemanticSection(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     if (_semanticLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -259,12 +261,12 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
             Icon(Icons.search_off, size: 48,
                 color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(height: 12),
-            Text('কোনো ফলাফল পাওয়া যায়নি',
+            Text(l10n.shelterNoSearchResults,
                 style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurfaceVariant)),
             const SizedBox(height: 4),
-            const Text('অন্য শব্দ দিয়ে চেষ্টা করুন',
-                style: TextStyle(fontSize: 13)),
+            Text(l10n.shelterTryDifferentWords,
+                style: const TextStyle(fontSize: 13)),
           ],
         ),
       );
