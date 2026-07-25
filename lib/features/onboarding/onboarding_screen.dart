@@ -187,12 +187,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               size: 64, color: ShongjogTheme.ocean),
           const SizedBox(height: 24),
           Text(
-            'আপনার নাম',
+            AppLocalizations.of(context).onboardingYourName,
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 16),
           Text(
-            'অফলাইন মেসেজিং এবং জরুরি যোগাযোগের জন্য আপনার নাম সেট করতে পারেন। এটি ঐচ্ছিক।',
+            AppLocalizations.of(context).onboardingNameDesc,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: ShongjogTheme.bodyFloor,
@@ -205,8 +205,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             controller: _nameController,
             textInputAction: TextInputAction.done,
             decoration: InputDecoration(
-              labelText: 'নাম',
-              hintText: 'আপনার নাম লিখুন',
+              labelText: AppLocalizations.of(context).onboardingNameLabel,
+              hintText: AppLocalizations.of(context).onboardingNameHint,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(ShongjogTheme.radius),
               ),

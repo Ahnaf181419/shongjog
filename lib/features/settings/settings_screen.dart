@@ -9,6 +9,7 @@ import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../core/locale_controller.dart';
 import '../../core/model_manager.dart';
+import '../../core/device_capability.dart';
 import '../../core/theme_controller.dart';
 import '../../l10n/app_localizations.dart';
 import '../admin/map_picker_screen.dart';
@@ -143,7 +144,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onTap: _showCampaignRequestDialog,
           ),
           const _Divider(),
-          _SectionHeader(AppLocalizations.of(context).sectionAiModel),
+          Row(
+            children: [
+              Expanded(
+                child: _SectionHeader(AppLocalizations.of(context).sectionAiModel),
+              ),
+              IconButton(
+                icon: const Icon(Icons.info_outline_rounded, size: 22),
+                tooltip: AppLocalizations.of(context).modelInfoTooltip,
+                onPressed: () => _showModelInfoDialog(context),
+              ),
+            ],
+          ),
           const ModelPickerSection(),
           const _Divider(),
           _SectionHeader(AppLocalizations.of(context).sectionDiagnostics),
@@ -453,7 +465,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 final request = CampaignRequest(
                   id: DateTime.now().microsecondsSinceEpoch.toString(),
                   userId: 'local_user',
-                  userName: 'ব্যবহারকারী',
+                  userName: AppLocalizations.of(context).settingsDefaultUsername,
                   userPhone: '',
                   type: selectedType,
                   latitude: selectedLocation!.latitude,
@@ -475,6 +487,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _showModelInfoDialog(BuildContext context) async {
+    final recs = await DeviceCapability.getRecommendations();
+    if (!context.mounted) return;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(AppLocalizations.of(context).modelInfoDialogTitle),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: recs
+                .where((r) => r.available)
+                .map((r) => _ModelInfoTile(rec: r))
+                .toList(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(AppLocalizations.of(context).close),
+          ),
+        ],
       ),
     );
   }
@@ -745,6 +783,108 @@ class _LanguageSegmentedRow extends StatelessWidget {
                 };
                 controller.setLocale(locale);
               },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ModelInfoTile extends StatelessWidget {
+  final ModelRecommendation rec;
+  const _ModelInfoTile({required this.rec});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isE2b = rec.variant == ModelVariant.e2b;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: cs.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                isE2b ? Icons.bolt_rounded : Icons.psychology_rounded,
+                color: isE2b
+                    ? ShongjogTheme.calmTeal
+                    : ShongjogTheme.ocean,
+                size: 22,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                isE2b
+                    ? AppLocalizations.of(context).modelLightLabel
+                    : AppLocalizations.of(context).modelPowerfulLabel,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          _infoRow(
+            context,
+            AppLocalizations.of(context).modelInfoVariant,
+            rec.label,
+          ),
+          _infoRow(
+            context,
+            AppLocalizations.of(context).modelInfoParams,
+            isE2b ? '২ বিলিয়ন' : '৪ বিলিয়ন',
+          ),
+          _infoRow(
+            context,
+            AppLocalizations.of(context).modelInfoSize,
+            rec.sizeLabel(context),
+          ),
+          _infoRow(
+            context,
+            AppLocalizations.of(context).modelInfoRam,
+            isE2b ? '~২.৫ GB' : '~৫ GB',
+          ),
+          const SizedBox(height: 6),
+          Text(
+            rec.descriptionLabel(context),
+            style: TextStyle(
+              fontSize: 13,
+              color: cs.onSurfaceVariant,
+              fontFamily: ShongjogTheme.fontFamily,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoRow(BuildContext context, String label, String value) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          Text(
+            '$label: ',
+            style: TextStyle(
+              fontSize: 13,
+              color: cs.onSurfaceVariant,
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],

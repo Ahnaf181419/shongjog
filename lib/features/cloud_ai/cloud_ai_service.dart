@@ -77,7 +77,7 @@ class CloudAiService {
     }
 
     // 2. Auto-switch to fallback
-    return _generateOrThrow(fallbackModelId, contents);
+    return _generateOrThrow(fallbackModelId, contents, 'কোনো উত্তর পাওয়া যায়নি।');
   }
 
   Future<String> generate(String prompt) async {
@@ -122,11 +122,12 @@ class CloudAiService {
 
   Future<String> _generateOrThrow(
     String modelId,
-    List<Map<String, Object?>> contents,
-  ) async {
+    List<Map<String, Object?>> contents, [
+    String fallback = 'কোনো উত্তর পাওয়া যায়নি।',
+  ]) async {
     try {
       final text = await _generate(modelId, contents);
-      return text ?? 'কোনো উত্তর পাওয়া যায়নি।';
+      return text ?? fallback;
     } catch (e) {
       debugPrint('Fallback ($modelId) also failed: $e');
       throw CloudAiUnavailableException();

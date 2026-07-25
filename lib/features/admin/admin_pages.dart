@@ -21,7 +21,7 @@ class AdminDashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('সিস্টেম সারসংক্ষেপ'),
+        title: Text(AppLocalizations.of(context).adminSystemSummary),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           tooltip: AppLocalizations.of(context).adminPageBackTooltip,
@@ -311,8 +311,8 @@ class _AdminBroadcastPageState extends State<AdminBroadcastPage> {
           TextField(
             controller: _controller,
             maxLines: 4,
-            decoration: const InputDecoration(
-              hintText: 'বার্তা লিখুন…',
+            decoration: InputDecoration(
+              hintText: l10n.adminWriteMessage,
               alignLabelWithHint: true,
             ),
           ),
