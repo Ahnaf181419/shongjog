@@ -187,7 +187,7 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
     if (q == null) return;
     if (_lastSpokenQuestion?.id != q.id) {
       _lastSpokenQuestion = q;
-      tts.speak(q.question);
+      tts.speak(q.questionBuilder(context));
     }
   }
 
@@ -215,7 +215,7 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            q.question,
+            q.questionBuilder(context),
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 32,
@@ -252,8 +252,8 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
   Widget _buildRoute(BuildContext context, TriageRoute route) {
     final cs = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
-    final title = _titleFor(route);
-    final subtitle = _subtitleFor(route);
+    final title = _titleFor(route, l10n);
+    final subtitle = _subtitleFor(route, l10n);
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -313,7 +313,7 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
             OutlinedButton.icon(
               onPressed: () => _handoffTo999(context),
               icon: const Icon(Icons.forward_to_inbox),
-              label: const Text('৯৯৯ কে জানান'),
+              label: Text(l10n.triageNotify999),
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size.fromHeight(56),
                 foregroundColor: cs.primary,
@@ -365,9 +365,10 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
   /// operator sees the casualty state in the SMS body without the
   /// bystander having to re-type it under stress.
   void _handoffTo999(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     Navigator.of(context).pushNamed(
       AppRoutes.sosComposer,
-      arguments: _state.shareableSosText(),
+      arguments: _state.shareableSosText(l10n),
     );
   }
 
@@ -392,45 +393,45 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
     }
   }
 
-  static String _titleFor(TriageRoute route) {
+  static String _titleFor(TriageRoute route, AppLocalizations l10n) {
     switch (route) {
       case TriageRoute.cpr:
-        return 'সিপিআর শুরু করুন';
+        return l10n.triageRouteCpr;
       case TriageRoute.bleeding:
-        return 'রক্তপাত বন্ধ করুন';
+        return l10n.triageRouteBleeding;
       case TriageRoute.drowning:
-        return 'ডুবে যাওয়া — নিষ্কাশন ও সিপিআর';
+        return l10n.triageRouteDrowning;
       case TriageRoute.snakebite:
-        return 'সাপে কামড় — চিকিৎসা সহায়তা নিন';
+        return l10n.triageRouteSnakebite;
       case TriageRoute.unconsciousBreathing:
-        return 'রিকভারি পজিশনে রাখুন';
+        return l10n.triageRouteRecovery;
       case TriageRoute.burn:
-        return 'গুরুতর পোড়া — ঠাণ্ডা পানি দিন';
+        return l10n.triageRouteBurn;
       case TriageRoute.choking:
-        return 'শ্বাসরোধ — পিঠে ও পেটে চাপ দিন';
+        return l10n.triageRouteChoking;
       case TriageRoute.escalation999:
-        return 'জরুরি সহায়তা প্রয়োজন';
+        return l10n.triageRouteEscalation;
     }
   }
 
-  static String _subtitleFor(TriageRoute route) {
+  static String _subtitleFor(TriageRoute route, AppLocalizations l10n) {
     switch (route) {
       case TriageRoute.cpr:
-        return 'বুকে ১১০ বার/মিনিট হারে চাপ দিন। ৩০:২ অনুপাত।';
+        return l10n.triageStepCpr;
       case TriageRoute.bleeding:
-        return 'চাপ দিয়ে রক্তপাত বন্ধ করুন। পরিষ্কার কাপড় দিয়ে চাপ।';
+        return l10n.triageStepBleeding;
       case TriageRoute.drowning:
-        return 'শ্বাস নিচ্ছে কিনা দেখুন। প্রয়োজনে সিপিআর।';
+        return l10n.triageStepDrowning;
       case TriageRoute.snakebite:
-        return 'শান্ত রাখুন, কাটা বা চুষবেন না। দ্রুত হাসপাতালে।';
+        return l10n.triageStepSnakebite;
       case TriageRoute.unconsciousBreathing:
-        return 'পাশ ফিরিয়ে শুইয়ে দিন। শ্বাস পরীক্ষা করুন।';
+        return l10n.triageStepRecovery;
       case TriageRoute.burn:
-        return 'কুসুম-গরম পানি ২০ মিনিট চলমান রাখুন।';
+        return l10n.triageStepBurn;
       case TriageRoute.choking:
-        return 'পিঠে ৫ বার চাপ, তারপর পেটে ৫ বার হিথলিক।';
+        return l10n.triageStepChoking;
       case TriageRoute.escalation999:
-        return '৯৯৯ কল করুন বা পরিবার/প্রতিবেশীদের সাহায্য নিন।';
+        return l10n.triageStepEscalation;
     }
   }
 }
@@ -498,7 +499,8 @@ class _RecapChipState extends State<_RecapChip> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final summary = widget.state.summaryBn();
+    final l10n = AppLocalizations.of(context);
+    final summary = widget.state.summaryBn(l10n);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
@@ -529,8 +531,9 @@ class _InlineSteps extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
-    final card = _findCard(cardId);
+    final card = _findCard(cardId, l10n);
     final steps = card.stepsBn.take(3).toList();
     return Container(
       width: double.infinity,
@@ -548,7 +551,7 @@ class _InlineSteps extends StatelessWidget {
               Icon(Icons.flash_on_rounded, size: 16, color: cs.primary),
               const SizedBox(width: 6),
               Text(
-                'এখনই যা করবেন',
+                l10n.triageDoNow,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -594,16 +597,16 @@ class _InlineSteps extends StatelessWidget {
     );
   }
 
-  static QuickCard _findCard(String id) {
+  static QuickCard _findCard(String id, AppLocalizations l10n) {
     for (final c in kQuickCards) {
       if (c.id == id) return c;
     }
-    return const QuickCard(
+    return QuickCard(
       id: '__missing__',
-      titleBn: 'কার্ড পাওয়া যায়নি',
+      titleBn: l10n.triageCardNotFound,
       icon: Icons.help_outline,
       color: Colors.grey,
-      stepsBn: [],
+      stepsBn: const [],
     );
   }
 }

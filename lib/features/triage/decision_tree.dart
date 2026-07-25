@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
+
 /// Pure-Dart triage decision tree.
 ///
 /// Walks a fixed sequence of yes/no questions and routes to one of
@@ -23,11 +26,11 @@ enum TriageRoute {
 /// follow-up questions OR to a terminal [TriageRoute].
 class TriageQuestion {
   final String id;
-  final String question;
+  final String Function(BuildContext) questionBuilder;
   final TriageBranch yesBranch;
   final TriageBranch noBranch;
 
-  const TriageQuestion._(this.id, this.question,
+  const TriageQuestion._(this.id, this.questionBuilder,
       {required this.yesBranch, required this.noBranch});
 }
 
@@ -46,52 +49,52 @@ class TriageTree {
   /// question so we can distinguish the recovery-position case
   /// (unconscious + breathing) from the CPR case (unconscious + not
   /// breathing). The latter still terminates at the same `cpr` route.
-  static const List<TriageQuestion> questions = [
+  static final List<TriageQuestion> questions = [
     TriageQuestion._(
       'conscious',
-      'ব্যক্তি কি সচেতন?',
+      (ctx) => AppLocalizations.of(ctx)!.triageQConscious,
       yesBranch: TriageBranch.next('breathing'),
       noBranch: TriageBranch.next('breathingUnconscious'),
     ),
     TriageQuestion._(
       'breathing',
-      'শ্বাস নিচ্ছে?',
+      (ctx) => AppLocalizations.of(ctx)!.triageQBreathing,
       yesBranch: TriageBranch.next('bleeding'),
       noBranch: TriageBranch.route(TriageRoute.cpr),
     ),
     TriageQuestion._(
       'breathingUnconscious',
-      'শ্বাস নিচ্ছে?',
+      (ctx) => AppLocalizations.of(ctx)!.triageQBreathing,
       yesBranch: TriageBranch.route(TriageRoute.unconsciousBreathing),
       noBranch: TriageBranch.route(TriageRoute.cpr),
     ),
     TriageQuestion._(
       'bleeding',
-      'গুরুতর রক্তপাত হচ্ছে?',
+      (ctx) => AppLocalizations.of(ctx)!.triageQBleeding,
       yesBranch: TriageBranch.route(TriageRoute.bleeding),
       noBranch: TriageBranch.next('water'),
     ),
     TriageQuestion._(
       'water',
-      'পানিতে ছিল বা ডুবেছে?',
+      (ctx) => AppLocalizations.of(ctx)!.triageQWater,
       yesBranch: TriageBranch.route(TriageRoute.drowning),
       noBranch: TriageBranch.next('snakebite'),
     ),
     TriageQuestion._(
       'snakebite',
-      'সাপে কামড়েছে?',
+      (ctx) => AppLocalizations.of(ctx)!.triageQSnakebite,
       yesBranch: TriageBranch.route(TriageRoute.snakebite),
       noBranch: TriageBranch.next('burn'),
     ),
     TriageQuestion._(
       'burn',
-      'গুরুতর পোড়া?',
+      (ctx) => AppLocalizations.of(ctx)!.triageQBurn,
       yesBranch: TriageBranch.route(TriageRoute.burn),
       noBranch: TriageBranch.next('choking'),
     ),
     TriageQuestion._(
       'choking',
-      'কথা বলতে বা কাশি দিতে পারছে?',
+      (ctx) => AppLocalizations.of(ctx)!.triageQChoking,
       yesBranch: TriageBranch.route(TriageRoute.escalation999),
       noBranch: TriageBranch.route(TriageRoute.choking),
     ),

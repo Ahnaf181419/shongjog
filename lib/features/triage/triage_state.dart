@@ -1,3 +1,4 @@
+import '../../l10n/app_localizations.dart';
 import 'decision_tree.dart';
 
 /// A single yes/no answer captured during the triage walk.
@@ -62,28 +63,71 @@ class TriageState {
   /// One-line human-readable summary of the answer trail + final route.
   /// Used in the terminal screen recap and in the SOS handoff body.
   /// All numbers use Bengali numerals (AGENTS.md).
-  String summaryBn() {
+  String summaryBn([AppLocalizations? l10n]) {
     final yes = answers.where((a) => a.answer).length;
     final no = answers.length - yes;
     final since = elapsedBn();
-    final routeText = route == null ? 'চলমান' : _routeNameBn(route!);
-    return 'প্রশ্ন: ${_bn(answers.length)} '
-        '(হ্যাঁ ${_bn(yes)} / না ${_bn(no)}) | '
-        'সময়: $since | অবস্থা: $routeText';
+    if (l10n == null) {
+      final routeText = route == null ? 'চলমান' : _routeNameBn(route!);
+      return 'প্রশ্ন: ${_bn(answers.length)} '
+          '(হ্যাঁ ${_bn(yes)} / না ${_bn(no)}) | '
+          'সময়: $since | অবস্থা: $routeText';
+    }
+    final routeText = route == null
+        ? l10n.triageStateOngoing
+        : _routeNameBnL10n(route!, l10n);
+    return '${l10n.triageSummaryPrefix} '
+        '${l10n.triageSummaryQuestions} ${_bn(answers.length)} '
+        '(${l10n.triageSummaryYes} ${_bn(yes)} / ${l10n.triageSummaryNo} ${_bn(no)}) | '
+        '${l10n.triageSummaryTime} $since | '
+        '${l10n.triageSummaryStatus} $routeText';
   }
 
   /// 3-line body suitable for the SOS Composer `initialBody` field.
   /// Format: condition / time / taps (so the 999 operator sees it
   /// at a glance). All numbers use Bengali numerals.
-  String shareableSosText() {
-    final routeText = route == null ? 'অজানা' : _routeNameBn(route!);
+  String shareableSosText([AppLocalizations? l10n]) {
     final since = elapsedBn();
     final yes = answers.where((a) => a.answer).length;
     final no = answers.length - yes;
-    return 'ট্রায়াজ: $routeText\n'
-        'সময়: $since\n'
-        'প্রশ্ন: ${_bn(answers.length)} '
-        '(হ্যাঁ ${_bn(yes)} / না ${_bn(no)})';
+    if (l10n == null) {
+      final routeText = route == null ? 'অজানা' : _routeNameBn(route!);
+      return 'ট্রায়াজ: $routeText\n'
+          'সময়: $since\n'
+          'প্রশ্ন: ${_bn(answers.length)} '
+          '(হ্যাঁ ${_bn(yes)} / না ${_bn(no)})';
+    }
+    final routeText = route == null
+        ? l10n.triageStateUnknown
+        : _routeNameBnL10n(route!, l10n);
+    return l10n.triageSummarySos(
+      routeText,
+      since,
+      answers.length,
+      yes,
+      no,
+    );
+  }
+
+  String _routeNameBnL10n(TriageRoute route, AppLocalizations l10n) {
+    switch (route) {
+      case TriageRoute.cpr:
+        return l10n.triageRouteNameCpr;
+      case TriageRoute.bleeding:
+        return l10n.triageRouteNameBleeding;
+      case TriageRoute.drowning:
+        return l10n.triageRouteNameDrowning;
+      case TriageRoute.snakebite:
+        return l10n.triageRouteNameSnakebite;
+      case TriageRoute.unconsciousBreathing:
+        return l10n.triageRouteNameRecovery;
+      case TriageRoute.burn:
+        return l10n.triageRouteNameBurn;
+      case TriageRoute.choking:
+        return l10n.triageRouteNameChoking;
+      case TriageRoute.escalation999:
+        return l10n.triageRouteNameEscalation;
+    }
   }
 
   static String _routeNameBn(TriageRoute route) {
