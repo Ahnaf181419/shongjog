@@ -7,19 +7,16 @@ import 'package:image_picker/image_picker.dart';
 import '../../app/theme.dart';
 import '../../core/api_key_store.dart';
 import '../../core/connectivity_provider.dart';
+import '../../l10n/app_localizations.dart';
 import 'damage_scan_service.dart';
 
-/// AI Damage Scanner screen (Module D in docs/AI-FIRST-FEATURES.md).
-///
-/// Flow:
-/// 1. Pick / capture an image.
-/// 2. Send to cloud Gemini via CloudAiService (vision-capable).
-/// 3. Parse the JSON response into a DamageScanResult.
-/// 4. Render damage type + severity badge + recommendation.
-///
-/// Requires internet + GEMINI_API_KEY. Shows a clear offline gate
-/// when either is unavailable. The image never leaves the device
-/// beyond this single explicit cloud call.
+enum DamageErrorCode {
+  photoFailed,
+  internetRequired,
+  apiKeyRequired,
+  analyzeFailed,
+}
+
 class DamageScannerScreen extends StatefulWidget {
   const DamageScannerScreen({super.key});
 
@@ -32,13 +29,15 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
   XFile? _image;
   DamageScanResult? _result;
   bool _loading = false;
-  String? _error;
+  DamageErrorCode? _errorCode;
+  String? _errorDetail;
 
   final _keyStore = ApiKeyStore();
 
   Future<void> _pick(ImageSource source) async {
     setState(() {
-      _error = null;
+      _errorCode = null;
+      _errorDetail = null;
     });
     try {
       final x = await _picker.pickImage(source: source);
@@ -47,7 +46,10 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
         await _analyze();
       }
     } catch (e) {
-      setState(() => _error = 'ছবি নেওয়া যায়নি: $e');
+      setState(() {
+        _errorCode = DamageErrorCode.photoFailed;
+        _errorDetail = e.toString();
+      });
     }
   }
 
@@ -57,19 +59,24 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
     final key = await _tryGetApiKey();
     if (!mounted) return;
     if (!isOnline) {
-      setState(() => _error = 'ড্যামেজ স্ক্যানের জন্য ইন্টারনেট প্রয়োজন।');
+      setState(() {
+        _errorCode = DamageErrorCode.internetRequired;
+        _errorDetail = null;
+      });
       return;
     }
     if (key == null || key.isEmpty) {
-      setState(() => _error =
-          'AI ড্যামেজ স্ক্যানের জন্য GEMINI_API_KEY প্রয়োজন। '
-          'flutter run --dart-define=GEMINI_API_KEY=... দিয়ে চালান।');
+      setState(() {
+        _errorCode = DamageErrorCode.apiKeyRequired;
+        _errorDetail = null;
+      });
       return;
     }
 
     setState(() {
       _loading = true;
-      _error = null;
+      _errorCode = null;
+      _errorDetail = null;
       _result = null;
     });
 
@@ -88,13 +95,13 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
       if (!mounted) return;
       setState(() {
         _loading = false;
-        _error = 'বিশ্লেষণ করা যায়নি: $e';
+        _errorCode = DamageErrorCode.analyzeFailed;
+        _errorDetail = e.toString();
       });
     }
   }
 
   Future<String?> _tryGetApiKey() async {
-    // Prefer the secure-store key, fall back to --dart-define.
     try {
           final store = await _keyStore.getKey();
           if (store != null && store.isNotEmpty) return store;
@@ -102,10 +109,6 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
         return const String.fromEnvironment('GEMINI_API_KEY', defaultValue: '');
       }
 
-  /// Send a vision request to Gemini. Uses the same raw REST endpoint
-  /// as CloudAiService (gemini-3.1-flash-lite has vision). Built
-  /// locally to avoid coupling the cloud_ai service to a multimodal
-  /// payload shape.
   Future<dynamic> _sendVisionRequest(
       String apiKey, Map<String, dynamic> body) async {
     final client = HttpClient();
@@ -148,13 +151,14 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('AI ড্যামেজ স্ক্যান')),
-      body: _buildBody(),
+      appBar: AppBar(title: Text(l10n.damageTitle)),
+      body: _buildBody(l10n),
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(AppLocalizations l10n) {
     if (_loading) {
       return Center(
         child: Column(
@@ -162,7 +166,7 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
           children: [
             const CircularProgressIndicator(),
             const SizedBox(height: 16),
-            Text('AI ছবি বিশ্লেষণ করছে…',
+            Text(l10n.damageAiAnalyzing,
                 style: TextStyle(color: ShongjogTheme.inkSecondary)),
           ],
         ),
@@ -170,6 +174,7 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
     }
     if (_result != null) {
       return _ResultView(
+        l10n: l10n,
         result: _result!,
         imagePath: _image?.path,
         onScanAnother: () => setState(() {
@@ -178,15 +183,23 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
         }),
       );
     }
-    if (_error != null) {
-      return _ErrorView(message: _error!, onRetry: () {
-        setState(() => _error = null);
-      });
+    if (_errorCode != null) {
+      return _ErrorView(
+        l10n: l10n,
+        code: _errorCode!,
+        detail: _errorDetail,
+        onRetry: () {
+          setState(() {
+            _errorCode = null;
+            _errorDetail = null;
+          });
+        },
+      );
     }
-    return _buildIntro();
+    return _buildIntro(l10n);
   }
 
-  Widget _buildIntro() {
+  Widget _buildIntro(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -195,10 +208,10 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
           Icon(Icons.camera_alt_outlined,
               size: 72, color: ShongjogTheme.ocean),
           const SizedBox(height: 24),
-          const Text(
-            'একটি ক্ষয়ক্ষতির ছবি তুলুন বা গ্যালারি থেকে নিন।\nAI ছবি দেখে ক্ষয়ক্ষতির ধরন ও তীব্রতা বলবে।',
+          Text(
+            l10n.damageIntroBody,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, height: 1.5),
+            style: const TextStyle(fontSize: 15, height: 1.5),
           ),
           const SizedBox(height: 32),
           SizedBox(
@@ -206,7 +219,7 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
             child: FilledButton.icon(
               onPressed: () => _pick(ImageSource.camera),
               icon: const Icon(Icons.camera_alt),
-              label: const Text('ক্যামেরা'),
+              label: Text(l10n.damageCamera),
             ),
           ),
           const SizedBox(height: 12),
@@ -215,7 +228,7 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
             child: OutlinedButton.icon(
               onPressed: () => _pick(ImageSource.gallery),
               icon: const Icon(Icons.photo_library_outlined),
-              label: const Text('গ্যালারি'),
+              label: Text(l10n.damageGallery),
             ),
           ),
           const SizedBox(height: 24),
@@ -225,14 +238,14 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
               color: ShongjogTheme.ocean.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.info_outline, size: 18),
-                SizedBox(width: 8),
+                const Icon(Icons.info_outline, size: 18),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'এই ফিচারের জন্য ইন্টারনেট ও GEMINI_API_KEY প্রয়োজন।',
-                    style: TextStyle(fontSize: 12),
+                    l10n.damageFeatureInfo,
+                    style: const TextStyle(fontSize: 12),
                   ),
                 ),
               ],
@@ -245,10 +258,12 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
 }
 
 class _ResultView extends StatelessWidget {
+  final AppLocalizations l10n;
   final DamageScanResult result;
   final String? imagePath;
   final VoidCallback onScanAnother;
   const _ResultView({
+    required this.l10n,
     required this.result,
     required this.imagePath,
     required this.onScanAnother,
@@ -282,8 +297,8 @@ class _ResultView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('ক্ষয়ক্ষতির ধরন',
-                          style: TextStyle(fontSize: 11, color: Colors.grey)),
+                      Text(l10n.damageTypeLabel,
+                          style: const TextStyle(fontSize: 11, color: Colors.grey)),
                       const SizedBox(height: 4),
                       Text(result.toBanglaType,
                           style: const TextStyle(
@@ -319,12 +334,12 @@ class _ResultView extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           if (result.description.isNotEmpty) ...[
-            const Text('বিবরণ', style: TextStyle(fontWeight: FontWeight.w600)),
+            Text(l10n.damageDescLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
             const SizedBox(height: 6),
             Text(result.description, style: const TextStyle(height: 1.5)),
             const SizedBox(height: 16),
           ],
-          const Text('সুপারিশ', style: TextStyle(fontWeight: FontWeight.w600)),
+          Text(l10n.damageRecommendLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
           const SizedBox(height: 6),
           Container(
             padding: const EdgeInsets.all(12),
@@ -342,7 +357,7 @@ class _ResultView extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: onScanAnother,
               icon: const Icon(Icons.refresh),
-              label: const Text('আরেকটি ছবি স্ক্যান করুন'),
+              label: Text(l10n.damageScanAnother),
             ),
           ),
         ],
@@ -352,12 +367,25 @@ class _ResultView extends StatelessWidget {
 }
 
 class _ErrorView extends StatelessWidget {
-  final String message;
+  final AppLocalizations l10n;
+  final DamageErrorCode code;
+  final String? detail;
   final VoidCallback onRetry;
-  const _ErrorView({required this.message, required this.onRetry});
+  const _ErrorView({
+    required this.l10n,
+    required this.code,
+    this.detail,
+    required this.onRetry,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final message = switch (code) {
+      DamageErrorCode.photoFailed => l10n.damagePhotoError(detail ?? ''),
+      DamageErrorCode.internetRequired => l10n.damageInternetRequired,
+      DamageErrorCode.apiKeyRequired => l10n.damageApiKeyRequired,
+      DamageErrorCode.analyzeFailed => l10n.damageAnalyzeError(detail ?? ''),
+    };
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -373,12 +401,10 @@ class _ErrorView extends StatelessWidget {
           FilledButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh),
-            label: const Text('আবার চেষ্টা করুন'),
+            label: Text(l10n.damageTryAgain),
           ),
         ],
       ),
     );
   }
 }
-
-// JSON helpers live in dart:convert (jsonEncode / jsonDecode).
