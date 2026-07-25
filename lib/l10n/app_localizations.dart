@@ -2558,6 +2558,54 @@ abstract class AppLocalizations {
   /// **'সেরা মানের উত্তর। ১২GB+ র‍্যাম প্রয়োজন।'**
   String get model12bDesc;
 
+  /// No description provided for @modelLightLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'হালকা'**
+  String get modelLightLabel;
+
+  /// No description provided for @modelPowerfulLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'শক্তিশালী'**
+  String get modelPowerfulLabel;
+
+  /// No description provided for @modelInfoTooltip.
+  ///
+  /// In bn, this message translates to:
+  /// **'মডেল সম্পর্কে জানুন'**
+  String get modelInfoTooltip;
+
+  /// No description provided for @modelInfoDialogTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'AI মডেল সম্পর্কে'**
+  String get modelInfoDialogTitle;
+
+  /// No description provided for @modelInfoVariant.
+  ///
+  /// In bn, this message translates to:
+  /// **'মডেল'**
+  String get modelInfoVariant;
+
+  /// No description provided for @modelInfoParams.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্যারামিটার'**
+  String get modelInfoParams;
+
+  /// No description provided for @modelInfoSize.
+  ///
+  /// In bn, this message translates to:
+  /// **'সাইজ'**
+  String get modelInfoSize;
+
+  /// No description provided for @modelInfoRam.
+  ///
+  /// In bn, this message translates to:
+  /// **'র‍্যাম ব্যবহার'**
+  String get modelInfoRam;
+
   /// No description provided for @hazardCyclone.
   ///
   /// In bn, this message translates to:
@@ -2935,6 +2983,1374 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'মানচিত্রে দেখুন'**
   String get adminDangerOpenMap;
+
+  /// No description provided for @triageQConscious.
+  ///
+  /// In bn, this message translates to:
+  /// **'ব্যক্তি কি সচেতন?'**
+  String get triageQConscious;
+
+  /// No description provided for @triageQBreathing.
+  ///
+  /// In bn, this message translates to:
+  /// **'শ্বাস নিচ্ছে?'**
+  String get triageQBreathing;
+
+  /// No description provided for @triageQBleeding.
+  ///
+  /// In bn, this message translates to:
+  /// **'গুরুতর রক্তপাত হচ্ছে?'**
+  String get triageQBleeding;
+
+  /// No description provided for @triageQWater.
+  ///
+  /// In bn, this message translates to:
+  /// **'পানিতে ছিল বা ডুবেছে?'**
+  String get triageQWater;
+
+  /// No description provided for @triageQSnakebite.
+  ///
+  /// In bn, this message translates to:
+  /// **'সাপে কামড়েছে?'**
+  String get triageQSnakebite;
+
+  /// No description provided for @triageQBurn.
+  ///
+  /// In bn, this message translates to:
+  /// **'গুরুতর পোড়া?'**
+  String get triageQBurn;
+
+  /// No description provided for @triageQChoking.
+  ///
+  /// In bn, this message translates to:
+  /// **'কথা বলতে বা কাশি দিতে পারছে?'**
+  String get triageQChoking;
+
+  /// No description provided for @triageNotify999.
+  ///
+  /// In bn, this message translates to:
+  /// **'৯৯৯ কে জানান'**
+  String get triageNotify999;
+
+  /// No description provided for @triageDoNow.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনই যা করবেন'**
+  String get triageDoNow;
+
+  /// No description provided for @triageCardNotFound.
+  ///
+  /// In bn, this message translates to:
+  /// **'কার্ড পাওয়া যায়নি'**
+  String get triageCardNotFound;
+
+  /// No description provided for @triageRouteCpr.
+  ///
+  /// In bn, this message translates to:
+  /// **'সিপিআর শুরু করুন'**
+  String get triageRouteCpr;
+
+  /// No description provided for @triageRouteBleeding.
+  ///
+  /// In bn, this message translates to:
+  /// **'রক্তপাত বন্ধ করুন'**
+  String get triageRouteBleeding;
+
+  /// No description provided for @triageRouteDrowning.
+  ///
+  /// In bn, this message translates to:
+  /// **'ডুবে যাওয়া — নিষ্কাশন ও সিপিআর'**
+  String get triageRouteDrowning;
+
+  /// No description provided for @triageRouteSnakebite.
+  ///
+  /// In bn, this message translates to:
+  /// **'সাপে কামড় — চিকিৎসা সহায়তা নিন'**
+  String get triageRouteSnakebite;
+
+  /// No description provided for @triageRouteRecovery.
+  ///
+  /// In bn, this message translates to:
+  /// **'রিকভারি পজিশনে রাখুন'**
+  String get triageRouteRecovery;
+
+  /// No description provided for @triageRouteBurn.
+  ///
+  /// In bn, this message translates to:
+  /// **'গুরুতর পোড়া — ঠাণ্ডা পানি দিন'**
+  String get triageRouteBurn;
+
+  /// No description provided for @triageRouteChoking.
+  ///
+  /// In bn, this message translates to:
+  /// **'শ্বাসরোধ — পিঠে ও পেটে চাপ দিন'**
+  String get triageRouteChoking;
+
+  /// No description provided for @triageRouteEscalation.
+  ///
+  /// In bn, this message translates to:
+  /// **'জরুরি সহায়তা প্রয়োজন'**
+  String get triageRouteEscalation;
+
+  /// No description provided for @triageStepCpr.
+  ///
+  /// In bn, this message translates to:
+  /// **'বুকে ১১০ বার/মিনিট হারে চাপ দিন। ৩০:২ অনুপাত।'**
+  String get triageStepCpr;
+
+  /// No description provided for @triageStepBleeding.
+  ///
+  /// In bn, this message translates to:
+  /// **'চাপ দিয়ে রক্তপাত বন্ধ করুন। পরিষ্কার কাপড় দিয়ে চাপ।'**
+  String get triageStepBleeding;
+
+  /// No description provided for @triageStepDrowning.
+  ///
+  /// In bn, this message translates to:
+  /// **'শ্বাস নিচ্ছে কিনা দেখুন। প্রয়োজনে সিপিআর।'**
+  String get triageStepDrowning;
+
+  /// No description provided for @triageStepSnakebite.
+  ///
+  /// In bn, this message translates to:
+  /// **'শান্ত রাখুন, কাটা বা চুষবেন না। দ্রুত হাসপাতালে।'**
+  String get triageStepSnakebite;
+
+  /// No description provided for @triageStepRecovery.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাশ ফিরিয়ে শুইয়ে দিন। শ্বাস পরীক্ষা করুন।'**
+  String get triageStepRecovery;
+
+  /// No description provided for @triageStepBurn.
+  ///
+  /// In bn, this message translates to:
+  /// **'কুসুম-গরম পানি ২০ মিনিট চলমান রাখুন।'**
+  String get triageStepBurn;
+
+  /// No description provided for @triageStepChoking.
+  ///
+  /// In bn, this message translates to:
+  /// **'পিঠে ৫ বার চাপ, তারপর পেটে ৫ বার হিথলিক।'**
+  String get triageStepChoking;
+
+  /// No description provided for @triageStepEscalation.
+  ///
+  /// In bn, this message translates to:
+  /// **'৯৯৯ কল করুন বা পরিবার/প্রতিবেশীদের সাহায্য নিন।'**
+  String get triageStepEscalation;
+
+  /// No description provided for @triageStateOngoing.
+  ///
+  /// In bn, this message translates to:
+  /// **'চলমান'**
+  String get triageStateOngoing;
+
+  /// No description provided for @triageStateUnknown.
+  ///
+  /// In bn, this message translates to:
+  /// **'অজানা'**
+  String get triageStateUnknown;
+
+  /// No description provided for @triageSummaryPrefix.
+  ///
+  /// In bn, this message translates to:
+  /// **'ট্রায়াজ:'**
+  String get triageSummaryPrefix;
+
+  /// No description provided for @triageSummaryTime.
+  ///
+  /// In bn, this message translates to:
+  /// **'সময়:'**
+  String get triageSummaryTime;
+
+  /// No description provided for @triageSummaryQuestions.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রশ্ন:'**
+  String get triageSummaryQuestions;
+
+  /// No description provided for @triageSummaryYes.
+  ///
+  /// In bn, this message translates to:
+  /// **'হ্যাঁ'**
+  String get triageSummaryYes;
+
+  /// No description provided for @triageSummaryNo.
+  ///
+  /// In bn, this message translates to:
+  /// **'না'**
+  String get triageSummaryNo;
+
+  /// No description provided for @triageSummaryStatus.
+  ///
+  /// In bn, this message translates to:
+  /// **'অবস্থা:'**
+  String get triageSummaryStatus;
+
+  /// No description provided for @triageRouteNameCpr.
+  ///
+  /// In bn, this message translates to:
+  /// **'সিপিআর'**
+  String get triageRouteNameCpr;
+
+  /// No description provided for @triageRouteNameBleeding.
+  ///
+  /// In bn, this message translates to:
+  /// **'রক্তপাত'**
+  String get triageRouteNameBleeding;
+
+  /// No description provided for @triageRouteNameDrowning.
+  ///
+  /// In bn, this message translates to:
+  /// **'ডুবে যাওয়া'**
+  String get triageRouteNameDrowning;
+
+  /// No description provided for @triageRouteNameSnakebite.
+  ///
+  /// In bn, this message translates to:
+  /// **'সাপে কামড়'**
+  String get triageRouteNameSnakebite;
+
+  /// No description provided for @triageRouteNameRecovery.
+  ///
+  /// In bn, this message translates to:
+  /// **'রিকভারি পজিশন'**
+  String get triageRouteNameRecovery;
+
+  /// No description provided for @triageRouteNameBurn.
+  ///
+  /// In bn, this message translates to:
+  /// **'গুরুতর পোড়া'**
+  String get triageRouteNameBurn;
+
+  /// No description provided for @triageRouteNameChoking.
+  ///
+  /// In bn, this message translates to:
+  /// **'শ্বাসরোধ'**
+  String get triageRouteNameChoking;
+
+  /// No description provided for @triageRouteNameEscalation.
+  ///
+  /// In bn, this message translates to:
+  /// **'সাধারণ জরুরি'**
+  String get triageRouteNameEscalation;
+
+  /// No description provided for @triageSummarySos.
+  ///
+  /// In bn, this message translates to:
+  /// **'ট্রায়াজ: {route}\nসময়: {time}\nপ্রশ্ন: {count} (হ্যাঁ {yes} / না {no})'**
+  String triageSummarySos(
+    String route,
+    String time,
+    int count,
+    int yes,
+    int no,
+  );
+
+  /// No description provided for @triageShareableSos.
+  ///
+  /// In bn, this message translates to:
+  /// **'ট্রায়াজ: {route}\nসময়: {time}\nপ্রশ্ন: {count} (হ্যাঁ {yes} / না {no})'**
+  String triageShareableSos(
+    String route,
+    String time,
+    int count,
+    int yes,
+    int no,
+  );
+
+  /// No description provided for @modelRamLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার RAM: {ram}'**
+  String modelRamLabel(String ram);
+
+  /// No description provided for @modelRamLow.
+  ///
+  /// In bn, this message translates to:
+  /// **'৪GB বা কম'**
+  String get modelRamLow;
+
+  /// No description provided for @modelRamMid.
+  ///
+  /// In bn, this message translates to:
+  /// **'৬-৮GB'**
+  String get modelRamMid;
+
+  /// No description provided for @modelRamHigh.
+  ///
+  /// In bn, this message translates to:
+  /// **'১২GB+'**
+  String get modelRamHigh;
+
+  /// No description provided for @modelTierLight.
+  ///
+  /// In bn, this message translates to:
+  /// **'হালকা'**
+  String get modelTierLight;
+
+  /// No description provided for @modelTierMedium.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাঝারি'**
+  String get modelTierMedium;
+
+  /// No description provided for @modelTierPowerful.
+  ///
+  /// In bn, this message translates to:
+  /// **'শক্তিশালী'**
+  String get modelTierPowerful;
+
+  /// No description provided for @modelStorageUsed.
+  ///
+  /// In bn, this message translates to:
+  /// **'ডাউনলোড করা: {size}'**
+  String modelStorageUsed(String size);
+
+  /// No description provided for @modelBadgeExpected.
+  ///
+  /// In bn, this message translates to:
+  /// **'✅ প্রত্যাশিত'**
+  String get modelBadgeExpected;
+
+  /// No description provided for @modelBadgeAdvanced.
+  ///
+  /// In bn, this message translates to:
+  /// **'⚠️ উন্নত'**
+  String get modelBadgeAdvanced;
+
+  /// No description provided for @modelBadgeHeavy.
+  ///
+  /// In bn, this message translates to:
+  /// **'⚠️ ভারী'**
+  String get modelBadgeHeavy;
+
+  /// No description provided for @modelRetry.
+  ///
+  /// In bn, this message translates to:
+  /// **'আবার চেষ্টা করুন'**
+  String get modelRetry;
+
+  /// No description provided for @modelDownload.
+  ///
+  /// In bn, this message translates to:
+  /// **'ডাউনলোড'**
+  String get modelDownload;
+
+  /// No description provided for @modelActivate.
+  ///
+  /// In bn, this message translates to:
+  /// **'সক্রিয় করুন'**
+  String get modelActivate;
+
+  /// No description provided for @modelActiveStatus.
+  ///
+  /// In bn, this message translates to:
+  /// **'মডেল সক্রিয় আছে'**
+  String get modelActiveStatus;
+
+  /// No description provided for @modelDelete.
+  ///
+  /// In bn, this message translates to:
+  /// **'মুছুন'**
+  String get modelDelete;
+
+  /// No description provided for @modelDownloadStarted.
+  ///
+  /// In bn, this message translates to:
+  /// **'{label} ডাউনলোড শুরু হয়েছে — পটভূমিতে চলবে।'**
+  String modelDownloadStarted(String label);
+
+  /// No description provided for @modelDeleteTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'মডেল মুছে ফেলবেন?'**
+  String get modelDeleteTitle;
+
+  /// No description provided for @modelDeleteBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'{label} ({size}) মুছে যাবে।'**
+  String modelDeleteBody(String label, String size);
+
+  /// No description provided for @modelCancel.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাতিল'**
+  String get modelCancel;
+
+  /// No description provided for @modelDeleted.
+  ///
+  /// In bn, this message translates to:
+  /// **'মডেল মুছে ফেলা হয়েছে'**
+  String get modelDeleted;
+
+  /// No description provided for @homeAiTools.
+  ///
+  /// In bn, this message translates to:
+  /// **'AI টুলস'**
+  String get homeAiTools;
+
+  /// No description provided for @homeToolPlan.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরিকল্পনা'**
+  String get homeToolPlan;
+
+  /// No description provided for @homeToolKit.
+  ///
+  /// In bn, this message translates to:
+  /// **'কিট'**
+  String get homeToolKit;
+
+  /// No description provided for @homeToolRisk.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঝুঁকি'**
+  String get homeToolRisk;
+
+  /// No description provided for @homeToolDamageScan.
+  ///
+  /// In bn, this message translates to:
+  /// **'ড্যামেজ স্ক্যান'**
+  String get homeToolDamageScan;
+
+  /// No description provided for @homeToolSummary.
+  ///
+  /// In bn, this message translates to:
+  /// **'সারাংশ'**
+  String get homeToolSummary;
+
+  /// No description provided for @homeTipTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজকের পরামর্শ'**
+  String get homeTipTitle;
+
+  /// No description provided for @hazardsCardHeader.
+  ///
+  /// In bn, this message translates to:
+  /// **'সতর্কতা'**
+  String get hazardsCardHeader;
+
+  /// No description provided for @hazardsLoading.
+  ///
+  /// In bn, this message translates to:
+  /// **'তথ্য আনা হচ্ছে…'**
+  String get hazardsLoading;
+
+  /// No description provided for @hazardsLoadError.
+  ///
+  /// In bn, this message translates to:
+  /// **'তথ্য আনা যায়নি। আবার চেষ্টা করুন।'**
+  String get hazardsLoadError;
+
+  /// No description provided for @hazardsNoAlerts.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মুহূর্তে কোনো ঝুঁকি নেই'**
+  String get hazardsNoAlerts;
+
+  /// No description provided for @hazardsShowMore.
+  ///
+  /// In bn, this message translates to:
+  /// **'আরও {count}টি দেখুন'**
+  String hazardsShowMore(int count);
+
+  /// No description provided for @shelterAiRiskAssessment.
+  ///
+  /// In bn, this message translates to:
+  /// **'AI ঝুঁকি মূল্যায়ন'**
+  String get shelterAiRiskAssessment;
+
+  /// No description provided for @shelterGpsPermissionDenied.
+  ///
+  /// In bn, this message translates to:
+  /// **'GPS অনুমতি দেওয়া হয়নি'**
+  String get shelterGpsPermissionDenied;
+
+  /// No description provided for @shelterGpsNotFound.
+  ///
+  /// In bn, this message translates to:
+  /// **'GPS পাওয়া যায়নি'**
+  String get shelterGpsNotFound;
+
+  /// No description provided for @shelterGpsUnavailable.
+  ///
+  /// In bn, this message translates to:
+  /// **'সমগ্র বাংলাদেশ দেখানো হচ্ছে — GPS থেকে দূরত্ব নির্ণয় করা যাবে না'**
+  String get shelterGpsUnavailable;
+
+  /// No description provided for @shelterOfflineTiles.
+  ///
+  /// In bn, this message translates to:
+  /// **'অফলাইন — মানচিত্রের টাইলস লোড হবে না, তবে আশ্রয়কেন্দ্রের অবস্থান দেখা যাচ্ছে'**
+  String get shelterOfflineTiles;
+
+  /// No description provided for @shelterNoResults.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোনো আশ্রয়কেন্দ্র পাওয়া যায়নি'**
+  String get shelterNoResults;
+
+  /// No description provided for @shelterUnitKm.
+  ///
+  /// In bn, this message translates to:
+  /// **'কিমি'**
+  String get shelterUnitKm;
+
+  /// No description provided for @shelterUnitPeople.
+  ///
+  /// In bn, this message translates to:
+  /// **'জন'**
+  String get shelterUnitPeople;
+
+  /// No description provided for @shelterNoSearchResults.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোনো ফলাফল পাওয়া যায়নি'**
+  String get shelterNoSearchResults;
+
+  /// No description provided for @shelterTryDifferentWords.
+  ///
+  /// In bn, this message translates to:
+  /// **'অন্য শব্দ দিয়ে চেষ্টা করুন'**
+  String get shelterTryDifferentWords;
+
+  /// No description provided for @weatherClear.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরিষ্কার'**
+  String get weatherClear;
+
+  /// No description provided for @weatherPartlyCloudy.
+  ///
+  /// In bn, this message translates to:
+  /// **'হালকা মেঘলা'**
+  String get weatherPartlyCloudy;
+
+  /// No description provided for @weatherCloudy.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেঘাচ্ছন্ন'**
+  String get weatherCloudy;
+
+  /// No description provided for @weatherFog.
+  ///
+  /// In bn, this message translates to:
+  /// **'কুয়াশা'**
+  String get weatherFog;
+
+  /// No description provided for @weatherDrizzle.
+  ///
+  /// In bn, this message translates to:
+  /// **'গুঁড়ি গুঁড়ি বৃষ্টি'**
+  String get weatherDrizzle;
+
+  /// No description provided for @weatherRain.
+  ///
+  /// In bn, this message translates to:
+  /// **'বৃষ্টি'**
+  String get weatherRain;
+
+  /// No description provided for @weatherHeavyRain.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভারী বৃষ্টি'**
+  String get weatherHeavyRain;
+
+  /// No description provided for @weatherSnow.
+  ///
+  /// In bn, this message translates to:
+  /// **'তুষারপাত'**
+  String get weatherSnow;
+
+  /// No description provided for @weatherShowers.
+  ///
+  /// In bn, this message translates to:
+  /// **'বৃষ্টির ঝাপটা'**
+  String get weatherShowers;
+
+  /// No description provided for @weatherHeavyShowers.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভারী বর্ষণ'**
+  String get weatherHeavyShowers;
+
+  /// No description provided for @weatherStormy.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঝড়ো হাওয়া'**
+  String get weatherStormy;
+
+  /// No description provided for @weatherThunderstorm.
+  ///
+  /// In bn, this message translates to:
+  /// **'বজ্রসহ ঝড়'**
+  String get weatherThunderstorm;
+
+  /// No description provided for @weatherUnknown.
+  ///
+  /// In bn, this message translates to:
+  /// **'অজানা'**
+  String get weatherUnknown;
+
+  /// No description provided for @chatSuggestionOrs.
+  ///
+  /// In bn, this message translates to:
+  /// **'ORS কীভাবে বানাবো?'**
+  String get chatSuggestionOrs;
+
+  /// No description provided for @chatSuggestionShelter.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিকটস্থ আশ্রয়কেন্দ্র'**
+  String get chatSuggestionShelter;
+
+  /// No description provided for @chatSuggestionSnakebite.
+  ///
+  /// In bn, this message translates to:
+  /// **'সাপে কামড়ালে কী করবো?'**
+  String get chatSuggestionSnakebite;
+
+  /// No description provided for @chatSuggestionRumorSnakebite.
+  ///
+  /// In bn, this message translates to:
+  /// **'গুজব: সাপে কামড়ালে কেটে ফেলা ঠিক?'**
+  String get chatSuggestionRumorSnakebite;
+
+  /// No description provided for @cardDetailBack.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফিরে যান'**
+  String get cardDetailBack;
+
+  /// No description provided for @cardDetailNoSteps.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই কার্ডের জন্য কোনো পদক্ষেপ নেই'**
+  String get cardDetailNoSteps;
+
+  /// No description provided for @cardDetailNotFound.
+  ///
+  /// In bn, this message translates to:
+  /// **'কার্ড পাওয়া যায়নি'**
+  String get cardDetailNotFound;
+
+  /// No description provided for @emergencyDirDhaka.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঢাকা'**
+  String get emergencyDirDhaka;
+
+  /// No description provided for @emergencyDirChattogram.
+  ///
+  /// In bn, this message translates to:
+  /// **'চট্টগ্রাম'**
+  String get emergencyDirChattogram;
+
+  /// No description provided for @emergencyDirRajshahi.
+  ///
+  /// In bn, this message translates to:
+  /// **'রাজশাহী'**
+  String get emergencyDirRajshahi;
+
+  /// No description provided for @emergencyDirKhulna.
+  ///
+  /// In bn, this message translates to:
+  /// **'খুলনা'**
+  String get emergencyDirKhulna;
+
+  /// No description provided for @emergencyDirBarishal.
+  ///
+  /// In bn, this message translates to:
+  /// **'বরিশাল'**
+  String get emergencyDirBarishal;
+
+  /// No description provided for @emergencyDirSylhet.
+  ///
+  /// In bn, this message translates to:
+  /// **'সিলেট'**
+  String get emergencyDirSylhet;
+
+  /// No description provided for @emergencyDirRangpur.
+  ///
+  /// In bn, this message translates to:
+  /// **'রংপুর'**
+  String get emergencyDirRangpur;
+
+  /// No description provided for @emergencyDirMymensingh.
+  ///
+  /// In bn, this message translates to:
+  /// **'ময়মনসিংহ'**
+  String get emergencyDirMymensingh;
+
+  /// No description provided for @nationalContactPolice.
+  ///
+  /// In bn, this message translates to:
+  /// **'পুলিশ'**
+  String get nationalContactPolice;
+
+  /// No description provided for @nationalContactFireService.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফায়ার সার্ভিস'**
+  String get nationalContactFireService;
+
+  /// No description provided for @nationalContactAmbulance.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাম্বুলেন্স'**
+  String get nationalContactAmbulance;
+
+  /// No description provided for @nationalContactDisasterMgmt.
+  ///
+  /// In bn, this message translates to:
+  /// **'দুর্যোগ ব্যবস্থাপনা'**
+  String get nationalContactDisasterMgmt;
+
+  /// No description provided for @nationalContactRedCrescent.
+  ///
+  /// In bn, this message translates to:
+  /// **'রেড ক্রিসেন্ট'**
+  String get nationalContactRedCrescent;
+
+  /// No description provided for @nationalContactHealthHotline.
+  ///
+  /// In bn, this message translates to:
+  /// **'স্বাস্থ্য হটলাইন'**
+  String get nationalContactHealthHotline;
+
+  /// No description provided for @safetyDangerFlood.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্যা'**
+  String get safetyDangerFlood;
+
+  /// No description provided for @safetyDangerFire.
+  ///
+  /// In bn, this message translates to:
+  /// **'আগুন'**
+  String get safetyDangerFire;
+
+  /// No description provided for @safetyDangerEarthquake.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভূমিকম্প'**
+  String get safetyDangerEarthquake;
+
+  /// No description provided for @safetyDangerCyclone.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঘূর্ণিঝড়'**
+  String get safetyDangerCyclone;
+
+  /// No description provided for @safetyDangerLandslide.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভূমিধস'**
+  String get safetyDangerLandslide;
+
+  /// No description provided for @safetyDangerTrapped.
+  ///
+  /// In bn, this message translates to:
+  /// **'আটকা পড়েছি'**
+  String get safetyDangerTrapped;
+
+  /// No description provided for @safetyDangerMedical.
+  ///
+  /// In bn, this message translates to:
+  /// **'চিকিৎসা জরুরি'**
+  String get safetyDangerMedical;
+
+  /// No description provided for @safetyDangerViolence.
+  ///
+  /// In bn, this message translates to:
+  /// **'সহিংসতা / অস্থিরতা'**
+  String get safetyDangerViolence;
+
+  /// No description provided for @safetyDangerOther.
+  ///
+  /// In bn, this message translates to:
+  /// **'অন্যান্য'**
+  String get safetyDangerOther;
+
+  /// No description provided for @damageTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'AI ড্যামেজ স্ক্যান'**
+  String get damageTitle;
+
+  /// No description provided for @damagePhotoError.
+  ///
+  /// In bn, this message translates to:
+  /// **'ছবি নেওয়া যায়নি: {error}'**
+  String damagePhotoError(String error);
+
+  /// No description provided for @damageInternetRequired.
+  ///
+  /// In bn, this message translates to:
+  /// **'ড্যামেজ স্ক্যানের জন্য ইন্টারনেট প্রয়োজন।'**
+  String get damageInternetRequired;
+
+  /// No description provided for @damageApiKeyRequired.
+  ///
+  /// In bn, this message translates to:
+  /// **'AI ড্যামেজ স্ক্যানের জন্য GEMINI_API_KEY প্রয়োজন।'**
+  String get damageApiKeyRequired;
+
+  /// No description provided for @damageAnalyzeError.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিশ্লেষণ করা যায়নি: {error}'**
+  String damageAnalyzeError(String error);
+
+  /// No description provided for @damageAiAnalyzing.
+  ///
+  /// In bn, this message translates to:
+  /// **'AI ছবি বিশ্লেষণ করছে…'**
+  String get damageAiAnalyzing;
+
+  /// No description provided for @damageIntroBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'একটি ক্ষয়ক্ষতির ছবি তুলুন বা গ্যালারি থেকে নিন।\nAI ছবি দেখে ক্ষয়ক্ষতির ধরন ও তীব্রতা বলবে।'**
+  String get damageIntroBody;
+
+  /// No description provided for @damageCamera.
+  ///
+  /// In bn, this message translates to:
+  /// **'ক্যামেরা'**
+  String get damageCamera;
+
+  /// No description provided for @damageGallery.
+  ///
+  /// In bn, this message translates to:
+  /// **'গ্যালারি'**
+  String get damageGallery;
+
+  /// No description provided for @damageFeatureInfo.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই ফিচারের জন্য ইন্টারনেট ও GEMINI_API_KEY প্রয়োজন।'**
+  String get damageFeatureInfo;
+
+  /// No description provided for @damageTypeLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'ক্ষয়ক্ষতির ধরন'**
+  String get damageTypeLabel;
+
+  /// No description provided for @damageDescLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিবরণ'**
+  String get damageDescLabel;
+
+  /// No description provided for @damageRecommendLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'সুপারিশ'**
+  String get damageRecommendLabel;
+
+  /// No description provided for @damageScanAnother.
+  ///
+  /// In bn, this message translates to:
+  /// **'আরেকটি ছবি স্ক্যান করুন'**
+  String get damageScanAnother;
+
+  /// No description provided for @damageTryAgain.
+  ///
+  /// In bn, this message translates to:
+  /// **'আবার চেষ্টা করুন'**
+  String get damageTryAgain;
+
+  /// No description provided for @damageTypeFlood.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্যা'**
+  String get damageTypeFlood;
+
+  /// No description provided for @damageTypeFire.
+  ///
+  /// In bn, this message translates to:
+  /// **'আগুন'**
+  String get damageTypeFire;
+
+  /// No description provided for @damageTypeBuildingCollapse.
+  ///
+  /// In bn, this message translates to:
+  /// **'ধসে পড়া ভবন'**
+  String get damageTypeBuildingCollapse;
+
+  /// No description provided for @damageTypeFallenTree.
+  ///
+  /// In bn, this message translates to:
+  /// **'পড়ে যাওয়া গাছ'**
+  String get damageTypeFallenTree;
+
+  /// No description provided for @damageTypeBlockedRoad.
+  ///
+  /// In bn, this message translates to:
+  /// **'অবরুদ্ধ রাস্তা'**
+  String get damageTypeBlockedRoad;
+
+  /// No description provided for @damageTypeElectricalHazard.
+  ///
+  /// In bn, this message translates to:
+  /// **'বৈদ্যুতিক বিপদ'**
+  String get damageTypeElectricalHazard;
+
+  /// No description provided for @damageTypeSmoke.
+  ///
+  /// In bn, this message translates to:
+  /// **'ধোঁয়া'**
+  String get damageTypeSmoke;
+
+  /// No description provided for @damageTypeOther.
+  ///
+  /// In bn, this message translates to:
+  /// **'অন্যান্য'**
+  String get damageTypeOther;
+
+  /// No description provided for @damageTypeUnknown.
+  ///
+  /// In bn, this message translates to:
+  /// **'অজানা'**
+  String get damageTypeUnknown;
+
+  /// No description provided for @damageSeverityLow.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিম্ন'**
+  String get damageSeverityLow;
+
+  /// No description provided for @damageSeverityMedium.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাঝারি'**
+  String get damageSeverityMedium;
+
+  /// No description provided for @damageSeverityHigh.
+  ///
+  /// In bn, this message translates to:
+  /// **'উচ্চ'**
+  String get damageSeverityHigh;
+
+  /// No description provided for @damageSeverityVeryHigh.
+  ///
+  /// In bn, this message translates to:
+  /// **'অত্যন্ত উচ্চ'**
+  String get damageSeverityVeryHigh;
+
+  /// No description provided for @damageSeverityUnknown.
+  ///
+  /// In bn, this message translates to:
+  /// **'অজানা'**
+  String get damageSeverityUnknown;
+
+  /// No description provided for @damageDefaultRecommendation.
+  ///
+  /// In bn, this message translates to:
+  /// **'অতিরিক্ত তথ্যের জন্য আশ্রয় ট্যাব ব্যবহার করুন।'**
+  String get damageDefaultRecommendation;
+
+  /// No description provided for @damageParseFailure.
+  ///
+  /// In bn, this message translates to:
+  /// **'ছবি বিশ্লেষণ করা যায়নি।'**
+  String get damageParseFailure;
+
+  /// No description provided for @plannerTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'AI দুর্যোগ পরিকল্পনা'**
+  String get plannerTitle;
+
+  /// No description provided for @plannerFamilyInfo.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরিবারের তথ্য'**
+  String get plannerFamilyInfo;
+
+  /// No description provided for @plannerTotalMembers.
+  ///
+  /// In bn, this message translates to:
+  /// **'মোট সদস্য'**
+  String get plannerTotalMembers;
+
+  /// No description provided for @plannerChildren.
+  ///
+  /// In bn, this message translates to:
+  /// **'শিশু'**
+  String get plannerChildren;
+
+  /// No description provided for @plannerElderly.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রবীণ'**
+  String get plannerElderly;
+
+  /// No description provided for @plannerHomeType.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঘরের ধরন'**
+  String get plannerHomeType;
+
+  /// No description provided for @plannerFloorNumber.
+  ///
+  /// In bn, this message translates to:
+  /// **'তলা নম্বর'**
+  String get plannerFloorNumber;
+
+  /// No description provided for @plannerMedicalConditions.
+  ///
+  /// In bn, this message translates to:
+  /// **'চিকিৎসা অবস্থা (কমা দিয়ে আলাদা করুন)'**
+  String get plannerMedicalConditions;
+
+  /// No description provided for @plannerMedicalHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'যেমন: ডায়াবেটিস, হাঁপানি'**
+  String get plannerMedicalHint;
+
+  /// No description provided for @plannerOther.
+  ///
+  /// In bn, this message translates to:
+  /// **'অন্যান্য'**
+  String get plannerOther;
+
+  /// No description provided for @plannerHasPets.
+  ///
+  /// In bn, this message translates to:
+  /// **'পোষা প্রাণী আছে'**
+  String get plannerHasPets;
+
+  /// No description provided for @plannerNearbyRiver.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিকটবর্তী নদী'**
+  String get plannerNearbyRiver;
+
+  /// No description provided for @plannerNearCoast.
+  ///
+  /// In bn, this message translates to:
+  /// **'সমুদ্রতীরের কাছে'**
+  String get plannerNearCoast;
+
+  /// No description provided for @plannerGenerate.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরিকল্পনা তৈরি করুন'**
+  String get plannerGenerate;
+
+  /// No description provided for @plannerAiPlan.
+  ///
+  /// In bn, this message translates to:
+  /// **'AI পরিকল্পনা'**
+  String get plannerAiPlan;
+
+  /// No description provided for @plannerNewPlan.
+  ///
+  /// In bn, this message translates to:
+  /// **'নতুন পরিকল্পনা'**
+  String get plannerNewPlan;
+
+  /// No description provided for @plannerDone.
+  ///
+  /// In bn, this message translates to:
+  /// **'সম্পন্ন'**
+  String get plannerDone;
+
+  /// No description provided for @plannerHomeTinShed.
+  ///
+  /// In bn, this message translates to:
+  /// **'টিনের ঘর'**
+  String get plannerHomeTinShed;
+
+  /// No description provided for @plannerHomePucca.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাকা বাড়ি'**
+  String get plannerHomePucca;
+
+  /// No description provided for @plannerHomeFlat.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফ্ল্যাট'**
+  String get plannerHomeFlat;
+
+  /// No description provided for @plannerHomeUnknown.
+  ///
+  /// In bn, this message translates to:
+  /// **'অজানা'**
+  String get plannerHomeUnknown;
+
+  /// No description provided for @riskTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'AI ঝুঁকি মূল্যায়ন'**
+  String get riskTitle;
+
+  /// No description provided for @riskHomeType.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঘরের ধরন'**
+  String get riskHomeType;
+
+  /// No description provided for @riskFloodHistory.
+  ///
+  /// In bn, this message translates to:
+  /// **'পূর্ববর্তী বন্যার ইতিহাস'**
+  String get riskFloodHistory;
+
+  /// No description provided for @riskElevation.
+  ///
+  /// In bn, this message translates to:
+  /// **'এলাকার উচ্চতা'**
+  String get riskElevation;
+
+  /// No description provided for @riskOther.
+  ///
+  /// In bn, this message translates to:
+  /// **'অন্যান্য'**
+  String get riskOther;
+
+  /// No description provided for @riskNearbyRiver.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিকটবর্তী নদী'**
+  String get riskNearbyRiver;
+
+  /// No description provided for @riskNearCoast.
+  ///
+  /// In bn, this message translates to:
+  /// **'সমুদ্রতীরের কাছে'**
+  String get riskNearCoast;
+
+  /// No description provided for @riskHasElderly.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরিবারে প্রবীণ আছে'**
+  String get riskHasElderly;
+
+  /// No description provided for @riskHasChildren.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরিবারে শিশু আছে'**
+  String get riskHasChildren;
+
+  /// No description provided for @riskAssessButton.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঝুঁকি মূল্যায়ন করুন'**
+  String get riskAssessButton;
+
+  /// No description provided for @riskScoreDenominator.
+  ///
+  /// In bn, this message translates to:
+  /// **'/ ১০'**
+  String get riskScoreDenominator;
+
+  /// No description provided for @riskScoreLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঝুঁকি স্কোর'**
+  String get riskScoreLabel;
+
+  /// No description provided for @riskRetry.
+  ///
+  /// In bn, this message translates to:
+  /// **'পুনরায়'**
+  String get riskRetry;
+
+  /// No description provided for @riskDone.
+  ///
+  /// In bn, this message translates to:
+  /// **'সম্পন্ন'**
+  String get riskDone;
+
+  /// No description provided for @riskTimeJustNow.
+  ///
+  /// In bn, this message translates to:
+  /// **'এইমাত্র'**
+  String get riskTimeJustNow;
+
+  /// No description provided for @riskTimeMinutesAgo.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count} মিনিট আগে'**
+  String riskTimeMinutesAgo(int count);
+
+  /// No description provided for @riskTimeHoursAgo.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count} ঘণ্টা আগে'**
+  String riskTimeHoursAgo(int count);
+
+  /// No description provided for @riskTimeDaysAgo.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count} দিন আগে'**
+  String riskTimeDaysAgo(int count);
+
+  /// No description provided for @kitTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'AI জরুরি কিট'**
+  String get kitTitle;
+
+  /// No description provided for @kitEmptyBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'কিট তৈরি করতে প্রথমে পরিবারের তথ্য দিন।'**
+  String get kitEmptyBody;
+
+  /// No description provided for @kitGoToPlanner.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরিকল্পনায় যান'**
+  String get kitGoToPlanner;
+
+  /// No description provided for @kitGenerateForFamily.
+  ///
+  /// In bn, this message translates to:
+  /// **'{size} জনের পরিবারের জন্য কিট তৈরি করুন।'**
+  String kitGenerateForFamily(int size);
+
+  /// No description provided for @kitGenerateButton.
+  ///
+  /// In bn, this message translates to:
+  /// **'কিট তৈরি করুন'**
+  String get kitGenerateButton;
+
+  /// No description provided for @kitAiKit.
+  ///
+  /// In bn, this message translates to:
+  /// **'AI কিট'**
+  String get kitAiKit;
+
+  /// No description provided for @kitRetry.
+  ///
+  /// In bn, this message translates to:
+  /// **'পুনরায়'**
+  String get kitRetry;
+
+  /// No description provided for @kitDone.
+  ///
+  /// In bn, this message translates to:
+  /// **'সম্পন্ন'**
+  String get kitDone;
+
+  /// No description provided for @familyHomeTypeTinShed.
+  ///
+  /// In bn, this message translates to:
+  /// **'টিনের ঘর'**
+  String get familyHomeTypeTinShed;
+
+  /// No description provided for @familyHomeTypePucca.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাকা বাড়ি'**
+  String get familyHomeTypePucca;
+
+  /// No description provided for @familyHomeTypeFlat.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফ্ল্যাট'**
+  String get familyHomeTypeFlat;
+
+  /// No description provided for @familyHomeTypeUnknown.
+  ///
+  /// In bn, this message translates to:
+  /// **'অজানা'**
+  String get familyHomeTypeUnknown;
+
+  /// No description provided for @adminTimeJustNow.
+  ///
+  /// In bn, this message translates to:
+  /// **'এইমাত্র'**
+  String get adminTimeJustNow;
+
+  /// No description provided for @adminTimeMinutesAgo.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count} মিনিট আগে'**
+  String adminTimeMinutesAgo(int count);
+
+  /// No description provided for @adminTimeHoursAgo.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count} ঘণ্টা আগে'**
+  String adminTimeHoursAgo(int count);
+
+  /// No description provided for @adminTimeDaysAgo.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count} দিন আগে'**
+  String adminTimeDaysAgo(int count);
+
+  /// No description provided for @adminWriteMessage.
+  ///
+  /// In bn, this message translates to:
+  /// **'বার্তা লিখুন…'**
+  String get adminWriteMessage;
+
+  /// No description provided for @adminDetailsLink.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিস্তারিত'**
+  String get adminDetailsLink;
+
+  /// No description provided for @adminSystemSummary.
+  ///
+  /// In bn, this message translates to:
+  /// **'সিস্টেম সারসংক্ষেপ'**
+  String get adminSystemSummary;
+
+  /// No description provided for @onboardingYourName.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার নাম'**
+  String get onboardingYourName;
+
+  /// No description provided for @onboardingNameDesc.
+  ///
+  /// In bn, this message translates to:
+  /// **'অফলাইন মেসেজিং এবং জরুরি যোগাযোগের জন্য আপনার নাম সেট করতে পারেন। এটি ঐচ্ছিক।'**
+  String get onboardingNameDesc;
+
+  /// No description provided for @onboardingNameLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'নাম'**
+  String get onboardingNameLabel;
+
+  /// No description provided for @onboardingNameHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার নাম লিখুন'**
+  String get onboardingNameHint;
+
+  /// No description provided for @chatNoAnswer.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমার কাছে এই প্রশ্নের উত্তর নেই। ৯৯৯ এ কল করুন।'**
+  String get chatNoAnswer;
+
+  /// No description provided for @cloudAiNoAnswer.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোনো উত্তর পাওয়া যায়নি।'**
+  String get cloudAiNoAnswer;
+
+  /// No description provided for @settingsDefaultUsername.
+  ///
+  /// In bn, this message translates to:
+  /// **'ব্যবহারকারী'**
+  String get settingsDefaultUsername;
 }
 
 class _AppLocalizationsDelegate

@@ -410,6 +410,14 @@
   "modelE4bDesc": "Higher quality answers. Requires 6GB+ RAM.",
   "model12bSize": "~7-10 GB",
   "model12bDesc": "Best quality answers. Requires 12GB+ RAM.",
+  "modelLightLabel": "Light",
+  "modelPowerfulLabel": "Powerful",
+  "modelInfoTooltip": "About this model",
+  "modelInfoDialogTitle": "About AI Models",
+  "modelInfoVariant": "Model",
+  "modelInfoParams": "Parameters",
+  "modelInfoSize": "Size",
+  "modelInfoRam": "Runtime RAM",
   "hazardCyclone": "Cyclone",
   "hazardFlood": "Flood",
   "hazardEarthquake": "Earthquake",
@@ -472,5 +480,320 @@
   "adminSafetyDanger": "In Danger",
   "adminDangerListTitle": "Users in Danger",
   "adminDangerListEmpty": "No one in danger",
-  "adminDangerOpenMap": "View on Map"
+  "adminDangerOpenMap": "View on Map",
+  "triageQConscious": "Is the person conscious?",
+  "triageQBreathing": "Is the person breathing?",
+  "triageQBleeding": "Is there severe bleeding?",
+  "triageQWater": "Were they in water or drowning?",
+  "triageQSnakebite": "Has there been a snakebite?",
+  "triageQBurn": "Severe burn?",
+  "triageQChoking": "Can they speak or cough?",
+  "triageNotify999": "Notify 999",
+  "triageDoNow": "Do this now",
+  "triageCardNotFound": "Card not found",
+  "triageRouteCpr": "Start CPR",
+  "triageRouteBleeding": "Stop bleeding",
+  "triageRouteDrowning": "Drowning — extraction & CPR",
+  "triageRouteSnakebite": "Snakebite — seek medical help",
+  "triageRouteRecovery": "Put in recovery position",
+  "triageRouteBurn": "Severe burn — cool with water",
+  "triageRouteChoking": "Choking — back & abdominal thrusts",
+  "triageRouteEscalation": "Emergency help needed",
+  "triageStepCpr": "Press chest 110 times/min. Ratio 30:2.",
+  "triageStepBleeding": "Apply pressure with clean cloth to stop bleeding.",
+  "triageStepDrowning": "Check if breathing. CPR if needed.",
+  "triageStepSnakebite": "Stay calm, don't cut or suck. Get to hospital fast.",
+  "triageStepRecovery": "Turn on side. Check breathing.",
+  "triageStepBurn": "Cool with lukewarm water for 20 minutes continuously.",
+  "triageStepChoking": "5 back blows, then 5 abdominal thrusts (Heimlich).",
+  "triageStepEscalation": "Call 999 or ask family/neighbors for help.",
+  "triageStateOngoing": "Ongoing",
+  "triageStateUnknown": "Unknown",
+  "triageSummaryPrefix": "Triage:",
+  "triageSummaryTime": "Time:",
+  "triageSummaryQuestions": "Questions:",
+  "triageSummaryYes": "Yes",
+  "triageSummaryNo": "No",
+  "triageSummaryStatus": "Status:",
+  "triageRouteNameCpr": "CPR",
+  "triageRouteNameBleeding": "Bleeding",
+  "triageRouteNameDrowning": "Drowning",
+  "triageRouteNameSnakebite": "Snakebite",
+  "triageRouteNameRecovery": "Recovery Position",
+  "triageRouteNameBurn": "Severe Burn",
+  "triageRouteNameChoking": "Choking",
+  "triageRouteNameEscalation": "General Emergency",
+  "triageSummarySos": "Triage: {route}\nTime: {time}\nQuestions: {count} (Yes {yes} / No {no})",
+  "@triageSummarySos": {
+    "placeholders": {
+      "route": { "type": "String" },
+      "time": { "type": "String" },
+      "count": { "type": "int" },
+      "yes": { "type": "int" },
+      "no": { "type": "int" }
+    }
+  },
+  "triageShareableSos": "Triage: {route}\nTime: {time}\nQuestions: {count} (Yes {yes} / No {no})",
+  "@triageShareableSos": {
+    "placeholders": {
+      "route": { "type": "String" },
+      "time": { "type": "String" },
+      "count": { "type": "int" },
+      "yes": { "type": "int" },
+      "no": { "type": "int" }
+    }
+  },
+  "modelRamLabel": "Your RAM: {ram}",
+  "@modelRamLabel": {
+    "placeholders": {
+      "ram": { "type": "String" }
+    }
+  },
+  "modelRamLow": "4GB or less",
+  "modelRamMid": "6-8GB",
+  "modelRamHigh": "12GB+",
+  "modelTierLight": "Light",
+  "modelTierMedium": "Medium",
+  "modelTierPowerful": "Powerful",
+  "modelStorageUsed": "Downloaded: {size}",
+  "@modelStorageUsed": {
+    "placeholders": {
+      "size": { "type": "String" }
+    }
+  },
+  "modelBadgeExpected": "Expected",
+  "modelBadgeAdvanced": "Advanced",
+  "modelBadgeHeavy": "Heavy",
+  "modelRetry": "Retry",
+  "modelDownload": "Download",
+  "modelActivate": "Activate",
+  "modelActiveStatus": "Model is active",
+  "modelDelete": "Delete",
+  "modelDownloadStarted": "{label} download started — running in background.",
+  "@modelDownloadStarted": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "modelDeleteTitle": "Delete model?",
+  "modelDeleteBody": "{label} ({size}) will be deleted.",
+  "@modelDeleteBody": {
+    "placeholders": {
+      "label": { "type": "String" },
+      "size": { "type": "String" }
+    }
+  },
+  "modelCancel": "Cancel",
+  "modelDeleted": "Model deleted",
+  "homeAiTools": "AI Tools",
+  "homeToolPlan": "Plan",
+  "homeToolKit": "Kit",
+  "homeToolRisk": "Risk",
+  "homeToolDamageScan": "Damage Scan",
+  "homeToolSummary": "Summary",
+  "homeTipTitle": "Tip of the Day",
+  "hazardsCardHeader": "Alerts",
+  "hazardsLoading": "Loading data...",
+  "hazardsLoadError": "Could not load data. Try again.",
+  "hazardsNoAlerts": "No hazards right now",
+  "hazardsShowMore": "Show {count} more",
+  "@hazardsShowMore": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "shelterAiRiskAssessment": "AI Risk Assessment",
+  "shelterGpsPermissionDenied": "GPS permission not granted",
+  "shelterGpsNotFound": "GPS not found",
+  "shelterGpsUnavailable": "Showing all of Bangladesh — distance from GPS unavailable",
+  "shelterOfflineTiles": "Offline — map tiles won't load, but shelter locations are visible",
+  "shelterNoResults": "No shelters found",
+  "shelterUnitKm": "km",
+  "shelterUnitPeople": "people",
+  "shelterNoSearchResults": "No results found",
+  "shelterTryDifferentWords": "Try different words",
+  "weatherClear": "Clear",
+  "weatherPartlyCloudy": "Partly cloudy",
+  "weatherCloudy": "Cloudy",
+  "weatherFog": "Fog",
+  "weatherDrizzle": "Drizzle",
+  "weatherRain": "Rain",
+  "weatherHeavyRain": "Heavy rain",
+  "weatherSnow": "Snowfall",
+  "weatherShowers": "Rain showers",
+  "weatherHeavyShowers": "Heavy showers",
+  "weatherStormy": "Stormy wind",
+  "weatherThunderstorm": "Thunderstorm",
+  "weatherUnknown": "Unknown",
+  "chatSuggestionOrs": "How to make ORS?",
+  "chatSuggestionShelter": "Nearest shelter",
+  "chatSuggestionSnakebite": "What to do if bitten by a snake?",
+  "chatSuggestionRumorSnakebite": "Rumor: Is it right to cut a snakebite?",
+  "cardDetailBack": "Go back",
+  "cardDetailNoSteps": "No steps available for this card",
+  "cardDetailNotFound": "Card not found",
+  "emergencyDirDhaka": "Dhaka",
+  "emergencyDirChattogram": "Chattogram",
+  "emergencyDirRajshahi": "Rajshahi",
+  "emergencyDirKhulna": "Khulna",
+  "emergencyDirBarishal": "Barishal",
+  "emergencyDirSylhet": "Sylhet",
+  "emergencyDirRangpur": "Rangpur",
+  "emergencyDirMymensingh": "Mymensingh",
+  "nationalContactPolice": "Police",
+  "nationalContactFireService": "Fire Service",
+  "nationalContactAmbulance": "Ambulance",
+  "nationalContactDisasterMgmt": "Disaster Management",
+  "nationalContactRedCrescent": "Red Crescent",
+  "nationalContactHealthHotline": "Health Hotline",
+  "safetyDangerFlood": "Flood",
+  "safetyDangerFire": "Fire",
+  "safetyDangerEarthquake": "Earthquake",
+  "safetyDangerCyclone": "Cyclone",
+  "safetyDangerLandslide": "Landslide",
+  "safetyDangerTrapped": "Trapped",
+  "safetyDangerMedical": "Medical emergency",
+  "safetyDangerViolence": "Violence / Unrest",
+  "safetyDangerOther": "Other",
+  "damageTitle": "AI Damage Scan",
+  "damagePhotoError": "Could not take photo: {error}",
+  "@damagePhotoError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "damageInternetRequired": "Internet is required for damage scanning.",
+  "damageApiKeyRequired": "GEMINI_API_KEY is needed for AI damage scanning.",
+  "damageAnalyzeError": "Could not analyze: {error}",
+  "@damageAnalyzeError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "damageAiAnalyzing": "AI is analyzing photo...",
+  "damageIntroBody": "Take a photo of damage or select from gallery.\nAI will identify the type and severity of damage.",
+  "damageCamera": "Camera",
+  "damageGallery": "Gallery",
+  "damageFeatureInfo": "This feature requires internet and GEMINI_API_KEY.",
+  "damageTypeLabel": "Damage Type",
+  "damageDescLabel": "Description",
+  "damageRecommendLabel": "Recommendation",
+  "damageScanAnother": "Scan another photo",
+  "damageTryAgain": "Try again",
+  "damageTypeFlood": "Flood",
+  "damageTypeFire": "Fire",
+  "damageTypeBuildingCollapse": "Collapsed building",
+  "damageTypeFallenTree": "Fallen tree",
+  "damageTypeBlockedRoad": "Blocked road",
+  "damageTypeElectricalHazard": "Electrical hazard",
+  "damageTypeSmoke": "Smoke",
+  "damageTypeOther": "Other",
+  "damageTypeUnknown": "Unknown",
+  "damageSeverityLow": "Low",
+  "damageSeverityMedium": "Medium",
+  "damageSeverityHigh": "High",
+  "damageSeverityVeryHigh": "Very High",
+  "damageSeverityUnknown": "Unknown",
+  "damageDefaultRecommendation": "For more information use the shelter tab.",
+  "damageParseFailure": "Could not analyze the photo.",
+  "plannerTitle": "AI Disaster Plan",
+  "plannerFamilyInfo": "Family Information",
+  "plannerTotalMembers": "Total Members",
+  "plannerChildren": "Children",
+  "plannerElderly": "Elderly",
+  "plannerHomeType": "Home Type",
+  "plannerFloorNumber": "Floor Number",
+  "plannerMedicalConditions": "Medical Conditions (separate with commas)",
+  "plannerMedicalHint": "e.g.: Diabetes, Asthma",
+  "plannerOther": "Other",
+  "plannerHasPets": "Has Pets",
+  "plannerNearbyRiver": "Nearby River",
+  "plannerNearCoast": "Near Coast",
+  "plannerGenerate": "Create Plan",
+  "plannerAiPlan": "AI Plan",
+  "plannerNewPlan": "New Plan",
+  "plannerDone": "Done",
+  "plannerHomeTinShed": "Tin shed house",
+  "plannerHomePucca": "Pucca house",
+  "plannerHomeFlat": "Flat",
+  "plannerHomeUnknown": "Unknown",
+  "riskTitle": "AI Risk Assessment",
+  "riskHomeType": "Home Type",
+  "riskFloodHistory": "Previous Flood History",
+  "riskElevation": "Area Elevation",
+  "riskOther": "Other",
+  "riskNearbyRiver": "Nearby River",
+  "riskNearCoast": "Near Coast",
+  "riskHasElderly": "Family has elderly",
+  "riskHasChildren": "Family has children",
+  "riskAssessButton": "Assess Risk",
+  "riskScoreDenominator": "/ 10",
+  "riskScoreLabel": "Risk Score",
+  "riskRetry": "Retry",
+  "riskDone": "Done",
+  "riskTimeJustNow": "Just now",
+  "riskTimeMinutesAgo": "{count} minutes ago",
+  "@riskTimeMinutesAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "riskTimeHoursAgo": "{count} hours ago",
+  "@riskTimeHoursAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "riskTimeDaysAgo": "{count} days ago",
+  "@riskTimeDaysAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "kitTitle": "AI Emergency Kit",
+  "kitEmptyBody": "First fill in family information to create a kit.",
+  "kitGoToPlanner": "Go to Planner",
+  "kitGenerateForFamily": "Create a kit for a family of {size}.",
+  "@kitGenerateForFamily": {
+    "placeholders": {
+      "size": { "type": "int" }
+    }
+  },
+  "kitGenerateButton": "Generate Kit",
+  "kitAiKit": "AI Kit",
+  "kitRetry": "Retry",
+  "kitDone": "Done",
+  "familyHomeTypeTinShed": "Tin shed house",
+  "familyHomeTypePucca": "Pucca house",
+  "familyHomeTypeFlat": "Flat",
+  "familyHomeTypeUnknown": "Unknown",
+  "adminTimeJustNow": "Just now",
+  "adminTimeMinutesAgo": "{count} minutes ago",
+  "@adminTimeMinutesAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "adminTimeHoursAgo": "{count} hours ago",
+  "@adminTimeHoursAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "adminTimeDaysAgo": "{count} days ago",
+  "@adminTimeDaysAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "adminWriteMessage": "Write a message...",
+  "adminDetailsLink": "Details",
+  "adminSystemSummary": "System Summary",
+  "onboardingYourName": "Your Name",
+  "onboardingNameDesc": "Set your name for offline messaging and emergency contact. This is optional.",
+  "onboardingNameLabel": "Name",
+  "onboardingNameHint": "Enter your name",
+  "chatNoAnswer": "I don't have an answer for this question. Call 999 for help.",
+  "cloudAiNoAnswer": "No answer found.",
+  "settingsDefaultUsername": "User"
 }

@@ -1293,6 +1293,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get model12bDesc => 'Best quality answers. Requires 12GB+ RAM.';
 
   @override
+  String get modelLightLabel => 'Light';
+
+  @override
+  String get modelPowerfulLabel => 'Powerful';
+
+  @override
+  String get modelInfoTooltip => 'About this model';
+
+  @override
+  String get modelInfoDialogTitle => 'About AI Models';
+
+  @override
+  String get modelInfoVariant => 'Model';
+
+  @override
+  String get modelInfoParams => 'Parameters';
+
+  @override
+  String get modelInfoSize => 'Size';
+
+  @override
+  String get modelInfoRam => 'Runtime RAM';
+
+  @override
   String get hazardCyclone => 'Cyclone';
 
   @override
@@ -1482,4 +1506,743 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminDangerOpenMap => 'View on Map';
+
+  @override
+  String get triageQConscious => 'Is the person conscious?';
+
+  @override
+  String get triageQBreathing => 'Is the person breathing?';
+
+  @override
+  String get triageQBleeding => 'Is there severe bleeding?';
+
+  @override
+  String get triageQWater => 'Were they in water or drowning?';
+
+  @override
+  String get triageQSnakebite => 'Has there been a snakebite?';
+
+  @override
+  String get triageQBurn => 'Severe burn?';
+
+  @override
+  String get triageQChoking => 'Can they speak or cough?';
+
+  @override
+  String get triageNotify999 => 'Notify 999';
+
+  @override
+  String get triageDoNow => 'Do this now';
+
+  @override
+  String get triageCardNotFound => 'Card not found';
+
+  @override
+  String get triageRouteCpr => 'Start CPR';
+
+  @override
+  String get triageRouteBleeding => 'Stop bleeding';
+
+  @override
+  String get triageRouteDrowning => 'Drowning — extraction & CPR';
+
+  @override
+  String get triageRouteSnakebite => 'Snakebite — seek medical help';
+
+  @override
+  String get triageRouteRecovery => 'Put in recovery position';
+
+  @override
+  String get triageRouteBurn => 'Severe burn — cool with water';
+
+  @override
+  String get triageRouteChoking => 'Choking — back & abdominal thrusts';
+
+  @override
+  String get triageRouteEscalation => 'Emergency help needed';
+
+  @override
+  String get triageStepCpr => 'Press chest 110 times/min. Ratio 30:2.';
+
+  @override
+  String get triageStepBleeding =>
+      'Apply pressure with clean cloth to stop bleeding.';
+
+  @override
+  String get triageStepDrowning => 'Check if breathing. CPR if needed.';
+
+  @override
+  String get triageStepSnakebite =>
+      'Stay calm, don\'t cut or suck. Get to hospital fast.';
+
+  @override
+  String get triageStepRecovery => 'Turn on side. Check breathing.';
+
+  @override
+  String get triageStepBurn =>
+      'Cool with lukewarm water for 20 minutes continuously.';
+
+  @override
+  String get triageStepChoking =>
+      '5 back blows, then 5 abdominal thrusts (Heimlich).';
+
+  @override
+  String get triageStepEscalation =>
+      'Call 999 or ask family/neighbors for help.';
+
+  @override
+  String get triageStateOngoing => 'Ongoing';
+
+  @override
+  String get triageStateUnknown => 'Unknown';
+
+  @override
+  String get triageSummaryPrefix => 'Triage:';
+
+  @override
+  String get triageSummaryTime => 'Time:';
+
+  @override
+  String get triageSummaryQuestions => 'Questions:';
+
+  @override
+  String get triageSummaryYes => 'Yes';
+
+  @override
+  String get triageSummaryNo => 'No';
+
+  @override
+  String get triageSummaryStatus => 'Status:';
+
+  @override
+  String get triageRouteNameCpr => 'CPR';
+
+  @override
+  String get triageRouteNameBleeding => 'Bleeding';
+
+  @override
+  String get triageRouteNameDrowning => 'Drowning';
+
+  @override
+  String get triageRouteNameSnakebite => 'Snakebite';
+
+  @override
+  String get triageRouteNameRecovery => 'Recovery Position';
+
+  @override
+  String get triageRouteNameBurn => 'Severe Burn';
+
+  @override
+  String get triageRouteNameChoking => 'Choking';
+
+  @override
+  String get triageRouteNameEscalation => 'General Emergency';
+
+  @override
+  String triageSummarySos(
+    String route,
+    String time,
+    int count,
+    int yes,
+    int no,
+  ) {
+    return 'Triage: $route\nTime: $time\nQuestions: $count (Yes $yes / No $no)';
+  }
+
+  @override
+  String triageShareableSos(
+    String route,
+    String time,
+    int count,
+    int yes,
+    int no,
+  ) {
+    return 'Triage: $route\nTime: $time\nQuestions: $count (Yes $yes / No $no)';
+  }
+
+  @override
+  String modelRamLabel(String ram) {
+    return 'Your RAM: $ram';
+  }
+
+  @override
+  String get modelRamLow => '4GB or less';
+
+  @override
+  String get modelRamMid => '6-8GB';
+
+  @override
+  String get modelRamHigh => '12GB+';
+
+  @override
+  String get modelTierLight => 'Light';
+
+  @override
+  String get modelTierMedium => 'Medium';
+
+  @override
+  String get modelTierPowerful => 'Powerful';
+
+  @override
+  String modelStorageUsed(String size) {
+    return 'Downloaded: $size';
+  }
+
+  @override
+  String get modelBadgeExpected => 'Expected';
+
+  @override
+  String get modelBadgeAdvanced => 'Advanced';
+
+  @override
+  String get modelBadgeHeavy => 'Heavy';
+
+  @override
+  String get modelRetry => 'Retry';
+
+  @override
+  String get modelDownload => 'Download';
+
+  @override
+  String get modelActivate => 'Activate';
+
+  @override
+  String get modelActiveStatus => 'Model is active';
+
+  @override
+  String get modelDelete => 'Delete';
+
+  @override
+  String modelDownloadStarted(String label) {
+    return '$label download started — running in background.';
+  }
+
+  @override
+  String get modelDeleteTitle => 'Delete model?';
+
+  @override
+  String modelDeleteBody(String label, String size) {
+    return '$label ($size) will be deleted.';
+  }
+
+  @override
+  String get modelCancel => 'Cancel';
+
+  @override
+  String get modelDeleted => 'Model deleted';
+
+  @override
+  String get homeAiTools => 'AI Tools';
+
+  @override
+  String get homeToolPlan => 'Plan';
+
+  @override
+  String get homeToolKit => 'Kit';
+
+  @override
+  String get homeToolRisk => 'Risk';
+
+  @override
+  String get homeToolDamageScan => 'Damage Scan';
+
+  @override
+  String get homeToolSummary => 'Summary';
+
+  @override
+  String get homeTipTitle => 'Tip of the Day';
+
+  @override
+  String get hazardsCardHeader => 'Alerts';
+
+  @override
+  String get hazardsLoading => 'Loading data...';
+
+  @override
+  String get hazardsLoadError => 'Could not load data. Try again.';
+
+  @override
+  String get hazardsNoAlerts => 'No hazards right now';
+
+  @override
+  String hazardsShowMore(int count) {
+    return 'Show $count more';
+  }
+
+  @override
+  String get shelterAiRiskAssessment => 'AI Risk Assessment';
+
+  @override
+  String get shelterGpsPermissionDenied => 'GPS permission not granted';
+
+  @override
+  String get shelterGpsNotFound => 'GPS not found';
+
+  @override
+  String get shelterGpsUnavailable =>
+      'Showing all of Bangladesh — distance from GPS unavailable';
+
+  @override
+  String get shelterOfflineTiles =>
+      'Offline — map tiles won\'t load, but shelter locations are visible';
+
+  @override
+  String get shelterNoResults => 'No shelters found';
+
+  @override
+  String get shelterUnitKm => 'km';
+
+  @override
+  String get shelterUnitPeople => 'people';
+
+  @override
+  String get shelterNoSearchResults => 'No results found';
+
+  @override
+  String get shelterTryDifferentWords => 'Try different words';
+
+  @override
+  String get weatherClear => 'Clear';
+
+  @override
+  String get weatherPartlyCloudy => 'Partly cloudy';
+
+  @override
+  String get weatherCloudy => 'Cloudy';
+
+  @override
+  String get weatherFog => 'Fog';
+
+  @override
+  String get weatherDrizzle => 'Drizzle';
+
+  @override
+  String get weatherRain => 'Rain';
+
+  @override
+  String get weatherHeavyRain => 'Heavy rain';
+
+  @override
+  String get weatherSnow => 'Snowfall';
+
+  @override
+  String get weatherShowers => 'Rain showers';
+
+  @override
+  String get weatherHeavyShowers => 'Heavy showers';
+
+  @override
+  String get weatherStormy => 'Stormy wind';
+
+  @override
+  String get weatherThunderstorm => 'Thunderstorm';
+
+  @override
+  String get weatherUnknown => 'Unknown';
+
+  @override
+  String get chatSuggestionOrs => 'How to make ORS?';
+
+  @override
+  String get chatSuggestionShelter => 'Nearest shelter';
+
+  @override
+  String get chatSuggestionSnakebite => 'What to do if bitten by a snake?';
+
+  @override
+  String get chatSuggestionRumorSnakebite =>
+      'Rumor: Is it right to cut a snakebite?';
+
+  @override
+  String get cardDetailBack => 'Go back';
+
+  @override
+  String get cardDetailNoSteps => 'No steps available for this card';
+
+  @override
+  String get cardDetailNotFound => 'Card not found';
+
+  @override
+  String get emergencyDirDhaka => 'Dhaka';
+
+  @override
+  String get emergencyDirChattogram => 'Chattogram';
+
+  @override
+  String get emergencyDirRajshahi => 'Rajshahi';
+
+  @override
+  String get emergencyDirKhulna => 'Khulna';
+
+  @override
+  String get emergencyDirBarishal => 'Barishal';
+
+  @override
+  String get emergencyDirSylhet => 'Sylhet';
+
+  @override
+  String get emergencyDirRangpur => 'Rangpur';
+
+  @override
+  String get emergencyDirMymensingh => 'Mymensingh';
+
+  @override
+  String get nationalContactPolice => 'Police';
+
+  @override
+  String get nationalContactFireService => 'Fire Service';
+
+  @override
+  String get nationalContactAmbulance => 'Ambulance';
+
+  @override
+  String get nationalContactDisasterMgmt => 'Disaster Management';
+
+  @override
+  String get nationalContactRedCrescent => 'Red Crescent';
+
+  @override
+  String get nationalContactHealthHotline => 'Health Hotline';
+
+  @override
+  String get safetyDangerFlood => 'Flood';
+
+  @override
+  String get safetyDangerFire => 'Fire';
+
+  @override
+  String get safetyDangerEarthquake => 'Earthquake';
+
+  @override
+  String get safetyDangerCyclone => 'Cyclone';
+
+  @override
+  String get safetyDangerLandslide => 'Landslide';
+
+  @override
+  String get safetyDangerTrapped => 'Trapped';
+
+  @override
+  String get safetyDangerMedical => 'Medical emergency';
+
+  @override
+  String get safetyDangerViolence => 'Violence / Unrest';
+
+  @override
+  String get safetyDangerOther => 'Other';
+
+  @override
+  String get damageTitle => 'AI Damage Scan';
+
+  @override
+  String damagePhotoError(String error) {
+    return 'Could not take photo: $error';
+  }
+
+  @override
+  String get damageInternetRequired =>
+      'Internet is required for damage scanning.';
+
+  @override
+  String get damageApiKeyRequired =>
+      'GEMINI_API_KEY is needed for AI damage scanning.';
+
+  @override
+  String damageAnalyzeError(String error) {
+    return 'Could not analyze: $error';
+  }
+
+  @override
+  String get damageAiAnalyzing => 'AI is analyzing photo...';
+
+  @override
+  String get damageIntroBody =>
+      'Take a photo of damage or select from gallery.\nAI will identify the type and severity of damage.';
+
+  @override
+  String get damageCamera => 'Camera';
+
+  @override
+  String get damageGallery => 'Gallery';
+
+  @override
+  String get damageFeatureInfo =>
+      'This feature requires internet and GEMINI_API_KEY.';
+
+  @override
+  String get damageTypeLabel => 'Damage Type';
+
+  @override
+  String get damageDescLabel => 'Description';
+
+  @override
+  String get damageRecommendLabel => 'Recommendation';
+
+  @override
+  String get damageScanAnother => 'Scan another photo';
+
+  @override
+  String get damageTryAgain => 'Try again';
+
+  @override
+  String get damageTypeFlood => 'Flood';
+
+  @override
+  String get damageTypeFire => 'Fire';
+
+  @override
+  String get damageTypeBuildingCollapse => 'Collapsed building';
+
+  @override
+  String get damageTypeFallenTree => 'Fallen tree';
+
+  @override
+  String get damageTypeBlockedRoad => 'Blocked road';
+
+  @override
+  String get damageTypeElectricalHazard => 'Electrical hazard';
+
+  @override
+  String get damageTypeSmoke => 'Smoke';
+
+  @override
+  String get damageTypeOther => 'Other';
+
+  @override
+  String get damageTypeUnknown => 'Unknown';
+
+  @override
+  String get damageSeverityLow => 'Low';
+
+  @override
+  String get damageSeverityMedium => 'Medium';
+
+  @override
+  String get damageSeverityHigh => 'High';
+
+  @override
+  String get damageSeverityVeryHigh => 'Very High';
+
+  @override
+  String get damageSeverityUnknown => 'Unknown';
+
+  @override
+  String get damageDefaultRecommendation =>
+      'For more information use the shelter tab.';
+
+  @override
+  String get damageParseFailure => 'Could not analyze the photo.';
+
+  @override
+  String get plannerTitle => 'AI Disaster Plan';
+
+  @override
+  String get plannerFamilyInfo => 'Family Information';
+
+  @override
+  String get plannerTotalMembers => 'Total Members';
+
+  @override
+  String get plannerChildren => 'Children';
+
+  @override
+  String get plannerElderly => 'Elderly';
+
+  @override
+  String get plannerHomeType => 'Home Type';
+
+  @override
+  String get plannerFloorNumber => 'Floor Number';
+
+  @override
+  String get plannerMedicalConditions =>
+      'Medical Conditions (separate with commas)';
+
+  @override
+  String get plannerMedicalHint => 'e.g.: Diabetes, Asthma';
+
+  @override
+  String get plannerOther => 'Other';
+
+  @override
+  String get plannerHasPets => 'Has Pets';
+
+  @override
+  String get plannerNearbyRiver => 'Nearby River';
+
+  @override
+  String get plannerNearCoast => 'Near Coast';
+
+  @override
+  String get plannerGenerate => 'Create Plan';
+
+  @override
+  String get plannerAiPlan => 'AI Plan';
+
+  @override
+  String get plannerNewPlan => 'New Plan';
+
+  @override
+  String get plannerDone => 'Done';
+
+  @override
+  String get plannerHomeTinShed => 'Tin shed house';
+
+  @override
+  String get plannerHomePucca => 'Pucca house';
+
+  @override
+  String get plannerHomeFlat => 'Flat';
+
+  @override
+  String get plannerHomeUnknown => 'Unknown';
+
+  @override
+  String get riskTitle => 'AI Risk Assessment';
+
+  @override
+  String get riskHomeType => 'Home Type';
+
+  @override
+  String get riskFloodHistory => 'Previous Flood History';
+
+  @override
+  String get riskElevation => 'Area Elevation';
+
+  @override
+  String get riskOther => 'Other';
+
+  @override
+  String get riskNearbyRiver => 'Nearby River';
+
+  @override
+  String get riskNearCoast => 'Near Coast';
+
+  @override
+  String get riskHasElderly => 'Family has elderly';
+
+  @override
+  String get riskHasChildren => 'Family has children';
+
+  @override
+  String get riskAssessButton => 'Assess Risk';
+
+  @override
+  String get riskScoreDenominator => '/ 10';
+
+  @override
+  String get riskScoreLabel => 'Risk Score';
+
+  @override
+  String get riskRetry => 'Retry';
+
+  @override
+  String get riskDone => 'Done';
+
+  @override
+  String get riskTimeJustNow => 'Just now';
+
+  @override
+  String riskTimeMinutesAgo(int count) {
+    return '$count minutes ago';
+  }
+
+  @override
+  String riskTimeHoursAgo(int count) {
+    return '$count hours ago';
+  }
+
+  @override
+  String riskTimeDaysAgo(int count) {
+    return '$count days ago';
+  }
+
+  @override
+  String get kitTitle => 'AI Emergency Kit';
+
+  @override
+  String get kitEmptyBody =>
+      'First fill in family information to create a kit.';
+
+  @override
+  String get kitGoToPlanner => 'Go to Planner';
+
+  @override
+  String kitGenerateForFamily(int size) {
+    return 'Create a kit for a family of $size.';
+  }
+
+  @override
+  String get kitGenerateButton => 'Generate Kit';
+
+  @override
+  String get kitAiKit => 'AI Kit';
+
+  @override
+  String get kitRetry => 'Retry';
+
+  @override
+  String get kitDone => 'Done';
+
+  @override
+  String get familyHomeTypeTinShed => 'Tin shed house';
+
+  @override
+  String get familyHomeTypePucca => 'Pucca house';
+
+  @override
+  String get familyHomeTypeFlat => 'Flat';
+
+  @override
+  String get familyHomeTypeUnknown => 'Unknown';
+
+  @override
+  String get adminTimeJustNow => 'Just now';
+
+  @override
+  String adminTimeMinutesAgo(int count) {
+    return '$count minutes ago';
+  }
+
+  @override
+  String adminTimeHoursAgo(int count) {
+    return '$count hours ago';
+  }
+
+  @override
+  String adminTimeDaysAgo(int count) {
+    return '$count days ago';
+  }
+
+  @override
+  String get adminWriteMessage => 'Write a message...';
+
+  @override
+  String get adminDetailsLink => 'Details';
+
+  @override
+  String get adminSystemSummary => 'System Summary';
+
+  @override
+  String get onboardingYourName => 'Your Name';
+
+  @override
+  String get onboardingNameDesc =>
+      'Set your name for offline messaging and emergency contact. This is optional.';
+
+  @override
+  String get onboardingNameLabel => 'Name';
+
+  @override
+  String get onboardingNameHint => 'Enter your name';
+
+  @override
+  String get chatNoAnswer =>
+      'I don\'t have an answer for this question. Call 999 for help.';
+
+  @override
+  String get cloudAiNoAnswer => 'No answer found.';
+
+  @override
+  String get settingsDefaultUsername => 'User';
 }

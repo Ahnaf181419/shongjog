@@ -453,6 +453,14 @@
   "modelE4bDesc": "ভালো মানের উত্তর। ৬GB+ র‍্যাম প্রয়োজন।",
   "model12bSize": "~৭-১০ GB",
   "model12bDesc": "সেরা মানের উত্তর। ১২GB+ র‍্যাম প্রয়োজন।",
+  "modelLightLabel": "হালকা",
+  "modelPowerfulLabel": "শক্তিশালী",
+  "modelInfoTooltip": "মডেল সম্পর্কে জানুন",
+  "modelInfoDialogTitle": "AI মডেল সম্পর্কে",
+  "modelInfoVariant": "মডেল",
+  "modelInfoParams": "প্যারামিটার",
+  "modelInfoSize": "সাইজ",
+  "modelInfoRam": "র‍্যাম ব্যবহার",
   "hazardCyclone": "ঘূর্ণিঝড়",
   "hazardFlood": "বন্যা",
   "hazardEarthquake": "ভূমিকম্প",
@@ -515,5 +523,320 @@
   "adminSafetyDanger": "বিপদে",
   "adminDangerListTitle": "বিপদে থাকা ব্যবহারকারী",
   "adminDangerListEmpty": "কেউ বিপদে নেই",
-  "adminDangerOpenMap": "মানচিত্রে দেখুন"
+  "adminDangerOpenMap": "মানচিত্রে দেখুন",
+  "triageQConscious": "ব্যক্তি কি সচেতন?",
+  "triageQBreathing": "শ্বাস নিচ্ছে?",
+  "triageQBleeding": "গুরুতর রক্তপাত হচ্ছে?",
+  "triageQWater": "পানিতে ছিল বা ডুবেছে?",
+  "triageQSnakebite": "সাপে কামড়েছে?",
+  "triageQBurn": "গুরুতর পোড়া?",
+  "triageQChoking": "কথা বলতে বা কাশি দিতে পারছে?",
+  "triageNotify999": "৯৯৯ কে জানান",
+  "triageDoNow": "এখনই যা করবেন",
+  "triageCardNotFound": "কার্ড পাওয়া যায়নি",
+  "triageRouteCpr": "সিপিআর শুরু করুন",
+  "triageRouteBleeding": "রক্তপাত বন্ধ করুন",
+  "triageRouteDrowning": "ডুবে যাওয়া — নিষ্কাশন ও সিপিআর",
+  "triageRouteSnakebite": "সাপে কামড় — চিকিৎসা সহায়তা নিন",
+  "triageRouteRecovery": "রিকভারি পজিশনে রাখুন",
+  "triageRouteBurn": "গুরুতর পোড়া — ঠাণ্ডা পানি দিন",
+  "triageRouteChoking": "শ্বাসরোধ — পিঠে ও পেটে চাপ দিন",
+  "triageRouteEscalation": "জরুরি সহায়তা প্রয়োজন",
+  "triageStepCpr": "বুকে ১১০ বার/মিনিট হারে চাপ দিন। ৩০:২ অনুপাত।",
+  "triageStepBleeding": "চাপ দিয়ে রক্তপাত বন্ধ করুন। পরিষ্কার কাপড় দিয়ে চাপ।",
+  "triageStepDrowning": "শ্বাস নিচ্ছে কিনা দেখুন। প্রয়োজনে সিপিআর।",
+  "triageStepSnakebite": "শান্ত রাখুন, কাটা বা চুষবেন না। দ্রুত হাসপাতালে।",
+  "triageStepRecovery": "পাশ ফিরিয়ে শুইয়ে দিন। শ্বাস পরীক্ষা করুন।",
+  "triageStepBurn": "কুসুম-গরম পানি ২০ মিনিট চলমান রাখুন।",
+  "triageStepChoking": "পিঠে ৫ বার চাপ, তারপর পেটে ৫ বার হিথলিক।",
+  "triageStepEscalation": "৯৯৯ কল করুন বা পরিবার/প্রতিবেশীদের সাহায্য নিন।",
+  "triageStateOngoing": "চলমান",
+  "triageStateUnknown": "অজানা",
+  "triageSummaryPrefix": "ট্রায়াজ:",
+  "triageSummaryTime": "সময়:",
+  "triageSummaryQuestions": "প্রশ্ন:",
+  "triageSummaryYes": "হ্যাঁ",
+  "triageSummaryNo": "না",
+  "triageSummaryStatus": "অবস্থা:",
+  "triageRouteNameCpr": "সিপিআর",
+  "triageRouteNameBleeding": "রক্তপাত",
+  "triageRouteNameDrowning": "ডুবে যাওয়া",
+  "triageRouteNameSnakebite": "সাপে কামড়",
+  "triageRouteNameRecovery": "রিকভারি পজিশন",
+  "triageRouteNameBurn": "গুরুতর পোড়া",
+  "triageRouteNameChoking": "শ্বাসরোধ",
+  "triageRouteNameEscalation": "সাধারণ জরুরি",
+  "triageSummarySos": "ট্রায়াজ: {route}\nসময়: {time}\nপ্রশ্ন: {count} (হ্যাঁ {yes} / না {no})",
+  "triageShareableSos": "ট্রায়াজ: {route}\nসময়: {time}\nপ্রশ্ন: {count} (হ্যাঁ {yes} / না {no})",
+  "modelRamLabel": "আপনার RAM: {ram}",
+  "modelRamLow": "৪GB বা কম",
+  "modelRamMid": "৬-৮GB",
+  "modelRamHigh": "১২GB+",
+  "modelTierLight": "হালকা",
+  "modelTierMedium": "মাঝারি",
+  "modelTierPowerful": "শক্তিশালী",
+  "modelStorageUsed": "ডাউনলোড করা: {size}",
+  "modelBadgeExpected": "✅ প্রত্যাশিত",
+  "modelBadgeAdvanced": "⚠️ উন্নত",
+  "modelBadgeHeavy": "⚠️ ভারী",
+  "modelRetry": "আবার চেষ্টা করুন",
+  "modelDownload": "ডাউনলোড",
+  "modelActivate": "সক্রিয় করুন",
+  "modelActiveStatus": "মডেল সক্রিয় আছে",
+  "modelDelete": "মুছুন",
+  "modelDownloadStarted": "{label} ডাউনলোড শুরু হয়েছে — পটভূমিতে চলবে।",
+  "modelDeleteTitle": "মডেল মুছে ফেলবেন?",
+  "modelDeleteBody": "{label} ({size}) মুছে যাবে।",
+  "modelCancel": "বাতিল",
+  "modelDeleted": "মডেল মুছে ফেলা হয়েছে",
+  "homeAiTools": "AI টুলস",
+  "homeToolPlan": "পরিকল্পনা",
+  "homeToolKit": "কিট",
+  "homeToolRisk": "ঝুঁকি",
+  "homeToolDamageScan": "ড্যামেজ স্ক্যান",
+  "homeToolSummary": "সারাংশ",
+  "homeTipTitle": "আজকের পরামর্শ",
+  "hazardsCardHeader": "সতর্কতা",
+  "hazardsLoading": "তথ্য আনা হচ্ছে…",
+  "hazardsLoadError": "তথ্য আনা যায়নি। আবার চেষ্টা করুন।",
+  "hazardsNoAlerts": "এই মুহূর্তে কোনো ঝুঁকি নেই",
+  "hazardsShowMore": "আরও {count}টি দেখুন",
+  "shelterAiRiskAssessment": "AI ঝুঁকি মূল্যায়ন",
+  "shelterGpsPermissionDenied": "GPS অনুমতি দেওয়া হয়নি",
+  "shelterGpsNotFound": "GPS পাওয়া যায়নি",
+  "shelterGpsUnavailable": "সমগ্র বাংলাদেশ দেখানো হচ্ছে — GPS থেকে দূরত্ব নির্ণয় করা যাবে না",
+  "shelterOfflineTiles": "অফলাইন — মানচিত্রের টাইলস লোড হবে না, তবে আশ্রয়কেন্দ্রের অবস্থান দেখা যাচ্ছে",
+  "shelterNoResults": "কোনো আশ্রয়কেন্দ্র পাওয়া যায়নি",
+  "shelterUnitKm": "কিমি",
+  "shelterUnitPeople": "জন",
+  "shelterNoSearchResults": "কোনো ফলাফল পাওয়া যায়নি",
+  "shelterTryDifferentWords": "অন্য শব্দ দিয়ে চেষ্টা করুন",
+  "weatherClear": "পরিষ্কার",
+  "weatherPartlyCloudy": "হালকা মেঘলা",
+  "weatherCloudy": "মেঘাচ্ছন্ন",
+  "weatherFog": "কুয়াশা",
+  "weatherDrizzle": "গুঁড়ি গুঁড়ি বৃষ্টি",
+  "weatherRain": "বৃষ্টি",
+  "weatherHeavyRain": "ভারী বৃষ্টি",
+  "weatherSnow": "তুষারপাত",
+  "weatherShowers": "বৃষ্টির ঝাপটা",
+  "weatherHeavyShowers": "ভারী বর্ষণ",
+  "weatherStormy": "ঝড়ো হাওয়া",
+  "weatherThunderstorm": "বজ্রসহ ঝড়",
+  "weatherUnknown": "অজানা",
+  "chatSuggestionOrs": "ORS কীভাবে বানাবো?",
+  "chatSuggestionShelter": "নিকটস্থ আশ্রয়কেন্দ্র",
+  "chatSuggestionSnakebite": "সাপে কামড়ালে কী করবো?",
+  "chatSuggestionRumorSnakebite": "গুজব: সাপে কামড়ালে কেটে ফেলা ঠিক?",
+  "cardDetailBack": "ফিরে যান",
+  "cardDetailNoSteps": "এই কার্ডের জন্য কোনো পদক্ষেপ নেই",
+  "cardDetailNotFound": "কার্ড পাওয়া যায়নি",
+  "emergencyDirDhaka": "ঢাকা",
+  "emergencyDirChattogram": "চট্টগ্রাম",
+  "emergencyDirRajshahi": "রাজশাহী",
+  "emergencyDirKhulna": "খুলনা",
+  "emergencyDirBarishal": "বরিশাল",
+  "emergencyDirSylhet": "সিলেট",
+  "emergencyDirRangpur": "রংপুর",
+  "emergencyDirMymensingh": "ময়মনসিংহ",
+  "nationalContactPolice": "পুলিশ",
+  "nationalContactFireService": "ফায়ার সার্ভিস",
+  "nationalContactAmbulance": "অ্যাম্বুলেন্স",
+  "nationalContactDisasterMgmt": "দুর্যোগ ব্যবস্থাপনা",
+  "nationalContactRedCrescent": "রেড ক্রিসেন্ট",
+  "nationalContactHealthHotline": "স্বাস্থ্য হটলাইন",
+  "safetyDangerFlood": "বন্যা",
+  "safetyDangerFire": "আগুন",
+  "safetyDangerEarthquake": "ভূমিকম্প",
+  "safetyDangerCyclone": "ঘূর্ণিঝড়",
+  "safetyDangerLandslide": "ভূমিধস",
+  "safetyDangerTrapped": "আটকা পড়েছি",
+  "safetyDangerMedical": "চিকিৎসা জরুরি",
+  "safetyDangerViolence": "সহিংসতা / অস্থিরতা",
+  "safetyDangerOther": "অন্যান্য",
+  "damageTitle": "AI ড্যামেজ স্ক্যান",
+  "damagePhotoError": "ছবি নেওয়া যায়নি: {error}",
+  "damageInternetRequired": "ড্যামেজ স্ক্যানের জন্য ইন্টারনেট প্রয়োজন।",
+  "damageApiKeyRequired": "AI ড্যামেজ স্ক্যানের জন্য GEMINI_API_KEY প্রয়োজন।",
+  "damageAnalyzeError": "বিশ্লেষণ করা যায়নি: {error}",
+  "damageAiAnalyzing": "AI ছবি বিশ্লেষণ করছে…",
+  "damageIntroBody": "একটি ক্ষয়ক্ষতির ছবি তুলুন বা গ্যালারি থেকে নিন।\nAI ছবি দেখে ক্ষয়ক্ষতির ধরন ও তীব্রতা বলবে।",
+  "damageCamera": "ক্যামেরা",
+  "damageGallery": "গ্যালারি",
+  "damageFeatureInfo": "এই ফিচারের জন্য ইন্টারনেট ও GEMINI_API_KEY প্রয়োজন।",
+  "damageTypeLabel": "ক্ষয়ক্ষতির ধরন",
+  "damageDescLabel": "বিবরণ",
+  "damageRecommendLabel": "সুপারিশ",
+  "damageScanAnother": "আরেকটি ছবি স্ক্যান করুন",
+  "damageTryAgain": "আবার চেষ্টা করুন",
+  "damageTypeFlood": "বন্যা",
+  "damageTypeFire": "আগুন",
+  "damageTypeBuildingCollapse": "ধসে পড়া ভবন",
+  "damageTypeFallenTree": "পড়ে যাওয়া গাছ",
+  "damageTypeBlockedRoad": "অবরুদ্ধ রাস্তা",
+  "damageTypeElectricalHazard": "বৈদ্যুতিক বিপদ",
+  "damageTypeSmoke": "ধোঁয়া",
+  "damageTypeOther": "অন্যান্য",
+  "damageTypeUnknown": "অজানা",
+  "damageSeverityLow": "নিম্ন",
+  "damageSeverityMedium": "মাঝারি",
+  "damageSeverityHigh": "উচ্চ",
+  "damageSeverityVeryHigh": "অত্যন্ত উচ্চ",
+  "damageSeverityUnknown": "অজানা",
+  "damageDefaultRecommendation": "অতিরিক্ত তথ্যের জন্য আশ্রয় ট্যাব ব্যবহার করুন।",
+  "damageParseFailure": "ছবি বিশ্লেষণ করা যায়নি।",
+  "plannerTitle": "AI দুর্যোগ পরিকল্পনা",
+  "plannerFamilyInfo": "পরিবারের তথ্য",
+  "plannerTotalMembers": "মোট সদস্য",
+  "plannerChildren": "শিশু",
+  "plannerElderly": "প্রবীণ",
+  "plannerHomeType": "ঘরের ধরন",
+  "plannerFloorNumber": "তলা নম্বর",
+  "plannerMedicalConditions": "চিকিৎসা অবস্থা (কমা দিয়ে আলাদা করুন)",
+  "plannerMedicalHint": "যেমন: ডায়াবেটিস, হাঁপানি",
+  "plannerOther": "অন্যান্য",
+  "plannerHasPets": "পোষা প্রাণী আছে",
+  "plannerNearbyRiver": "নিকটবর্তী নদী",
+  "plannerNearCoast": "সমুদ্রতীরের কাছে",
+  "plannerGenerate": "পরিকল্পনা তৈরি করুন",
+  "plannerAiPlan": "AI পরিকল্পনা",
+  "plannerNewPlan": "নতুন পরিকল্পনা",
+  "plannerDone": "সম্পন্ন",
+  "plannerHomeTinShed": "টিনের ঘর",
+  "plannerHomePucca": "পাকা বাড়ি",
+  "plannerHomeFlat": "ফ্ল্যাট",
+  "plannerHomeUnknown": "অজানা",
+  "riskTitle": "AI ঝুঁকি মূল্যায়ন",
+  "riskHomeType": "ঘরের ধরন",
+  "riskFloodHistory": "পূর্ববর্তী বন্যার ইতিহাস",
+  "riskElevation": "এলাকার উচ্চতা",
+  "riskOther": "অন্যান্য",
+  "riskNearbyRiver": "নিকটবর্তী নদী",
+  "riskNearCoast": "সমুদ্রতীরের কাছে",
+  "riskHasElderly": "পরিবারে প্রবীণ আছে",
+  "riskHasChildren": "পরিবারে শিশু আছে",
+  "riskAssessButton": "ঝুঁকি মূল্যায়ন করুন",
+  "riskScoreDenominator": "/ ১০",
+  "riskScoreLabel": "ঝুঁকি স্কোর",
+  "riskRetry": "পুনরায়",
+  "riskDone": "সম্পন্ন",
+  "riskTimeJustNow": "এইমাত্র",
+  "riskTimeMinutesAgo": "{count} মিনিট আগে",
+  "riskTimeHoursAgo": "{count} ঘণ্টা আগে",
+  "riskTimeDaysAgo": "{count} দিন আগে",
+  "kitTitle": "AI জরুরি কিট",
+  "kitEmptyBody": "কিট তৈরি করতে প্রথমে পরিবারের তথ্য দিন।",
+  "kitGoToPlanner": "পরিকল্পনায় যান",
+  "kitGenerateForFamily": "{size} জনের পরিবারের জন্য কিট তৈরি করুন।",
+  "kitGenerateButton": "কিট তৈরি করুন",
+  "kitAiKit": "AI কিট",
+  "kitRetry": "পুনরায়",
+  "kitDone": "সম্পন্ন",
+  "familyHomeTypeTinShed": "টিনের ঘর",
+  "familyHomeTypePucca": "পাকা বাড়ি",
+  "familyHomeTypeFlat": "ফ্ল্যাট",
+  "familyHomeTypeUnknown": "অজানা",
+  "adminTimeJustNow": "এইমাত্র",
+  "adminTimeMinutesAgo": "{count} মিনিট আগে",
+  "adminTimeHoursAgo": "{count} ঘণ্টা আগে",
+  "adminTimeDaysAgo": "{count} দিন আগে",
+  "adminWriteMessage": "বার্তা লিখুন…",
+  "adminDetailsLink": "বিস্তারিত",
+  "adminSystemSummary": "সিস্টেম সারসংক্ষেপ",
+  "onboardingYourName": "আপনার নাম",
+  "onboardingNameDesc": "অফলাইন মেসেজিং এবং জরুরি যোগাযোগের জন্য আপনার নাম সেট করতে পারেন। এটি ঐচ্ছিক।",
+  "onboardingNameLabel": "নাম",
+  "onboardingNameHint": "আপনার নাম লিখুন",
+  "chatNoAnswer": "আমার কাছে এই প্রশ্নের উত্তর নেই। ৯৯৯ এ কল করুন।",
+  "cloudAiNoAnswer": "কোনো উত্তর পাওয়া যায়নি।",
+  "settingsDefaultUsername": "ব্যবহারকারী",
+  "@triageSummarySos": {
+    "placeholders": {
+      "route": { "type": "String" },
+      "time": { "type": "String" },
+      "count": { "type": "int" },
+      "yes": { "type": "int" },
+      "no": { "type": "int" }
+    }
+  },
+  "@triageShareableSos": {
+    "placeholders": {
+      "route": { "type": "String" },
+      "time": { "type": "String" },
+      "count": { "type": "int" },
+      "yes": { "type": "int" },
+      "no": { "type": "int" }
+    }
+  },
+  "@modelRamLabel": {
+    "placeholders": {
+      "ram": { "type": "String" }
+    }
+  },
+  "@modelStorageUsed": {
+    "placeholders": {
+      "size": { "type": "String" }
+    }
+  },
+  "@modelDownloadStarted": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "@modelDeleteBody": {
+    "placeholders": {
+      "label": { "type": "String" },
+      "size": { "type": "String" }
+    }
+  },
+  "@hazardsShowMore": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "@damagePhotoError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "@damageAnalyzeError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "@riskTimeMinutesAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "@riskTimeHoursAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "@riskTimeDaysAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "@kitGenerateForFamily": {
+    "placeholders": {
+      "size": { "type": "int" }
+    }
+  },
+  "@adminTimeMinutesAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "@adminTimeHoursAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "@adminTimeDaysAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  }
 }

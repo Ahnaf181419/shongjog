@@ -1297,6 +1297,30 @@ class AppLocalizationsBn extends AppLocalizations {
   String get model12bDesc => 'সেরা মানের উত্তর। ১২GB+ র‍্যাম প্রয়োজন।';
 
   @override
+  String get modelLightLabel => 'হালকা';
+
+  @override
+  String get modelPowerfulLabel => 'শক্তিশালী';
+
+  @override
+  String get modelInfoTooltip => 'মডেল সম্পর্কে জানুন';
+
+  @override
+  String get modelInfoDialogTitle => 'AI মডেল সম্পর্কে';
+
+  @override
+  String get modelInfoVariant => 'মডেল';
+
+  @override
+  String get modelInfoParams => 'প্যারামিটার';
+
+  @override
+  String get modelInfoSize => 'সাইজ';
+
+  @override
+  String get modelInfoRam => 'র‍্যাম ব্যবহার';
+
+  @override
   String get hazardCyclone => 'ঘূর্ণিঝড়';
 
   @override
@@ -1486,4 +1510,740 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get adminDangerOpenMap => 'মানচিত্রে দেখুন';
+
+  @override
+  String get triageQConscious => 'ব্যক্তি কি সচেতন?';
+
+  @override
+  String get triageQBreathing => 'শ্বাস নিচ্ছে?';
+
+  @override
+  String get triageQBleeding => 'গুরুতর রক্তপাত হচ্ছে?';
+
+  @override
+  String get triageQWater => 'পানিতে ছিল বা ডুবেছে?';
+
+  @override
+  String get triageQSnakebite => 'সাপে কামড়েছে?';
+
+  @override
+  String get triageQBurn => 'গুরুতর পোড়া?';
+
+  @override
+  String get triageQChoking => 'কথা বলতে বা কাশি দিতে পারছে?';
+
+  @override
+  String get triageNotify999 => '৯৯৯ কে জানান';
+
+  @override
+  String get triageDoNow => 'এখনই যা করবেন';
+
+  @override
+  String get triageCardNotFound => 'কার্ড পাওয়া যায়নি';
+
+  @override
+  String get triageRouteCpr => 'সিপিআর শুরু করুন';
+
+  @override
+  String get triageRouteBleeding => 'রক্তপাত বন্ধ করুন';
+
+  @override
+  String get triageRouteDrowning => 'ডুবে যাওয়া — নিষ্কাশন ও সিপিআর';
+
+  @override
+  String get triageRouteSnakebite => 'সাপে কামড় — চিকিৎসা সহায়তা নিন';
+
+  @override
+  String get triageRouteRecovery => 'রিকভারি পজিশনে রাখুন';
+
+  @override
+  String get triageRouteBurn => 'গুরুতর পোড়া — ঠাণ্ডা পানি দিন';
+
+  @override
+  String get triageRouteChoking => 'শ্বাসরোধ — পিঠে ও পেটে চাপ দিন';
+
+  @override
+  String get triageRouteEscalation => 'জরুরি সহায়তা প্রয়োজন';
+
+  @override
+  String get triageStepCpr => 'বুকে ১১০ বার/মিনিট হারে চাপ দিন। ৩০:২ অনুপাত।';
+
+  @override
+  String get triageStepBleeding =>
+      'চাপ দিয়ে রক্তপাত বন্ধ করুন। পরিষ্কার কাপড় দিয়ে চাপ।';
+
+  @override
+  String get triageStepDrowning => 'শ্বাস নিচ্ছে কিনা দেখুন। প্রয়োজনে সিপিআর।';
+
+  @override
+  String get triageStepSnakebite =>
+      'শান্ত রাখুন, কাটা বা চুষবেন না। দ্রুত হাসপাতালে।';
+
+  @override
+  String get triageStepRecovery =>
+      'পাশ ফিরিয়ে শুইয়ে দিন। শ্বাস পরীক্ষা করুন।';
+
+  @override
+  String get triageStepBurn => 'কুসুম-গরম পানি ২০ মিনিট চলমান রাখুন।';
+
+  @override
+  String get triageStepChoking => 'পিঠে ৫ বার চাপ, তারপর পেটে ৫ বার হিথলিক।';
+
+  @override
+  String get triageStepEscalation =>
+      '৯৯৯ কল করুন বা পরিবার/প্রতিবেশীদের সাহায্য নিন।';
+
+  @override
+  String get triageStateOngoing => 'চলমান';
+
+  @override
+  String get triageStateUnknown => 'অজানা';
+
+  @override
+  String get triageSummaryPrefix => 'ট্রায়াজ:';
+
+  @override
+  String get triageSummaryTime => 'সময়:';
+
+  @override
+  String get triageSummaryQuestions => 'প্রশ্ন:';
+
+  @override
+  String get triageSummaryYes => 'হ্যাঁ';
+
+  @override
+  String get triageSummaryNo => 'না';
+
+  @override
+  String get triageSummaryStatus => 'অবস্থা:';
+
+  @override
+  String get triageRouteNameCpr => 'সিপিআর';
+
+  @override
+  String get triageRouteNameBleeding => 'রক্তপাত';
+
+  @override
+  String get triageRouteNameDrowning => 'ডুবে যাওয়া';
+
+  @override
+  String get triageRouteNameSnakebite => 'সাপে কামড়';
+
+  @override
+  String get triageRouteNameRecovery => 'রিকভারি পজিশন';
+
+  @override
+  String get triageRouteNameBurn => 'গুরুতর পোড়া';
+
+  @override
+  String get triageRouteNameChoking => 'শ্বাসরোধ';
+
+  @override
+  String get triageRouteNameEscalation => 'সাধারণ জরুরি';
+
+  @override
+  String triageSummarySos(
+    String route,
+    String time,
+    int count,
+    int yes,
+    int no,
+  ) {
+    return 'ট্রায়াজ: $route\nসময়: $time\nপ্রশ্ন: $count (হ্যাঁ $yes / না $no)';
+  }
+
+  @override
+  String triageShareableSos(
+    String route,
+    String time,
+    int count,
+    int yes,
+    int no,
+  ) {
+    return 'ট্রায়াজ: $route\nসময়: $time\nপ্রশ্ন: $count (হ্যাঁ $yes / না $no)';
+  }
+
+  @override
+  String modelRamLabel(String ram) {
+    return 'আপনার RAM: $ram';
+  }
+
+  @override
+  String get modelRamLow => '৪GB বা কম';
+
+  @override
+  String get modelRamMid => '৬-৮GB';
+
+  @override
+  String get modelRamHigh => '১২GB+';
+
+  @override
+  String get modelTierLight => 'হালকা';
+
+  @override
+  String get modelTierMedium => 'মাঝারি';
+
+  @override
+  String get modelTierPowerful => 'শক্তিশালী';
+
+  @override
+  String modelStorageUsed(String size) {
+    return 'ডাউনলোড করা: $size';
+  }
+
+  @override
+  String get modelBadgeExpected => '✅ প্রত্যাশিত';
+
+  @override
+  String get modelBadgeAdvanced => '⚠️ উন্নত';
+
+  @override
+  String get modelBadgeHeavy => '⚠️ ভারী';
+
+  @override
+  String get modelRetry => 'আবার চেষ্টা করুন';
+
+  @override
+  String get modelDownload => 'ডাউনলোড';
+
+  @override
+  String get modelActivate => 'সক্রিয় করুন';
+
+  @override
+  String get modelActiveStatus => 'মডেল সক্রিয় আছে';
+
+  @override
+  String get modelDelete => 'মুছুন';
+
+  @override
+  String modelDownloadStarted(String label) {
+    return '$label ডাউনলোড শুরু হয়েছে — পটভূমিতে চলবে।';
+  }
+
+  @override
+  String get modelDeleteTitle => 'মডেল মুছে ফেলবেন?';
+
+  @override
+  String modelDeleteBody(String label, String size) {
+    return '$label ($size) মুছে যাবে।';
+  }
+
+  @override
+  String get modelCancel => 'বাতিল';
+
+  @override
+  String get modelDeleted => 'মডেল মুছে ফেলা হয়েছে';
+
+  @override
+  String get homeAiTools => 'AI টুলস';
+
+  @override
+  String get homeToolPlan => 'পরিকল্পনা';
+
+  @override
+  String get homeToolKit => 'কিট';
+
+  @override
+  String get homeToolRisk => 'ঝুঁকি';
+
+  @override
+  String get homeToolDamageScan => 'ড্যামেজ স্ক্যান';
+
+  @override
+  String get homeToolSummary => 'সারাংশ';
+
+  @override
+  String get homeTipTitle => 'আজকের পরামর্শ';
+
+  @override
+  String get hazardsCardHeader => 'সতর্কতা';
+
+  @override
+  String get hazardsLoading => 'তথ্য আনা হচ্ছে…';
+
+  @override
+  String get hazardsLoadError => 'তথ্য আনা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get hazardsNoAlerts => 'এই মুহূর্তে কোনো ঝুঁকি নেই';
+
+  @override
+  String hazardsShowMore(int count) {
+    return 'আরও $countটি দেখুন';
+  }
+
+  @override
+  String get shelterAiRiskAssessment => 'AI ঝুঁকি মূল্যায়ন';
+
+  @override
+  String get shelterGpsPermissionDenied => 'GPS অনুমতি দেওয়া হয়নি';
+
+  @override
+  String get shelterGpsNotFound => 'GPS পাওয়া যায়নি';
+
+  @override
+  String get shelterGpsUnavailable =>
+      'সমগ্র বাংলাদেশ দেখানো হচ্ছে — GPS থেকে দূরত্ব নির্ণয় করা যাবে না';
+
+  @override
+  String get shelterOfflineTiles =>
+      'অফলাইন — মানচিত্রের টাইলস লোড হবে না, তবে আশ্রয়কেন্দ্রের অবস্থান দেখা যাচ্ছে';
+
+  @override
+  String get shelterNoResults => 'কোনো আশ্রয়কেন্দ্র পাওয়া যায়নি';
+
+  @override
+  String get shelterUnitKm => 'কিমি';
+
+  @override
+  String get shelterUnitPeople => 'জন';
+
+  @override
+  String get shelterNoSearchResults => 'কোনো ফলাফল পাওয়া যায়নি';
+
+  @override
+  String get shelterTryDifferentWords => 'অন্য শব্দ দিয়ে চেষ্টা করুন';
+
+  @override
+  String get weatherClear => 'পরিষ্কার';
+
+  @override
+  String get weatherPartlyCloudy => 'হালকা মেঘলা';
+
+  @override
+  String get weatherCloudy => 'মেঘাচ্ছন্ন';
+
+  @override
+  String get weatherFog => 'কুয়াশা';
+
+  @override
+  String get weatherDrizzle => 'গুঁড়ি গুঁড়ি বৃষ্টি';
+
+  @override
+  String get weatherRain => 'বৃষ্টি';
+
+  @override
+  String get weatherHeavyRain => 'ভারী বৃষ্টি';
+
+  @override
+  String get weatherSnow => 'তুষারপাত';
+
+  @override
+  String get weatherShowers => 'বৃষ্টির ঝাপটা';
+
+  @override
+  String get weatherHeavyShowers => 'ভারী বর্ষণ';
+
+  @override
+  String get weatherStormy => 'ঝড়ো হাওয়া';
+
+  @override
+  String get weatherThunderstorm => 'বজ্রসহ ঝড়';
+
+  @override
+  String get weatherUnknown => 'অজানা';
+
+  @override
+  String get chatSuggestionOrs => 'ORS কীভাবে বানাবো?';
+
+  @override
+  String get chatSuggestionShelter => 'নিকটস্থ আশ্রয়কেন্দ্র';
+
+  @override
+  String get chatSuggestionSnakebite => 'সাপে কামড়ালে কী করবো?';
+
+  @override
+  String get chatSuggestionRumorSnakebite =>
+      'গুজব: সাপে কামড়ালে কেটে ফেলা ঠিক?';
+
+  @override
+  String get cardDetailBack => 'ফিরে যান';
+
+  @override
+  String get cardDetailNoSteps => 'এই কার্ডের জন্য কোনো পদক্ষেপ নেই';
+
+  @override
+  String get cardDetailNotFound => 'কার্ড পাওয়া যায়নি';
+
+  @override
+  String get emergencyDirDhaka => 'ঢাকা';
+
+  @override
+  String get emergencyDirChattogram => 'চট্টগ্রাম';
+
+  @override
+  String get emergencyDirRajshahi => 'রাজশাহী';
+
+  @override
+  String get emergencyDirKhulna => 'খুলনা';
+
+  @override
+  String get emergencyDirBarishal => 'বরিশাল';
+
+  @override
+  String get emergencyDirSylhet => 'সিলেট';
+
+  @override
+  String get emergencyDirRangpur => 'রংপুর';
+
+  @override
+  String get emergencyDirMymensingh => 'ময়মনসিংহ';
+
+  @override
+  String get nationalContactPolice => 'পুলিশ';
+
+  @override
+  String get nationalContactFireService => 'ফায়ার সার্ভিস';
+
+  @override
+  String get nationalContactAmbulance => 'অ্যাম্বুলেন্স';
+
+  @override
+  String get nationalContactDisasterMgmt => 'দুর্যোগ ব্যবস্থাপনা';
+
+  @override
+  String get nationalContactRedCrescent => 'রেড ক্রিসেন্ট';
+
+  @override
+  String get nationalContactHealthHotline => 'স্বাস্থ্য হটলাইন';
+
+  @override
+  String get safetyDangerFlood => 'বন্যা';
+
+  @override
+  String get safetyDangerFire => 'আগুন';
+
+  @override
+  String get safetyDangerEarthquake => 'ভূমিকম্প';
+
+  @override
+  String get safetyDangerCyclone => 'ঘূর্ণিঝড়';
+
+  @override
+  String get safetyDangerLandslide => 'ভূমিধস';
+
+  @override
+  String get safetyDangerTrapped => 'আটকা পড়েছি';
+
+  @override
+  String get safetyDangerMedical => 'চিকিৎসা জরুরি';
+
+  @override
+  String get safetyDangerViolence => 'সহিংসতা / অস্থিরতা';
+
+  @override
+  String get safetyDangerOther => 'অন্যান্য';
+
+  @override
+  String get damageTitle => 'AI ড্যামেজ স্ক্যান';
+
+  @override
+  String damagePhotoError(String error) {
+    return 'ছবি নেওয়া যায়নি: $error';
+  }
+
+  @override
+  String get damageInternetRequired =>
+      'ড্যামেজ স্ক্যানের জন্য ইন্টারনেট প্রয়োজন।';
+
+  @override
+  String get damageApiKeyRequired =>
+      'AI ড্যামেজ স্ক্যানের জন্য GEMINI_API_KEY প্রয়োজন।';
+
+  @override
+  String damageAnalyzeError(String error) {
+    return 'বিশ্লেষণ করা যায়নি: $error';
+  }
+
+  @override
+  String get damageAiAnalyzing => 'AI ছবি বিশ্লেষণ করছে…';
+
+  @override
+  String get damageIntroBody =>
+      'একটি ক্ষয়ক্ষতির ছবি তুলুন বা গ্যালারি থেকে নিন।\nAI ছবি দেখে ক্ষয়ক্ষতির ধরন ও তীব্রতা বলবে।';
+
+  @override
+  String get damageCamera => 'ক্যামেরা';
+
+  @override
+  String get damageGallery => 'গ্যালারি';
+
+  @override
+  String get damageFeatureInfo =>
+      'এই ফিচারের জন্য ইন্টারনেট ও GEMINI_API_KEY প্রয়োজন।';
+
+  @override
+  String get damageTypeLabel => 'ক্ষয়ক্ষতির ধরন';
+
+  @override
+  String get damageDescLabel => 'বিবরণ';
+
+  @override
+  String get damageRecommendLabel => 'সুপারিশ';
+
+  @override
+  String get damageScanAnother => 'আরেকটি ছবি স্ক্যান করুন';
+
+  @override
+  String get damageTryAgain => 'আবার চেষ্টা করুন';
+
+  @override
+  String get damageTypeFlood => 'বন্যা';
+
+  @override
+  String get damageTypeFire => 'আগুন';
+
+  @override
+  String get damageTypeBuildingCollapse => 'ধসে পড়া ভবন';
+
+  @override
+  String get damageTypeFallenTree => 'পড়ে যাওয়া গাছ';
+
+  @override
+  String get damageTypeBlockedRoad => 'অবরুদ্ধ রাস্তা';
+
+  @override
+  String get damageTypeElectricalHazard => 'বৈদ্যুতিক বিপদ';
+
+  @override
+  String get damageTypeSmoke => 'ধোঁয়া';
+
+  @override
+  String get damageTypeOther => 'অন্যান্য';
+
+  @override
+  String get damageTypeUnknown => 'অজানা';
+
+  @override
+  String get damageSeverityLow => 'নিম্ন';
+
+  @override
+  String get damageSeverityMedium => 'মাঝারি';
+
+  @override
+  String get damageSeverityHigh => 'উচ্চ';
+
+  @override
+  String get damageSeverityVeryHigh => 'অত্যন্ত উচ্চ';
+
+  @override
+  String get damageSeverityUnknown => 'অজানা';
+
+  @override
+  String get damageDefaultRecommendation =>
+      'অতিরিক্ত তথ্যের জন্য আশ্রয় ট্যাব ব্যবহার করুন।';
+
+  @override
+  String get damageParseFailure => 'ছবি বিশ্লেষণ করা যায়নি।';
+
+  @override
+  String get plannerTitle => 'AI দুর্যোগ পরিকল্পনা';
+
+  @override
+  String get plannerFamilyInfo => 'পরিবারের তথ্য';
+
+  @override
+  String get plannerTotalMembers => 'মোট সদস্য';
+
+  @override
+  String get plannerChildren => 'শিশু';
+
+  @override
+  String get plannerElderly => 'প্রবীণ';
+
+  @override
+  String get plannerHomeType => 'ঘরের ধরন';
+
+  @override
+  String get plannerFloorNumber => 'তলা নম্বর';
+
+  @override
+  String get plannerMedicalConditions =>
+      'চিকিৎসা অবস্থা (কমা দিয়ে আলাদা করুন)';
+
+  @override
+  String get plannerMedicalHint => 'যেমন: ডায়াবেটিস, হাঁপানি';
+
+  @override
+  String get plannerOther => 'অন্যান্য';
+
+  @override
+  String get plannerHasPets => 'পোষা প্রাণী আছে';
+
+  @override
+  String get plannerNearbyRiver => 'নিকটবর্তী নদী';
+
+  @override
+  String get plannerNearCoast => 'সমুদ্রতীরের কাছে';
+
+  @override
+  String get plannerGenerate => 'পরিকল্পনা তৈরি করুন';
+
+  @override
+  String get plannerAiPlan => 'AI পরিকল্পনা';
+
+  @override
+  String get plannerNewPlan => 'নতুন পরিকল্পনা';
+
+  @override
+  String get plannerDone => 'সম্পন্ন';
+
+  @override
+  String get plannerHomeTinShed => 'টিনের ঘর';
+
+  @override
+  String get plannerHomePucca => 'পাকা বাড়ি';
+
+  @override
+  String get plannerHomeFlat => 'ফ্ল্যাট';
+
+  @override
+  String get plannerHomeUnknown => 'অজানা';
+
+  @override
+  String get riskTitle => 'AI ঝুঁকি মূল্যায়ন';
+
+  @override
+  String get riskHomeType => 'ঘরের ধরন';
+
+  @override
+  String get riskFloodHistory => 'পূর্ববর্তী বন্যার ইতিহাস';
+
+  @override
+  String get riskElevation => 'এলাকার উচ্চতা';
+
+  @override
+  String get riskOther => 'অন্যান্য';
+
+  @override
+  String get riskNearbyRiver => 'নিকটবর্তী নদী';
+
+  @override
+  String get riskNearCoast => 'সমুদ্রতীরের কাছে';
+
+  @override
+  String get riskHasElderly => 'পরিবারে প্রবীণ আছে';
+
+  @override
+  String get riskHasChildren => 'পরিবারে শিশু আছে';
+
+  @override
+  String get riskAssessButton => 'ঝুঁকি মূল্যায়ন করুন';
+
+  @override
+  String get riskScoreDenominator => '/ ১০';
+
+  @override
+  String get riskScoreLabel => 'ঝুঁকি স্কোর';
+
+  @override
+  String get riskRetry => 'পুনরায়';
+
+  @override
+  String get riskDone => 'সম্পন্ন';
+
+  @override
+  String get riskTimeJustNow => 'এইমাত্র';
+
+  @override
+  String riskTimeMinutesAgo(int count) {
+    return '$count মিনিট আগে';
+  }
+
+  @override
+  String riskTimeHoursAgo(int count) {
+    return '$count ঘণ্টা আগে';
+  }
+
+  @override
+  String riskTimeDaysAgo(int count) {
+    return '$count দিন আগে';
+  }
+
+  @override
+  String get kitTitle => 'AI জরুরি কিট';
+
+  @override
+  String get kitEmptyBody => 'কিট তৈরি করতে প্রথমে পরিবারের তথ্য দিন।';
+
+  @override
+  String get kitGoToPlanner => 'পরিকল্পনায় যান';
+
+  @override
+  String kitGenerateForFamily(int size) {
+    return '$size জনের পরিবারের জন্য কিট তৈরি করুন।';
+  }
+
+  @override
+  String get kitGenerateButton => 'কিট তৈরি করুন';
+
+  @override
+  String get kitAiKit => 'AI কিট';
+
+  @override
+  String get kitRetry => 'পুনরায়';
+
+  @override
+  String get kitDone => 'সম্পন্ন';
+
+  @override
+  String get familyHomeTypeTinShed => 'টিনের ঘর';
+
+  @override
+  String get familyHomeTypePucca => 'পাকা বাড়ি';
+
+  @override
+  String get familyHomeTypeFlat => 'ফ্ল্যাট';
+
+  @override
+  String get familyHomeTypeUnknown => 'অজানা';
+
+  @override
+  String get adminTimeJustNow => 'এইমাত্র';
+
+  @override
+  String adminTimeMinutesAgo(int count) {
+    return '$count মিনিট আগে';
+  }
+
+  @override
+  String adminTimeHoursAgo(int count) {
+    return '$count ঘণ্টা আগে';
+  }
+
+  @override
+  String adminTimeDaysAgo(int count) {
+    return '$count দিন আগে';
+  }
+
+  @override
+  String get adminWriteMessage => 'বার্তা লিখুন…';
+
+  @override
+  String get adminDetailsLink => 'বিস্তারিত';
+
+  @override
+  String get adminSystemSummary => 'সিস্টেম সারসংক্ষেপ';
+
+  @override
+  String get onboardingYourName => 'আপনার নাম';
+
+  @override
+  String get onboardingNameDesc =>
+      'অফলাইন মেসেজিং এবং জরুরি যোগাযোগের জন্য আপনার নাম সেট করতে পারেন। এটি ঐচ্ছিক।';
+
+  @override
+  String get onboardingNameLabel => 'নাম';
+
+  @override
+  String get onboardingNameHint => 'আপনার নাম লিখুন';
+
+  @override
+  String get chatNoAnswer => 'আমার কাছে এই প্রশ্নের উত্তর নেই। ৯৯৯ এ কল করুন।';
+
+  @override
+  String get cloudAiNoAnswer => 'কোনো উত্তর পাওয়া যায়নি।';
+
+  @override
+  String get settingsDefaultUsername => 'ব্যবহারকারী';
 }
