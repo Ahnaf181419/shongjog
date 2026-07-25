@@ -15,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'mesh_call_service.dart';
 import 'mesh_models.dart';
 import 'mesh_transport.dart';
+import '../safe_beacon/safety_status_service.dart';
 import 'sos_payload.dart';
 import 'sos_relay.dart';
 import 'sos_relay_listener.dart';
@@ -483,6 +484,14 @@ class MeshService {
           endpointId,
         );
         return;
+      }
+      // Safety-status intercept: feed into SafetyStatusService so the
+      // admin dashboard sees live safe/danger counts. Does NOT
+      // suppress the chat bubble — the user still sees the report as
+      // a text message in mesh chat.
+      if (text.startsWith('SAFE:') || text.startsWith('DANGER:')) {
+        final jsonPart = text.substring(text.indexOf(':') + 1);
+        safetyStatusService.ingestJson(jsonPart);
       }
       final peerName = _peers[endpointId]?.name ?? endpointId;
       final msg = MeshMessage(

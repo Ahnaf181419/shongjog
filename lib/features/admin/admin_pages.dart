@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../core/admin_broadcast_service.dart';
 import '../../features/mesh_comm/mesh_service.dart';
+import '../../features/safe_beacon/safety_status_service.dart';
 import '../../l10n/app_localizations.dart';
 import 'campaign_request.dart';
 
@@ -55,26 +57,33 @@ class AdminDashboardPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          _StatRow(stats: [
-            _StatInfo(
-              icon: Icons.people_rounded,
-              label: l10n.adminStatUsers,
-              value: _bnDigits(5),
-              tint: cs.primary,
-            ),
-            _StatInfo(
-              icon: Icons.offline_bolt_rounded,
-              label: l10n.adminStatOffline,
-              value: _bnDigits(3),
-              tint: cs.tertiary,
-            ),
-            _StatInfo(
-              icon: Icons.bluetooth_rounded,
-              label: l10n.adminStatMesh,
-              value: _bnDigits(meshService.peerCount),
-              tint: cs.secondary,
-            ),
-          ]),
+          // Live safety-status stat row — reflects incoming mesh
+          // reports from users pressing Safe / Danger.
+          ListenableBuilder(
+            listenable: safetyStatusService,
+            builder: (context, _) {
+              return _StatRow(stats: [
+                _StatInfo(
+                  icon: Icons.people_rounded,
+                  label: l10n.adminSafetyTotal,
+                  value: _bnDigits(safetyStatusService.totalUsers),
+                  tint: cs.primary,
+                ),
+                _StatInfo(
+                  icon: Icons.check_circle_rounded,
+                  label: l10n.adminSafetySafe,
+                  value: _bnDigits(safetyStatusService.safeCount),
+                  tint: Colors.green.shade700,
+                ),
+                _StatInfo(
+                  icon: Icons.warning_rounded,
+                  label: l10n.adminSafetyDanger,
+                  value: _bnDigits(safetyStatusService.dangerCount),
+                  tint: cs.error,
+                ),
+              ]);
+            },
+          ),
           const SizedBox(height: 16),
           _QuickActions(),
         ],
@@ -581,3 +590,173 @@ String _bnDigits(int n) => n.toString().split('').map((c) {
       };
       return m[c] ?? c;
     }).join();
+// ── Admin Danger List page — users currently in danger with GPS ──
+
+/// Shows every user who reported danger, sorted newest-first.
+/// Each card shows: name, phone, danger type, timestamp, and a
+/// tap-to-open Google Maps link if GPS was included.
+class AdminDangerListPage extends StatelessWidget {
+  const AdminDangerListPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(l10n.adminDangerListTitle),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          tooltip: l10n.adminPageBackTooltip,
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: ListenableBuilder(
+        listenable: safetyStatusService,
+        builder: (context, _) {
+          final reports = safetyStatusService.dangerReports;
+          if (reports.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.check_circle_rounded,
+                      size: 64, color: Colors.green.shade400),
+                  const SizedBox(height: 12),
+                  Text(l10n.adminDangerListEmpty,
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                ],
+              ),
+            );
+          }
+          return ListView.builder(
+            padding: const EdgeInsets.all(12),
+            itemCount: reports.length,
+            itemBuilder: (context, i) {
+              final r = reports[i];
+              return _DangerCard(report: r);
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _DangerCard extends StatelessWidget {
+  final SafetyReport report;
+  const _DangerCard({required this.report});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+    final timeStr = _formatTime(report.timestamp);
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: cs.error.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.warning_rounded, color: cs.error, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    report.userName,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurface),
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: cs.error.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    report.dangerType?.labelBn ?? '',
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: cs.error,
+                        fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (report.userPhone.isNotEmpty)
+              _InfoRow(icon: Icons.phone_rounded, text: report.userPhone),
+            _InfoRow(icon: Icons.schedule_rounded, text: timeStr),
+            if (report.note.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              _InfoRow(icon: Icons.note_rounded, text: report.note),
+            ],
+            if (report.mapsLink != null) ...[
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonalIcon(
+                  onPressed: () async {
+                    final uri = Uri.parse(report.mapsLink!);
+                    if (await canLaunchUrl(uri)) await launchUrl(uri);
+                  },
+                  icon: const Icon(Icons.map_rounded, size: 18),
+                  label: Text(l10n.adminDangerOpenMap,
+                      style: const TextStyle(fontSize: 13)),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  static String _formatTime(DateTime t) {
+    final now = DateTime.now();
+    final diff = now.difference(t);
+    if (diff.inMinutes < 1) return 'এইমাত্র';
+    if (diff.inMinutes < 60) return '${_bnDigits(diff.inMinutes)} মিনিট আগে';
+    if (diff.inHours < 24) return '${_bnDigits(diff.inHours)} ঘণ্টা আগে';
+    return '${_bnDigits(diff.inDays)} দিন আগে';
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const _InfoRow({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
