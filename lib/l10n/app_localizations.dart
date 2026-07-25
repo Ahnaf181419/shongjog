@@ -689,13 +689,13 @@ abstract class AppLocalizations {
   /// No description provided for @imSafe.
   ///
   /// In bn, this message translates to:
-  /// **'আমি নিরাপদ আছি'**
+  /// **'আমার অবস্থা জানান'**
   String get imSafe;
 
   /// No description provided for @imSafeDesc.
   ///
   /// In bn, this message translates to:
-  /// **'মেশ ও এসএমএস দিয়ে জানান'**
+  /// **'নিরাপদ বা বিপদে — মেশ ও এসএমএস দিয়ে জানান'**
   String get imSafeDesc;
 
   /// No description provided for @triageWizard.

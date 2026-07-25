@@ -8,12 +8,15 @@ import '../features/about/about_screen.dart';
 import '../l10n/app_localizations.dart';
 import '../features/contacts/emergency_contacts_screen.dart';
 import '../features/emergency/directory_screen.dart';
+import '../features/triage/triage_tts.dart';
+import '../features/voice/tts_service.dart';
 import '../features/emergency/sos_composer_screen.dart';
 import '../features/mesh_comm/mesh_radar_screen.dart';
 import '../features/mesh_comm/mesh_call_service.dart';
 import '../features/mesh_comm/mesh_service.dart';
 import '../features/onboarding/onboarding_screen.dart';
-import '../features/safe_beacon/safe_beacon_screen.dart';
+import '../features/quick_cards/quick_card_detail_screen.dart';
+import '../features/safe_beacon/safety_status_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/triage/triage_wizard_screen.dart';
 import '../features/admin/admin_login_screen.dart';
@@ -65,8 +68,10 @@ class ShongjogApp extends StatelessWidget {
                 const EmergencyContactsScreen(),
             AppRoutes.about: (_) => const AboutScreen(),
             AppRoutes.meshRadar: (_) => const MeshRadarScreen(),
-            AppRoutes.triage: (_) => const TriageWizardScreen(),
-            AppRoutes.safeBeacon: (_) => const SafeBeaconScreen(),
+            AppRoutes.triage: (_) => TriageWizardScreen(
+                  tts: _TriageTtsBridge(),
+                ),
+            AppRoutes.safeBeacon: (_) => const SafetyStatusScreen(),
             AppRoutes.directory: (_) => const DirectoryScreen(),
             AppRoutes.sosComposer: (_) => const SosComposerScreen(),
             AppRoutes.adminLogin: (_) => const AdminLoginScreen(),
@@ -75,6 +80,7 @@ class ShongjogApp extends StatelessWidget {
             AppRoutes.adminUsers: (_) => const AdminUsersPage(),
             AppRoutes.adminCampaigns: (_) => const AdminCampaignsPage(),
             AppRoutes.adminBroadcast: (_) => const AdminBroadcastPage(),
+            AppRoutes.adminDangerList: (_) => const AdminDangerListPage(),
             AppRoutes.notifications: (_) => const NotificationsScreen(),
             AppRoutes.profile: (_) => const ProfileScreen(),
             AppRoutes.planner: (_) => const PlannerScreen(),
@@ -83,6 +89,12 @@ class ShongjogApp extends StatelessWidget {
             AppRoutes.damageScanner: (_) => const DamageScannerScreen(),
             AppRoutes.situationSummary: (_) =>
                 const SituationSummaryScreen(),
+            AppRoutes.quickCardDetail: (ctx) {
+              final cardId = ModalRoute.of(ctx)?.settings.arguments;
+              return QuickCardDetailScreen(
+                cardId: cardId is String ? cardId : '',
+              );
+            },
           },
           onUnknownRoute: (settings) => MaterialPageRoute(
             builder: (ctx) => Scaffold(
@@ -209,5 +221,30 @@ class _MeshLifecycleObserver extends WidgetsBindingObserver {
         meshService.restartDiscovery();
       }
     }
+  }
+}
+
+/// Bridges [TtsService] into the [TriageTts] port, gated by the
+/// `pref_auto_read` user preference (AGENTS.md: auto-read is opt-in).
+/// Caches the lookup so we don't hit SharedPreferences on every
+/// question.
+class _TriageTtsBridge implements TriageTts {
+  static final TtsService _service = TtsService();
+
+  Future<bool> _isAutoReadOn() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('pref_auto_read') ?? false;
+  }
+
+  @override
+  Future<void> speak(String text) async {
+    if (!await _isAutoReadOn()) return;
+    await _service.speak(text);
+  }
+
+  @override
+  Future<void> stop() async {
+    if (!await _isAutoReadOn()) return;
+    await _service.stop();
   }
 }

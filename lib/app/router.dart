@@ -19,11 +19,13 @@ class AppRoutes {
   static const adminUsers = '/admin-users';
   static const adminCampaigns = '/admin-campaigns';
   static const adminBroadcast = '/admin-broadcast';
+  static const adminDangerList = '/admin-danger-list';
   static const planner = '/planner';
   static const kit = '/kit';
   static const risk = '/risk';
   static const damageScanner = '/damage-scanner';
   static const situationSummary = '/situation-summary';
+  static const quickCardDetail = '/quick-card-detail';
 }
 
 /// Push a named route only if the current route is not already that route.

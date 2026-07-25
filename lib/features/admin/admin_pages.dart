@@ -453,6 +453,14 @@ class _QuickActions extends StatelessWidget {
               label: l10n.adminTabBroadcast,
               route: AppRoutes.adminBroadcast,
             ),
+            _QuickChip(
+              icon: Icons.warning_rounded,
+              label: safetyStatusService.dangerCount > 0
+                  ? '${l10n.adminSafetyDanger} (${_bnDigits(safetyStatusService.dangerCount)})'
+                  : l10n.adminDangerListTitle,
+              route: AppRoutes.adminDangerList,
+              badgeCount: safetyStatusService.dangerCount,
+            ),
           ],
         ),
       ],

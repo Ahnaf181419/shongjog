@@ -310,10 +310,10 @@ class AppLocalizationsBn extends AppLocalizations {
       'অফলাইন ডিরেক্টরি — জাতীয় ও বিভাগীয় হটলাইন';
 
   @override
-  String get imSafe => 'আমি নিরাপদ আছি';
+  String get imSafe => 'আমার অবস্থা জানান';
 
   @override
-  String get imSafeDesc => 'মেশ ও এসএমএস দিয়ে জানান';
+  String get imSafeDesc => 'নিরাপদ বা বিপদে — মেশ ও এসএমএস দিয়ে জানান';
 
   @override
   String get triageWizard => 'ট্রায়াজ উইজার্ড';

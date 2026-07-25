@@ -312,10 +312,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Offline directory — national & divisional hotlines';
 
   @override
-  String get imSafe => 'I\'m Safe';
+  String get imSafe => 'My Status';
 
   @override
-  String get imSafeDesc => 'Notify via mesh and SMS';
+  String get imSafeDesc => 'Safe or in danger — notify via mesh and SMS';
 
   @override
   String get triageWizard => 'Triage Wizard';

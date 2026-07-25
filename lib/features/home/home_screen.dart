@@ -608,7 +608,7 @@ class _SafeBeaconTile extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              Icon(Icons.check_circle_outline_rounded,
+              Icon(Icons.shield_rounded,
                   color: cs.onTertiaryContainer, size: 28),
               const SizedBox(width: 12),
               Expanded(
