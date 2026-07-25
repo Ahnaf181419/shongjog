@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import '../../l10n/app_localizations.dart';
 import 'risk_prompt_builder.dart';
 import 'risk_service.dart';
 
@@ -48,8 +49,9 @@ class _RiskScreenState extends State<RiskScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('AI ঝুঁকি মূল্যায়ন')),
+      appBar: AppBar(title: Text(l10n.riskTitle)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _result != null
@@ -57,17 +59,17 @@ class _RiskScreenState extends State<RiskScreen> {
                   result: _result!,
                   onReset: () => setState(() => _result = null),
                 )
-              : _buildForm(),
+              : _buildForm(l10n),
     );
   }
 
-  Widget _buildForm() {
+  Widget _buildForm(AppLocalizations l10n) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _SectionLabel('ঘরের ধরন'),
+          _SectionLabel(l10n.riskHomeType),
           Wrap(
             spacing: 8,
             children: HomeMaterial.values
@@ -79,7 +81,7 @@ class _RiskScreenState extends State<RiskScreen> {
                 .toList(),
           ),
           const SizedBox(height: 16),
-          _SectionLabel('পূর্ববর্তী বন্যার ইতিহাস'),
+          _SectionLabel(l10n.riskFloodHistory),
           Wrap(
             spacing: 8,
             children: FloodHistory.values
@@ -91,7 +93,7 @@ class _RiskScreenState extends State<RiskScreen> {
                 .toList(),
           ),
           const SizedBox(height: 16),
-          _SectionLabel('এলাকার উচ্চতা'),
+          _SectionLabel(l10n.riskElevation),
           Wrap(
             spacing: 8,
             children: Elevation.values
@@ -103,27 +105,27 @@ class _RiskScreenState extends State<RiskScreen> {
                 .toList(),
           ),
           const SizedBox(height: 16),
-          _SectionLabel('অন্যান্য'),
+          _SectionLabel(l10n.riskOther),
           SwitchListTile(
-            title: const Text('নিকটবর্তী নদী'),
+            title: Text(l10n.riskNearbyRiver),
             value: _river,
             onChanged: (v) => setState(() => _river = v),
             contentPadding: EdgeInsets.zero,
           ),
           SwitchListTile(
-            title: const Text('সমুদ্রতীরের কাছে'),
+            title: Text(l10n.riskNearCoast),
             value: _coast,
             onChanged: (v) => setState(() => _coast = v),
             contentPadding: EdgeInsets.zero,
           ),
           SwitchListTile(
-            title: const Text('পরিবারে প্রবীণ আছে'),
+            title: Text(l10n.riskHasElderly),
             value: _elderly,
             onChanged: (v) => setState(() => _elderly = v),
             contentPadding: EdgeInsets.zero,
           ),
           SwitchListTile(
-            title: const Text('পরিবারে শিশু আছে'),
+            title: Text(l10n.riskHasChildren),
             value: _infants,
             onChanged: (v) => setState(() => _infants = v),
             contentPadding: EdgeInsets.zero,
@@ -134,7 +136,7 @@ class _RiskScreenState extends State<RiskScreen> {
             child: FilledButton.icon(
               onPressed: _assess,
               icon: const Icon(Icons.auto_awesome),
-              label: const Text('ঝুঁকি মূল্যায়ন করুন'),
+              label: Text(l10n.riskAssessButton),
             ),
           ),
         ],
@@ -156,6 +158,7 @@ class _ResultView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final scoreBn = result.score.toString().split('').map((c) {
       const m = {
         '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
@@ -188,14 +191,14 @@ class _ResultView extends StatelessWidget {
                               fontSize: 36,
                               fontWeight: FontWeight.bold,
                               color: _color())),
-                      Text('/ ১০',
+                      Text(l10n.riskScoreDenominator,
                           style: TextStyle(
                               fontSize: 14, color: _color())),
                     ],
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text('ঝুঁকি স্কোর',
+                Text(l10n.riskScoreLabel,
                     style: TextStyle(
                         color: ShongjogTheme.inkSecondary,
                         fontSize: 13)),
@@ -222,7 +225,7 @@ class _ResultView extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: onReset,
                   icon: const Icon(Icons.refresh),
-                  label: const Text('পুনরায়'),
+                  label: Text(l10n.riskRetry),
                 ),
               ),
               const SizedBox(width: 12),
@@ -230,7 +233,7 @@ class _ResultView extends StatelessWidget {
                 child: FilledButton.icon(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.check),
-                  label: const Text('সম্পন্ন'),
+                  label: Text(l10n.riskDone),
                 ),
               ),
             ],

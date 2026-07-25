@@ -1,24 +1,25 @@
+import '../../l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Home construction type. Determines flood/cyclone vulnerability —
 /// tin-shed homes are high-risk, pucka (RCC) homes are safer.
 enum HomeType {
-  tinShed,   // টিনের ঘর
-  pucka,     // পাকা বাড়ি (RCC)
-  apartment, // ফ্ল্যাট / অ্যাপার্টমেন্ট
-  unknown;   // অজানা
+  tinShed,
+  pucka,
+  apartment,
+  unknown;
 
-  String get labelBn => switch (this) {
-        HomeType.tinShed => 'টিনের ঘর',
-        HomeType.pucka => 'পাকা বাড়ি',
-        HomeType.apartment => 'ফ্ল্যাট',
-        HomeType.unknown => 'অজানা',
+  String label(AppLocalizations l10n) => switch (this) {
+        HomeType.tinShed => l10n.familyHomeTypeTinShed,
+        HomeType.pucka => l10n.familyHomeTypePucca,
+        HomeType.apartment => l10n.familyHomeTypeFlat,
+        HomeType.unknown => l10n.familyHomeTypeUnknown,
       };
 
   static HomeType fromString(String label) => switch (label) {
-        'টিনের ঘর' => HomeType.tinShed,
-        'পাকা বাড়ি' => HomeType.pucka,
-        'ফ্ল্যাট' => HomeType.apartment,
+        'tinShed' => HomeType.tinShed,
+        'pucka' => HomeType.pucka,
+        'apartment' => HomeType.apartment,
         _ => HomeType.unknown,
       };
 }

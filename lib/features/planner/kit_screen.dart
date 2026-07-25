@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import '../../l10n/app_localizations.dart';
 import 'family_profile.dart';
 import 'kit_service.dart';
 
@@ -51,6 +52,7 @@ class _KitScreenState extends State<KitScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (_initing) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -59,7 +61,7 @@ class _KitScreenState extends State<KitScreen> {
 
     if (_profile == null || _profile!.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: const Text('AI জরুরি কিট')),
+        appBar: AppBar(title: Text(l10n.kitTitle)),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -70,14 +72,14 @@ class _KitScreenState extends State<KitScreen> {
                     size: 64,
                     color: Theme.of(context).colorScheme.onSurfaceVariant),
                 const SizedBox(height: 16),
-                const Text(
-                  'কিট তৈরি করতে প্রথমে পরিবারের তথ্য দিন।',
+                Text(
+                  l10n.kitEmptyBody,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
                 FilledButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('পরিকল্পনায় যান'),
+                  child: Text(l10n.kitGoToPlanner),
                 ),
               ],
             ),
@@ -87,7 +89,7 @@ class _KitScreenState extends State<KitScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('AI জরুরি কিট')),
+      appBar: AppBar(title: Text(l10n.kitTitle)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _kit != null
@@ -106,7 +108,7 @@ class _KitScreenState extends State<KitScreen> {
                             color: ShongjogTheme.ocean),
                         const SizedBox(height: 16),
                         Text(
-                          '${_profile!.familySize} জনের পরিবারের জন্য কিট তৈরি করুন।',
+                          l10n.kitGenerateForFamily(_profile!.familySize),
                           textAlign: TextAlign.center,
                           style: const TextStyle(fontSize: 16),
                         ),
@@ -114,7 +116,7 @@ class _KitScreenState extends State<KitScreen> {
                         FilledButton.icon(
                           onPressed: _generate,
                           icon: const Icon(Icons.auto_awesome),
-                          label: const Text('কিট তৈরি করুন'),
+                          label: Text(l10n.kitGenerateButton),
                         ),
                       ],
                     ),
@@ -131,6 +133,7 @@ class _ResultView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -147,7 +150,7 @@ class _ResultView extends StatelessWidget {
                 Icon(Icons.auto_awesome_rounded,
                     color: ShongjogTheme.ocean, size: 20),
                 const SizedBox(width: 8),
-                Text('AI কিট',
+                Text(l10n.kitAiKit,
                     style: TextStyle(
                         fontWeight: FontWeight.w600,
                         color: ShongjogTheme.ocean)),
@@ -163,7 +166,7 @@ class _ResultView extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: onReset,
                   icon: const Icon(Icons.refresh),
-                  label: const Text('পুনরায়'),
+                  label: Text(l10n.kitRetry),
                 ),
               ),
               const SizedBox(width: 12),
@@ -171,7 +174,7 @@ class _ResultView extends StatelessWidget {
                 child: FilledButton.icon(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.check),
-                  label: const Text('সম্পন্ন'),
+                  label: Text(l10n.kitDone),
                 ),
               ),
             ],

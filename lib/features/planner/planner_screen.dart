@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import '../../l10n/app_localizations.dart';
 import 'family_profile.dart';
 import 'planner_service.dart';
 
@@ -26,9 +27,15 @@ class _PlannerScreenState extends State<PlannerScreen> {
   final _familySizeCtrl = TextEditingController(text: '0');
   final _childrenCtrl = TextEditingController(text: '0');
   final _elderlyCtrl = TextEditingController(text: '0');
+  // Was constructed inline inside _buildForm() (`TextEditingController()`,
+  // no initial text) — every setState() in this screen re-ran _buildForm()
+  // and silently created a BRAND NEW controller, discarding whatever floor
+  // number the user had stepped to and resetting the display to blank
+  // (not even "0", since the inline version had no initial text). Hoisted
+  // to a persistent field like the other three counters.
+  final _floorCtrl = TextEditingController(text: '0');
   final _medicalCtrl = TextEditingController();
   HomeType _homeType = HomeType.unknown;
-  int _floor = 0;
   bool _pets = false;
   bool _river = false;
   bool _coast = false;
@@ -42,6 +49,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
     _familySizeCtrl.dispose();
     _childrenCtrl.dispose();
     _elderlyCtrl.dispose();
+    _floorCtrl.dispose();
     _medicalCtrl.dispose();
     super.dispose();
   }
@@ -55,7 +63,9 @@ class _PlannerScreenState extends State<PlannerScreen> {
       elderlyCount: int.tryParse(_elderlyCtrl.text) ?? 0,
       hasPets: _pets,
       homeType: _homeType,
-      floorNumber: _homeType == HomeType.apartment ? _floor : null,
+      floorNumber: _homeType == HomeType.apartment
+          ? int.tryParse(_floorCtrl.text) ?? 0
+          : null,
       medicalConditions: _medicalCtrl.text
           .split(',')
           .map((s) => s.trim())
@@ -79,8 +89,9 @@ class _PlannerScreenState extends State<PlannerScreen> {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('AI দুর্যোগ পরিকল্পনা')),
+      appBar: AppBar(title: Text(l10n.plannerTitle)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _plan != null
@@ -88,62 +99,61 @@ class _PlannerScreenState extends State<PlannerScreen> {
                   plan: _plan!,
                   onReset: () => setState(() => _plan = null),
                 )
-              : _buildForm(t),
+              : _buildForm(t, l10n),
     );
   }
 
-  Widget _buildForm(ThemeData t) {
+  Widget _buildForm(ThemeData t, AppLocalizations l10n) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _SectionLabel('পরিবারের তথ্য'),
+          _SectionLabel(l10n.plannerFamilyInfo),
           _StepperRow(
-              label: 'মোট সদস্য', controller: _familySizeCtrl, max: 20),
+              label: l10n.plannerTotalMembers, controller: _familySizeCtrl, max: 20),
           _StepperRow(
-              label: 'শিশু', controller: _childrenCtrl, max: 15),
+              label: l10n.plannerChildren, controller: _childrenCtrl, max: 15),
           _StepperRow(
-              label: 'প্রবীণ', controller: _elderlyCtrl, max: 15),
+              label: l10n.plannerElderly, controller: _elderlyCtrl, max: 15),
           const SizedBox(height: 16),
-          _SectionLabel('ঘরের ধরন'),
+          _SectionLabel(l10n.plannerHomeType),
           Wrap(
             spacing: 8,
             children: HomeType.values
-                .where((t) => t != HomeType.unknown)
-                .map((t) => ChoiceChip(
-                      label: Text(t.labelBn),
-                      selected: _homeType == t,
-                      onSelected: (_) => setState(() => _homeType = t),
+                .where((ht) => ht != HomeType.unknown)
+                .map((ht) => ChoiceChip(
+                      label: Text(ht.label(l10n)),
+                      selected: _homeType == ht,
+                      onSelected: (_) => setState(() => _homeType = ht),
                     ))
                 .toList(),
           ),
           if (_homeType == HomeType.apartment) ...[
             const SizedBox(height: 12),
-            _StepperRow(
-                label: 'তলা নম্বর', controller: TextEditingController(), max: 30, onChanged: (v) => _floor = v),
+            _StepperRow(label: l10n.plannerFloorNumber, controller: _floorCtrl, max: 30),
           ],
           const SizedBox(height: 16),
-          _SectionLabel('চিকিৎসা অবস্থা (কমা দিয়ে আলাদা করুন)'),
+          _SectionLabel(l10n.plannerMedicalConditions),
           TextField(
             controller: _medicalCtrl,
-            decoration: const InputDecoration(
-              hintText: 'যেমন: ডায়াবেটিস, হাঁপানি',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              hintText: l10n.plannerMedicalHint,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
-          _SectionLabel('অন্যান্য'),
+          _SectionLabel(l10n.plannerOther),
           _ToggleRow(
-              label: 'পোষা প্রাণী আছে',
+              label: l10n.plannerHasPets,
               value: _pets,
               onChanged: (v) => setState(() => _pets = v)),
           _ToggleRow(
-              label: 'নিকটবর্তী নদী',
+              label: l10n.plannerNearbyRiver,
               value: _river,
               onChanged: (v) => setState(() => _river = v)),
           _ToggleRow(
-              label: 'সমুদ্রতীরের কাছে',
+              label: l10n.plannerNearCoast,
               value: _coast,
               onChanged: (v) => setState(() => _coast = v)),
           const SizedBox(height: 24),
@@ -152,7 +162,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
             child: FilledButton.icon(
               onPressed: _generate,
               icon: const Icon(Icons.auto_awesome),
-              label: const Text('পরিকল্পনা তৈরি করুন'),
+              label: Text(l10n.plannerGenerate),
             ),
           ),
         ],
@@ -170,6 +180,7 @@ class _ResultView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -186,7 +197,7 @@ class _ResultView extends StatelessWidget {
                 Icon(Icons.auto_awesome_rounded,
                     color: ShongjogTheme.ocean, size: 20),
                 const SizedBox(width: 8),
-                Text('AI পরিকল্পনা',
+                Text(l10n.plannerAiPlan,
                     style: TextStyle(
                         fontWeight: FontWeight.w600,
                         color: ShongjogTheme.ocean)),
@@ -202,7 +213,7 @@ class _ResultView extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: onReset,
                   icon: const Icon(Icons.refresh),
-                  label: const Text('নতুন পরিকল্পনা'),
+                  label: Text(l10n.plannerNewPlan),
                 ),
               ),
               const SizedBox(width: 12),
@@ -210,7 +221,7 @@ class _ResultView extends StatelessWidget {
                 child: FilledButton.icon(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.check),
-                  label: const Text('সম্পন্ন'),
+                  label: Text(l10n.plannerDone),
                 ),
               ),
             ],
@@ -241,12 +252,10 @@ class _StepperRow extends StatelessWidget {
   final String label;
   final TextEditingController controller;
   final int max;
-  final ValueChanged<int>? onChanged;
   const _StepperRow({
     required this.label,
     required this.controller,
     required this.max,
-    this.onChanged,
   });
 
   @override
@@ -262,16 +271,24 @@ class _StepperRow extends StatelessWidget {
               final v = (int.tryParse(controller.text) ?? 0) - 1;
               if (v >= 0) {
                 controller.text = '$v';
-                onChanged?.call(v);
               }
             },
           ),
           SizedBox(
             width: 40,
-            child: Text(
-              controller.text,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+            // TextEditingController is a ValueNotifier — setting
+            // controller.text above does fire notifyListeners(), but as
+            // a bare StatelessWidget nothing was listening for it, so the
+            // displayed digit never repainted even though the underlying
+            // value was updating correctly. ValueListenableBuilder is the
+            // listener that was missing.
+            child: ValueListenableBuilder<TextEditingValue>(
+              valueListenable: controller,
+              builder: (context, value, _) => Text(
+                value.text,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
             ),
           ),
           IconButton(
@@ -280,7 +297,6 @@ class _StepperRow extends StatelessWidget {
               final v = (int.tryParse(controller.text) ?? 0) + 1;
               if (v <= max) {
                 controller.text = '$v';
-                onChanged?.call(v);
               }
             },
           ),
