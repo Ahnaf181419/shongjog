@@ -5,11 +5,15 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../core/connectivity_provider.dart';
+import '../chat/local_llm.dart';
+import '../hazards/eonet_service.dart';
+import '../hazards/gdacs_service.dart';
 import 'nearest_shelter.dart';
 import 'osrm_route_service.dart';
 import 'shelter_constants.dart';
 import 'shelter_model.dart';
 import 'shelter_repository.dart';
+import 'shelter_safety_ranker.dart';
 
 /// State and behaviour for the shelter map, shared between the GPS,
 /// connectivity, OSRM routing, and search surfaces.
@@ -80,6 +84,7 @@ class ShelterMapViewModel extends ChangeNotifier {
     ShelterRepository? repository,
     OsrmRouteService? routeService,
     ConnectivityProvider? connectivity,
+    this.model,
     Future<Position?> Function({
       required LocationAccuracy accuracy,
       required Duration timeLimit,
@@ -95,6 +100,10 @@ class ShelterMapViewModel extends ChangeNotifier {
         _checkPermission = checkPermission ?? Geolocator.checkPermission,
         _requestPermission = requestPermission ?? Geolocator.requestPermission,
         isOnline = initialOnline;
+
+  /// Optional on-device LLM for AI safety-ranking (Option 2). When
+  /// null, the distance-only ranking is used (current behaviour).
+  final LocalLlm? model;
 
   static Future<Position?> _defaultGeolocator({
     required LocationAccuracy accuracy,
@@ -233,6 +242,55 @@ class ShelterMapViewModel extends ChangeNotifier {
     showSearchPanel = false;
     notifyListeners();
     await fetchRoute(ranked.shelter);
+  }
+
+  /// AI safety-ranking (Option 2 in docs/AI-MAP-FEATURES.md).
+  ///
+  /// After [toggleSearchPanel] computes the distance-ranked list, this
+  /// method optionally fetches live hazards and asks the model to
+  /// re-order the shelters safest-first. On ANY failure (no model,
+  /// no hazards, model error, unparseable response) the distance-only
+  /// ranking is kept — the map never blocks.
+  ///
+  /// Safe to call when [showSearchPanel] is false or [rankedShelters]
+  /// is empty (no-op).
+  Future<void> applyAiRanking() async {
+    if (_disposed) return;
+    if (!showSearchPanel || rankedShelters.isEmpty) return;
+    if (userPosition == null) return;
+
+    // Fetch live hazards in parallel. Both are best-effort — null on
+    // offline / failure.
+    final isOnline = _connectivity.isOnline;
+    final results = await Future.wait([
+      EonetService.fetchOpenHazards(isOnline: isOnline),
+      GdacsService.fetchBangladeshAlerts(isOnline: isOnline),
+    ]);
+    final hazards = results[0] as List<EonetEvent>?;
+    final alerts = results[1] as List<GdacsAlert>?;
+
+    final prompt = ShelterSafetyRanker.buildPrompt(
+      userLat: userPosition!.latitude,
+      userLon: userPosition!.longitude,
+      candidates: rankedShelters,
+      hazards: hazards,
+      alerts: alerts,
+    );
+    // No hazards or only one shelter → keep distance ranking.
+    if (prompt == null || model == null) return;
+
+    try {
+      final response = await model!.generate(prompt);
+      if (_disposed) return;
+      final reordered = ShelterSafetyRanker.parseResponse(
+          response, rankedShelters);
+      if (reordered != null) {
+        rankedShelters = reordered;
+        if (!_disposed) notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('[ShelterMapVM] AI ranking failed, keeping distance order: $e');
+    }
   }
 
   @override

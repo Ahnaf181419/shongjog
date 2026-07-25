@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../app/theme.dart';
+import '../../core/model_manager.dart';
 import '../admin/campaign_request.dart';
 import 'cached_tile_provider.dart';
 import 'nearest_shelter.dart';
@@ -41,7 +42,9 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
   // MapController dependency.
   int _lastFittedRouteLength = 0;
 
-  late final ShelterMapViewModel _vm = ShelterMapViewModel();
+  late final ShelterMapViewModel _vm = ShelterMapViewModel(
+    model: modelManager,
+  );
 
   // Slow breathing pulse on the user-location dot. 1.4s opacity
   // 0.5↔1.0 per design.md §7.3 — the one piece of liveliness on an
