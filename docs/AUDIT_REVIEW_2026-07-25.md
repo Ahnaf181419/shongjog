@@ -343,3 +343,116 @@ The delta comes from weighting two issues more heavily:
   unfinished work.
 
 **Final reconciled rating: 7.0 / 10** (was 7.5).
+
+
+---
+
+## Appendix C: Independent subagent review (code quality + test coverage)
+
+A focused independent review of code quality and test coverage was
+dispatched after Appendix B. It used a strict 4-minute / 25-tool-call
+budget and **completed in 80 seconds** (6 API calls).
+
+### Independent verdict
+
+```
+passed:    false
+rating:    4/10
+```
+
+This is the most conservative of the three ratings (mine 7.5 → 7.0
+reconciled, architecture+security subagent 6). The 4/10 reflects a
+hygiene-focused view that weighs test debt and material doc drift
+more heavily than I did.
+
+### Findings the subagent verified independently
+
+- ✅ Test suite is 99% green: 508 pass / 3 fail / 1 skip
+- ✅ All 3 failures are in `test/widget/admin_panel_test.dart` and are
+  **stale assertions** (test expects Bangla labels like 'ড্যাশবোর্ড',
+  'গ্লোবাল ব্রডকাস্ট' that the source no longer renders)
+- ✅ No source bug — test/source drift only
+
+### Findings the subagent added that I missed
+
+1. **Stale admin panel test assertions are precise** — the subagent
+   grep-verified that the 3 failing tests' expected strings
+   (`ড্যাশবোর্ড`, `ব্যবহারকারী`, `বার্তা ব্রডকাস্ট`, `গ্লোবাল
+   ব্রডকাস্ট`, `মোট ব্যবহারকারী`, etc.) **do not exist** in
+   `admin_panel_screen.dart` (0 matches). The source UI was rewritten
+   with English labels via `_buildGridCard` wrappers, but the tests
+   were never updated.
+
+2. **PROJECT-STATUS.md under-reports test count by 189** — claims
+   "319 tests pass" when reality is 508. Also under-reports file
+   count (says 89 files, actual is 140 lib files).
+
+3. **Duplication of `তুমি শঙ্গজগ` boilerplate** — 4 files
+   (`planner_prompt_builder.dart`, `kit_prompt_builder.dart`,
+   `risk_prompt_builder.dart`, `situation_summary_service.dart`)
+   independently open with the same persona preamble. Should be
+   extracted to a shared `SystemPrompt` helper.
+
+4. **13 lib files exceed 500 LOC, 5 exceed 1000 LOC.** The 1102-line
+   `admin_panel_screen.dart` is the root cause of the failing tests
+   (collaborator's `_buildGridCard` refactor wasn't followed by test
+   updates). Top 5 offenders:
+   - `lib/l10n/app_localizations.dart` (2822 lines — generated code, OK)
+   - `lib/l10n/app_localizations_bn.dart` (1412)
+   - `lib/l10n/app_localizations_en.dart` (1408)
+   - `lib/features/home/home_screen.dart` (1178)
+   - `lib/features/mesh_comm/mesh_chat_screen.dart` (1121)
+   - `lib/features/admin/admin_panel_screen.dart` (1102)
+
+5. **11 untested recent feature files:**
+   - `lib/features/planner/{kit,planner,risk}_screen.dart`
+   - `lib/features/planner/{kit,planner,risk}_service.dart`
+   - `lib/features/damage_scanner/damage_scan_screen.dart`
+   - `lib/features/intelligence/{intelligence_engine,proximity_notification_service,situation_summary_screen,user_profile}.dart`
+
+### Reconciled rating
+
+The 4/10 rating reflects a hygiene-focused view. It correctly catches
+two material issues I downplayed:
+
+- **Test debt** — 11 untested recent files + 3 stale tests blocking
+  clean `flutter test` exit. The test/source drift in
+  admin_panel_test.dart was caused by my own build fix (`75c37a8`)
+  unblocking the build, which surfaced pre-existing test drift.
+- **Doc drift** — PROJECT-STATUS.md is wildly out of date.
+
+However, the 4/10 under-weights:
+
+- The fact that 99% of tests pass and all failures are test/source
+  drift (not production bugs).
+- The fact that the new AI-first features DO have comprehensive
+  pure-Dart prompt-builder tests (45 tests across 6 files), just no
+  widget tests for the screens.
+- That the architecture rating is 8.5/10 and hard constraints are 10/10.
+
+**Final reconciled rating: 6.5 / 10** (was 7.0, was 7.5). All three
+perspectives agree the project is demo-ready but needs hygiene work
+before a clean production deploy.
+
+### Three-perspective comparison
+
+```
+Category                         | My rating | SecSub | CodeSub | Reconciled
+---------------------------------|-----------|--------|---------|------------
+Hard constraints                  |    10     |   10   |   -     |   10
+Architecture                     |    8.5    |  8.5*  |   -     |   8.5
+Security                          |    9     |   9    |   -     |   9
+Offline-first                     |    9     |   -    |   -     |   9
+Crash safety                      |    8.5    |  8.5   |   -     |   8.5
+Performance                       |    8     |   -    |   -     |   8
+Code quality                      |    7     |   -    |   4*    |   5.5
+Test coverage                     |    5.5    |   -    |   4     |   4.5
+i18n                              |    5     |   5    |   -     |   5
+Hygiene (docs drift + tests stale)|   n/a    |   -    |   4*    |   5
+                                 | -------- | ------ | ------- | ----------
+Overall                           |   7.5→7.0 |  6     |   4     |   6.5
+```
+
+`*` indicates the subagent made a finding I should weight more
+heavily than I originally did.
+
