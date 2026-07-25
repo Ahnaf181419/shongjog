@@ -1405,8 +1405,33 @@ class AppLocalizationsBn extends AppLocalizations {
   String get campaignStatusApproved => 'অনুমোদিত';
 
   @override
-  String get campaignStatusRejected => 'প্রত্যাখ্যাত';
+  String get campaignStatusRejected => 'প্রত্যাখ্যান';
 
   @override
   String get chatSend => 'পাঠান';
+
+  @override
+  String get adminDashboardTitle => 'সিস্টেম সারসংক্ষেপ';
+
+  @override
+  String get adminDashboardSubtitle =>
+      'মেশ পিয়ার এবং অভিযানের রিয়েল-টাইম অবস্থা';
+
+  @override
+  String get adminQuickActions => 'দ্রুত অ্যাকশন';
+
+  @override
+  String get adminReviewCampaigns => 'অভিযান পর্যালোচনা';
+
+  @override
+  String get adminApprove => 'অনুমোদন';
+
+  @override
+  String get adminApproved => 'অনুমোদিত';
+
+  @override
+  String get adminBroadcastSend => 'পাঠান';
+
+  @override
+  String get adminPageBackTooltip => 'পিছনে';
 }

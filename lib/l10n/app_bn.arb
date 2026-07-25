@@ -489,6 +489,14 @@
   "campaignTypeWater": "পানি সরবরাহ",
   "campaignStatusPending": "অপেক্ষমান",
   "campaignStatusApproved": "অনুমোদিত",
-  "campaignStatusRejected": "প্রত্যাখ্যাত",
-  "chatSend": "পাঠান"
+  "campaignStatusRejected": "প্রত্যাখ্যান",
+  "chatSend": "পাঠান",
+  "adminDashboardTitle": "সিস্টেম সারসংক্ষেপ",
+  "adminDashboardSubtitle": "মেশ পিয়ার এবং অভিযানের রিয়েল-টাইম অবস্থা",
+  "adminQuickActions": "দ্রুত অ্যাকশন",
+  "adminReviewCampaigns": "অভিযান পর্যালোচনা",
+  "adminApprove": "অনুমোদন",
+  "adminApproved": "অনুমোদিত",
+  "adminBroadcastSend": "পাঠান",
+  "adminPageBackTooltip": "পিছনে"
 }

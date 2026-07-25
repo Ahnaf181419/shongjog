@@ -1405,4 +1405,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatSend => 'Send';
+
+  @override
+  String get adminDashboardTitle => 'System Overview';
+
+  @override
+  String get adminDashboardSubtitle =>
+      'Real-time state of mesh peers and campaigns';
+
+  @override
+  String get adminQuickActions => 'Quick Actions';
+
+  @override
+  String get adminReviewCampaigns => 'Review Campaigns';
+
+  @override
+  String get adminApprove => 'Approve';
+
+  @override
+  String get adminApproved => 'Approved';
+
+  @override
+  String get adminBroadcastSend => 'Send';
+
+  @override
+  String get adminPageBackTooltip => 'Back';
 }

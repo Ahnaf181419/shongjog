@@ -2777,7 +2777,7 @@ abstract class AppLocalizations {
   /// No description provided for @campaignStatusRejected.
   ///
   /// In bn, this message translates to:
-  /// **'প্রত্যাখ্যাত'**
+  /// **'প্রত্যাখ্যান'**
   String get campaignStatusRejected;
 
   /// No description provided for @chatSend.
@@ -2785,6 +2785,54 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'পাঠান'**
   String get chatSend;
+
+  /// No description provided for @adminDashboardTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'সিস্টেম সারসংক্ষেপ'**
+  String get adminDashboardTitle;
+
+  /// No description provided for @adminDashboardSubtitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেশ পিয়ার এবং অভিযানের রিয়েল-টাইম অবস্থা'**
+  String get adminDashboardSubtitle;
+
+  /// No description provided for @adminQuickActions.
+  ///
+  /// In bn, this message translates to:
+  /// **'দ্রুত অ্যাকশন'**
+  String get adminQuickActions;
+
+  /// No description provided for @adminReviewCampaigns.
+  ///
+  /// In bn, this message translates to:
+  /// **'অভিযান পর্যালোচনা'**
+  String get adminReviewCampaigns;
+
+  /// No description provided for @adminApprove.
+  ///
+  /// In bn, this message translates to:
+  /// **'অনুমোদন'**
+  String get adminApprove;
+
+  /// No description provided for @adminApproved.
+  ///
+  /// In bn, this message translates to:
+  /// **'অনুমোদিত'**
+  String get adminApproved;
+
+  /// No description provided for @adminBroadcastSend.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাঠান'**
+  String get adminBroadcastSend;
+
+  /// No description provided for @adminPageBackTooltip.
+  ///
+  /// In bn, this message translates to:
+  /// **'পিছনে'**
+  String get adminPageBackTooltip;
 }
 
 class _AppLocalizationsDelegate

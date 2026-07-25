@@ -447,5 +447,13 @@
   "campaignStatusPending": "Pending",
   "campaignStatusApproved": "Approved",
   "campaignStatusRejected": "Rejected",
-  "chatSend": "Send"
+  "chatSend": "Send",
+  "adminDashboardTitle": "System Overview",
+  "adminDashboardSubtitle": "Real-time state of mesh peers and campaigns",
+  "adminQuickActions": "Quick Actions",
+  "adminReviewCampaigns": "Review Campaigns",
+  "adminApprove": "Approve",
+  "adminApproved": "Approved",
+  "adminBroadcastSend": "Send",
+  "adminPageBackTooltip": "Back"
 }
