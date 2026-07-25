@@ -3,10 +3,20 @@
 
 *"it works when the internet doesn't."*
 
+[![Download APK](https://img.shields.io/badge/Download-APK-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/Ahnaf181419/shongjog/releases/latest)
+
 ## What is Shongjog?
 Shongjog is an offline-first, Bangla, voice-first emergency-companion Flutter application designed to operate in severe connectivity vacuums. Built for resilience during crises, the application leverages an on-device Gemma 4 E2B model (via LiteRT-LM) and an on-device Retrieval-Augmented Generation (RAG) system over a verified Bangla emergency corpus. 
 
 Shongjog strictly targets Android `arm64-v8a` architecture to support heavy local model inference, bypassing the need for cloud infrastructure for its core functionalities.
+
+## Download
+
+Grab the latest release APK from the [**Releases**](https://github.com/Ahnaf181419/shongjog/releases/latest) page.
+
+*   Requires an Android device with an `arm64-v8a` processor (nearly all phones from the last several years).
+*   Not distributed via Play Store — after downloading, you'll need to allow "Install from unknown sources" for your browser/file manager.
+*   On first launch, the app downloads the on-device Gemma 4 E2B model (~3 GB free space recommended) before the AI features become available; everything else (quick cards, shelter map offline markers, triage wizard) works immediately.
 
 ## Features
 *   **On-Device AI Assistant:** Powered by Gemma 4 E2B running entirely locally via `flutter_gemma`.

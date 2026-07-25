@@ -38,6 +38,27 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
+      # `vercel deploy --prebuilt` needs Vercel's Build Output API v3
+      # layout at .vercel/output — `vercel pull` only fetches project
+      # settings, it does not create this. Without it, --prebuilt has
+      # nothing to serve and every route 404s. `vercel build` isn't an
+      # option either since it doesn't know how to build Flutter; we
+      # assemble the output ourselves from the already-built web app.
+      - name: Assemble Vercel build output
+        run: |
+          rm -rf .vercel/output
+          mkdir -p .vercel/output/static
+          cp -r build/web/. .vercel/output/static/
+          cat > .vercel/output/config.json <<'JSON'
+          {
+            "version": 3,
+            "routes": [
+              { "handle": "filesystem" },
+              { "src": "/(.*)", "dest": "/index.html" }
+            ]
+          }
+          JSON
+
       - name: Deploy to Vercel
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
