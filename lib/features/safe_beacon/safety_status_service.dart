@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// The type of danger a user is reporting.
 enum DangerType {
@@ -14,17 +17,17 @@ enum DangerType {
   violence,
   other;
 
-  /// Bangla label for the danger-type picker.
-  String get labelBn => switch (this) {
-        DangerType.flood => 'বন্যা',
-        DangerType.fire => 'আগুন',
-        DangerType.earthquake => 'ভূমিকম্প',
-        DangerType.cyclone => 'ঘূর্ণিঝড়',
-        DangerType.landslide => 'ভূমিধস',
-        DangerType.trapped => 'আটকা পড়েছি',
-        DangerType.medical => 'চিকিৎসা জরুরি',
-        DangerType.violence => 'সহিংসতা / অস্থিরতা',
-        DangerType.other => 'অন্যান্য',
+  /// Localized label for the danger-type picker.
+  String label(AppLocalizations l10n) => switch (this) {
+        DangerType.flood => l10n.safetyDangerFlood,
+        DangerType.fire => l10n.safetyDangerFire,
+        DangerType.earthquake => l10n.safetyDangerEarthquake,
+        DangerType.cyclone => l10n.safetyDangerCyclone,
+        DangerType.landslide => l10n.safetyDangerLandslide,
+        DangerType.trapped => l10n.safetyDangerTrapped,
+        DangerType.medical => l10n.safetyDangerMedical,
+        DangerType.violence => l10n.safetyDangerViolence,
+        DangerType.other => l10n.safetyDangerOther,
       };
 
   String get id => name;
@@ -131,7 +134,19 @@ class SafetyReport {
 /// counts (total / safe / danger). The admin dashboard listens to
 /// this via [ChangeNotifier].
 class SafetyStatusService extends ChangeNotifier {
-  SafetyStatusService();
+  SafetyStatusService({FirebaseFirestore? firestore})
+      : _injectedFirestore = firestore;
+
+  static const _collection = 'safety_reports';
+
+  // Resolved lazily via [_firestore] below — see the same note in
+  // CampaignRequestService for why this can't be an eager field: this
+  // service is a top-level global singleton constructed before
+  // `Firebase.initializeApp()` runs in `main()`.
+  final FirebaseFirestore? _injectedFirestore;
+  FirebaseFirestore get _firestore =>
+      _injectedFirestore ?? FirebaseFirestore.instance;
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _firestoreSub;
 
   /// All reports we've seen, keyed by [SafetyReport.userId] so the
   /// latest status from each user overwrites older ones.
@@ -152,10 +167,49 @@ class SafetyStatusService extends ChangeNotifier {
       _byUser.values.where((r) => r.isDanger).toList()
         ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
+  bool _initialized = false;
+
+  /// Start listening for cross-device safety reports. This service was
+  /// memory-only before Firestore was added (no local file, rebuilt from
+  /// zero every launch) — mesh-relayed reports still arrive via [ingest]
+  /// exactly as before; this just adds a second source feeding the same
+  /// dedup-by-latest-timestamp logic, so a report can arrive via mesh OR
+  /// Firestore OR both without special-casing either path. Best-effort —
+  /// offline devices simply keep working from mesh + local self-report.
+  void initialize() {
+    if (_initialized) return;
+    _initialized = true;
+    try {
+      _firestoreSub = _firestore
+          .collection(_collection)
+          .snapshots()
+          .listen((snap) {
+        for (final doc in snap.docs) {
+          ingest(SafetyReport.fromJson(doc.data()));
+        }
+      }, onError: (e) {
+        debugPrint('SafetyStatusService Firestore stream failed: $e');
+      });
+    } catch (e) {
+      debugPrint('SafetyStatusService Firestore subscribe failed: $e');
+    }
+  }
+
   /// Record the current user's own report.
   void setMyReport(SafetyReport r) {
     _myReport = r;
     ingest(r);
+    // Wrapped in try/catch, not just .catchError: accessing [_firestore]
+    // itself throws SYNCHRONOUSLY (not as a Future rejection) when no
+    // Firebase app has been initialized yet, so a bare .catchError chained
+    // onto .set(...) would never even run — the throw happens before
+    // .set() is reached.
+    try {
+      _firestore.collection(_collection).doc(r.id).set(r.toJson()).catchError(
+          (e) => debugPrint('SafetyStatusService: Firestore submit failed: $e'));
+    } catch (e) {
+      debugPrint('SafetyStatusService: Firestore submit failed: $e');
+    }
   }
 
   /// Accept an incoming report (from mesh or local). Deduplicates by
@@ -185,6 +239,12 @@ class SafetyStatusService extends ChangeNotifier {
     _byUser.clear();
     _myReport = null;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _firestoreSub?.cancel();
+    super.dispose();
   }
 }
 
