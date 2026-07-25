@@ -184,7 +184,7 @@ class _WeatherCardState extends State<WeatherCard> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  l10n.weatherTodayLabel(s.conditionBn),
+                  l10n.weatherTodayLabel(s.conditionLabel(l10n)),
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -263,6 +263,7 @@ class _WeatherCardState extends State<WeatherCard> {
 
   Widget _buildThreeDayStrip(BuildContext context, WeatherSnapshot s) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     // Strip = days 1..3 (tomorrow + 2 more). Skip index 0 (today already
     // shown above). Open-Meteo returns up to 4 days; pad if fewer.
     final cells = <DailyForecast>[];
@@ -276,7 +277,7 @@ class _WeatherCardState extends State<WeatherCard> {
           for (var i = 0; i < cells.length; i++) ...[
             Expanded(
               child: _DayCell(
-                label: _dayLabel(cells[i].date),
+                label: _dayLabel(cells[i].date, l10n),
                 icon: _iconForCode(cells[i].weatherCode),
                 maxC: cells[i].maxC,
                 minC: cells[i].minC,
@@ -405,17 +406,17 @@ class _WeatherCardState extends State<WeatherCard> {
   // ─── HELPERS ─────────────────────────────────────────────
 
   /// Bangla weekday label for the forecast strip cells.
-  static String _dayLabel(DateTime d) {
-    const names = [
-      'সোম', // 1 Mon
-      'মঙ্গল', // 2 Tue
-      'বুধ', // 3 Wed
-      'বৃহ', // 4 Thu
-      'শুক্র', // 5 Fri
-      'শনি', // 6 Sat
-      'রবি', // 7 Sun
-    ];
-    return names[d.weekday - 1];
+  String _dayLabel(DateTime d, AppLocalizations l10n) {
+    return switch (d.weekday) {
+      1 => l10n.dayMon,
+      2 => l10n.dayTue,
+      3 => l10n.dayWed,
+      4 => l10n.dayThu,
+      5 => l10n.dayFri,
+      6 => l10n.daySat,
+      7 => l10n.daySun,
+      _ => l10n.dayMon,
+    };
   }
 
   static IconData _iconForCode(int code) {

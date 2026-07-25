@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:shongjog/l10n/app_localizations.dart';
+
 /// Reason the weather fetch failed. The UI uses this to show distinct
 /// error text instead of a generic "try again" message.
 enum WeatherFetchFailure {
@@ -160,43 +162,43 @@ class WeatherSnapshot {
 
   /// WMO weather code → Bangla label. Codes per Open-Meteo docs.
   /// https://open-meteo.com/en/docs (WMO Weather interpretation codes)
-  String get conditionBn {
+  String conditionLabel(AppLocalizations l10n) {
     switch (weatherCode) {
       case 0:
-        return 'পরিষ্কার';
+        return l10n.weatherClear;
       case 1:
       case 2:
-        return 'হালকা মেঘলা';
+        return l10n.weatherPartlyCloudy;
       case 3:
-        return 'মেঘাচ্ছন্ন';
+        return l10n.weatherCloudy;
       case 45:
       case 48:
-        return 'কুয়াশা';
+        return l10n.weatherFog;
       case 51:
       case 53:
       case 55:
-        return 'গুঁড়ি গুঁড়ি বৃষ্টি';
+        return l10n.weatherDrizzle;
       case 61:
       case 63:
-        return 'বৃষ্টি';
+        return l10n.weatherRain;
       case 65:
-        return 'ভারী বৃষ্টি';
+        return l10n.weatherHeavyRain;
       case 71:
       case 73:
       case 75:
-        return 'তুষারপাত';
+        return l10n.weatherSnow;
       case 80:
       case 81:
-        return 'বৃষ্টির ঝাপটা';
+        return l10n.weatherShowers;
       case 82:
-        return 'ভারী বর্ষণ';
+        return l10n.weatherHeavyShowers;
       case 95:
-        return 'ঝড়ো হাওয়া';
+        return l10n.weatherStormy;
       case 96:
       case 99:
-        return 'বজ্রসহ ঝড়';
+        return l10n.weatherThunderstorm;
       default:
-        return 'অজানা';
+        return l10n.weatherUnknown;
     }
   }
 
