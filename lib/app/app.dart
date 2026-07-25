@@ -19,6 +19,7 @@ import '../features/triage/triage_wizard_screen.dart';
 import '../features/admin/admin_login_screen.dart';
 import '../features/admin/admin_panel_screen.dart';
 import '../features/notifications/notifications_screen.dart';
+import '../features/damage_scanner/damage_scan_screen.dart';
 import '../features/planner/planner_screen.dart';
 import '../features/planner/kit_screen.dart';
 import '../features/planner/risk_screen.dart';
@@ -73,6 +74,7 @@ class ShongjogApp extends StatelessWidget {
             AppRoutes.planner: (_) => const PlannerScreen(),
             AppRoutes.kit: (_) => const KitScreen(),
             AppRoutes.risk: (_) => const RiskScreen(),
+            AppRoutes.damageScanner: (_) => const DamageScannerScreen(),
           },
           onUnknownRoute: (settings) => MaterialPageRoute(
             builder: (ctx) => Scaffold(
