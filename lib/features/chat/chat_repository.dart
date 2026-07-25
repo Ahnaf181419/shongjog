@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
@@ -8,6 +10,11 @@ import '../../rag/rumour_checker.dart';
 import '../../rag/types.dart';
 import '../../rag/urgency_classifier.dart';
 import '../cloud_ai/cloud_ai_service.dart';
+import '../shelter/shelter_intent_detector.dart';
+import '../shelter/shelter_model.dart';
+import '../shelter/shelter_tool_dispatcher.dart';
+import '../shelter/shelter_tool_result_formatter.dart';
+import '../shelter/shelter_tool_schema.dart';
 import 'local_llm.dart';
 
 /// Orchestrates a single RAG query via 3-Tier intelligence:
@@ -30,12 +37,24 @@ class ChatRepository {
   /// Optional embedder for cosine retrieval. When null, keyword-only.
   final EmbedderFn? embedder;
 
+  /// Optional shelter list for the conversational shelter-search feature
+  /// (Option 1 in docs/AI-MAP-FEATURES.md). When null, shelter-intent
+  /// queries fall through to the normal RAG path.
+  final List<Shelter> Function()? shelterProvider;
+
+  /// Optional user-location provider for shelter ranking. Returns the
+  /// user's GPS as a `(lat, lon)` record, or null when unavailable.
+  final Future<({double lat, double lon})?> Function()? userLocationProvider;
+
   ChatRepository({
     required this.kb,
     this.model,
     this.cloudAi,
     this.embedder,
+    this.shelterProvider,
+    this.userLocationProvider,
   });
+
 
   /// Run a full query and return the Bangla answer without throwing exceptions
   /// to the UI. It gracefully falls back through the tiers.
@@ -46,6 +65,29 @@ class ChatRepository {
     List<ChatTurn> history = const [],
     void Function(GenerationPath path)? onPath,
   }) async {
+    // ── Option 1: conversational shelter search ─────────────────────
+    // If the query looks shelter-shaped AND we have shelters + a user
+    // location, try the function-calling tool path. The model emits a
+    // find_nearest_shelter tool call; we dispatch it via the pure-Dart
+    // haversine ranker and format a Bangla map-result message.
+    //
+    // This runs BEFORE the cloud tier so shelter queries get an
+    // instant, deterministic, offline answer instead of a network
+    // round-trip. Falls through on any failure.
+    if (ShelterIntentDetector.isShelterQuery(userQuery) &&
+        shelterProvider != null &&
+        userLocationProvider != null) {
+      try {
+        final shelterAnswer = await _tryShelterToolPath(userQuery);
+        if (shelterAnswer != null) {
+          if (onPath != null) onPath(GenerationPath.device);
+          return shelterAnswer;
+        }
+      } catch (e) {
+        debugPrint('[ChatRepo/ShelterPath] failed, falling through: $e');
+      }
+    }
+
     final hits = _retrieve(userQuery);
 
     // TIER 1: Cloud AI (online)
@@ -138,6 +180,63 @@ class ChatRepository {
   List<RetrievalHit> _retrieve(String query) {
     final keywordHits = kb.keywordRetriever.topK(query, k: 5);
     return keywordHits.take(3).toList();
+  }
+
+  /// Option 1 path: ask the model to emit a `find_nearest_shelter`
+  /// tool call, dispatch it with the pure-Dart ranker, and format a
+  /// Bangla map-result message. Returns null to signal "fall through
+  /// to the normal tiers".
+  ///
+  /// Two ways this returns null:
+  /// - No model, or model not ready/on disk → the device path isn't
+  ///   available; the normal tiers handle it.
+  /// - The model ran but didn't emit a shelter tool call (e.g. it
+  ///   answered in prose). Fall through and let the normal path show
+  ///   that prose answer.
+  Future<String?> _tryShelterToolPath(String userQuery) async {
+    if (model == null) return null;
+    final shouldTryDevice = model!.isReady || await model!.isAnyOnDisk();
+    if (!shouldTryDevice) return null;
+
+    final pos = await userLocationProvider!();
+    if (pos == null) return null;
+    final shelters = shelterProvider!();
+    if (shelters.isEmpty) return null;
+
+    // Ask the model to emit a tool call. The prompt is tight: we tell
+    // it exactly which tool is available and that the user wants the
+    // nearest shelter. The model's job is to confirm intent + extract
+    // a count; the dispatcher does the real ranking.
+    final toolPrompt = StringBuffer()
+      ..writeln('The user asked: "$userQuery"')
+      ..writeln('Use the find_nearest_shelter tool to answer.')
+      ..writeln('If they specified a number, pass it as count; '
+          'otherwise omit count to use the default of 3.');
+    final rawJson = await model!.generateStructured(
+      prompt: toolPrompt.toString(),
+      tools: const [findNearestShelterTool],
+    );
+    if (rawJson == null || rawJson.isEmpty) return null;
+
+    // Parse the JSON envelope the SDK emits.
+    final Map<String, dynamic> parsed;
+    try {
+      parsed = jsonDecode(rawJson) as Map<String, dynamic>;
+    } catch (_) {
+      return null;
+    }
+
+    final args = ShelterToolDispatcher.extractArgsFromJson(parsed);
+    if (args == null) return null;
+
+    final ranked = ShelterToolDispatcher.dispatch(
+      args: args,
+      userLat: pos.lat,
+      userLon: pos.lon,
+      shelters: shelters,
+    );
+    if (ranked.isEmpty) return null;
+    return ShelterToolResultFormatter.toBanglaMessage(ranked);
   }
 
   /// Clean the raw model output of internal-control tokens that should

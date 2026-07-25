@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,6 +16,8 @@ import '../../rag/types.dart';
 import '../audio/sound_service.dart';
 import '../cloud_ai/cloud_ai_service.dart';
 import '../emergency/emergency_sheet.dart';
+import '../shelter/shelter_model.dart';
+import '../shelter/shelter_repository.dart';
 import '../voice/stt_service.dart';
 import '../voice/tts_service.dart';
 import 'chat_input.dart';
@@ -184,6 +187,8 @@ class _ChatScreenState extends State<ChatScreen> {
           kb: kb ?? _emptyKb(),
           model: modelManager,
           cloudAi: cloudAi,
+          shelterProvider: _shelterProvider,
+          userLocationProvider: _resolveUserLocation,
         );
       });
     }
@@ -201,6 +206,39 @@ class _ChatScreenState extends State<ChatScreen> {
       chunks: const [fallbackChunk],
       keywordRetriever: const KeywordRetriever(chunks: [fallbackChunk]),
     );
+  }
+
+  /// Cached shelter list for the conversational shelter-search feature.
+  /// Loaded lazily on the first shelter-intent query so the chat tab's
+  /// cold-start isn't slowed by reading the bundled GeoJSON.
+  List<Shelter>? _shelterCache;
+  List<Shelter> _shelterProvider() {
+    final cached = _shelterCache;
+    if (cached != null) return cached;
+    // Synchronous fallback: return empty so the repository falls through
+    // to the normal path. The async load below populates the cache; the
+    // NEXT shelter query gets the real list.
+    ShelterRepository().loadAll().then((list) {
+      _shelterCache = list;
+    }).catchError((_) {});
+    return const [];
+  }
+
+  /// Resolve the user's GPS for shelter ranking. Returns null when the
+  /// permission is denied or the fix times out — the repository then
+  /// falls through to the normal chat tiers.
+  Future<({double lat, double lon})?> _resolveUserLocation() async {
+    try {
+      final p = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.low,
+          timeLimit: Duration(seconds: 5),
+        ),
+      );
+      return (lat: p.latitude, lon: p.longitude);
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<void> _onSubmit(String q) async {
