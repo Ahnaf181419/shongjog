@@ -17,17 +17,20 @@ class DirectoryScreen extends StatefulWidget {
 }
 
 class _DirectoryScreenState extends State<DirectoryScreen> {
-  static Map<String, String> _divisions(BuildContext context) => <String, String>{
-    'all': AppLocalizations.of(context).allDivisions,
-    'dhaka': 'ঢাকা',
-    'chattogram': 'চট্টগ্রাম',
-    'rajshahi': 'রাজশাহী',
-    'khulna': 'খুলনা',
-    'barisal': 'বরিশাল',
-    'sylhet': 'সিলেট',
-    'rangpur': 'রংপুর',
-    'mymensingh': 'ময়মনসিংহ',
-  };
+  static Map<String, String> _divisions(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return <String, String>{
+      'all': l10n.allDivisions,
+      'dhaka': l10n.emergencyDirDhaka,
+      'chattogram': l10n.emergencyDirChattogram,
+      'rajshahi': l10n.emergencyDirRajshahi,
+      'khulna': l10n.emergencyDirKhulna,
+      'barisal': l10n.emergencyDirBarishal,
+      'sylhet': l10n.emergencyDirSylhet,
+      'rangpur': l10n.emergencyDirRangpur,
+      'mymensingh': l10n.emergencyDirMymensingh,
+    };
+  }
 
   String _division = 'all';
   List<EmergencyEntry>? _entries;

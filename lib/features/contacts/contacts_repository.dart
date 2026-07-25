@@ -7,40 +7,42 @@ import 'contact_model.dart';
 /// National emergency numbers (verified against BTRC directory) — always
 /// shown above user-added custom contacts so the user can reach a real
 /// hotline in one tap regardless of state.
-final List<Contact> nationalContacts = [
-  const Contact(
+///
+/// Names are localized via [l10n] using [buildNationalContacts].
+List<Contact> buildNationalContacts(AppLocalizations l10n) => [
+  Contact(
     id: 'police',
-    nameBn: 'পুলিশ',
+    nameBn: l10n.nationalContactPolice,
     phone: '999',
     category: ContactCategory.police,
   ),
-  const Contact(
+  Contact(
     id: 'fire',
-    nameBn: 'ফায়ার সার্ভিস',
+    nameBn: l10n.nationalContactFireService,
     phone: '16163',
     category: ContactCategory.fire,
   ),
-  const Contact(
+  Contact(
     id: 'ambulance',
-    nameBn: 'অ্যাম্বুলেন্স',
+    nameBn: l10n.nationalContactAmbulance,
     phone: '999',
     category: ContactCategory.ambulance,
   ),
-  const Contact(
+  Contact(
     id: 'disaster',
-    nameBn: 'দুর্যোগ ব্যবস্থাপনা',
+    nameBn: l10n.nationalContactDisasterMgmt,
     phone: '333',
     category: ContactCategory.disaster,
   ),
-  const Contact(
+  Contact(
     id: 'redCrescent',
-    nameBn: 'রেড ক্রিসেন্ট',
+    nameBn: l10n.nationalContactRedCrescent,
     phone: '966',
     category: ContactCategory.redCrescent,
   ),
-  const Contact(
+  Contact(
     id: 'health',
-    nameBn: 'স্বাস্থ্য হটলাইন',
+    nameBn: l10n.nationalContactHealthHotline,
     phone: '16263',
     category: ContactCategory.health,
   ),
@@ -66,12 +68,12 @@ const categoryMeta = <ContactCategory, ({IconData icon})>{
 
 extension ContactCategoryLabel on ContactCategory {
   String label(BuildContext context) => switch (this) {
-    ContactCategory.police => AppLocalizations.of(context).contactPolice,
-    ContactCategory.fire => AppLocalizations.of(context).contactFire,
-    ContactCategory.ambulance => AppLocalizations.of(context).contactAmbulance,
-    ContactCategory.disaster => AppLocalizations.of(context).contactDisaster,
-    ContactCategory.redCrescent => AppLocalizations.of(context).contactRedCrescent,
-    ContactCategory.health => AppLocalizations.of(context).contactHealth,
+    ContactCategory.police => AppLocalizations.of(context).nationalContactPolice,
+    ContactCategory.fire => AppLocalizations.of(context).nationalContactFireService,
+    ContactCategory.ambulance => AppLocalizations.of(context).nationalContactAmbulance,
+    ContactCategory.disaster => AppLocalizations.of(context).nationalContactDisasterMgmt,
+    ContactCategory.redCrescent => AppLocalizations.of(context).nationalContactRedCrescent,
+    ContactCategory.health => AppLocalizations.of(context).nationalContactHealthHotline,
     ContactCategory.other => AppLocalizations.of(context).contactOther,
   };
 }
