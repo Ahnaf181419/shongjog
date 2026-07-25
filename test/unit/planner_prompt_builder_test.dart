@@ -23,7 +23,7 @@ void main() {
       expect(prompt!, contains('বাংলা'));
       // Structured data is in the prompt.
       expect(prompt, contains('5'));
-      expect(prompt, contains('টিনের ঘর'));
+      expect(prompt, contains('tinShed'));
       expect(prompt, contains('নদী'));
     });
 
@@ -56,7 +56,7 @@ void main() {
       final prompt = PlannerPromptBuilder.buildPlan(profile);
       expect(prompt, isNotNull);
       expect(prompt!, contains('5'));
-      expect(prompt, contains('ফ্ল্যাট'));
+      expect(prompt, contains('apartment'));
     });
   });
 

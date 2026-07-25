@@ -64,7 +64,7 @@ class SpeechToTextProvider implements SttProvider {
 
   @override
   Future<String?> listen({
-    String localeId = 'bn_BD',
+    String localeId = 'bn-BD',
     void Function(String partial)? onPartial,
   }) async {
     if (!_ready) {
@@ -90,7 +90,22 @@ class SpeechToTextProvider implements SttProvider {
         listenOptions: stt.SpeechListenOptions(
           partialResults: true,
           cancelOnError: true,
+          // pauseFor: how long a SILENCE may last before the platform
+          // decides the user is done talking — this is the "natural end
+          // of utterance" signal and 5s is a reasonable value for it.
           pauseFor: const Duration(seconds: 5),
+          // listenFor: the actual ceiling on total session length while
+          // the user keeps talking. This was previously unset, and the
+          // manual `.timeout(10s)` below was standing in for it — except
+          // that manual timeout fired 10s after listen() STARTED
+          // regardless of whether the user was still actively speaking,
+          // silently discarding the whole utterance and returning null.
+          // For a voice-first emergency app, describing a real situation
+          // ("আমার বাড়িতে আগুন লেগেছে, আমরা তিনতলায় আটকা পড়েছি...")
+          // routinely takes well past 10 seconds — every such query was
+          // being cut off mid-sentence, which is exactly what "voice
+          // input doesn't work" looks like from the user's side.
+          listenFor: const Duration(seconds: 60),
           localeId: localeId,
         ),
       );
@@ -101,8 +116,15 @@ class SpeechToTextProvider implements SttProvider {
       return null;
     }
 
+    // Last-resort hang guard only — normal completion happens via
+    // onResult's finalResult, or via _onSttStatus/_onSttError when the
+    // platform reports listening has stopped (including its own
+    // listenFor/pauseFor timeouts above). This outer timeout exists
+    // solely in case the native side never calls back at all; it's set
+    // comfortably longer than listenFor so it never fires under normal
+    // operation.
     return completer.future.timeout(
-      const Duration(seconds: 10),
+      const Duration(seconds: 70),
       onTimeout: () {
         _listening = false;
         _stt.stop();

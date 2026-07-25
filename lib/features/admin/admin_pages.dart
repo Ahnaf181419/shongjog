@@ -7,6 +7,7 @@ import '../../core/admin_broadcast_service.dart';
 import '../../features/mesh_comm/mesh_service.dart';
 import '../../features/safe_beacon/safety_status_service.dart';
 import '../../l10n/app_localizations.dart';
+import 'admin_widgets.dart';
 import 'campaign_request.dart';
 
 /// Admin Dashboard page — live system overview.
@@ -73,7 +74,7 @@ class AdminDashboardPage extends StatelessWidget {
                   icon: Icons.check_circle_rounded,
                   label: l10n.adminSafetySafe,
                   value: _bnDigits(safetyStatusService.safeCount),
-                  tint: Colors.green.shade700,
+                  tint: ShongjogTheme.success,
                 ),
                 _StatInfo(
                   icon: Icons.warning_rounded,
@@ -133,29 +134,40 @@ class AdminUsersPage extends StatelessWidget {
         ),
       );
     }
+    final isDark = cs.brightness == Brightness.dark;
+    final onlineDot = isDark ? ShongjogTheme.successBright : ShongjogTheme.success;
+    // Card-wrapped rows — bare ListTiles here were the one screen in the
+    // admin section that didn't carry the app's card language, making it
+    // read noticeably rawer than Campaigns/Danger List right next to it.
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       itemCount: peers.length,
       itemBuilder: (context, index) {
         final peer = peers[index];
-        return ListTile(
-          leading: Container(
-            width: 10,
-            height: 10,
-            decoration: BoxDecoration(
-              color: ShongjogTheme.success,
-              shape: BoxShape.circle,
+        return Card(
+          margin: const EdgeInsets.only(bottom: 8),
+          child: ListTile(
+            leading: Container(
+              width: 40,
+              height: 40,
+              decoration: ShongjogTheme.iconBadge(context, tint: onlineDot),
+              alignment: Alignment.center,
+              child: Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(color: onlineDot, shape: BoxShape.circle),
+              ),
             ),
-          ),
-          title: Text(peer.name.isNotEmpty ? peer.name : l10n.adminUnknownDevice),
-          subtitle: Text(
-            peer.endpointId.length > 12
-                ? '${peer.endpointId.substring(0, 12)}…'
-                : peer.endpointId,
-            style: TextStyle(
-              fontSize: 12,
-              fontFamily: 'monospace',
-              color: cs.onSurfaceVariant,
+            title: Text(peer.name.isNotEmpty ? peer.name : l10n.adminUnknownDevice),
+            subtitle: Text(
+              peer.endpointId.length > 12
+                  ? '${peer.endpointId.substring(0, 12)}…'
+                  : peer.endpointId,
+              style: TextStyle(
+                fontSize: 12,
+                fontFamily: 'monospace',
+                color: cs.onSurfaceVariant,
+              ),
             ),
           ),
         );
@@ -375,11 +387,7 @@ class _StatCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: cs.outlineVariant),
-      ),
+      decoration: ShongjogTheme.cardDecoration(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -387,15 +395,16 @@ class _StatCard extends StatelessWidget {
           Container(
             width: 36,
             height: 36,
-            decoration: BoxDecoration(
-              color: info.tint.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
-            ),
+            decoration: ShongjogTheme.iconBadge(context, tint: info.tint),
             child: Icon(info.icon, color: info.tint, size: 20),
           ),
           const SizedBox(height: 10),
-          Text(
-            info.value,
+          // Genuinely live — this whole row rebuilds via
+          // ListenableBuilder(listenable: safetyStatusService), so a
+          // Firestore-synced report from another device changing this
+          // number deserves a visible moment, not a silent digit-swap.
+          AnimatedStatValue(
+            value: info.value,
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w700,
@@ -484,7 +493,7 @@ class _QuickChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Material(
-      color: cs.secondaryContainer.withValues(alpha: 0.4),
+      color: cs.primary.withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
@@ -537,25 +546,21 @@ class _CampaignRequestTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
+    // Pending = neutral, still-in-progress (brand color); approved = a
+    // genuinely positive state (success green) — semantic, not decorative.
+    final tint = req.status == CampaignStatus.pending ? cs.primary : ShongjogTheme.success;
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: ListTile(
         leading: Container(
           width: 40,
           height: 40,
-          decoration: BoxDecoration(
-            color: req.status == CampaignStatus.pending
-                ? cs.tertiaryContainer
-                : cs.secondaryContainer,
-            borderRadius: BorderRadius.circular(8),
-          ),
+          decoration: ShongjogTheme.iconBadge(context, tint: tint),
           child: Icon(
             req.status == CampaignStatus.pending
                 ? Icons.hourglass_top_rounded
                 : Icons.check_rounded,
-            color: req.status == CampaignStatus.pending
-                ? cs.tertiary
-                : cs.secondary,
+            color: tint,
             size: 20,
           ),
         ),
@@ -627,8 +632,13 @@ class AdminDangerListPage extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.check_circle_rounded,
-                      size: 64, color: Colors.green.shade400),
+                  Icon(
+                    Icons.check_circle_rounded,
+                    size: 64,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? ShongjogTheme.successBright
+                        : ShongjogTheme.success,
+                  ),
                   const SizedBox(height: 12),
                   Text(l10n.adminDangerListEmpty,
                       style: TextStyle(
@@ -693,7 +703,7 @@ class _DangerCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    report.dangerType?.labelBn ?? '',
+                    report.dangerType?.label(l10n) ?? '',
                     style: TextStyle(
                         fontSize: 12,
                         color: cs.error,

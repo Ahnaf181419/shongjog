@@ -55,7 +55,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
           // ── National list ──
           _SectionLabel(AppLocalizations.of(context).nationalNumbers),
           const SizedBox(height: 8),
-          ...nationalContacts.map((c) => Padding(
+          ...buildNationalContacts(AppLocalizations.of(context)).map((c) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: _ContactRow(
                   contact: c,

@@ -2246,4 +2246,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get settingsDefaultUsername => 'ব্যবহারকারী';
+
+  @override
+  String get cardAiButton => 'এআই-তে জিজ্ঞাসা করুন';
 }

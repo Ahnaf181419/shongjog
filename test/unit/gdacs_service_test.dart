@@ -63,6 +63,63 @@ void main() {
       expect(alerts.first.severity, GdacsSeverity.green);
     });
 
+    test(
+        'excludes an alert whose lat/lon falls inside the loose bounding '
+        'box but is actually a neighboring country (e.g. India)', () {
+      // Bangladesh is surrounded on three sides by India, so the
+      // rectangular bbox alone cannot distinguish e.g. Kolkata (India)
+      // from a genuine Bangladesh location — this is the reported bug:
+      // "other country" reports appearing in the caution card.
+      const xml = '''
+<rss><channel>
+  <item>
+    <title>Green earthquake alert (Magnitude 4.5M) in Assam, India</title>
+    <georss:point>22.5 90.5</georss:point>
+    <gdacs:alertlevel>Green</gdacs:alertlevel>
+  </item>
+</channel></rss>
+''';
+      final alerts = GdacsService.parseRssForTest(xml);
+      expect(alerts, isNotNull);
+      expect(alerts, isEmpty,
+          reason: 'Title names India, not Bangladesh — must be excluded '
+              'even though the point falls inside the loose bbox.');
+    });
+
+    test('a multi-country alert that DOES mention Bangladesh is kept', () {
+      const xml = '''
+<rss><channel>
+  <item>
+    <title>Orange Tropical Cyclone alert for Bangladesh, India, Myanmar</title>
+    <georss:point>21.5 91.5</georss:point>
+    <gdacs:alertlevel>Orange</gdacs:alertlevel>
+  </item>
+</channel></rss>
+''';
+      final alerts = GdacsService.parseRssForTest(xml);
+      expect(alerts, isNotNull);
+      expect(alerts!.length, 1,
+          reason: 'Bangladesh is named, even alongside other countries — '
+              'still relevant and must be kept.');
+    });
+
+    test('mentionsBangladesh checks description when title does not mention it',
+        () {
+      const xml = '''
+<rss><channel>
+  <item>
+    <title>Flood alert</title>
+    <description>Heavy rainfall affecting low-lying areas of Bangladesh.</description>
+    <georss:point>23.5 90.0</georss:point>
+    <gdacs:alertlevel>Orange</gdacs:alertlevel>
+  </item>
+</channel></rss>
+''';
+      final alerts = GdacsService.parseRssForTest(xml);
+      expect(alerts, isNotNull);
+      expect(alerts!.length, 1);
+    });
+
     test('returns empty list when feed has no items', () {
       const xml = '<rss><channel></channel></rss>';
       final alerts = GdacsService.parseRssForTest(xml);
@@ -74,11 +131,11 @@ void main() {
       const xml = '''
 <rss><channel>
   <item>
-    <title>No location</title>
+    <title>No location in Bangladesh</title>
     <gdacs:alertlevel>Red</gdacs:alertlevel>
   </item>
   <item>
-    <title>With location</title>
+    <title>With location in Bangladesh</title>
     <georss:point>23.0 90.5</georss:point>
   </item>
 </channel></rss>
@@ -86,7 +143,7 @@ void main() {
       final alerts = GdacsService.parseRssForTest(xml);
       expect(alerts, isNotNull);
       expect(alerts!.length, 1);
-      expect(alerts.first.title, 'With location');
+      expect(alerts.first.title, 'With location in Bangladesh');
       expect(alerts.first.severity, GdacsSeverity.unknown,
           reason: 'Missing alertlevel tag → unknown.');
     });
@@ -95,7 +152,7 @@ void main() {
       const xml = '''
 <rss><channel>
   <item>
-    <title><![CDATA[Heavy rain alert: 400mm expected]]></title>
+    <title><![CDATA[Heavy rain alert: 400mm expected in Bangladesh]]></title>
     <georss:point>22.5 91.5</georss:point>
     <gdacs:alertlevel>Red</gdacs:alertlevel>
   </item>
@@ -104,7 +161,7 @@ void main() {
       final alerts = GdacsService.parseRssForTest(xml);
       expect(alerts, isNotNull);
       expect(alerts!.length, 1);
-      expect(alerts.first.title, 'Heavy rain alert: 400mm expected');
+      expect(alerts.first.title, 'Heavy rain alert: 400mm expected in Bangladesh');
       expect(alerts.first.severity, GdacsSeverity.red);
     });
   });

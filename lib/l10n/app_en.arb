@@ -795,5 +795,6 @@
   "onboardingNameHint": "Enter your name",
   "chatNoAnswer": "I don't have an answer for this question. Call 999 for help.",
   "cloudAiNoAnswer": "No answer found.",
-  "settingsDefaultUsername": "User"
+  "settingsDefaultUsername": "User",
+  "cardAiButton": "Ask AI"
 }

@@ -69,6 +69,15 @@ dependencies:
   flutter_displaymode: ^0.7.0
   gal: ^2.3.2
 
+  # Firestore backend for the admin panel (campaigns, broadcasts, safety
+  # reports) — cross-device sync so an admin on one phone can see data
+  # submitted on another. Anonymous auth only; no push/remote-config/
+  # analytics/crashlytics — see docs/firebase-backend-plan.md for the
+  # full (unimplemented) superset this is scoped down from.
+  firebase_core: ^3.8.0
+  firebase_auth: ^5.3.4
+  cloud_firestore: ^5.6.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -76,6 +85,8 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.13.1
+  fake_cloud_firestore: ^3.1.0
+  firebase_auth_mocks: ^0.14.1
 
 flutter:
   generate: true

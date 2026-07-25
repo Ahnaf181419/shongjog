@@ -116,6 +116,36 @@ void main() {
     });
   });
 
+  group('UsgsEarthquakeService.isBangladeshPlace', () {
+    test('matches a place string naming Bangladesh', () {
+      expect(
+          UsgsEarthquakeService.isBangladeshPlace('32 km E of Sylhet, Bangladesh'),
+          isTrue);
+    });
+
+    test(
+        'rejects a place string naming a neighboring country — this is the '
+        'reported bug: the lat/lon bounding box alone cannot distinguish '
+        'e.g. Imphal, India from a genuine Bangladesh location, since '
+        'Bangladesh is surrounded on three sides by India', () {
+      expect(
+          UsgsEarthquakeService.isBangladeshPlace('45 km NW of Imphal, India'),
+          isFalse);
+      expect(
+          UsgsEarthquakeService.isBangladeshPlace('12 km SE of Sittwe, Myanmar'),
+          isFalse);
+    });
+
+    test('is case-insensitive', () {
+      expect(UsgsEarthquakeService.isBangladeshPlace('Dhaka, BANGLADESH'),
+          isTrue);
+    });
+
+    test('rejects an empty place string', () {
+      expect(UsgsEarthquakeService.isBangladeshPlace(''), isFalse);
+    });
+  });
+
   group('EarthquakeSeverity', () {
     test('magnitude < 5.0 is light', () {
       expect(

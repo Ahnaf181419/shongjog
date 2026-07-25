@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
@@ -139,10 +141,24 @@ class CampaignRequest {
 }
 
 class CampaignRequestService extends ChangeNotifier {
+  CampaignRequestService({FirebaseFirestore? firestore})
+      : _injectedFirestore = firestore;
+
   static const _fileName = 'campaign_requests.json';
+  static const _collection = 'campaigns';
 
   @visibleForTesting
   static String? debugFilesDirOverride;
+
+  // Resolved lazily via [_firestore] below, NOT eagerly in the constructor.
+  // This service is a top-level global singleton constructed at library
+  // load time, before `Firebase.initializeApp()` runs in `main()` —
+  // eagerly touching `FirebaseFirestore.instance` here would throw
+  // synchronously (no Firebase app yet) and crash app boot.
+  final FirebaseFirestore? _injectedFirestore;
+  FirebaseFirestore get _firestore =>
+      _injectedFirestore ?? FirebaseFirestore.instance;
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _firestoreSub;
 
   List<CampaignRequest> _requests = [];
   List<CampaignRequest> get requests => List.unmodifiable(_requests);
@@ -181,6 +197,40 @@ class CampaignRequestService extends ChangeNotifier {
     }
     _initialized = true;
     notifyListeners();
+    _subscribeFirestore();
+  }
+
+  /// Listen for cross-device campaign requests. The local JSON cache
+  /// (loaded above) paints instantly on cold start; this stream keeps it
+  /// live and in sync with what other devices submitted or an admin
+  /// approved elsewhere. Best-effort — a failure here (offline, no
+  /// Firebase project reachable) leaves the app on local-only data.
+  void _subscribeFirestore() {
+    try {
+      _firestoreSub = _firestore
+          .collection(_collection)
+          .snapshots()
+          .listen(_mergeFirestoreSnapshot, onError: (e) {
+        debugPrint('CampaignRequestService Firestore stream failed: $e');
+      });
+    } catch (e) {
+      debugPrint('CampaignRequestService Firestore subscribe failed: $e');
+    }
+  }
+
+  void _mergeFirestoreSnapshot(QuerySnapshot<Map<String, dynamic>> snap) {
+    for (final doc in snap.docs) {
+      final incoming = CampaignRequest.fromJson(doc.data());
+      final index = _requests.indexWhere((r) => r.id == incoming.id);
+      if (index == -1) {
+        _requests.add(incoming);
+      } else {
+        _requests[index] = incoming;
+      }
+    }
+    _requests.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    unawaited(_save());
+    notifyListeners();
   }
 
   Future<void> submitRequest(CampaignRequest request) async {
@@ -188,6 +238,14 @@ class CampaignRequestService extends ChangeNotifier {
     _requests.insert(0, request);
     await _save();
     notifyListeners();
+    try {
+      await _firestore
+          .collection(_collection)
+          .doc(request.id)
+          .set(request.toJson());
+    } catch (e) {
+      debugPrint('CampaignRequestService: Firestore submit failed: $e');
+    }
   }
 
   Future<void> updateRequestStatus(
@@ -198,13 +256,23 @@ class CampaignRequestService extends ChangeNotifier {
     await initialize();
     final index = _requests.indexWhere((r) => r.id == requestId);
     if (index == -1) return;
-    _requests[index] = _requests[index].copyWith(
+    final updated = _requests[index].copyWith(
       status: status,
       adminNotes: adminNotes,
       reviewedAt: DateTime.now(),
     );
+    _requests[index] = updated;
     await _save();
     notifyListeners();
+    try {
+      await _firestore.collection(_collection).doc(requestId).update({
+        'status': updated.status.index,
+        'adminNotes': updated.adminNotes,
+        'reviewedAt': updated.reviewedAt?.toIso8601String(),
+      });
+    } catch (e) {
+      debugPrint('CampaignRequestService: Firestore status update failed: $e');
+    }
   }
 
   Future<void> _save() async {
@@ -228,6 +296,12 @@ class CampaignRequestService extends ChangeNotifier {
       debugPrint('CampaignRequestService clear failed: $e');
     }
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _firestoreSub?.cancel();
+    super.dispose();
   }
 }
 

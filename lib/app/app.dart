@@ -3,6 +3,7 @@ import 'package:nearby_connections/nearby_connections.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/locale_controller.dart';
+import '../core/pending_chat_prompt.dart';
 import '../core/theme_controller.dart';
 import '../features/about/about_screen.dart';
 import '../l10n/app_localizations.dart';
@@ -201,7 +202,10 @@ class _StartupGateState extends State<_StartupGate> {
       });
     }
 
-    return const MainShell();
+    return PendingChatPrompt(
+      notifier: ValueNotifier<String?>(null),
+      child: const MainShell(),
+    );
   }
 }
 

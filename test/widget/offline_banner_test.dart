@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:shongjog/features/shelter/widgets/offline_banner.dart';
+import 'test_app.dart';
 
 void main() {
   group('OfflineBanner', () {
     testWidgets('renders the offline notice in Bangla', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
+      await tester.pumpWidget(localizedApp(
+        Scaffold(
           body: Stack(children: const [OfflineBanner()]),
         ),
       ));

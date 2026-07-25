@@ -1,75 +1,161 @@
 # Shongjog
+![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter) ![Dart](https://img.shields.io/badge/Dart-%5E3.12.0-0175C2?logo=dart) ![Android](https://img.shields.io/badge/Android-arm64--v8a-3DDC84?logo=android) ![License](https://img.shields.io/badge/License-MIT-blue)
 
-**An on-device, Bangla, voice-first flood/cyclone emergency companion powered by Gemma 4
-— it works when the internet doesn't.**
+*"it works when the internet doesn't."*
 
-Built for the *Build with Gemma 4: ML, AI, Deep Learning & NLP Community Hackathon*
-(Bangladesh). Flutter app, Gemma 4 E2B running fully on-device, RAG over a verified
-Bangla corpus, Vosk-Bangla speech-to-text, and offline maps. The entire core loop runs in
-airplane mode.
+## What is Shongjog?
+Shongjog is an offline-first, Bangla, voice-first emergency-companion Flutter application designed to operate in severe connectivity vacuums. Built for resilience during crises, the application leverages an on-device Gemma 4 E2B model (via LiteRT-LM) and an on-device Retrieval-Augmented Generation (RAG) system over a verified Bangla emergency corpus. 
 
-> The single sentence that defines this project: **it works when the internet doesn't.**
+Shongjog strictly targets Android `arm64-v8a` architecture to support heavy local model inference, bypassing the need for cloud infrastructure for its core functionalities.
 
-## Documentation
+## Features
+*   **On-Device AI Assistant:** Powered by Gemma 4 E2B running entirely locally via `flutter_gemma`.
+*   **Offline RAG:** Semantic search over a verified Bangla emergency corpus using L2-normalized 768-dim fp32 vectors.
+*   **Voice-First Interface:** Integrated Bangla speech-to-text and text-to-speech for accessibility during emergencies.
+*   **Offline Shelter Map:** Uses `flutter_map` to display cyclone shelter locations without requiring internet access.
+*   **One-Touch SOS:** Slide-to-confirm UI to instantly dial 999 and broadcast SOS SMS to designated contacts.
+*   **Bluetooth Mesh Messaging:** Peer-to-peer communication using `nearby_connections` and `flutter_p2p_connection` when telecom networks fail.
+*   **Triage Wizard:** An LLM-free, deterministic decision tree for rapid medical and safety triage.
+*   **Safe-Beacon Check-in:** Low-bandwidth status broadcasting for personal safety verification.
 
-All project docs live in [`docs/`](./docs). Start there.
+## Dependencies
 
-| Doc | What it covers |
-|---|---|
-| [`docs/PROJECT-STATUS.md`](./docs/PROJECT-STATUS.md) | **START HERE** — one-shot status report + handoff doc |
-| [`docs/prd.md`](./docs/prd.md) | Product requirements — problem, scope, success criteria, risks |
-| [`docs/architecture.md`](./docs/architecture.md) | Technical architecture — stack, pipeline, data model, constraints |
-| [`docs/design.md`](./docs/design.md) | UX/UI design — principles, personas, flows, visual system, accessibility |
-| [`docs/team.md`](./docs/team.md) | Work division — roles, per-person checklist, integration checkpoints, decision log |
-| [`docs/corpus.md`](./docs/corpus.md) | Knowledge base — topic coverage, schema, authoring guide, source policy |
-| [`docs/demo.md`](./docs/demo.md) | Demo script — live scenario, judge Q&A, fallback playbook |
-| [`docs/spike-results.md`](./docs/spike-results.md) | Spike + Phase 5 measurement log template |
-| [`docs/PRE-DEMO.md`](./docs/PRE-DEMO.md) | Pre-demo operational runbook (device setup, rehearsal) |
-| [`docs/POST-HACKATHON.md`](./docs/POST-HACKATHON.md) | Long-term roadmap, partner plan, red lines |
-| [`docs/implementation-plan.md`](./docs/implementation-plan.md) | Task-by-task build plan (Phase 0 → Phase 5) + live status table |
-| [`CHANGELOG.md`](./CHANGELOG.md) | Hackathon-progress changelog (build phases) |
-| [`CONTRIBUTING.md`](./CONTRIBUTING.md) | For future maintainers — dev setup, conventions, red lines |
+| Purpose | Package | Version |
+| :--- | :--- | :--- |
+| **On-device LLM** | `flutter_gemma` | `^1.3.0` |
+| | `flutter_gemma_litertlm` | `^1.1.0` |
+| **Voice / Audio** | `speech_to_text` | `^7.0.0` |
+| | `flutter_tts` | `^4.2.0` |
+| | `audioplayers` | `^6.8.1` |
+| | `record` | `^6.1.0` |
+| **Maps / Location** | `flutter_map` | `^7.0.0` |
+| | `geolocator` | `^13.0.0` |
+| | `latlong2` | `^0.9.1` |
+| **Cloud / Network** | `http` | `^1.2.0` |
+| | `google_generative_ai` | `^0.4.6` |
+| | `connectivity_plus` | `^6.1.1` |
+| **Mesh** | `nearby_connections` | `^4.3.0` |
+| | `flutter_p2p_connection` | `^3.0.3` |
+| **Utilities** | `url_launcher` | `^6.3.0` |
+| | `permission_handler` | `^11.3.1` |
+| | `device_info_plus` | `^13.2.0` |
+| | `flutter_secure_storage` | `^10.3.1` |
+| | `path_provider` | `^2.1.0` |
+| | `shared_preferences` | `^2.3.0` |
+| | `flutter_displaymode` | `^0.7.0` |
+| **Dev** | `flutter_lints` | `^6.0.0 (dev)` |
 
-## Quick Start
+## Configuration Files
 
+| File Path | Purpose |
+| :--- | :--- |
+| `pubspec.yaml` | Dart dependencies, assets, fonts, app metadata |
+| `.env.example` | Template for optional `GEMINI_API_KEY` (copy to `.env`) |
+| `android/app/build.gradle.kts` | compileSdk/minSdk/targetSdk, arm64 ABI filter, packaging excludes, signing |
+| `android/build.gradle.kts` | Kotlin JVM 17, AGP plugin version |
+| `android/app/proguard-rules.pro` | R8 rules (load-bearing `-keep` for MediaPipe/Protobuf/ODML) |
+| `android/app/src/main/AndroidManifest.xml` | All 18 required permissions and activity declarations |
+| `analysis_options.yaml` | Dart lint rules |
+| `.gitignore` | Excludes model files (`*.litertlm`, `*.task`, `*.tflite`, etc.) |
+| `scripts/build_release.sh` | Pre/post-build verification (engine registration, arm64 check, R8 strip) |
+| `scripts/build_release.ps1` | Windows PowerShell equivalent of the release script |
+| `assets/kb/corpus.json` | 48 Bangla emergency corpus chunks across 22 topics |
+| `assets/kb/vectors.bin` | L2-normalized 768-dim fp32 vectors for cosine retrieval |
+| `assets/shelter/cyclone_shelters.geojson` | 25 cyclone shelter locations |
+| `assets/emergency/directory.json` | 22-entry emergency contact directory |
+| `assets/sound/chime.wav`, `assets/sound/knock.wav` | UI sound effects |
+| `assets/fonts/HindSiliguri-*.ttf` | Bangla typeface (Light, Regular, Medium, SemiBold) |
+
+## Prerequisites
+*   **SDK:** Dart `^3.12.0` / Flutter `3.x`
+*   **Android:** compileSdk 36, minSdk 26, targetSdk 36. Kotlin JVM 17, AGP 9.x.
+*   **Hardware:** 
+    *   Physical Android `arm64-v8a` device is **strictly required** for model inference runs. 
+    *   x86_64 emulators can be used for UI-only work, but model operations will silently fail.
+*   **Storage:** ~3 GB free space on the device for model download (Gemma 4 E2B = 2.47 GB + runtime overhead).
+
+## Installation
+1. Clone the repository.
+2. Fetch dependencies:
+   ```bash
+   flutter pub get
+   ```
+3. Copy `.env.example` to `.env` if you plan to use the optional cloud fallback.
+
+## Building & Running
+
+**UI/Layout Debugging (Emulator):**
+You can run the app on an x86_64 emulator strictly for UI work.
 ```bash
-flutter pub get
-flutter analyze          # zero issues
-flutter test             # 91 pass, 1 skip
+flutter run
+```
+
+**Full Inference Run (Physical Device):**
+Model-bearing runs must be executed on a physical `arm64-v8a` device in release mode.
+```bash
 flutter run -d <arm64-device-id> --release
 ```
 
-> **Note:** `.litertlm` inference is `arm64-v8a` only. A standard x86 emulator will not
-> run the model — test on a real arm64 Android device. The Android build is restricted
-> via `abiFilters 'arm64-v8a'` in `android/app/build.gradle.kts`.
+**Production Build:**
+To build the APK or AppBundle, utilize the provided scripts to ensure pre/post-build verifications (like R8 strip counts and ABI enforcement) are met.
+```bash
+# Build APK with verification scripts
+bash scripts/build_release.sh
 
-## Features
+# Build standard AppBundle for Play Store
+flutter build appbundle --release
+```
+*Note:* The release APK is `arm64-v8a` only. Verify the release APK with the grep command found in `scripts/build_release.sh:139-148` to ensure load-bearing ProGuard rules (`proguard-rules.pro:45-68`) were respected.
 
-| Feature | Status |
-|---|---|
-| Bangla-first UI with 3-way theme (light/dark/system) | ✅ Done |
-| 4-tab bottom nav (Home / AI / Cards / Shelter) | ✅ Done |
-| First-run onboarding (3 pages: welcome → permissions → model download) | ✅ Done |
-| Static quick cards — 8 expandable Bangla emergency guides (no model needed) | ✅ Done |
-| RAG chat with keyword retrieval over 23-chunk verified Bangla corpus | ✅ Done |
-| Cloud AI fallback (Gemini 2.5-flash → 2.0-flash-lite) when online | ✅ Done |
-| On-device Gemma 4 E2B integration (ModelManager singleton, Range-resume download) | ✅ Done |
-| Chat persistence across app restarts (JSON-based ChatStore) | ✅ Done |
-| Typewriter text reveal for AI responses | ✅ Done |
-| Bangla TTS with auto-read toggle | ✅ Done |
-| Voice input via STT provider abstraction (speech_to_text online, Vosk stub offline) | ✅ Done |
-| Shelter map with map/list toggle, connectivity-aware tiles, distance ranking | ✅ Done |
-| Emergency slide-to-confirm dial (999) with real GPS | ✅ Done |
-| SOS SMS with location-encoded body | ✅ Done |
-| Settings screen with model download card, voice prefs, clear-cache | ✅ Done |
-| Offline mesh communication (nearby_connections P2P, radar screen) | ✅ Done |
-| Emergency contacts (add/list/call) | ✅ Done |
-| Phase 0 device spikes (Gemma E2B TTR/RAM, Vosk WER, shelter spot-check) | 🔴 Needs device |
-| Airplane-mode E2E demo test | 🔴 Needs device |
-| 60s fallback demo video | 🔴 Pending |
+## Configuration
 
-## Status
+### Cloud AI Fallback (Optional)
+Shongjog operates offline by default without an API key. For cloud fallback (Primary: `gemma-4-31b-it`, Fallback: `gemini-3.1-flash-lite`), pass the key at build/run time:
+```bash
+flutter run --release --dart-define=GEMINI_API_KEY=<your_key>
+```
+This is read via `String.fromEnvironment('GEMINI_API_KEY')` in `lib/features/cloud_ai/cloud_ai_service.dart:27-28`. It is only invoked when `connectivityProvider.isOnline` is true and has thinking disabled (`thinkingBudget: 0`).
 
-**Active development.** 22 tasks complete, 91 tests passing, `flutter analyze` clean.
-Remaining work is device-dependent (Phase 0 spikes, Phase 5 demo hardening) — see
-[`docs/implementation-plan.md`](./docs/implementation-plan.md) for the full status table.
+### App Preferences
+*   **Theme:** 3-way toggle (System/Light/Dark) managed via `lib/core/theme_controller.dart` and persisted via `SharedPreferences`.
+*   **Language:** Defaults to Bangla, with an English toggle via `lib/core/locale_controller.dart`.
+*   **Model Variant:** Automatically selected based on RAM tier (`lib/core/device_capability.dart:169-179`). Devices with ≤8 GB RAM use E2B; >8 GB use E4B. This can be overridden in the Settings screen.
+
+## Project Architecture
+The `lib/` directory is structured by feature and core functionality:
+
+*   `app/` – App entry (`MaterialApp`), routing, theme, `_StartupGate`, `MainShell`.
+*   `core/` – Singletons and providers (`modelManager`, `connectivityProvider`, `device_capability`, etc.).
+*   `rag/` – Pure Dart implementations of keyword retriever, cosine retriever, prompt builder, rumour checker, and types.
+*   `knowledge/` – Handles loading the KB (`corpus.json` + `vectors.bin`).
+*   `features/` – Isolated feature modules (e.g., `chat`, `voice`, `mesh_comm`, `triage`, `safe_beacon`, `shelter`).
+
+**Critical Architectural Rules:**
+1.  **Engine Initialization:** `FlutterGemma.initialize(inferenceEngines: [LiteRtLmEngine()])` must run before any model call to register the FFI engine.
+2.  **Singleton Access:** Use the `modelManager` (`lib/core/model_manager.dart`) implementing `LocalLlm`. Never call `FlutterGemma.getActiveModel()` directly in UI code.
+3.  **Context Window:** `maxTokens` is strictly `1024` (minimum for `.litertlm`); `maxOutputTokens` is capped at `256`.
+4.  **Session Lifecycle:** Sessions are per-query. `generate()` creates and closes each session in a `finally` block. `resetSession()` must await `model.close()` to release mmap'd weights.
+5.  **Model Format:** `.litertlm` is strictly required. `.task` files are not compatible with this build.
+
+## Testing
+Run the test suites with the following commands. Ensure the analyzer reports "No issues found!" before pushing code.
+
+```bash
+# Static analysis
+flutter analyze
+
+# Run all tests (Expect 571 passes, 1 intentional skip)
+flutter test
+
+# Run unit tests only
+flutter test test/unit/
+
+# Run widget tests only
+flutter test test/widget/
+```
+
+## Contributing
+Please see `CONTRIBUTING.md` for our code of conduct and pull request process. We strictly adhere to conventional commits. 
+
+## License
+This project is licensed under the MIT License - see the LICENSE file for details.

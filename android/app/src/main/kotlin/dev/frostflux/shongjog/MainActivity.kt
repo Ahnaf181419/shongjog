@@ -1,4 +1,4 @@
-package com.example.shongjog
+package dev.frostflux.shongjog
 
 import android.telephony.SmsManager
 import io.flutter.embedding.android.FlutterActivity

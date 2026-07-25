@@ -49,7 +49,7 @@ class _RiskScreenState extends State<RiskScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.riskTitle)),
       body: _loading
@@ -158,7 +158,7 @@ class _ResultView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final scoreBn = result.score.toString().split('').map((c) {
       const m = {
         '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',

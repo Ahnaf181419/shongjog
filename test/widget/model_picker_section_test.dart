@@ -35,8 +35,11 @@ void main() {
 
       expect(tester.takeException(), isNull);
       // E2B + E4B are downloadable; 12B is unavailable and must stay hidden.
+      // Cards now show user-friendly labels: "হালকা" (E2B) and "শক্তিশালী" (E4B)
+      // Use exact match since "হালকা" also appears in the description text.
       expect(find.text('ডাউনলোড'), findsNWidgets(2));
-      expect(find.textContaining('Gemma 4 E2B'), findsOneWidget);
+      expect(find.text('হালকা'), findsOneWidget);
+      expect(find.text('শক্তিশালী'), findsOneWidget);
       expect(find.textContaining('Gemma 4 12B'), findsNothing);
     });
 

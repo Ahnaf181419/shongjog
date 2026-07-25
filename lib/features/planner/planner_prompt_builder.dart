@@ -30,7 +30,7 @@ class PlannerPromptBuilder {
     if (p.hasPets) {
       buf.writeln('• পোষা প্রাণী আছে');
     }
-    buf.writeln('• ঘরের ধরন: ${p.homeType.labelBn}');
+    buf.writeln('• ঘরের ধরন: ${p.homeType.name}');
     if (p.homeType == HomeType.apartment && p.floorNumber != null) {
       buf.writeln('• ফ্ল্যাটের তলা: ${p.floorNumber}');
     }

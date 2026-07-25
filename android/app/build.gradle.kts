@@ -2,10 +2,13 @@ plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    // Reads google-services.json (gitignored, per-developer download from the
+    // Firebase console) and wires the native Android Firebase config.
+    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "com.example.shongjog"
+    namespace = "dev.frostflux.shongjog"
     // Explicit SDK levels override the Flutter template defaults.
     // - compileSdk 36: required by androidx.core:1.17.0 and
     //   androidx.exifinterface:1.4.1 (transitive via flutter_map /
@@ -23,8 +26,7 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.shongjog"
+        applicationId = "dev.frostflux.shongjog"
         minSdk = 26
         targetSdk = 36
         versionCode = flutter.versionCode

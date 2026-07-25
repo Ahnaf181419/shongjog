@@ -2245,4 +2245,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsDefaultUsername => 'User';
+
+  @override
+  String get cardAiButton => 'Ask AI';
 }

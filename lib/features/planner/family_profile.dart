@@ -9,6 +9,15 @@ enum HomeType {
   apartment,
   unknown;
 
+  /// Hardcoded Bangla label — kept for unit-test compatibility.
+  /// Prefer [label] in UI code (uses AppLocalizations).
+  String get labelBn => switch (this) {
+        HomeType.tinShed => 'টিনের ঘর',
+        HomeType.pucka => 'পাকা বাড়ি',
+        HomeType.apartment => 'ফ্ল্যাট',
+        HomeType.unknown => 'অজানা',
+      };
+
   String label(AppLocalizations l10n) => switch (this) {
         HomeType.tinShed => l10n.familyHomeTypeTinShed,
         HomeType.pucka => l10n.familyHomeTypePucca,
@@ -20,6 +29,9 @@ enum HomeType {
         'tinShed' => HomeType.tinShed,
         'pucka' => HomeType.pucka,
         'apartment' => HomeType.apartment,
+        'টিনের ঘর' => HomeType.tinShed,
+        'পাকা বাড়ি' => HomeType.pucka,
+        'ফ্ল্যাট' => HomeType.apartment,
         _ => HomeType.unknown,
       };
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/pending_chat_prompt.dart';
 import '../features/chat/chat_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/quick_cards/quick_cards_screen.dart';
@@ -122,6 +123,11 @@ class _MainShellState extends State<MainShell> {
 
   void _goToTab(int i) => setState(() => _index = i);
 
+  void _onRequestAiChat(String prompt) {
+    PendingChatPrompt.of(context)?.requestPrompt(prompt);
+    _goToTab(1);
+  }
+
   Widget _buildTab(int index) {
     return _tabCache.putIfAbsent(index, () {
       switch (index) {
@@ -130,7 +136,7 @@ class _MainShellState extends State<MainShell> {
         case 1:
           return const ChatScreen();
         case 2:
-          return const QuickCardsScreen();
+          return QuickCardsScreen(onRequestAiChat: _onRequestAiChat);
         case 3:
           return const ShelterMapScreen();
         default:

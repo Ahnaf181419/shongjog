@@ -23,7 +23,35 @@ class EonetService {
 
   /// Bounding box for Bangladesh + the Bay of Bengal cyclone basin.
   /// [west, north, east, south] — the format EONET expects.
-  static const List<double> bangladeshBbox = [88.0, 27.5, 93.5, 20.0];
+  ///
+  /// Tightened from the original [88.0, 27.5, 93.5, 20.0], which extended
+  /// a full degree-plus past Bangladesh's real north/east borders (max
+  /// ~26.65°N, ~92.7°E) — deep enough into Meghalaya, Assam, Tripura, and
+  /// Myanmar to regularly surface those countries' hazards as if they were
+  /// Bangladesh's. `south` is kept low on purpose: Bay of Bengal cyclones
+  /// approaching Bangladesh are legitimately relevant before landfall.
+  static const List<double> bangladeshBbox = [88.0, 26.7, 92.7, 19.5];
+
+  /// Countries EONET titles occasionally do name directly (unlike storm
+  /// events, which are just named after the storm with no place — "Tropical
+  /// Cyclone Amphan" mentions no country at all). When a title clearly
+  /// names one of these instead of Bangladesh, exclude it even if its
+  /// point falls inside the (necessarily loose) bbox above. This is a
+  /// weaker filter than requiring "Bangladesh" to be present — EONET
+  /// often doesn't say the country either way — but still catches an
+  /// explicitly-wrong-country title like "Flooding in Assam, India".
+  static const _neighboringCountries = [
+    'india', 'myanmar', 'nepal', 'bhutan', 'china', 'pakistan',
+  ];
+
+  /// Whether [title] names a neighboring country without also naming
+  /// Bangladesh. Exposed for testing.
+  @visibleForTesting
+  static bool namesOtherCountry(String title) {
+    final lower = title.toLowerCase();
+    if (lower.contains('bangladesh')) return false;
+    return _neighboringCountries.any(lower.contains);
+  }
 
   /// Fetch open (currently-active) hazards within [bbox]. Returns an empty
   /// list if online but nothing is active; returns null on any failure or
@@ -60,6 +88,7 @@ class EonetService {
       return events
           .map((e) => EonetEvent.tryParse(e as Map<String, dynamic>))
           .whereType<EonetEvent>()
+          .where((e) => !namesOtherCountry(e.title))
           .toList();
     } on TimeoutException {
       return null;
@@ -117,9 +146,18 @@ class EonetEvent {
     // Take the most recent.
     final geom = json['geometry'];
     if (geom is! List || geom.isEmpty) return null;
+    // EONET returns geometry points in chronological order, so the LAST
+    // map in the list is the most recent position. `latest ??= g` only
+    // ever assigns once (on the first non-null match) and then never
+    // updates again — despite the "take the most recent" comment above,
+    // it was actually keeping the FIRST point. For a multi-day tracked
+    // event (a cyclone moving across days), that meant filtering and
+    // display used a stale, possibly long-outdated position — e.g. a
+    // storm's first known point near Bangladesh even after it had moved
+    // into India or out to open sea days later.
     Map<String, dynamic>? latest;
     for (final g in geom) {
-      if (g is Map<String, dynamic>) latest ??= g;
+      if (g is Map<String, dynamic>) latest = g;
     }
     if (latest == null) return null;
     final coords = latest['coordinates'];

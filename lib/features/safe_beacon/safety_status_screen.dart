@@ -137,6 +137,7 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
     if (dangerType == null) return; // cancelled
     if (!mounted) return;
 
+    final l10n = AppLocalizations.of(context);
     setState(() => _sending = true);
     try {
       final p = await _readProfile();
@@ -163,7 +164,7 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
 
       // 4. Queue SMS to contacts (with GPS link).
       await _queueSms(
-          _dangerMessage(p.name, p.phone, dangerType, gps.lat, gps.lon));
+          _dangerMessage(l10n, p.name, p.phone, dangerType, gps.lat, gps.lon));
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -201,13 +202,13 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
     return 'আমি নিরাপদ আছি। আমি $name। ফোন: $phone।$loc';
   }
 
-  String _dangerMessage(
+  String _dangerMessage(AppLocalizations l10n,
       String name, String phone, DangerType type, double? lat, double? lon) {
     final loc = (lat != null && lon != null)
         ? ' অবস্থান: https://maps.google.com/?q=$lat,$lon'
         : '';
     return 'জরুরি! আমি বিপদে আছি। আমি $name। ফোন: $phone। '
-        'সমস্যা: ${type.labelBn}।$loc';
+        'সমস্যা: ${type.label(l10n)}।$loc';
   }
 
   // ── Build ────────────────────────────────────────────────────
@@ -309,7 +310,7 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
                       const SizedBox(width: 6),
                       Text(
                         my.isDanger
-                            ? '${l10n.safetyCurrentDanger}: ${my.dangerType?.labelBn ?? ''}'
+                            ? '${l10n.safetyCurrentDanger}: ${my.dangerType?.label(l10n) ?? ''}'
                             : l10n.safetyCurrentSafe,
                         style: TextStyle(
                             color: my.isDanger
@@ -359,7 +360,7 @@ class _DangerTypePicker extends StatelessWidget {
             children: [
               for (final dt in DangerType.values)
                 ActionChip(
-                  label: Text(dt.labelBn,
+                  label: Text(dt.label(l10n),
                       style: const TextStyle(
                           fontSize: 14, fontWeight: FontWeight.w500)),
                   avatar: Icon(_iconFor(dt), size: 18, color: cs.error),

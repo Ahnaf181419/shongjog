@@ -3,6 +3,7 @@ import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../app/router.dart';
 import '../../app/theme.dart';
+import '../../core/firebase_auth_service.dart';
 
 class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({super.key});
@@ -24,7 +25,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() {
+  Future<void> _handleLogin() async {
     setState(() {
       _errorMessage = null;
     });
@@ -35,6 +36,12 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     final pass = _passwordController.text;
 
     if (user == 'admin' && pass == 'admin123') {
+      // Claim the admin role on this device's Firestore user doc so the
+      // Firestore security rules let it read/write campaigns and
+      // broadcasts. Never throws (see FirebaseAuthService.claimAdminRole)
+      // — login proceeds locally even if this device is offline right now.
+      await firebaseAuthService.claimAdminRole();
+      if (!mounted) return;
       // Navigate to Admin Panel and remove Login screen from history
       Navigator.pushReplacementNamed(context, AppRoutes.adminPanel);
     } else {
@@ -63,10 +70,23 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(
-                    Icons.admin_panel_settings_rounded,
-                    size: 80,
-                    color: cs.primary,
+                  // Icon in a tinted, rounded badge — not a bare floating
+                  // icon — matching the same "icon badge" motif used
+                  // throughout the panel/tiles once past this gate. It's
+                  // the first thing an admin sees, so it's the first
+                  // place the privileged-area identity should read as
+                  // intentional rather than a stock Material default.
+                  Center(
+                    child: Container(
+                      width: 96,
+                      height: 96,
+                      decoration: ShongjogTheme.iconBadge(context),
+                      child: Icon(
+                        Icons.admin_panel_settings_rounded,
+                        size: 48,
+                        color: cs.primary,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -109,10 +129,16 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                   ],
                   TextFormField(
                     controller: _usernameController,
+                    // No `border:` override — the app's own themed
+                    // inputDecorationTheme (filled, tinted, rounded to
+                    // match every other field in the app) was previously
+                    // being overridden here with a bare, sharp-cornered,
+                    // unfilled OutlineInputBorder(), making the login
+                    // screen — the very first thing an admin sees — look
+                    // like a different, more generic app.
                     decoration: InputDecoration(
                       labelText: l10n.adminUsernameLabel,
                       prefixIcon: const Icon(Icons.person_rounded),
-                      border: const OutlineInputBorder(),
                     ),
                     validator: (v) {
                       if (v == null || v.trim().isEmpty) {
@@ -129,7 +155,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     decoration: InputDecoration(
                       labelText: l10n.adminPasswordLabel,
                       prefixIcon: const Icon(Icons.lock_rounded),
-                      border: const OutlineInputBorder(),
                     ),
                     validator: (v) {
                       if (v == null || v.isEmpty) {

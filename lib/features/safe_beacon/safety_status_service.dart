@@ -17,6 +17,20 @@ enum DangerType {
   violence,
   other;
 
+  /// Hardcoded Bangla label — kept for unit-test compatibility.
+  /// Prefer [label] in UI code (uses AppLocalizations).
+  String get labelBn => switch (this) {
+        DangerType.flood => 'বন্যা',
+        DangerType.fire => 'আগুন',
+        DangerType.earthquake => 'ভূমিকম্প',
+        DangerType.cyclone => 'ঘূর্ণিঝড়',
+        DangerType.landslide => 'ভূমিধস',
+        DangerType.trapped => 'আটকা পড়েছি',
+        DangerType.medical => 'চিকিৎসা জরুরি',
+        DangerType.violence => 'সহিংসতা / অস্থিরতা',
+        DangerType.other => 'অন্যান্য',
+      };
+
   /// Localized label for the danger-type picker.
   String label(AppLocalizations l10n) => switch (this) {
         DangerType.flood => l10n.safetyDangerFlood,

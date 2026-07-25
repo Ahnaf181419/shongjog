@@ -838,5 +838,6 @@
     "placeholders": {
       "count": { "type": "int" }
     }
-  }
+  },
+  "cardAiButton": "এআই-তে জিজ্ঞাসা করুন"
 }

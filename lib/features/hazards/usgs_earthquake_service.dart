@@ -74,6 +74,14 @@ class UsgsEarthquakeService {
       return features
           .map((f) => EarthquakeEvent.tryParse(f as Map<String, dynamic>))
           .whereType<EarthquakeEvent>()
+          // The lat/lon bounding box above is necessarily loose — Bangladesh
+          // is surrounded on three sides by India, so any rectangle that
+          // covers it also sweeps in West Bengal, Assam, Meghalaya, Tripura,
+          // and part of Myanmar. USGS's `place` string reliably ends in a
+          // country/region name ("32 km E of Sylhet, Bangladesh" vs.
+          // "45 km NW of Imphal, India"), so use that as the authoritative
+          // "is this actually Bangladesh" filter rather than trusting the box.
+          .where((e) => isBangladeshPlace(e.place))
           .toList();
     } on TimeoutException {
       return null;
@@ -85,6 +93,12 @@ class UsgsEarthquakeService {
       client.close();
     }
   }
+
+  /// Whether a USGS `place` string names Bangladesh specifically, e.g.
+  /// "32 km E of Sylhet, Bangladesh". Exposed for testing.
+  @visibleForTesting
+  static bool isBangladeshPlace(String place) =>
+      place.toLowerCase().contains('bangladesh');
 }
 
 /// A single earthquake event, parsed from the USGS GeoJSON Feature shape.

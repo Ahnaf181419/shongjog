@@ -53,9 +53,9 @@ class SttService {
     return true;
   }
 
-  /// Start listening with bn_BD locale. Returns the final transcript when
+  /// Start listening with bn-BD locale. Returns the final transcript when
   /// the user stops speaking, or null on timeout/cancel.
-  Future<String?> listen({String localeId = 'bn_BD'}) async {
+  Future<String?> listen({String localeId = 'bn-BD'}) async {
     final p = await _ensureProvider();
     return p.listen(
       localeId: localeId,

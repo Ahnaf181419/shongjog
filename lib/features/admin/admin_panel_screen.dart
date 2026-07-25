@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../app/router.dart';
+import '../../app/theme.dart';
 import '../../features/mesh_comm/mesh_service.dart';
 import '../../features/admin/campaign_request.dart';
+import '../safe_beacon/safety_status_service.dart';
+import 'admin_widgets.dart';
 
 class AdminPanelScreen extends StatefulWidget {
   const AdminPanelScreen({super.key});
@@ -43,6 +46,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) async {
@@ -59,6 +63,14 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
           final l10n = AppLocalizations.of(context);
           return Scaffold(
             appBar: AppBar(
+              // A thin brand-colored rule under the title bar is the only
+              // chrome difference between "citizen Shongjog" and "admin
+              // Shongjog" — subtle, but persistent for as long as an
+              // operator is in a privileged area.
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(3),
+                child: Container(height: 3, color: cs.primary),
+              ),
               title: Text(l10n.adminPanelTitle),
               actions: [
                 if (pendingCount > 0)
@@ -98,6 +110,24 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Eyebrow — reinforces "you're in a privileged area" the
+                  // moment the panel loads, not just at the login gate.
+                  Row(
+                    children: [
+                      Icon(Icons.verified_user_rounded, size: 14, color: cs.primary),
+                      const SizedBox(width: 6),
+                      Text(
+                        l10n.adminPanelTitle.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.2,
+                          color: cs.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
                   // Hero strip — quick admin greeting + system status
                   Row(
                     children: [
@@ -108,7 +138,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                             Text(
                               l10n.adminDashboardTitle,
                               style: TextStyle(
-                                fontSize: 22,
+                                fontSize: 24,
                                 fontWeight: FontWeight.w700,
                                 color: Theme.of(context).colorScheme.onSurface,
                               ),
@@ -128,6 +158,23 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
+                  // Danger entry — the one place red is used on purpose.
+                  // Full-bleed and impossible to miss the moment someone
+                  // reports danger; a quiet, still-reachable row otherwise.
+                  // Deliberately placed ABOVE the routine-navigation grid
+                  // below, not inside it — its position, not just its
+                  // color, is what signals "this one is different."
+                  ListenableBuilder(
+                    listenable: safetyStatusService,
+                    builder: (context, _) => DangerListEntry(
+                      dangerCount: safetyStatusService.dangerCount,
+                      titleActive: l10n.adminSafetyDanger,
+                      titleCalm: l10n.adminDangerListTitle,
+                      onTap: () =>
+                          Navigator.pushNamed(context, AppRoutes.adminDangerList),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   // Stat row — same data as the dashboard page's stat
                   // cards, surfaced here so the admin can see system
                   // health at a glance.
@@ -143,7 +190,10 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  // 2x2 grid — each tile pushes to its own page
+                  // 2x2 grid — each tile pushes to its own page. One
+                  // accent color throughout (the locked brand hue) —
+                  // these are routine navigation, not status; color is
+                  // reserved for the danger entry above, not spent here.
                   GridView.count(
                     crossAxisCount: 2,
                     shrinkWrap: true,
@@ -156,26 +206,22 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                         title: l10n.adminDashboardTitle,
                         icon: Icons.dashboard_rounded,
                         route: AppRoutes.adminDashboard,
-                        accent: Theme.of(context).colorScheme.primary,
                       ),
                       _AdminTile(
                         title: l10n.adminTabUsers,
                         icon: Icons.people_rounded,
                         route: AppRoutes.adminUsers,
-                        accent: Theme.of(context).colorScheme.tertiary,
                       ),
                       _AdminTile(
                         title: l10n.adminTabCampaigns,
                         icon: Icons.campaign_rounded,
                         route: AppRoutes.adminCampaigns,
-                        accent: Theme.of(context).colorScheme.secondary,
                         badgeCount: pendingCount,
                       ),
                       _AdminTile(
                         title: l10n.adminTabBroadcast,
                         icon: Icons.podcasts_rounded,
                         route: AppRoutes.adminBroadcast,
-                        accent: Theme.of(context).colorScheme.error,
                       ),
                     ],
                   ),
@@ -188,9 +234,6 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
     );
   }
 }
-
-// ── Bengali numeral helper ──────────────────────────────────
-
 
 // ── Bengali numeral helper ──────────────────────────────────
 
@@ -212,7 +255,7 @@ class _PendingBadge extends StatelessWidget {
     if (count <= 0) {
       return Tooltip(
         message: l10n.adminNoCampaigns,
-        child: Icon(Icons.check_circle_rounded, color: cs.tertiary, size: 24),
+        child: Icon(Icons.check_circle_rounded, color: ShongjogTheme.success, size: 24),
       );
     }
     return Container(
@@ -255,7 +298,6 @@ class _AdminStatRow extends StatelessWidget {
             label: l10n.adminStatUsers,
             value: _bnNum(5),
             tint: cs.primary,
-            background: cs.primaryContainer.withValues(alpha: 0.35),
           ),
         ),
         const SizedBox(width: 10),
@@ -264,8 +306,7 @@ class _AdminStatRow extends StatelessWidget {
             icon: Icons.offline_bolt_rounded,
             label: l10n.adminStatOffline,
             value: _bnNum(3),
-            tint: cs.tertiary,
-            background: cs.tertiaryContainer.withValues(alpha: 0.35),
+            tint: ShongjogTheme.success,
           ),
         ),
         const SizedBox(width: 10),
@@ -274,8 +315,7 @@ class _AdminStatRow extends StatelessWidget {
             icon: Icons.bluetooth_rounded,
             label: l10n.adminStatMesh,
             value: _bnNum(meshService.peerCount),
-            tint: cs.secondary,
-            background: cs.secondaryContainer.withValues(alpha: 0.35),
+            tint: cs.primary,
           ),
         ),
       ],
@@ -288,13 +328,11 @@ class _MiniStat extends StatelessWidget {
   final String label;
   final String value;
   final Color tint;
-  final Color background;
   const _MiniStat({
     required this.icon,
     required this.label,
     required this.value,
     required this.tint,
-    required this.background,
   });
 
   @override
@@ -302,18 +340,20 @@ class _MiniStat extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: ShongjogTheme.cardDecoration(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 20, color: tint),
-          const SizedBox(height: 8),
-          Text(
-            value,
+          Container(
+            width: 32,
+            height: 32,
+            decoration: ShongjogTheme.iconBadge(context, tint: tint),
+            child: Icon(icon, size: 18, color: tint),
+          ),
+          const SizedBox(height: 10),
+          AnimatedStatValue(
+            value: value,
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w700,
@@ -336,93 +376,103 @@ class _AdminTile extends StatelessWidget {
   final String title;
   final IconData icon;
   final String route;
-  final Color accent;
   final int? badgeCount;
   const _AdminTile({
     required this.title,
     required this.icon,
     required this.route,
-    required this.accent,
     this.badgeCount,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      elevation: 0,
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: cs.outlineVariant),
+    final isLight = cs.brightness == Brightness.light;
+    return Container(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: isLight
+                ? const Color(0xFF000000).withValues(alpha: 0.05)
+                : const Color(0xFF000000).withValues(alpha: 0.30),
+            offset: const Offset(0, 2),
+            blurRadius: 12,
+          ),
+        ],
       ),
-      child: InkWell(
-        onTap: () => Navigator.pushNamed(context, route),
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: accent.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(10),
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(color: cs.outlineVariant),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: InkWell(
+          onTap: () => Navigator.pushNamed(context, route),
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: ShongjogTheme.iconBadge(context),
+                      child: Icon(icon, color: cs.primary, size: 24),
                     ),
-                    child: Icon(icon, color: accent, size: 24),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: cs.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Icon(Icons.arrow_forward_rounded,
-                          size: 14, color: cs.onSurfaceVariant),
-                      const SizedBox(width: 4),
-                      Text(
-                        'বিস্তারিত',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: cs.onSurfaceVariant,
-                        ),
+                    const SizedBox(height: 12),
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurface,
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Icon(Icons.arrow_forward_rounded,
+                            size: 14, color: cs.onSurfaceVariant),
+                        const SizedBox(width: 4),
+                        Text(
+                          'বিস্তারিত',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            if (badgeCount != null && badgeCount! > 0)
-              Positioned(
-                top: 10,
-                right: 10,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: cs.error,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    _bnNum(badgeCount!),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
+              if (badgeCount != null && badgeCount! > 0)
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: cs.error,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      _bnNum(badgeCount!),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

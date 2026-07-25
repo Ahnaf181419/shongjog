@@ -1,4 +1,4 @@
-package com.example.shongjog
+package dev.frostflux.shongjog
 
 import android.media.AudioAttributes
 import android.media.AudioFormat

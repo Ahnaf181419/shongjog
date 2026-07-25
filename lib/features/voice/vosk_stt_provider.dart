@@ -46,7 +46,7 @@ class VoskSttProvider implements SttProvider {
 
   @override
   Future<String?> listen({
-    String localeId = 'bn_BD',
+    String localeId = 'bn-BD',
     void Function(String partial)? onPartial,
   }) async {
     // TODO(vosk): Start recognition and emit partial/final results.

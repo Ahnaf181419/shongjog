@@ -1,0 +1,67 @@
+// Firestore security rules for Shongjog's admin-panel backend.
+//
+// Scope: exactly 4 collections/docs — campaigns, broadcasts, safety_reports,
+// users/{uid}. See docs/firebase-backend-plan.md for the (unimplemented)
+// full superset this is scoped down from (that plan also covers FCM push,
+// Remote Config, Analytics — none of that is wired up; these rules only
+// cover what the app actually reads/writes today).
+//
+// Auth model: every device signs in anonymously (no SMS/OTP). "Admin" is a
+// role a device claims on its OWN users/{uid} doc after passing the app's
+// local hardcoded PIN screen (see lib/features/admin/admin_login_screen.dart
+// + lib/core/firebase_auth_service.dart). This is a CLIENT-ASSERTED,
+// NON-CRYPTOGRAPHIC gate — any signed-in (even anonymous) user could in
+// theory call the same Firestore write directly and grant themselves admin.
+// That's an accepted, documented limitation for hackathon demo scope; a
+// production version would need a server-side check (e.g. a Cloud Function
+// gated on an invite code) before setting role: 'admin'.
+//
+// Manually paste this into the Firebase console: Firestore Database → Rules.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Bootstrap doc for the client-asserted admin role. Self-writable only
+    // — see the auth-model note above for why this is nominal, not secure.
+    match /users/{uid} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Any signed-in device may submit a campaign request; only an admin
+    // device may update one (approve/reject/notes).
+    match /campaigns/{id} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isAdmin();
+      allow delete: if false;
+    }
+
+    // Only an admin device may send a broadcast; every signed-in device
+    // reads the broadcast feed.
+    match /broadcasts/{id} {
+      allow read: if isSignedIn();
+      allow create: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    // Any signed-in device may report its own safety status; everyone
+    // reads the aggregate feed (the admin danger-list dashboard, and
+    // mesh-relay merge logic, both need this).
+    match /safety_reports/{id} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if false;
+    }
+  }
+}

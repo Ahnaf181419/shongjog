@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -33,10 +35,21 @@ class AdminMessage {
 }
 
 class AdminBroadcastService extends ChangeNotifier {
+  AdminBroadcastService({FirebaseFirestore? firestore})
+      : _injectedFirestore = firestore;
+
   static const _fileName = 'admin_broadcasts.json';
+  static const _collection = 'broadcasts';
 
   @visibleForTesting
   static String? debugFilesDirOverride;
+
+  // Resolved lazily via [_firestore] below — see the same note in
+  // CampaignRequestService for why this can't be an eager field.
+  final FirebaseFirestore? _injectedFirestore;
+  FirebaseFirestore get _firestore =>
+      _injectedFirestore ?? FirebaseFirestore.instance;
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _firestoreSub;
 
   List<AdminMessage> _messages = [];
   List<AdminMessage> get messages => _messages;
@@ -69,6 +82,41 @@ class AdminBroadcastService extends ChangeNotifier {
     }
     _initialized = true;
     notifyListeners();
+    _subscribeFirestore();
+  }
+
+  /// Listen for broadcasts sent from any admin device. The local JSON
+  /// cache (loaded above) paints instantly on cold start; this stream
+  /// keeps it live. Best-effort — offline devices just stay on local data.
+  void _subscribeFirestore() {
+    try {
+      _firestoreSub = _firestore
+          .collection(_collection)
+          .snapshots()
+          .listen(_mergeFirestoreSnapshot, onError: (e) {
+        debugPrint('AdminBroadcastService Firestore stream failed: $e');
+      });
+    } catch (e) {
+      debugPrint('AdminBroadcastService Firestore subscribe failed: $e');
+    }
+  }
+
+  void _mergeFirestoreSnapshot(QuerySnapshot<Map<String, dynamic>> snap) {
+    for (final doc in snap.docs) {
+      final incoming = AdminMessage.fromJson(doc.data());
+      final index = _messages.indexWhere((m) => m.id == incoming.id);
+      if (index == -1) {
+        _messages.add(incoming);
+      } else {
+        // Preserve local read state — Firestore doesn't track per-device
+        // read/unread, that's purely a local concern.
+        incoming.isRead = _messages[index].isRead;
+        _messages[index] = incoming;
+      }
+    }
+    _messages.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    unawaited(_save());
+    notifyListeners();
   }
 
   Future<void> addMessage(String text) async {
@@ -82,6 +130,11 @@ class AdminBroadcastService extends ChangeNotifier {
     _messages.insert(0, msg);
     await _save();
     notifyListeners();
+    try {
+      await _firestore.collection(_collection).doc(msg.id).set(msg.toJson());
+    } catch (e) {
+      debugPrint('AdminBroadcastService: Firestore submit failed: $e');
+    }
   }
 
   Future<void> markAllAsRead() async {
@@ -118,6 +171,12 @@ class AdminBroadcastService extends ChangeNotifier {
       }
     } catch (e) { debugPrint("[Catch] admin_broadcast: $e"); }
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _firestoreSub?.cancel();
+    super.dispose();
   }
 }
 

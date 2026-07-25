@@ -8,7 +8,9 @@ import 'cards_data.dart';
 /// Works with no model loaded (safety net, docs/prd.md M4).
 /// Per design.md §7.2: ExpansionTile, numbered Bangla steps, 12dp spacing.
 class QuickCardsScreen extends StatefulWidget {
-  const QuickCardsScreen({super.key});
+  final void Function(String prompt) onRequestAiChat;
+
+  const QuickCardsScreen({super.key, required this.onRequestAiChat});
 
   @override
   State<QuickCardsScreen> createState() => _QuickCardsScreenState();
@@ -86,7 +88,10 @@ class _QuickCardsScreenState extends State<QuickCardsScreen> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               itemCount: _filteredCards.length,
               separatorBuilder: (_, _) => const SizedBox(height: 12),
-              itemBuilder: (_, i) => _CardTile(card: _filteredCards[i]),
+              itemBuilder: (_, i) => _CardTile(
+                card: _filteredCards[i],
+                onRequestAiChat: widget.onRequestAiChat,
+              ),
             ),
           ),
         ],
@@ -97,7 +102,9 @@ class _QuickCardsScreenState extends State<QuickCardsScreen> {
 
 class _CardTile extends StatelessWidget {
   final QuickCard card;
-  const _CardTile({required this.card});
+  final void Function(String prompt) onRequestAiChat;
+
+  const _CardTile({required this.card, required this.onRequestAiChat});
 
   @override
   Widget build(BuildContext context) {
@@ -171,6 +178,24 @@ class _CardTile extends StatelessWidget {
                     ],
                   ),
                 )),
+            Padding(
+              padding: const EdgeInsets.only(top: 12, left: 34),
+              child: ActionChip(
+                avatar: Icon(
+                  Icons.auto_awesome,
+                  size: 16,
+                  color: card.color,
+                ),
+                label: Text(AppLocalizations.of(context).cardAiButton),
+                backgroundColor: card.color.withValues(alpha: 0.08),
+                side: BorderSide(color: card.color.withValues(alpha: 0.3)),
+                onPressed: () {
+                  final firstStep =
+                      card.stepsBn.isNotEmpty ? card.stepsBn.first : '';
+                  onRequestAiChat('${card.titleBn}। $firstStep');
+                },
+              ),
+            ),
           ],
         ),
       ),

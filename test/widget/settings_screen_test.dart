@@ -142,11 +142,11 @@ void main() {
       await tester.pumpWidget(wrapSettings());
       await tester.pumpAndSettle();
 
-      // Scroll to the model name — it's below the "AI মডেল" section header
-      await tester.scrollUntilVisible(find.text('Gemma 4 E2B'), 200);
+      // Scroll to the model label — cards show "হালকা" (E2B) and "শক্তিশালী" (E4B)
+      await tester.scrollUntilVisible(find.text('হালকা'), 200);
       await tester.pumpAndSettle();
 
-      expect(find.text('Gemma 4 E2B'), findsOneWidget);
+      expect(find.text('হালকা'), findsOneWidget);
       expect(find.text('ডাউনলোড'), findsWidgets);
     });
   });

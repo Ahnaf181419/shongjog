@@ -76,6 +76,15 @@ class GdacsService {
       final alert = GdacsAlert.tryParse(block);
       if (alert == null) continue;
       if (!_inBangladeshBox(alert.latitude, alert.longitude)) continue;
+      // The bounding box alone is not enough to mean "this is Bangladesh"
+      // — Bangladesh is surrounded on three sides by India, so the same
+      // rectangle that covers it also covers West Bengal, Assam, Meghalaya,
+      // Tripura, and part of Myanmar. GDACS titles name the affected
+      // country as a matter of format ("... alert for Bangladesh", "...
+      // in Assam, India"), so require that mention rather than trusting
+      // lat/lon alone. Multi-country alerts ("... for Bangladesh, India")
+      // still pass, correctly, since they do mention Bangladesh.
+      if (!mentionsBangladesh(alert)) continue;
       out.add(alert);
     }
     return out;
@@ -86,6 +95,15 @@ class GdacsService {
       lat <= _maxLat &&
       lon >= _minLon &&
       lon <= _maxLon;
+
+  /// Whether an alert's title or description names Bangladesh. Exposed
+  /// for testing.
+  @visibleForTesting
+  static bool mentionsBangladesh(GdacsAlert alert) {
+    if (alert.title.toLowerCase().contains('bangladesh')) return true;
+    final desc = alert.description;
+    return desc != null && desc.toLowerCase().contains('bangladesh');
+  }
 }
 
 /// A single GDACS alert.

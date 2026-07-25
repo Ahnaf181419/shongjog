@@ -4351,6 +4351,12 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'ব্যবহারকারী'**
   String get settingsDefaultUsername;
+
+  /// No description provided for @cardAiButton.
+  ///
+  /// In bn, this message translates to:
+  /// **'এআই-তে জিজ্ঞাসা করুন'**
+  String get cardAiButton;
 }
 
 class _AppLocalizationsDelegate

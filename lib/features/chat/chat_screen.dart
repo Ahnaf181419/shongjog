@@ -10,6 +10,7 @@ import '../../core/api_key_store.dart';
 import '../../core/connectivity_provider.dart';
 import '../../core/haptics.dart';
 import '../../core/model_manager.dart';
+import '../../core/pending_chat_prompt.dart';
 import '../../knowledge/kb_loader.dart';
 import '../../rag/keyword_retriever.dart';
 import '../../rag/types.dart';
@@ -200,6 +201,11 @@ class _ChatScreenState extends State<ChatScreen> {
           userLocationProvider: _resolveUserLocation,
         );
       });
+
+      final pending = PendingChatPrompt.consume(context);
+      if (pending != null && mounted) {
+        _onSubmit(pending);
+      }
     }
   }
 
@@ -384,7 +390,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
     HapticService.lightTap();
     setState(() => _listening = true);
-    final transcript = await _stt.listen(localeId: 'bn_BD');
+    final transcript = await _stt.listen(localeId: 'bn-BD');
     if (!mounted) return;
     setState(() => _listening = false);
     if (transcript != null && transcript.trim().isNotEmpty) {

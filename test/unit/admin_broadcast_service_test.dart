@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/core/admin_broadcast_service.dart';
 
@@ -169,6 +170,66 @@ void main() {
       service.addListener(() => notified = true);
       await service.markAllAsRead();
       expect(notified, false);
+    });
+  });
+
+  group('AdminBroadcastService Firestore sync', () {
+    test('addMessage writes the message to Firestore', () async {
+      final fakeFs = FakeFirebaseFirestore();
+      final svc = AdminBroadcastService(firestore: fakeFs);
+      AdminBroadcastService.debugFilesDirOverride = tempDir.path;
+
+      await svc.addMessage('জরুরি বার্তা');
+
+      final snap = await fakeFs.collection('broadcasts').get();
+      expect(snap.docs.length, 1);
+      expect(snap.docs.first.data()['text'], 'জরুরি বার্তা');
+    });
+
+    test('a broadcast written by another device merges into local messages',
+        () async {
+      final fakeFs = FakeFirebaseFirestore();
+      // Simulate another device having already written a broadcast before
+      // this device ever calls initialize().
+      await fakeFs.collection('broadcasts').doc('remote-1').set({
+        'id': 'remote-1',
+        'text': 'অন্য ডিভাইস থেকে',
+        'ts': DateTime(2026, 7, 20).toIso8601String(),
+        'isRead': false,
+      });
+
+      final svc = AdminBroadcastService(firestore: fakeFs);
+      AdminBroadcastService.debugFilesDirOverride = tempDir.path;
+      await svc.initialize();
+      // The fake Firestore stream delivers its first snapshot asynchronously.
+      await Future<void>.delayed(Duration.zero);
+
+      expect(svc.messages.any((m) => m.id == 'remote-1'), isTrue);
+      expect(svc.messages.firstWhere((m) => m.id == 'remote-1').text,
+          'অন্য ডিভাইস থেকে');
+    });
+
+    test('merging a remote broadcast preserves this device\'s local read state',
+        () async {
+      final fakeFs = FakeFirebaseFirestore();
+      final svc = AdminBroadcastService(firestore: fakeFs);
+      AdminBroadcastService.debugFilesDirOverride = tempDir.path;
+      await svc.addMessage('বার্তা');
+      final id = svc.messages.first.id;
+      await svc.markAllAsRead();
+      expect(svc.messages.first.isRead, isTrue);
+
+      // Same doc arrives again via the stream (e.g. another field changed
+      // remotely) — local isRead must not be clobbered back to false.
+      await fakeFs.collection('broadcasts').doc(id).set({
+        'id': id,
+        'text': 'বার্তা',
+        'ts': svc.messages.first.timestamp.toIso8601String(),
+        'isRead': false,
+      });
+      await Future<void>.delayed(Duration.zero);
+
+      expect(svc.messages.first.isRead, isTrue);
     });
   });
 }

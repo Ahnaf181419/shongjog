@@ -1,3 +1,4 @@
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/safe_beacon/safety_status_service.dart';
 
@@ -209,6 +210,79 @@ void main() {
       expect(reports[0].userId, 'u2'); // 10:00
       expect(reports[1].userId, 'u3'); // 9:00
       expect(reports[2].userId, 'u1'); // 8:00
+    });
+  });
+
+  group('SafetyStatusService Firestore sync', () {
+    test('setMyReport writes the report to Firestore', () async {
+      final fakeFs = FakeFirebaseFirestore();
+      final fsSvc = SafetyStatusService(firestore: fakeFs);
+      final r = SafetyReport(
+        id: 'my-1', userId: 'me', userName: 'Me', userPhone: '018',
+        status: SafetyReport.dangerStatus,
+        dangerType: DangerType.fire,
+        timestamp: DateTime.now(),
+      );
+      fsSvc.setMyReport(r);
+      await Future<void>.delayed(Duration.zero);
+
+      final snap = await fakeFs.collection('safety_reports').doc('my-1').get();
+      expect(snap.exists, isTrue);
+      expect(snap.data()!['status'], SafetyReport.dangerStatus);
+    });
+
+    test(
+        'a report written by another device (or relayed via mesh to '
+        'Firestore) merges into the aggregate via the existing ingest() '
+        'dedup logic', () async {
+      final fakeFs = FakeFirebaseFirestore();
+      await fakeFs.collection('safety_reports').doc('remote-1').set(
+            SafetyReport(
+              id: 'remote-1',
+              userId: 'stranger',
+              userName: 'অচেনা',
+              userPhone: '',
+              status: SafetyReport.dangerStatus,
+              dangerType: DangerType.flood,
+              timestamp: DateTime(2026, 7, 25, 9),
+            ).toJson(),
+          );
+
+      final fsSvc = SafetyStatusService(firestore: fakeFs);
+      fsSvc.initialize();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(fsSvc.totalUsers, 1);
+      expect(fsSvc.dangerCount, 1);
+      expect(fsSvc.all.first.userId, 'stranger');
+    });
+
+    test(
+        'a Firestore report older than an already-ingested mesh report for '
+        'the same user is ignored (same dedup rule as mesh-to-mesh)',
+        () async {
+      final fakeFs = FakeFirebaseFirestore();
+      final fsSvc = SafetyStatusService(firestore: fakeFs);
+      // Newer report arrives first, e.g. via mesh.
+      fsSvc.ingest(SafetyReport(
+        id: 'mesh-1', userId: 'u1', userName: 'A', userPhone: '',
+        status: SafetyReport.dangerStatus,
+        timestamp: DateTime(2026, 7, 25, 12),
+      ));
+
+      // Stale report for the same user then arrives via Firestore.
+      await fakeFs.collection('safety_reports').doc('fs-1').set(
+            SafetyReport(
+              id: 'fs-1', userId: 'u1', userName: 'A', userPhone: '',
+              status: SafetyReport.safeStatus,
+              timestamp: DateTime(2026, 7, 25, 10),
+            ).toJson(),
+          );
+      fsSvc.initialize();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(fsSvc.dangerCount, 1); // still danger — stale Firestore report ignored
+      expect(fsSvc.safeCount, 0);
     });
   });
 }
