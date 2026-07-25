@@ -15,6 +15,11 @@ class AppRoutes {
   static const notifications = '/notifications';
   static const sosComposer = '/sos-composer';
   static const profile = '/profile';
+  static const planner = '/planner';
+  static const kit = '/kit';
+  static const risk = '/risk';
+  static const damageScanner = '/damage-scanner';
+  static const situationSummary = '/situation-summary';
 }
 
 /// Push a named route only if the current route is not already that route.

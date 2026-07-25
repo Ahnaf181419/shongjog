@@ -19,6 +19,7 @@ import '../features/triage/triage_wizard_screen.dart';
 import '../features/admin/admin_login_screen.dart';
 import '../features/admin/admin_panel_screen.dart';
 import '../features/notifications/notifications_screen.dart';
+import '../features/planner/planner_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/splash/splash_screen.dart';
 import '../main.dart';
@@ -67,6 +68,7 @@ class ShongjogApp extends StatelessWidget {
             AppRoutes.adminPanel: (_) => const AdminPanelScreen(),
             AppRoutes.notifications: (_) => const NotificationsScreen(),
             AppRoutes.profile: (_) => const ProfileScreen(),
+            AppRoutes.planner: (_) => const PlannerScreen(),
           },
           onUnknownRoute: (settings) => MaterialPageRoute(
             builder: (ctx) => Scaffold(

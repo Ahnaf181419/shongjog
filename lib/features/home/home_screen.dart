@@ -76,6 +76,8 @@ class HomeScreen extends StatelessWidget {
                 _OfflineMessageTile(),
                 const SizedBox(height: 12),
                 _TipCard(),
+                const SizedBox(height: 16),
+                _AiToolsGrid(),
               ],
             ),
           ),
@@ -1057,4 +1059,120 @@ class _DownloadCompletionListenerState
 
   @override
   Widget build(BuildContext context) => const SizedBox.shrink();
+}
+
+// ════════════════════════════════════════════════════════════════
+//  AI Tools grid — entry points to the 5 AI-first modules
+// ════════════════════════════════════════════════════════════════
+
+class _AiToolsGrid extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: t.colorScheme.outlineVariant),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.auto_awesome_rounded,
+                    size: 18, color: t.colorScheme.primary),
+                const SizedBox(width: 6),
+                Text('AI টুলস',
+                    style: t.textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w600)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            GridView.count(
+              crossAxisCount: 3,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              childAspectRatio: 0.95,
+              children: const [
+                _AiToolTile(
+                  icon: Icons.assignment_turned_in_outlined,
+                  label: 'পরিকল্পনা',
+                  route: AppRoutes.planner,
+                ),
+                _AiToolTile(
+                  icon: Icons.luggage_outlined,
+                  label: 'কিট',
+                  route: AppRoutes.kit,
+                ),
+                _AiToolTile(
+                  icon: Icons.shield_outlined,
+                  label: 'ঝুঁকি',
+                  route: AppRoutes.risk,
+                ),
+                _AiToolTile(
+                  icon: Icons.camera_alt_outlined,
+                  label: 'ড্যামেজ স্ক্যান',
+                  route: AppRoutes.damageScanner,
+                ),
+                _AiToolTile(
+                  icon: Icons.summarize_outlined,
+                  label: 'সারাংশ',
+                  route: AppRoutes.situationSummary,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AiToolTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String route;
+  const _AiToolTile({
+    required this.icon,
+    required this.label,
+    required this.route,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    return InkWell(
+      onTap: () => pushNamedSafe(context, route),
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+        decoration: BoxDecoration(
+          color: t.colorScheme.primaryContainer.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: t.colorScheme.primary, size: 24),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: t.colorScheme.onSurface,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
