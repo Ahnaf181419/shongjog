@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:shongjog/l10n/app_localizations.dart';
 
 /// USGS Earthquake Hazards client — recent seismic activity near Bangladesh.
@@ -57,37 +57,26 @@ class UsgsEarthquakeService {
       '&minmagnitude=$minMag'
       '&orderby=time',
     );
-    final client = HttpClient();
+    final client = http.Client();
     try {
-      client.connectionTimeout = _timeout;
-      final req = await client.getUrl(uri);
-      final res = await req.close().timeout(_timeout);
-      if (res.statusCode != 200) return null;
-      final body = await res
-          .transform(utf8.decoder)
-          .toList()
-          .then((chunks) => chunks.join());
-      final json = jsonDecode(body);
+      final res = await client.get(uri).timeout(_timeout);
+      if (res.statusCode != 200) {
+        debugPrint('[Usgs] non-200 status: ${res.statusCode}');
+        return null;
+      }
+      final json = jsonDecode(res.body);
       if (json is! Map<String, dynamic>) return null;
       final features = json['features'];
       if (features is! List) return null;
       return features
           .map((f) => EarthquakeEvent.tryParse(f as Map<String, dynamic>))
           .whereType<EarthquakeEvent>()
-          // The lat/lon bounding box above is necessarily loose — Bangladesh
-          // is surrounded on three sides by India, so any rectangle that
-          // covers it also sweeps in West Bengal, Assam, Meghalaya, Tripura,
-          // and part of Myanmar. USGS's `place` string reliably ends in a
-          // country/region name ("32 km E of Sylhet, Bangladesh" vs.
-          // "45 km NW of Imphal, India"), so use that as the authoritative
-          // "is this actually Bangladesh" filter rather than trusting the box.
-          .where((e) => isBangladeshPlace(e.place))
           .toList();
     } on TimeoutException {
+      debugPrint('[Usgs] request timed out after ${_timeout.inSeconds}s');
       return null;
-    } on SocketException {
-      return null;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[Usgs] fetchRecent failed: $e');
       return null;
     } finally {
       client.close();
@@ -159,6 +148,10 @@ class EarthquakeEvent {
       depthKm: depth,
     );
   }
+
+  /// Whether USGS places this quake inside Bangladesh. False means it is
+  /// across a border but close enough to be felt — shown, but labelled.
+  bool get isBangladesh => UsgsEarthquakeService.isBangladeshPlace(place);
 
   /// Human-readable severity bucket. USGS uses 4.0+ as "light", but for
   /// an emergency app a 5.0+ is the relevant "did you feel it?" threshold.

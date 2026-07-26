@@ -15,6 +15,13 @@ class HazardsItem {
   final int weight;
   final Object? rawEvent;
 
+  /// Whether this hazard is across a national border rather than inside
+  /// Bangladesh. Such items are still worth showing when the hazard type
+  /// crosses borders (cyclone, flood, earthquake), but they sort below every
+  /// domestic hazard and the UI badges them — so a fire in Meghalaya can
+  /// never read as a fire in Bangladesh.
+  final bool isNearby;
+
   const HazardsItem({
     required this.icon,
     required this.title,
@@ -22,15 +29,17 @@ class HazardsItem {
     required this.color,
     required this.weight,
     this.rawEvent,
+    this.isNearby = false,
   });
 
   factory HazardsItem.fromEonet(EonetEvent e, BuildContext context) => HazardsItem(
         icon: _iconForEonet(e.category),
         title: e.category.label(context),
-        subtitle: e.title,
+        subtitle: e.displayTitle,
         color: _colorForEonet(e.category),
         weight: 60 + (e.isActive ? 20 : 0) + _eonetBoost(e.category),
         rawEvent: e,
+        isNearby: e.isCrossBorder,
       );
 
   factory HazardsItem.fromQuake(EarthquakeEvent q) => HazardsItem(
@@ -40,6 +49,7 @@ class HazardsItem {
         color: _colorForQuake(q.severity),
         weight: 80 + q.magnitude.toInt() * 5,
         rawEvent: q,
+        isNearby: !q.isBangladesh,
       );
 
   factory HazardsItem.fromGdacs(GdacsAlert g, BuildContext context) {
@@ -56,6 +66,7 @@ class HazardsItem {
       color: _colorForGdacs(g.severity),
       weight: w,
       rawEvent: g,
+      isNearby: !g.isBangladesh,
     );
   }
 

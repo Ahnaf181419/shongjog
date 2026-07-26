@@ -120,6 +120,63 @@ void main() {
       expect(alerts!.length, 1);
     });
 
+    test('keeps an in-box cross-border cyclone that never names Bangladesh — '
+        'a Bay of Bengal storm filed under India still makes landfall here',
+        () {
+      const xml = '''
+<rss><channel>
+  <item>
+    <title>Orange cyclone alert in India</title>
+    <georss:point>21.0 90.5</georss:point>
+    <gdacs:alertlevel>Orange</gdacs:alertlevel>
+    <gdacs:eventtype>TC</gdacs:eventtype>
+  </item>
+</channel></rss>
+''';
+      final alerts = GdacsService.parseRssForTest(xml);
+      expect(alerts, isNotNull);
+      expect(alerts!.length, 1);
+      expect(alerts.first.eventType, 'TC');
+      expect(alerts.first.isBangladesh, isFalse,
+          reason: 'Kept for relevance, but must still be marked foreign so '
+              'the UI badges it rather than implying it is domestic.');
+    });
+
+    test('still drops an in-box wildfire filed under another country — the '
+        'exact noise that made the card show Indian fires as Bangladesh '
+        'hazards', () {
+      const xml = '''
+<rss><channel>
+  <item>
+    <title>Green wildfire alert in India</title>
+    <georss:point>25.8 91.0</georss:point>
+    <gdacs:alertlevel>Green</gdacs:alertlevel>
+    <gdacs:eventtype>WF</gdacs:eventtype>
+  </item>
+</channel></rss>
+''';
+      final alerts = GdacsService.parseRssForTest(xml);
+      expect(alerts, isNotNull);
+      expect(alerts, isEmpty);
+    });
+
+    test('a Bangladesh-named alert is domestic regardless of event type', () {
+      const xml = '''
+<rss><channel>
+  <item>
+    <title>Green wildfire alert in Bangladesh</title>
+    <georss:point>24.0 90.0</georss:point>
+    <gdacs:alertlevel>Green</gdacs:alertlevel>
+    <gdacs:eventtype>WF</gdacs:eventtype>
+  </item>
+</channel></rss>
+''';
+      final alerts = GdacsService.parseRssForTest(xml);
+      expect(alerts, isNotNull);
+      expect(alerts!.length, 1);
+      expect(alerts.first.isBangladesh, isTrue);
+    });
+
     test('returns empty list when feed has no items', () {
       const xml = '<rss><channel></channel></rss>';
       final alerts = GdacsService.parseRssForTest(xml);

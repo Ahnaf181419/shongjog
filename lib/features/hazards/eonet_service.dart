@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:shongjog/l10n/app_localizations.dart';
 
 /// NASA EONET client — live natural hazards near Bangladesh.
@@ -53,6 +53,23 @@ class EonetService {
     return _neighboringCountries.any(lower.contains);
   }
 
+  /// Hazard categories that genuinely reach across a national border, and
+  /// so stay relevant to a Bangladeshi user even when the event is filed
+  /// under a neighbouring country.
+  ///
+  /// A cyclone in the Bay of Bengal, a flood on a trans-boundary river
+  /// (Ganges/Brahmaputra/Meghna all enter from India), or an earthquake in
+  /// Meghalaya are all felt inside Bangladesh regardless of which country
+  /// EONET names. A wildfire is not: it burns where it burns. Everything
+  /// outside this set therefore still requires the title to name Bangladesh
+  /// — which is what stops the card filling up with Indian wildfires that
+  /// happen to fall inside the (unavoidably rectangular) bbox.
+  static const crossBorderCategories = <EonetCategory>{
+    EonetCategory.severeStorms,
+    EonetCategory.floods,
+    EonetCategory.earthquakes,
+  };
+
   /// Fetch open (currently-active) hazards within [bbox]. Returns an empty
   /// list if online but nothing is active; returns null on any failure or
   /// when offline. An empty list is a meaningful result (no active hazards);
@@ -71,30 +88,28 @@ class EonetService {
       '&bbox=$bboxParam'
       '&limit=20',
     );
-    final client = HttpClient();
+    final client = http.Client();
     try {
-      client.connectionTimeout = _timeout;
-      final req = await client.getUrl(uri);
-      final res = await req.close().timeout(_timeout);
-      if (res.statusCode != 200) return null;
-      final body = await res
-          .transform(utf8.decoder)
-          .toList()
-          .then((chunks) => chunks.join());
-      final json = jsonDecode(body);
+      final res = await client.get(uri).timeout(_timeout);
+      if (res.statusCode != 200) {
+        debugPrint('[Eonet] non-200 status: ${res.statusCode}');
+        return null;
+      }
+      final json = jsonDecode(res.body);
       if (json is! Map<String, dynamic>) return null;
       final events = json['events'];
       if (events is! List) return null;
       return events
           .map((e) => EonetEvent.tryParse(e as Map<String, dynamic>))
           .whereType<EonetEvent>()
-          .where((e) => !namesOtherCountry(e.title))
+          .where((e) =>
+              !e.isCrossBorder || crossBorderCategories.contains(e.category))
           .toList();
     } on TimeoutException {
+      debugPrint('[Eonet] request timed out after ${_timeout.inSeconds}s');
       return null;
-    } on SocketException {
-      return null;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[Eonet] fetchOpenHazards failed: $e');
       return null;
     } finally {
       client.close();
@@ -190,6 +205,21 @@ class EonetEvent {
   }
 
   bool get isActive => closed == null;
+
+  /// Whether this event is filed under a neighbouring country rather than
+  /// Bangladesh. Such events are still shown when their category crosses
+  /// borders (see [EonetService.crossBorderCategories]), but the UI marks
+  /// them so they're never mistaken for a hazard inside Bangladesh.
+  bool get isCrossBorder => EonetService.namesOtherCountry(title);
+
+  /// [title] with EONET's trailing numeric event id removed.
+  ///
+  /// EONET appends its internal id to many titles — "Wildfire in India,
+  /// Bangladesh 1023636" — which reads as a glitch to a user. Stripped only
+  /// for display; [title] stays intact so country filtering and tests keep
+  /// working off the raw feed value.
+  String get displayTitle =>
+      title.replaceFirst(RegExp(r'\s+\d{5,}$'), '').trim();
 }
 
 /// EONET event categories, mapped to the subset relevant for Bangladesh.

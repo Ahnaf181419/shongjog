@@ -55,6 +55,72 @@ void main() {
     });
   });
 
+  group('EonetService.crossBorderCategories', () {
+    test('covers the hazard types that reach across a national border', () {
+      expect(EonetService.crossBorderCategories,
+          contains(EonetCategory.severeStorms));
+      expect(
+          EonetService.crossBorderCategories, contains(EonetCategory.floods));
+      expect(EonetService.crossBorderCategories,
+          contains(EonetCategory.earthquakes));
+    });
+
+    test('excludes wildfires — a fire in Meghalaya burns where it burns and '
+        'is not a Bangladesh emergency, which is what kept the card from '
+        'filling up with in-bbox Indian wildfires', () {
+      expect(EonetService.crossBorderCategories,
+          isNot(contains(EonetCategory.wildfires)));
+      expect(EonetService.crossBorderCategories,
+          isNot(contains(EonetCategory.drought)));
+    });
+  });
+
+  group('EonetEvent cross-border marking', () {
+    EonetEvent build(String title, String catId) => EonetEvent.tryParse({
+          'id': 'X',
+          'title': title,
+          'categories': [
+            {'id': catId, 'title': catId}
+          ],
+          'geometry': [
+            {
+              'date': '2026-07-25T00:00:00Z',
+              'type': 'Point',
+              'coordinates': [91.0, 24.0],
+            }
+          ],
+        })!;
+
+    test('flags an event filed under a neighbouring country', () {
+      expect(build('Flooding in Assam, India', 'floods').isCrossBorder, isTrue);
+    });
+
+    test('does not flag a multi-country event that names Bangladesh — it '
+        'genuinely affects the country, so it must not be badged as '
+        'foreign', () {
+      expect(
+          build('Wildfire in India, Bangladesh', 'wildfires').isCrossBorder,
+          isFalse);
+    });
+
+    test('displayTitle strips EONET\'s trailing numeric event id, which reads '
+        'as a glitch to a user', () {
+      expect(build('Wildfire in India, Bangladesh 1023636', 'wildfires')
+          .displayTitle, 'Wildfire in India, Bangladesh');
+    });
+
+    test('displayTitle leaves a title without a trailing id untouched', () {
+      expect(build('Tropical Cyclone Amphan', 'severeStorms').displayTitle,
+          'Tropical Cyclone Amphan');
+    });
+
+    test('displayTitle does not eat a short trailing number that is part of '
+        'the storm name', () {
+      expect(build('Tropical Depression 04B', 'severeStorms').displayTitle,
+          'Tropical Depression 04B');
+    });
+  });
+
   group('EonetEvent.tryParse', () {
     /// Realistic EONET v3 event shape: a cyclone with a point geometry.
     const cyclonePayload = {

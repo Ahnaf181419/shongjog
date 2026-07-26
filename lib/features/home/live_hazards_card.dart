@@ -89,7 +89,14 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
     for (final g in gdacs ?? const <GdacsAlert>[]) {
       items.add(HazardsItem.fromGdacs(g, context));
     }
-    items.sort((a, b) => b.weight.compareTo(a.weight));
+    // Domestic hazards always outrank cross-border ones, whatever their
+    // severity weight — a green alert inside Bangladesh matters more to this
+    // user than a red one in another country. Weight only breaks ties within
+    // each group.
+    items.sort((a, b) {
+      if (a.isNearby != b.isNearby) return a.isNearby ? 1 : -1;
+      return b.weight.compareTo(a.weight);
+    });
 
     setState(() {
       _items = items;
@@ -298,6 +305,20 @@ class HazardsRow extends StatelessWidget {
                     ),
                   ),
                 ],
+                // Marks a hazard that is outside Bangladesh but close enough
+                // (and of a type mobile enough) to matter here. Without it a
+                // cross-border event reads as domestic, which is exactly the
+                // misrepresentation the country filters exist to prevent.
+                if (item.isNearby)
+                  TextSpan(
+                    text: '  ${AppLocalizations.of(context).hazardsNearbyBadge}',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSurfaceVariant.withValues(alpha: 0.8),
+                      height: 1.25,
+                    ),
+                  ),
               ],
             ),
           ),

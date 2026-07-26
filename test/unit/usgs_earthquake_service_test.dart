@@ -146,6 +146,32 @@ void main() {
     });
   });
 
+  group('EarthquakeEvent.isBangladesh', () {
+    EarthquakeEvent build(String place) => EarthquakeEvent.tryParse({
+          'id': 'q',
+          'properties': {
+            'mag': 4.3,
+            'place': place,
+            'time': 1784900000000,
+          },
+          'geometry': {
+            'type': 'Point',
+            'coordinates': [90.68, 25.52, 10.0],
+          },
+        })!;
+
+    test('marks a quake USGS places inside Bangladesh as domestic', () {
+      expect(build('32 km E of Sylhet, Bangladesh').isBangladesh, isTrue);
+    });
+
+    test('marks a cross-border quake as foreign so the UI can badge it — '
+        'these are kept, not dropped, because shaking on the Dauki fault '
+        'is felt in Sylhet regardless of which side it is recorded on', () {
+      expect(build('45 km E of Tura, India').isBangladesh, isFalse);
+      expect(build('12 km SE of Sittwe, Myanmar').isBangladesh, isFalse);
+    });
+  });
+
   group('EarthquakeSeverity', () {
     test('magnitude < 5.0 is light', () {
       expect(

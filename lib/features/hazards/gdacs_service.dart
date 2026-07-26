@@ -1,8 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:shongjog/l10n/app_localizations.dart';
 
 /// GDACS disaster-alerts client — UN/JRC global alerts feed.
@@ -38,22 +37,19 @@ class GdacsService {
   }) async {
     if (!isOnline) return null;
     final uri = Uri.parse('https://www.gdacs.org/xml/rss.xml');
-    final client = HttpClient();
+    final client = http.Client();
     try {
-      client.connectionTimeout = _timeout;
-      final req = await client.getUrl(uri);
-      final res = await req.close().timeout(_timeout);
-      if (res.statusCode != 200) return null;
-      final body = await res
-          .transform(utf8.decoder)
-          .toList()
-          .then((chunks) => chunks.join());
-      return _parseRss(body);
+      final res = await client.get(uri).timeout(_timeout);
+      if (res.statusCode != 200) {
+        debugPrint('[Gdacs] non-200 status: ${res.statusCode}');
+        return null;
+      }
+      return _parseRss(res.body);
     } on TimeoutException {
+      debugPrint('[Gdacs] request timed out after ${_timeout.inSeconds}s');
       return null;
-    } on SocketException {
-      return null;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[Gdacs] fetchBangladeshAlerts failed: $e');
       return null;
     } finally {
       client.close();
@@ -84,7 +80,16 @@ class GdacsService {
       // in Assam, India"), so require that mention rather than trusting
       // lat/lon alone. Multi-country alerts ("... for Bangladesh, India")
       // still pass, correctly, since they do mention Bangladesh.
-      if (!mentionsBangladesh(alert)) continue;
+      //
+      // The exception is hazard types that cross borders by nature —
+      // cyclones, trans-boundary river floods, earthquakes. Those stay
+      // relevant to a Bangladeshi user whichever country GDACS files them
+      // under, so they're kept and labelled rather than dropped. Wildfire
+      // and drought alerts still require the Bangladesh mention.
+      if (!mentionsBangladesh(alert) &&
+          !crossBorderEventTypes.contains(alert.eventType)) {
+        continue;
+      }
       out.add(alert);
     }
     return out;
@@ -95,6 +100,11 @@ class GdacsService {
       lat <= _maxLat &&
       lon >= _minLon &&
       lon <= _maxLon;
+
+  /// GDACS `gdacs:eventtype` codes whose hazards reach across a national
+  /// border: earthquake, tropical cyclone, flood. Wildfire (`WF`) and
+  /// drought (`DR`) stay country-scoped.
+  static const crossBorderEventTypes = <String>{'EQ', 'TC', 'FL'};
 
   /// Whether an alert's title or description names Bangladesh. Exposed
   /// for testing.
@@ -116,6 +126,10 @@ class GdacsAlert {
   final double longitude;
   final GdacsSeverity severity;
 
+  /// GDACS `gdacs:eventtype` code — `EQ`, `TC`, `FL`, `WF`, `DR`. Null when
+  /// the feed omits it (older items occasionally do).
+  final String? eventType;
+
   const GdacsAlert({
     required this.title,
     this.description,
@@ -124,7 +138,12 @@ class GdacsAlert {
     required this.latitude,
     required this.longitude,
     required this.severity,
+    this.eventType,
   });
+
+  /// Whether this alert names Bangladesh. False means it is a cross-border
+  /// hazard kept for relevance but labelled as being outside the country.
+  bool get isBangladesh => GdacsService.mentionsBangladesh(this);
 
   /// Parse a single `item` block. Returns null if required
   /// fields are missing (title, georss:point).
@@ -155,6 +174,8 @@ class GdacsAlert {
       latitude: lat,
       longitude: lon,
       severity: parseGdacsSeverity(block),
+      eventType: (_tag(block, 'gdacs:eventtype') ?? _tag(block, 'eventtype'))
+          ?.toUpperCase(),
     );
   }
 
