@@ -18,9 +18,16 @@ import '../shelter/shelter_tool_schema.dart';
 import 'local_llm.dart';
 
 /// Orchestrates a single RAG query via 3-Tier intelligence:
-/// TIER 1: Cloud AI (online)
-/// TIER 2: Local LLM (offline)
+/// TIER 1: On-device Gemma 4 (E2B/E4B) — the primary model, always tried first
+/// TIER 2: Cloud AI (online fallback only)
 /// TIER 3: RAG corpus
+///
+/// On-device Gemma runs **first, even when the device is online**. Cloud was
+/// tier 1 previously, which meant a connected phone never executed Gemma at
+/// all — the opposite of this app's premise (`docs/prd.md` §13: "Gemma 4 is
+/// the primary and only LLM powering the app's generative AI") and of the
+/// offline thesis the whole product rests on. Cloud is now strictly a safety
+/// net for when the on-device model is missing, still downloading, or fails.
 class ChatRepository {
   final KnowledgeBase kb;
 
@@ -90,26 +97,7 @@ class ChatRepository {
 
     final hits = _retrieve(userQuery);
 
-    // TIER 1: Cloud AI (online)
-    if (cloudAi != null) {
-      final isOnline = await cloudAi!.isOnline;
-      if (isOnline) {
-        try {
-          final userMessage = buildUserMessage(query: userQuery, hits: hits);
-          final answer = await cloudAi!.generateWithHistory(
-            userMessage: userMessage,
-            history: history,
-          );
-          if (onPath != null) onPath(GenerationPath.cloud);
-          return answer;
-        } catch (e) {
-          debugPrint('Tier 1 Cloud AI failed entirely: $e');
-          // Silent fallthrough to local model
-        }
-      }
-    }
-
-    // TIER 2: Local LLM (offline)
+    // TIER 1: On-device Gemma 4 (E2B/E4B) — the primary model.
     // Route rumour-check queries through a dedicated prompt that asks
     // the model to verify the claim against the corpus.
     final isRumour = isRumourQuery(userQuery);
@@ -127,10 +115,10 @@ class ChatRepository {
       // Tagged logging for runtime triage — `debugPrint` is filtered out
       // in release by default; consumers can enable `-v` or wire
       // `debugPrint` into a file logger to read these on a phone.
-      debugPrint('[ChatRepo/Tier2] entered for q="${userQuery.substring(0, userQuery.length.clamp(0, 40))}…" isReady=${model!.isReady}');
+      debugPrint('[ChatRepo/Tier1] entered for q="${userQuery.substring(0, userQuery.length.clamp(0, 40))}…" isReady=${model!.isReady}');
       try {
         final shouldTryDevice = model!.isReady || await model!.isAnyOnDisk();
-        debugPrint('[ChatRepo/Tier2] shouldTryDevice=$shouldTryDevice');
+        debugPrint('[ChatRepo/Tier1] shouldTryDevice=$shouldTryDevice');
         if (shouldTryDevice) {
           final rawAnswer = await model!.generate(prompt);
           // Post-process: the SDK has no stopStrings API on the
@@ -146,22 +134,41 @@ class ChatRepository {
           // answer is strictly better than empty.
           if (answer.trim().isEmpty) {
             debugPrint(
-                '[ChatRepo/Tier2] device path produced no usable text '
+                '[ChatRepo/Tier1] device path produced no usable text '
                 '(raw ${rawAnswer.length} chars, all control tokens) '
                 '— falling through to corpus');
           } else {
-            debugPrint('[ChatRepo/Tier2] device path success len=${answer.length} (raw ${rawAnswer.length})');
+            debugPrint('[ChatRepo/Tier1] device path success len=${answer.length} (raw ${rawAnswer.length})');
             if (onPath != null) onPath(GenerationPath.device);
             return answer;
           }
         }
       } catch (e, st) {
-        debugPrint('[ChatRepo/Tier2] device path FAILED: $e');
-        debugPrint('[ChatRepo/Tier2] stack: $st');
-        // Fall through to Tier-3 corpus. Silently degrading to a
-        // useful corpus answer is better UX than a hard error
-        // bubble — the user gets *something* useful and can retry
-        // or call 999.
+        debugPrint('[ChatRepo/Tier1] device path FAILED: $e');
+        debugPrint('[ChatRepo/Tier1] stack: $st');
+        // Fall through to the cloud tier, then the corpus. Silently
+        // degrading is better UX than a hard error bubble — the user gets
+        // *something* useful and can retry or call 999.
+      }
+    }
+
+    // TIER 2: Cloud AI — fallback only, reached when the on-device model is
+    // absent, still downloading, or produced nothing usable.
+    if (cloudAi != null) {
+      final isOnline = await cloudAi!.isOnline;
+      if (isOnline) {
+        try {
+          final userMessage = buildUserMessage(query: userQuery, hits: hits);
+          final answer = await cloudAi!.generateWithHistory(
+            userMessage: userMessage,
+            history: history,
+          );
+          if (onPath != null) onPath(GenerationPath.cloud);
+          return answer;
+        } catch (e) {
+          debugPrint('Tier 2 Cloud AI failed entirely: $e');
+          // Silent fallthrough to the corpus.
+        }
       }
     }
 

@@ -66,6 +66,12 @@ class _ChatScreenState extends State<ChatScreen> {
   ChatRepository? _repo;
   bool _busy = false;
   bool _listening = false;
+  // Bug-fix: the chat screen used to read PendingChatPrompt once
+  // during initState, so any prompt requested after the screen was
+  // already on screen (the normal case — MainShell caches tabs) was
+  // silently dropped. We now subscribe to the notifier so the chat
+  // screen reacts for its entire lifetime.
+  ValueNotifier<String?>? _pendingPromptNotifier;
   // H10 FIX: must default to false. pref_auto_read requires explicit opt-in.
   // Defaulting true meant TTS could fire on the first answer before
   // SharedPreferences loaded (race window of ~200ms on cold start).
@@ -92,8 +98,46 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void dispose() {
     modelManager.removeListener(_onModelManagerChanged);
+    _pendingPromptNotifier?.removeListener(_onPendingPromptChanged);
     _stt.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Subscribe to the cross-tab PendingChatPrompt notifier so the
+    // chat screen reacts for its entire lifetime, not just the first
+    // build. The same call also establishes the dependency on the
+    // InheritedNotifier so we get notified if the ancestor itself
+    // is swapped out (e.g. during a hot reload).
+    final notifier = PendingChatPrompt.of(context)?.notifier;
+    if (identical(notifier, _pendingPromptNotifier)) return;
+    _pendingPromptNotifier?.removeListener(_onPendingPromptChanged);
+    _pendingPromptNotifier = notifier;
+    _pendingPromptNotifier?.addListener(_onPendingPromptChanged);
+    // Cold-start drain: if a prompt was already queued before this
+    // screen was built, consume it now. _loadPrefsAndBootstrap()
+    // also drains once the repo is ready, so this is safe to call
+    // even when _repo is still null.
+    _drainPendingPrompt();
+  }
+
+  /// Notifier callback. The InheritedNotifier drives this when any
+  /// caller (QuickCardsScreen, HomeScreen, etc.) sets a pending prompt
+  /// via `requestPrompt(...)`.
+  void _onPendingPromptChanged() {
+    _drainPendingPrompt();
+  }
+
+  /// Pop the pending prompt and submit it — IF the repository is ready
+  /// and we're not already running a query. Otherwise the prompt is
+  /// left in the notifier and a later call (the bootstrap completion,
+  /// or the next user-submit) will pick it up.
+  void _drainPendingPrompt() {
+    if (_repo == null || _busy) return;
+    final pending = PendingChatPrompt.consume(context);
+    if (pending != null) _onSubmit(pending);
   }
 
   /// Invalidate the on-disk cache when ModelManager's state changes
@@ -202,10 +246,11 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       });
 
-      final pending = PendingChatPrompt.consume(context);
-      if (pending != null && mounted) {
-        _onSubmit(pending);
-      }
+      // Drain any prompt that was queued either before or during
+      // bootstrap. _drainPendingPrompt is a no-op when _repo is null
+      // (shouldn't happen at this point, but safe), and when _busy
+      // is true (the prompt stays in the notifier for later).
+      _drainPendingPrompt();
     }
   }
 
@@ -312,7 +357,12 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       });
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() => _busy = false);
+        // Drain any prompt that arrived while we were generating.
+        // _drainPendingPrompt is a no-op when _repo is null.
+        _drainPendingPrompt();
+      }
     }
   }
 
