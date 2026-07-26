@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/core/admin_broadcast_service.dart';
+import 'package:shongjog/core/local_notification_service.dart';
 
 void main() {
   late Directory tempDir;
@@ -230,6 +231,96 @@ void main() {
       await Future<void>.delayed(Duration.zero);
 
       expect(svc.messages.first.isRead, isTrue);
+    });
+  });
+
+  // The whole point of these: an admin sends a broadcast and every other
+  // device is supposed to surface it. Before this, a broadcast only ever
+  // updated the in-app bell, so a phone that wasn't already looking at the
+  // home screen showed nothing at all.
+  group('AdminBroadcastService tray notifications', () {
+    late List<({int id, String title, String body})> shown;
+
+    setUp(() {
+      shown = [];
+      localNotificationService.debugSinkOverride =
+          (id, title, body) async => shown.add((id: id, title: title, body: body));
+    });
+
+    tearDown(() => localNotificationService.debugSinkOverride = null);
+
+    test('a broadcast from another device raises a notification', () async {
+      final fakeFs = FakeFirebaseFirestore();
+      final svc = AdminBroadcastService(firestore: fakeFs);
+      AdminBroadcastService.debugFilesDirOverride = tempDir.path;
+      await svc.initialize();
+      await Future<void>.delayed(Duration.zero); // drain first snapshot
+
+      await fakeFs.collection('broadcasts').doc('remote-9').set({
+        'id': 'remote-9',
+        'text': 'বন্যার সতর্কতা জারি করা হয়েছে',
+        'ts': DateTime(2026, 7, 25).toIso8601String(),
+        'isRead': false,
+      });
+      await Future<void>.delayed(Duration.zero);
+
+      expect(shown, hasLength(1));
+      expect(shown.single.body, 'বন্যার সতর্কতা জারি করা হয়েছে');
+      expect(shown.single.title, AdminBroadcastService.notificationTitle);
+    });
+
+    test('cold start does not re-notify for broadcasts already in the feed',
+        () async {
+      final fakeFs = FakeFirebaseFirestore();
+      for (var i = 0; i < 3; i++) {
+        await fakeFs.collection('broadcasts').doc('old-$i').set({
+          'id': 'old-$i',
+          'text': 'পুরোনো বার্তা $i',
+          'ts': DateTime(2026, 7, 20).toIso8601String(),
+          'isRead': false,
+        });
+      }
+
+      final svc = AdminBroadcastService(firestore: fakeFs);
+      AdminBroadcastService.debugFilesDirOverride = tempDir.path;
+      await svc.initialize();
+      await Future<void>.delayed(Duration.zero);
+
+      // They must still land in the feed...
+      expect(svc.messages, hasLength(3));
+      // ...but the first snapshot is a replay of the whole collection, not
+      // three new events. Notifying here would fire the entire broadcast
+      // history at the user on every single app launch.
+      expect(shown, isEmpty);
+    });
+
+    test('an admin is not notified about the broadcast they just sent',
+        () async {
+      final fakeFs = FakeFirebaseFirestore();
+      final svc = AdminBroadcastService(firestore: fakeFs);
+      AdminBroadcastService.debugFilesDirOverride = tempDir.path;
+      await svc.initialize();
+      await Future<void>.delayed(Duration.zero);
+
+      await svc.addMessage('আমার নিজের বার্তা');
+      await Future<void>.delayed(Duration.zero);
+
+      // addMessage inserts locally before writing, so the echo snapshot finds
+      // the id already present and produces nothing fresh.
+      expect(svc.messages, hasLength(1));
+      expect(shown, isEmpty);
+    });
+
+    test('redelivering the same broadcast reuses its notification id, so a '
+        'stream reconnect replaces rather than stacks', () {
+      final first = AdminBroadcastService.notificationId('remote-9');
+      final second = AdminBroadcastService.notificationId('remote-9');
+      expect(first, second);
+      expect(first, isNonNegative);
+      // Android notification ids are 32-bit signed; a raw microsecond
+      // timestamp would overflow.
+      expect(first, lessThanOrEqualTo(0x7fffffff));
+      expect(AdminBroadcastService.notificationId('remote-8'), isNot(first));
     });
   });
 }

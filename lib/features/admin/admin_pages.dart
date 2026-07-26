@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../core/admin_broadcast_service.dart';
+import '../../core/device_registry_service.dart';
 import '../../features/mesh_comm/mesh_service.dart';
 import '../../features/safe_beacon/safety_status_service.dart';
 import '../../l10n/app_localizations.dart';
@@ -93,12 +94,42 @@ class AdminDashboardPage extends StatelessWidget {
   }
 }
 
-/// Admin Users page — list of currently-connected mesh peers.
+/// Admin Users page — every device running Shongjog, not just the ones in
+/// Bluetooth range.
 ///
-/// Same content as the old `_UsersTab`. Pulls from the live mesh
-/// service. Empty-state mirrors the original.
-class AdminUsersPage extends StatelessWidget {
+/// This used to list `meshService.peerList` alone, which meant an admin saw
+/// only the handful of phones within mesh radius of their own — the page was
+/// empty in the normal case where users are spread across a city. It now
+/// leads with the Firestore `users/{uid}` roster every device heartbeats
+/// into (see [DeviceRegistryService]) and folds mesh in as an extra signal:
+/// a device that is also a live mesh peer gets a "nearby" marker.
+///
+/// Mesh peers with no registry row are still listed at the end — that's a
+/// device on an older build, or one that has never had a network connection,
+/// and dropping it would lose the one channel that still reaches it.
+class AdminUsersPage extends StatefulWidget {
   const AdminUsersPage({super.key});
+
+  @override
+  State<AdminUsersPage> createState() => _AdminUsersPageState();
+}
+
+class _AdminUsersPageState extends State<AdminUsersPage> {
+  @override
+  void initState() {
+    super.initState();
+    deviceRegistryService.addListener(_onChange);
+  }
+
+  @override
+  void dispose() {
+    deviceRegistryService.removeListener(_onChange);
+    super.dispose();
+  }
+
+  void _onChange() {
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -118,8 +149,26 @@ class AdminUsersPage extends StatelessWidget {
   Widget _buildBody(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
+    final devices = deviceRegistryService.devices;
     final peers = meshService.peerList;
-    if (peers.isEmpty) {
+
+    // A mesh peer is matched to a registry row by name — the mesh advertises
+    // the user's profile name, and that's the only field the two sources
+    // share (mesh endpointIds are per-session, Firestore uids are per-install).
+    // Imperfect for duplicate names, but it only decorates a row with a
+    // "nearby" marker; nothing depends on it being exact.
+    final meshNames = {
+      for (final p in peers)
+        if (p.name.isNotEmpty) p.name,
+    };
+    final registeredNames = {
+      for (final d in devices)
+        if (d.name.isNotEmpty) d.name,
+    };
+    final meshOnly =
+        peers.where((p) => !registeredNames.contains(p.name)).toList();
+
+    if (devices.isEmpty && meshOnly.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -134,44 +183,144 @@ class AdminUsersPage extends StatelessWidget {
         ),
       );
     }
-    final isDark = cs.brightness == Brightness.dark;
-    final onlineDot = isDark ? ShongjogTheme.successBright : ShongjogTheme.success;
+
     // Card-wrapped rows — bare ListTiles here were the one screen in the
     // admin section that didn't carry the app's card language, making it
     // read noticeably rawer than Campaigns/Danger List right next to it.
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      itemCount: peers.length,
+      itemCount: devices.length + meshOnly.length,
       itemBuilder: (context, index) {
-        final peer = peers[index];
-        return Card(
-          margin: const EdgeInsets.only(bottom: 8),
-          child: ListTile(
-            leading: Container(
-              width: 40,
-              height: 40,
-              decoration: ShongjogTheme.iconBadge(context, tint: onlineDot),
-              alignment: Alignment.center,
-              child: Container(
-                width: 10,
-                height: 10,
-                decoration: BoxDecoration(color: onlineDot, shape: BoxShape.circle),
-              ),
-            ),
-            title: Text(peer.name.isNotEmpty ? peer.name : l10n.adminUnknownDevice),
-            subtitle: Text(
-              peer.endpointId.length > 12
-                  ? '${peer.endpointId.substring(0, 12)}…'
-                  : peer.endpointId,
-              style: TextStyle(
-                fontSize: 12,
-                fontFamily: 'monospace',
-                color: cs.onSurfaceVariant,
-              ),
-            ),
-          ),
+        if (index < devices.length) {
+          final d = devices[index];
+          return _DeviceTile(
+            name: d.name.isNotEmpty ? d.name : l10n.adminUnknownDevice,
+            detail: _lastSeenLabel(l10n, d.lastSeen),
+            isOnline: d.isOnline,
+            isAdmin: d.isAdmin,
+            isNearby: d.name.isNotEmpty && meshNames.contains(d.name),
+          );
+        }
+        final peer = meshOnly[index - devices.length];
+        return _DeviceTile(
+          name: peer.name.isNotEmpty ? peer.name : l10n.adminUnknownDevice,
+          detail: peer.endpointId.length > 12
+              ? '${peer.endpointId.substring(0, 12)}…'
+              : peer.endpointId,
+          detailIsMonospace: true,
+          // A live mesh peer is by definition reachable right now, even
+          // though it has no Firestore heartbeat to prove it.
+          isOnline: true,
+          isNearby: true,
         );
       },
+    );
+  }
+
+  String _lastSeenLabel(AppLocalizations l10n, DateTime? lastSeen) {
+    if (lastSeen == null) return l10n.adminDeviceNeverSeen;
+    final d = DateTime.now().toUtc().difference(lastSeen);
+    if (d.inMinutes < 1) return l10n.adminTimeJustNow;
+    if (d.inHours < 1) return l10n.adminTimeMinutesAgo(d.inMinutes);
+    if (d.inDays < 1) return l10n.adminTimeHoursAgo(d.inHours);
+    return l10n.adminTimeDaysAgo(d.inDays);
+  }
+}
+
+class _DeviceTile extends StatelessWidget {
+  final String name;
+  final String detail;
+  final bool detailIsMonospace;
+  final bool isOnline;
+  final bool isAdmin;
+  final bool isNearby;
+
+  const _DeviceTile({
+    required this.name,
+    required this.detail,
+    this.detailIsMonospace = false,
+    required this.isOnline,
+    this.isAdmin = false,
+    this.isNearby = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+    final isDark = cs.brightness == Brightness.dark;
+    final dot = isOnline
+        ? (isDark ? ShongjogTheme.successBright : ShongjogTheme.success)
+        : cs.outline;
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: Container(
+          width: 40,
+          height: 40,
+          decoration: ShongjogTheme.iconBadge(context, tint: dot),
+          alignment: Alignment.center,
+          child: Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
+          ),
+        ),
+        title: Row(
+          children: [
+            Flexible(child: Text(name, overflow: TextOverflow.ellipsis)),
+            if (isAdmin) ...[
+              const SizedBox(width: 6),
+              _Chip(label: l10n.adminDeviceAdmin, tint: cs.primary),
+            ],
+            if (isNearby) ...[
+              const SizedBox(width: 6),
+              _Chip(label: l10n.adminDeviceNearby, tint: cs.tertiary),
+            ],
+          ],
+        ),
+        subtitle: Text(
+          detail,
+          style: TextStyle(
+            fontSize: 12,
+            fontFamily: detailIsMonospace ? 'monospace' : null,
+            color: cs.onSurfaceVariant,
+          ),
+        ),
+        trailing: Text(
+          isOnline ? l10n.adminDeviceOnline : l10n.adminDeviceOffline,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: isOnline ? dot : cs.onSurfaceVariant,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Chip extends StatelessWidget {
+  final String label;
+  final Color tint;
+  const _Chip({required this.label, required this.tint});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: tint.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          color: tint,
+        ),
+      ),
     );
   }
 }

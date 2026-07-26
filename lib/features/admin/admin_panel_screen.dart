@@ -3,6 +3,7 @@ import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../app/router.dart';
 import '../../app/theme.dart';
+import '../../core/device_registry_service.dart';
 import '../../features/mesh_comm/mesh_service.dart';
 import '../../features/admin/campaign_request.dart';
 import '../safe_beacon/safety_status_service.dart';
@@ -290,35 +291,42 @@ class _AdminStatRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
-    return Row(
-      children: [
-        Expanded(
-          child: _MiniStat(
-            icon: Icons.people_rounded,
-            label: l10n.adminStatUsers,
-            value: _bnNum(5),
-            tint: cs.primary,
+    // Users and offline-sessions were hardcoded literals (5 and 3) until the
+    // device registry existed — the panel showed the same two numbers on a
+    // fresh install as on a live deployment. They now come from the
+    // `users/{uid}` roster every device heartbeats into.
+    return ListenableBuilder(
+      listenable: deviceRegistryService,
+      builder: (context, _) => Row(
+        children: [
+          Expanded(
+            child: _MiniStat(
+              icon: Icons.people_rounded,
+              label: l10n.adminStatUsers,
+              value: _bnNum(deviceRegistryService.totalDevices),
+              tint: cs.primary,
+            ),
           ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _MiniStat(
-            icon: Icons.offline_bolt_rounded,
-            label: l10n.adminStatOffline,
-            value: _bnNum(3),
-            tint: ShongjogTheme.success,
+          const SizedBox(width: 10),
+          Expanded(
+            child: _MiniStat(
+              icon: Icons.offline_bolt_rounded,
+              label: l10n.adminStatOffline,
+              value: _bnNum(deviceRegistryService.offlineCount),
+              tint: ShongjogTheme.success,
+            ),
           ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _MiniStat(
-            icon: Icons.bluetooth_rounded,
-            label: l10n.adminStatMesh,
-            value: _bnNum(meshService.peerCount),
-            tint: cs.primary,
+          const SizedBox(width: 10),
+          Expanded(
+            child: _MiniStat(
+              icon: Icons.bluetooth_rounded,
+              label: l10n.adminStatMesh,
+              value: _bnNum(meshService.peerCount),
+              tint: cs.primary,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -6,6 +6,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'local_notification_service.dart';
+
 class AdminMessage {
   final String id;
   final String text;
@@ -41,6 +43,12 @@ class AdminBroadcastService extends ChangeNotifier {
   static const _fileName = 'admin_broadcasts.json';
   static const _collection = 'broadcasts';
 
+  /// Tray-notification title for an incoming broadcast. Bangla, matching
+  /// the rest of the notification surface — this string is rendered by
+  /// Android outside any [BuildContext], so it can't come from
+  /// AppLocalizations.
+  static const String notificationTitle = 'জরুরি ঘোষণা';
+
   @visibleForTesting
   static String? debugFilesDirOverride;
 
@@ -50,6 +58,10 @@ class AdminBroadcastService extends ChangeNotifier {
   FirebaseFirestore get _firestore =>
       _injectedFirestore ?? FirebaseFirestore.instance;
   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _firestoreSub;
+
+  /// The first snapshot off a Firestore stream is a full replay of the
+  /// collection, not a set of new events — see [_mergeFirestoreSnapshot].
+  bool _seenFirstSnapshot = false;
 
   List<AdminMessage> _messages = [];
   List<AdminMessage> get messages => _messages;
@@ -102,11 +114,13 @@ class AdminBroadcastService extends ChangeNotifier {
   }
 
   void _mergeFirestoreSnapshot(QuerySnapshot<Map<String, dynamic>> snap) {
+    final fresh = <AdminMessage>[];
     for (final doc in snap.docs) {
       final incoming = AdminMessage.fromJson(doc.data());
       final index = _messages.indexWhere((m) => m.id == incoming.id);
       if (index == -1) {
         _messages.add(incoming);
+        fresh.add(incoming);
       } else {
         // Preserve local read state — Firestore doesn't track per-device
         // read/unread, that's purely a local concern.
@@ -117,7 +131,39 @@ class AdminBroadcastService extends ChangeNotifier {
     _messages.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     unawaited(_save());
     notifyListeners();
+
+    // Raise a tray notification only for broadcasts that genuinely arrived
+    // from another device just now. Three things are deliberately excluded:
+    //
+    //  - the FIRST snapshot, which replays the whole collection and would
+    //    otherwise fire one notification per historical broadcast on every
+    //    cold start;
+    //  - `hasPendingWrites`, the local echo of this device's own
+    //    `addMessage` write, which would notify an admin about their own
+    //    broadcast the instant they sent it;
+    //  - anything already in `_messages`, so a stream reconnect that
+    //    re-delivers the collection stays silent.
+    final isFirstSnapshot = _seenFirstSnapshot == false;
+    _seenFirstSnapshot = true;
+    if (isFirstSnapshot || snap.metadata.hasPendingWrites) return;
+    for (final msg in fresh) {
+      unawaited(localNotificationService.show(
+        id: _notificationId(msg.id),
+        title: notificationTitle,
+        body: msg.text,
+      ));
+    }
   }
+
+  /// Collapse a message id (microseconds since epoch — far wider than the
+  /// 32-bit id Android notifications take) into a stable non-negative int,
+  /// so redelivering the same broadcast replaces its notification instead
+  /// of stacking a duplicate.
+  @visibleForTesting
+  static int notificationId(String messageId) => _notificationId(messageId);
+
+  static int _notificationId(String messageId) =>
+      messageId.hashCode & 0x7fffffff;
 
   Future<void> addMessage(String text) async {
     await initialize();
