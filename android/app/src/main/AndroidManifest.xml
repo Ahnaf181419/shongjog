@@ -15,7 +15,11 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.CALL_PHONE"/>
     <uses-permission android:name="android.permission.SEND_SMS"/>
-    
+    <!-- POST_NOTIFICATIONS: tray notification when an admin broadcast
+         arrives over Firestore. Runtime-requested on Android 13+ from
+         LocalNotificationService.initialize(); install-time below that. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
     <!-- Mesh Networking (Phase 4.7) -->
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
