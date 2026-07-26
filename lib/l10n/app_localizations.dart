@@ -2144,6 +2144,36 @@ abstract class AppLocalizations {
   /// **'অজ্ঞাত ডিভাইস'**
   String get adminUnknownDevice;
 
+  /// No description provided for @adminDeviceOnline.
+  ///
+  /// In bn, this message translates to:
+  /// **'অনলাইন'**
+  String get adminDeviceOnline;
+
+  /// No description provided for @adminDeviceOffline.
+  ///
+  /// In bn, this message translates to:
+  /// **'অফলাইন'**
+  String get adminDeviceOffline;
+
+  /// No description provided for @adminDeviceNearby.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাছাকাছি'**
+  String get adminDeviceNearby;
+
+  /// No description provided for @adminDeviceAdmin.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাডমিন'**
+  String get adminDeviceAdmin;
+
+  /// No description provided for @adminDeviceNeverSeen.
+  ///
+  /// In bn, this message translates to:
+  /// **'কখনো যুক্ত হয়নি'**
+  String get adminDeviceNeverSeen;
+
   /// No description provided for @adminNoCampaigns.
   ///
   /// In bn, this message translates to:
@@ -3452,6 +3482,12 @@ abstract class AppLocalizations {
   /// **'এই মুহূর্তে কোনো ঝুঁকি নেই'**
   String get hazardsNoAlerts;
 
+  /// No description provided for @hazardsNearbyBadge.
+  ///
+  /// In bn, this message translates to:
+  /// **'সীমান্তের ওপারে'**
+  String get hazardsNearbyBadge;
+
   /// No description provided for @hazardsShowMore.
   ///
   /// In bn, this message translates to:
@@ -3469,6 +3505,12 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'GPS অনুমতি দেওয়া হয়নি'**
   String get shelterGpsPermissionDenied;
+
+  /// No description provided for @shelterGpsServiceDisabled.
+  ///
+  /// In bn, this message translates to:
+  /// **'ডিভাইসের লোকেশন সার্ভিস বন্ধ আছে — চালু করুন'**
+  String get shelterGpsServiceDisabled;
 
   /// No description provided for @shelterGpsNotFound.
   ///

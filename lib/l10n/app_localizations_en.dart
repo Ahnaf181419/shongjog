@@ -1082,6 +1082,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminUnknownDevice => 'Unknown Device';
 
   @override
+  String get adminDeviceOnline => 'Online';
+
+  @override
+  String get adminDeviceOffline => 'Offline';
+
+  @override
+  String get adminDeviceNearby => 'Nearby';
+
+  @override
+  String get adminDeviceAdmin => 'Admin';
+
+  @override
+  String get adminDeviceNeverSeen => 'Never connected';
+
+  @override
   String get adminNoCampaigns => 'No campaign requests';
 
   @override
@@ -1765,6 +1780,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hazardsNoAlerts => 'No hazards right now';
 
   @override
+  String get hazardsNearbyBadge => 'Across the border';
+
+  @override
   String hazardsShowMore(int count) {
     return 'Show $count more';
   }
@@ -1774,6 +1792,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shelterGpsPermissionDenied => 'GPS permission not granted';
+
+  @override
+  String get shelterGpsServiceDisabled =>
+      'Device location services are off — please turn them on';
 
   @override
   String get shelterGpsNotFound => 'GPS not found';

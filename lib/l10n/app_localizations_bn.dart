@@ -1083,6 +1083,21 @@ class AppLocalizationsBn extends AppLocalizations {
   String get adminUnknownDevice => 'অজ্ঞাত ডিভাইস';
 
   @override
+  String get adminDeviceOnline => 'অনলাইন';
+
+  @override
+  String get adminDeviceOffline => 'অফলাইন';
+
+  @override
+  String get adminDeviceNearby => 'কাছাকাছি';
+
+  @override
+  String get adminDeviceAdmin => 'অ্যাডমিন';
+
+  @override
+  String get adminDeviceNeverSeen => 'কখনো যুক্ত হয়নি';
+
+  @override
   String get adminNoCampaigns => 'কোনো অভিযান অনুরোধ নেই';
 
   @override
@@ -1768,6 +1783,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get hazardsNoAlerts => 'এই মুহূর্তে কোনো ঝুঁকি নেই';
 
   @override
+  String get hazardsNearbyBadge => 'সীমান্তের ওপারে';
+
+  @override
   String hazardsShowMore(int count) {
     return 'আরও $countটি দেখুন';
   }
@@ -1777,6 +1795,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get shelterGpsPermissionDenied => 'GPS অনুমতি দেওয়া হয়নি';
+
+  @override
+  String get shelterGpsServiceDisabled =>
+      'ডিভাইসের লোকেশন সার্ভিস বন্ধ আছে — চালু করুন';
 
   @override
   String get shelterGpsNotFound => 'GPS পাওয়া যায়নি';

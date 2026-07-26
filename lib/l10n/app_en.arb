@@ -341,6 +341,11 @@
   "adminStatMesh": "Mesh Peers",
   "adminNoDevices": "No connected devices",
   "adminUnknownDevice": "Unknown Device",
+  "adminDeviceOnline": "Online",
+  "adminDeviceOffline": "Offline",
+  "adminDeviceNearby": "Nearby",
+  "adminDeviceAdmin": "Admin",
+  "adminDeviceNeverSeen": "Never connected",
   "adminNoCampaigns": "No campaign requests",
   "adminDetailUser": "User",
   "adminDetailPhone": "Phone",
@@ -596,6 +601,7 @@
   "hazardsLoading": "Loading data...",
   "hazardsLoadError": "Could not load data. Try again.",
   "hazardsNoAlerts": "No hazards right now",
+  "hazardsNearbyBadge": "Across the border",
   "hazardsShowMore": "Show {count} more",
   "@hazardsShowMore": {
     "placeholders": {
@@ -604,6 +610,7 @@
   },
   "shelterAiRiskAssessment": "AI Risk Assessment",
   "shelterGpsPermissionDenied": "GPS permission not granted",
+  "shelterGpsServiceDisabled": "Device location services are off — please turn them on",
   "shelterGpsNotFound": "GPS not found",
   "shelterGpsUnavailable": "Showing all of Bangladesh — distance from GPS unavailable",
   "shelterOfflineTiles": "Offline — map tiles won't load, but shelter locations are visible",
