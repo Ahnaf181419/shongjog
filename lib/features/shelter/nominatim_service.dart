@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 
 /// Nominatim geocoding client (free, key-less, OSM).
 ///
@@ -25,25 +27,25 @@ class NominatimService {
       '&limit=$limit'
       '&accept-language=bn,en',
     );
-    final client = HttpClient();
     try {
-      client.connectionTimeout = _timeout;
-      final req = await client.getUrl(uri);
-      req.headers.set(HttpHeaders.userAgentHeader, 'com.shongjog.app/1.0');
-      final res = await req.close().timeout(_timeout);
-      if (res.statusCode != 200) return null;
-      final body = await res.transform(utf8.decoder).join();
-      final list = jsonDecode(body);
+      final res = await http.get(
+        uri,
+        headers: {'User-Agent': 'com.shongjog.app/1.0'},
+      ).timeout(_timeout);
+      if (res.statusCode != 200) {
+        debugPrint('[Nominatim] non-200 status: ${res.statusCode}');
+        return null;
+      }
+      final list = jsonDecode(res.body);
       if (list is! List) return null;
       return list
           .map((e) => NominatimResult.tryParse(e as Map<String, dynamic>))
           .whereType<NominatimResult>()
           .take(limit)
           .toList();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[Nominatim] search failed: $e');
       return null;
-    } finally {
-      client.close();
     }
   }
 }

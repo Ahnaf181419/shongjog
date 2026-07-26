@@ -27,7 +27,13 @@ class ShelterConstants {
   static const double zoomWithoutUser = 8;
 
   // ─── Network / GPS timeouts (matched by `OsrmRouteService`) ─────
-  static const Duration gpsTimeout = Duration(seconds: 10);
+  // First attempt uses `LocationAccuracy.high` with [gpsTimeout] (15s).
+  // On timeout we retry with `LocationAccuracy.medium` and the shorter
+  // [gpsFallbackTimeout] — a degraded fix is strictly better than none
+  // on a cold-start GPS (indoors, first boot, emulator). The old 10s
+  // floor was too aggressive and surfaced as a generic "GPS not found".
+  static const Duration gpsTimeout = Duration(seconds: 15);
+  static const Duration gpsFallbackTimeout = Duration(seconds: 8);
 
   // ─── Banner alpha (offline pill in AppBar.bottom) ───────────────
   static const double bannerBgAlpha = 0.06;

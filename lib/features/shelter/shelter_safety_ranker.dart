@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'nearest_shelter.dart';
 import '../hazards/eonet_service.dart';
 import '../hazards/gdacs_service.dart';
@@ -93,29 +95,8 @@ class ShelterSafetyRanker {
     String response,
     List<RankedShelter> candidates,
   ) {
-    // Extract the JSON array from the response. The model often wraps
-    // it in ```json fences or adds explanation text.
-    final arrayMatch = RegExp(r'\[[\s\S]*\]').firstMatch(response);
-    if (arrayMatch == null) return null;
-    final arrayStr = arrayMatch.group(0)!;
-
-    // Parse the indices.
-    final List<dynamic> decoded;
-    try {
-      decoded = _jsonDecode(arrayStr) as List<dynamic>;
-    } catch (_) {
-      return null;
-    }
-
-    // Convert to ints, skip non-int entries.
-    final indices = <int>[];
-    for (final d in decoded) {
-      if (d is int) {
-        indices.add(d);
-      } else if (d is num) {
-        indices.add(d.toInt());
-      }
-    }
+    final indices = _extractIndices(response);
+    if (indices == null) return null;
 
     // Validate: every index must be in range, and the reordered set
     // must cover all candidates exactly once (no duplicates, no gaps).
@@ -130,30 +111,58 @@ class ShelterSafetyRanker {
     return indices.map((i) => candidates[i]).toList();
   }
 
-  /// Lightweight JSON decode — avoids importing dart:convert at the
-  /// top level so this file stays dependency-free for unit tests.
-  static dynamic _jsonDecode(String s) {
-    return _decoder.convert(s);
+  /// Extracts a permutation of ints from the model's raw response.
+  ///
+  /// Handles markdown code fences (```json … ```) and free-form text
+  /// around the array. Uses `dart:convert` for robust parsing — the
+  /// old hand-rolled splitter couldn't handle strings-with-commas or
+  /// nested arrays, and the old greedy regex `\[[\s\S]*\]` would span
+  /// from the first `[` to the LAST `]` if the model emitted two
+  /// arrays, producing garbage.
+  static List<int>? _extractIndices(String response) {
+    if (response.trim().isEmpty) return null;
+    // Strip markdown code fences (```json / ```) so the body parses.
+    final cleaned =
+        response.replaceAll(RegExp(r'```(?:json)?'), '').trim();
+
+    // 1. Try the whole response as JSON first.
+    try {
+      final decoded = jsonDecode(cleaned);
+      if (decoded is List) {
+        final list = _toIntList(decoded);
+        if (list != null) return list;
+      }
+    } catch (_) {
+      // Not a standalone JSON document — fall through to extraction.
+    }
+
+    // 2. Extract the FIRST JSON array (non-greedy, so a second array
+    //    later in the response can't extend the match).
+    final arrayMatch = RegExp(r'\[[\s\S]*?\]').firstMatch(cleaned);
+    if (arrayMatch == null) return null;
+    try {
+      final decoded = jsonDecode(arrayMatch.group(0)!);
+      if (decoded is List) return _toIntList(decoded);
+    } catch (_) {
+      return null;
+    }
+    return null;
   }
 
-  static final _decoder = _LiteJsonDecoder();
-}
-
-/// Minimal JSON decoder for the ranker's needs: handles arrays of ints
-/// and whitespace. We don't pull in dart:convert to keep this file
-/// pure-Dart-testable without any platform imports.
-class _LiteJsonDecoder {
-  dynamic convert(String s) {
-    final trimmed = s.trim();
-    if (!trimmed.startsWith('[') || !trimmed.endsWith(']')) {
-      throw FormatException('Not a JSON array');
+  /// Coerces a decoded JSON list to a list of ints, rejecting any
+  /// non-numeric entry entirely (the caller validates the permutation).
+  static List<int>? _toIntList(List<dynamic> decoded) {
+    final out = <int>[];
+    for (final d in decoded) {
+      if (d is int) {
+        out.add(d);
+      } else if (d is num) {
+        out.add(d.toInt());
+      } else {
+        // A string, bool, nested list, or map → not a valid index set.
+        return null;
+      }
     }
-    final inner = trimmed.substring(1, trimmed.length - 1).trim();
-    if (inner.isEmpty) return <dynamic>[];
-    return inner
-        .split(',')
-        .map((e) => e.trim())
-        .map((e) => int.tryParse(e) ?? (num.tryParse(e) ?? e))
-        .toList();
+    return out;
   }
 }

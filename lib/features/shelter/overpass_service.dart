@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 
 /// Overpass API client (free, key-less, OSM).
 ///
@@ -26,18 +28,22 @@ class OverpassService {
     final query =
         '[out:json][timeout:10];node["amenity"="$amenity"](around:$radiusM,$lat,$lon);out $limit;';
     final uri = Uri.parse(_endpoint);
-    final client = HttpClient();
     try {
-      client.connectionTimeout = _timeout;
-      final req = await client.postUrl(uri);
-      req.headers.set(HttpHeaders.contentTypeHeader,
-          'application/x-www-form-urlencoded');
-      req.headers.set(HttpHeaders.userAgentHeader, 'com.shongjog.app/1.0');
-      req.write('data=${Uri.encodeQueryComponent(query)}');
-      final res = await req.close().timeout(_timeout);
-      if (res.statusCode != 200) return null;
-      final body = await res.transform(utf8.decoder).join();
-      final json = jsonDecode(body);
+      final res = await http
+          .post(
+            uri,
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'User-Agent': 'com.shongjog.app/1.0',
+            },
+            body: 'data=${Uri.encodeQueryComponent(query)}',
+          )
+          .timeout(_timeout);
+      if (res.statusCode != 200) {
+        debugPrint('[Overpass] non-200 status: ${res.statusCode}');
+        return null;
+      }
+      final json = jsonDecode(res.body);
       if (json is! Map<String, dynamic>) return null;
       final elements = json['elements'];
       if (elements is! List) return null;
@@ -45,10 +51,9 @@ class OverpassService {
           .map((e) => OverpassPoi.tryParse(e as Map<String, dynamic>))
           .whereType<OverpassPoi>()
           .toList();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[Overpass] searchPois failed: $e');
       return null;
-    } finally {
-      client.close();
     }
   }
 }

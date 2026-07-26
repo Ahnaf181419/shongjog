@@ -15,6 +15,26 @@ import 'shelter_model.dart';
 import 'shelter_repository.dart';
 import 'shelter_safety_ranker.dart';
 
+/// Why [ShelterMapViewModel.userPosition] is unavailable. Surfaced so the
+/// screen can map each case to a distinct, actionable localized message
+/// (the VM stays free of `AppLocalizations` — pure Dart, unit-testable).
+enum GpsFailureReason {
+  /// OS-level location services are OFF. Action: ask the user to turn
+  /// them on in Android Settings.
+  serviceDisabled,
+
+  /// Runtime permission denied or permanently denied. Action: re-prompt
+  /// or guide to system settings.
+  permissionDenied,
+
+  /// Position resolution exceeded both the high- and medium-accuracy
+  /// time limits. Typically a cold-start GPS indoors.
+  timeout,
+
+  /// Any other failure (plugin error, unexpected exception).
+  unknown,
+}
+
 /// State and behaviour for the shelter map, shared between the GPS,
 /// connectivity, OSRM routing, and search surfaces.
 ///
@@ -40,6 +60,7 @@ class ShelterMapViewModel extends ChangeNotifier {
 
   final Future<LocationPermission> Function() _checkPermission;
   final Future<LocationPermission> Function() _requestPermission;
+  final Future<bool> Function() _isLocationServiceEnabled;
 
   /// Repository-provided shelter list. Empty until [init] completes.
   List<Shelter> shelters = const [];
@@ -47,8 +68,10 @@ class ShelterMapViewModel extends ChangeNotifier {
   /// Last GPS fix, or null when no fix is available (yet).
   Position? userPosition;
 
-  /// Localized GPS error message, or null when GPS is simply not ready.
-  String? gpsError;
+  /// Why GPS failed, or null when GPS is simply not ready (still loading)
+  /// or succeeded. The screen maps this to a localized message; the VM
+  /// stores only the structured reason so it stays free of l10n imports.
+  GpsFailureReason? gpsFailure;
 
   /// Whether the device currently has a usable network interface.
   /// Drives the offline-gate in [fetchRoute]; updated externally by the
@@ -92,6 +115,7 @@ class ShelterMapViewModel extends ChangeNotifier {
         resolvePosition,
     Future<LocationPermission> Function()? checkPermission,
     Future<LocationPermission> Function()? requestPermission,
+    Future<bool> Function()? isLocationServiceEnabled,
     bool initialOnline = true,
   })  : _repository = repository ?? ShelterRepository(),
         _routeService = routeService ?? OsrmRouteService(),
@@ -99,6 +123,8 @@ class ShelterMapViewModel extends ChangeNotifier {
         _resolvePosition = resolvePosition ?? _defaultGeolocator,
         _checkPermission = checkPermission ?? Geolocator.checkPermission,
         _requestPermission = requestPermission ?? Geolocator.requestPermission,
+        _isLocationServiceEnabled =
+            isLocationServiceEnabled ?? Geolocator.isLocationServiceEnabled,
         isOnline = initialOnline;
 
   /// Optional on-device LLM for AI safety-ranking (Option 2). When
@@ -117,16 +143,41 @@ class ShelterMapViewModel extends ChangeNotifier {
 
   /// Hook the screen calls once on mount. Loads shelters, resolves GPS,
   /// reads initial connectivity, then notifies. Safe to call once.
+  ///
+  /// GPS resolution uses a fallback accuracy chain: first
+  /// [LocationAccuracy.high] (15s budget); on [TimeoutException] retry
+  /// [LocationAccuracy.medium] (8s). A degraded fix is strictly better
+  /// than none on a cold-start GPS (indoors, first boot). Every branch
+  /// logs via `debugPrint` so a real-device failure is diagnosable in
+  /// logcat — the previous `catch (_)` swallowed everything silently.
   Future<void> init() async {
     try {
       shelters = await _repository.loadAll();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[ShelterMapVM] shelter load failed: $e');
       shelters = const [];
     }
     // Notify immediately so the map renders with shelter markers
     // while GPS resolves in the background.
     notifyListeners();
 
+    // 1. OS-level location services must be ON before any permission
+    //    prompt or position fetch can succeed.
+    try {
+      final serviceEnabled = await _isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        debugPrint('[ShelterMapVM] location services disabled (OS level)');
+        gpsFailure = GpsFailureReason.serviceDisabled;
+        notifyListeners();
+        return;
+      }
+    } catch (e) {
+      // Don't hard-fail on the check itself — proceed to permission flow
+      // and let the position fetch surface a real error if any.
+      debugPrint('[ShelterMapVM] isLocationServiceEnabled threw: $e');
+    }
+
+    // 2. Runtime permission flow.
     try {
       var permission = await _checkPermission();
       if (permission == LocationPermission.denied) {
@@ -134,15 +185,39 @@ class ShelterMapViewModel extends ChangeNotifier {
       }
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
-        gpsError = 'GPS অনুমতি দেওয়া হয়নি';
-      } else {
-        userPosition = await _resolvePosition(
-          accuracy: LocationAccuracy.high,
-          timeLimit: ShelterConstants.gpsTimeout,
-        );
+        debugPrint('[ShelterMapVM] permission denied: $permission');
+        gpsFailure = GpsFailureReason.permissionDenied;
+        notifyListeners();
+        return;
       }
-    } catch (_) {
-      gpsError = 'GPS পাওয়া যায়নি';
+    } catch (e) {
+      debugPrint('[ShelterMapVM] permission flow threw: $e');
+      gpsFailure = GpsFailureReason.unknown;
+      notifyListeners();
+      return;
+    }
+
+    // 3. Resolve position with a fallback accuracy chain.
+    try {
+      userPosition = await _resolvePosition(
+        accuracy: LocationAccuracy.high,
+        timeLimit: ShelterConstants.gpsTimeout,
+      );
+    } on TimeoutException {
+      debugPrint('[ShelterMapVM] high-accuracy timed out after '
+          '${ShelterConstants.gpsTimeout.inSeconds}s, retrying medium...');
+      try {
+        userPosition = await _resolvePosition(
+          accuracy: LocationAccuracy.medium,
+          timeLimit: ShelterConstants.gpsFallbackTimeout,
+        );
+      } catch (e) {
+        debugPrint('[ShelterMapVM] medium-accuracy fallback failed: $e');
+        gpsFailure = GpsFailureReason.timeout;
+      }
+    } catch (e) {
+      debugPrint('[ShelterMapVM] position resolve failed: $e');
+      gpsFailure = GpsFailureReason.unknown;
     }
 
     notifyListeners();

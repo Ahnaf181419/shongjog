@@ -39,6 +39,7 @@ void main() {
         resolvePosition: resolveGeoStub,
         routeService: _FakeRouteService(),
         checkPermission: () async => LocationPermission.always,
+        isLocationServiceEnabled: () async => true,
       );
       addTearDown(vm.dispose);
 
@@ -46,8 +47,110 @@ void main() {
 
       expect(vm.shelters, equals([sampleA, sampleB]));
       expect(vm.userPosition, equals(userPos));
-      expect(vm.gpsError, isNull);
+      expect(vm.gpsFailure, isNull);
     });
+
+    test(
+      'init() reports serviceDisabled when OS location services are off',
+      () async {
+        final vm = ShelterMapViewModel(
+          repository: _FakeRepo([sampleA]),
+          resolvePosition: resolveGeoStub,
+          routeService: _FakeRouteService(),
+          checkPermission: () async => LocationPermission.always,
+          isLocationServiceEnabled: () async => false,
+        );
+        addTearDown(vm.dispose);
+
+        await vm.init();
+
+        expect(vm.gpsFailure, GpsFailureReason.serviceDisabled,
+            reason: 'must surface service-disabled distinctly');
+        expect(vm.userPosition, isNull,
+            reason: 'must not attempt a position fetch when services are off');
+      },
+    );
+
+    test(
+      'init() permissionDenied when runtime permission is refused',
+      () async {
+        final vm = ShelterMapViewModel(
+          repository: _FakeRepo([sampleA]),
+          resolvePosition: resolveGeoStub,
+          routeService: _FakeRouteService(),
+          checkPermission: () async => LocationPermission.denied,
+          requestPermission: () async => LocationPermission.deniedForever,
+          isLocationServiceEnabled: () async => true,
+        );
+        addTearDown(vm.dispose);
+
+        await vm.init();
+
+        expect(vm.gpsFailure, GpsFailureReason.permissionDenied);
+        expect(vm.userPosition, isNull);
+      },
+    );
+
+    test(
+      'init() retries medium accuracy after high-accuracy timeout, then succeeds',
+      () async {
+        // Cold-start GPS regression: high-accuracy times out, but the
+        // medium-accuracy fallback must still yield a position rather
+        // than a generic "GPS not found".
+        var calls = 0;
+        Future<Position?> resolveWithFallback({
+          required LocationAccuracy accuracy,
+          required Duration timeLimit,
+        }) async {
+          calls++;
+          if (accuracy == LocationAccuracy.high) {
+            throw TimeoutException('high-accuracy timed out', timeLimit);
+          }
+          return userPos; // medium succeeds
+        }
+
+        final vm = ShelterMapViewModel(
+          repository: _FakeRepo([sampleA]),
+          resolvePosition: resolveWithFallback,
+          routeService: _FakeRouteService(),
+          checkPermission: () async => LocationPermission.always,
+          isLocationServiceEnabled: () async => true,
+        );
+        addTearDown(vm.dispose);
+
+        await vm.init();
+
+        expect(calls, 2, reason: 'high must be tried, then medium fallback');
+        expect(vm.userPosition, equals(userPos));
+        expect(vm.gpsFailure, isNull, reason: 'fallback must clear failure');
+      },
+    );
+
+    test(
+      'init() reports timeout when BOTH high and medium accuracy time out',
+      () async {
+        Future<Position?> resolveAlwaysTimeout({
+          required LocationAccuracy accuracy,
+          required Duration timeLimit,
+        }) async {
+          throw TimeoutException('timed out', timeLimit);
+        }
+
+        final vm = ShelterMapViewModel(
+          repository: _FakeRepo([sampleA]),
+          resolvePosition: resolveAlwaysTimeout,
+          routeService: _FakeRouteService(),
+          checkPermission: () async => LocationPermission.always,
+          isLocationServiceEnabled: () async => true,
+        );
+        addTearDown(vm.dispose);
+
+        await vm.init();
+
+        expect(vm.gpsFailure, GpsFailureReason.timeout);
+        expect(vm.userPosition, isNull);
+      },
+    );
 
     test('fetchRoute happy path online — sets route + clears loading', () async {
       final route = OsrmRoute(
@@ -59,6 +162,7 @@ void main() {
         resolvePosition: resolveGeoStub,
         routeService: _FakeRouteService(handler: (_, _) => route),
         checkPermission: () async => LocationPermission.always,
+        isLocationServiceEnabled: () async => true,
       )..isOnline = true;
       addTearDown(vm.dispose);
       await vm.init();
@@ -79,6 +183,7 @@ void main() {
           repository: _FakeRepo([sampleA]),
           resolvePosition: resolveGeoStub,
           checkPermission: () async => LocationPermission.always,
+        isLocationServiceEnabled: () async => true,
           routeService: _FakeRouteService(
             handler: (_, _) async {
               networkCalled = true;
@@ -110,6 +215,7 @@ void main() {
           repository: _FakeRepo([sampleA]),
           resolvePosition: resolveGeoStub,
           checkPermission: () async => LocationPermission.always,
+        isLocationServiceEnabled: () async => true,
           routeService: _FakeRouteService(handler: (_, _) => null),
         )..isOnline = true;
         addTearDown(vm.dispose);
@@ -156,6 +262,7 @@ void main() {
           repository: _FakeRepo([sampleA, sampleB]),
           resolvePosition: resolveGeoStub,
           checkPermission: () async => LocationPermission.always,
+        isLocationServiceEnabled: () async => true,
           routeService: delayedRouteService,
         )..isOnline = true;
         addTearDown(vm.dispose);
@@ -184,6 +291,7 @@ void main() {
         repository: _FakeRepo([sampleA]),
         resolvePosition: resolveGeoStub,
         checkPermission: () async => LocationPermission.always,
+        isLocationServiceEnabled: () async => true,
         routeService: _FakeRouteService(handler: (_, _) => route),
       )..isOnline = true;
       addTearDown(vm.dispose);
@@ -206,6 +314,7 @@ void main() {
         repository: _FakeRepo([sampleA, sampleB]),
         resolvePosition: resolveGeoStub,
         checkPermission: () async => LocationPermission.always,
+        isLocationServiceEnabled: () async => true,
         routeService: _FakeRouteService(),
       )..isOnline = true;
       addTearDown(vm.dispose);
@@ -230,6 +339,7 @@ void main() {
           repository: _FakeRepo([sampleA, sampleB]),
           resolvePosition: resolveGeoStub,
           checkPermission: () async => LocationPermission.always,
+        isLocationServiceEnabled: () async => true,
           routeService: _FakeRouteService(handler: (_, _) => route),
         )..isOnline = true;
         addTearDown(vm.dispose);
@@ -263,6 +373,7 @@ void main() {
           repository: _FakeRepo([sampleA]),
           resolvePosition: resolveGeoStub,
           checkPermission: () async => LocationPermission.always,
+        isLocationServiceEnabled: () async => true,
           routeService: delayedRouteService,
         )..isOnline = true;
         await vm.init();
@@ -287,6 +398,7 @@ void main() {
           repository: _FakeRepo([sampleA]),
           resolvePosition: resolveGeoStub,
           checkPermission: () async => LocationPermission.always,
+        isLocationServiceEnabled: () async => true,
           routeService: _FakeRouteService(handler: (_, _) async {
             await Future<void>.delayed(const Duration(milliseconds: 10));
             return route;

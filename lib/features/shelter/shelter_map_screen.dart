@@ -108,6 +108,25 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
     }
   }
 
+  /// Maps the VM's structured [GpsFailureReason] to a localized message
+  /// for the [GpsBanner]. Each reason has a dedicated, actionable ARB
+  /// string; the VM stays free of `AppLocalizations` (pure Dart).
+  String _gpsErrorText(GpsFailureReason? reason) {
+    final l10n = AppLocalizations.of(context);
+    switch (reason) {
+      case GpsFailureReason.serviceDisabled:
+        return l10n.shelterGpsServiceDisabled;
+      case GpsFailureReason.permissionDenied:
+        return l10n.shelterGpsPermissionDenied;
+      case GpsFailureReason.timeout:
+        return l10n.shelterGpsNotFound;
+      case GpsFailureReason.unknown:
+        return l10n.shelterGpsNotFound;
+      case null:
+        return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -202,7 +221,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
       body: ListenableBuilder(
         listenable: _vm,
         builder: (_, _) {
-          if (_vm.shelters.isEmpty && _vm.gpsError == null) {
+          if (_vm.shelters.isEmpty && _vm.gpsFailure == null) {
             return const Center(child: CircularProgressIndicator());
           }
           final ranked = _vm.userPosition != null
@@ -216,7 +235,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
 
           return Column(
             children: [
-              if (_vm.gpsError == null && _vm.userPosition == null)
+              if (_vm.gpsFailure == null && _vm.userPosition == null)
                 const LinearProgressIndicator(minHeight: 2),
               Expanded(
                 child: _showMap
@@ -376,9 +395,9 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
               onTapRow: (s) => _vm.fetchRoute(s as Shelter),
             ),
           )
-        else if (_vm.gpsError != null)
+        else if (_vm.gpsFailure != null)
           GpsBanner(
-            error: _vm.gpsError,
+            error: _gpsErrorText(_vm.gpsFailure),
             stackedBelowOfflinePill: !_vm.isOnline,
           ),
         if (_vm.showSearchPanel)
