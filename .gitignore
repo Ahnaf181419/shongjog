@@ -117,3 +117,5 @@ google-services.json
 
 # ─── Team-local AI tooling (per-developer, not project code) ─
 .agents/
+.vercel
+.env*

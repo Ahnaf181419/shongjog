@@ -1,13 +1,23 @@
 #!/usr/bin/env bash
 #
-# Build the release APK, optionally injecting GEMINI_API_KEY from .env (or env var).
+# Build the shippable release APK.
 #
 # Usage:
-#   bash scripts/build_release.sh          # reads .env if present; else offline build
-#   GEMINI_API_KEY=xxx bash scripts/build_release.sh   # override via env
+#   bash scripts/build_release.sh                         # the one you want
+#   ALLOW_EMBEDDED_KEY=1 bash scripts/build_release.sh    # local dev only
 #
-# The demo-submission APK SHOULD be built WITHOUT a key (offline-purity + no
-# billable credential in a public artifact). See CONTRIBUTING.md §"Build with key".
+# NO API KEY IS COMPILED IN BY DEFAULT, and .env is deliberately ignored.
+# A `--dart-define` value ends up as a plaintext literal in libapp.so, so any
+# public APK built with one has a public key — `strings libapp.so | grep
+# AIzaSy` is the entire attack. The app fetches its key at runtime from
+# Firestore `config/cloud_ai` instead (lib/core/remote_key_service.dart),
+# which keeps the credential out of the binary AND makes it revocable without
+# shipping a new build.
+#
+# ALLOW_EMBEDDED_KEY=1 restores the old behaviour — reads GEMINI_API_KEY from
+# the environment or .env and bakes it in — for working on cloud AI without a
+# Firestore round trip. That build is NOT publishable; the key gate below is
+# relaxed for it, so nothing else will stop you from shipping it by mistake.
 #
 # Never commit the real .env — it is already in .gitignore.
 #
@@ -29,16 +39,31 @@ PLACEHOLDER="YOUR_GOOGLE_AI_STUDIO_KEY_HERE"
 APK="$REPO_ROOT/build/app/outputs/flutter-apk/app-release.apk"
 USAGE_TXT="$REPO_ROOT/build/app/outputs/mapping/release/usage.txt"
 
-# 1. Start from whatever the caller exported (env wins over file).
-KEY="${GEMINI_API_KEY:-}"
+# The Firebase project every device must sync against. google-services.json is
+# gitignored and downloaded per-developer, so two people can hold valid files
+# for DIFFERENT projects — the build succeeds on both and the phones then talk
+# to two separate backends, which looks exactly like "sync is broken" and
+# nothing in the build output says otherwise. Pinning the id here turns that
+# into a build failure. Not a secret: it ships in the APK regardless.
+FIREBASE_PROJECT_ID="shongjog-007"
 
-# 2. If nothing in env, try .env (sourced safely).
-if [[ -z "$KEY" && -f "$ENV_FILE" ]]; then
-  set -a
-  # shellcheck disable=SC1090
-  source "$ENV_FILE"
-  set +a
+ALLOW_EMBEDDED_KEY="${ALLOW_EMBEDDED_KEY:-0}"
+
+# Resolve a key ONLY when explicitly opted in. The default path never reads
+# .env at all — leaving the file on disk must not silently produce an
+# unpublishable APK, which is exactly what happens when a key is picked up
+# implicitly.
+KEY=""
+if [[ "$ALLOW_EMBEDDED_KEY" == "1" ]]; then
+  # Caller's environment wins over the file.
   KEY="${GEMINI_API_KEY:-}"
+  if [[ -z "$KEY" && -f "$ENV_FILE" ]]; then
+    set -a
+    # shellcheck disable=SC1090
+    source "$ENV_FILE"
+    set +a
+    KEY="${GEMINI_API_KEY:-}"
+  fi
 fi
 
 # ── Pre-build source verification ──────────────────────────────────────
@@ -81,13 +106,18 @@ echo
 # 3. Build (arm64-v8a only).
 BUILD_ARGS=(build apk --release --target-platform android-arm64)
 
+EMBEDDED_KEY=0
 if [[ -z "$KEY" || "$KEY" == "$PLACEHOLDER" ]]; then
-  echo "==> GEMINI_API_KEY not set. Building OFFLINE (cloud fallback disabled)."
-  echo "==> This is the correct path for the demo-submission APK."
+  echo "==> No key compiled in — this build is publishable."
+  echo "==> Cloud AI still works on device: the app fetches its key at first"
+  echo "==> launch from Firestore config/cloud_ai. On-device Gemma 4 needs no"
+  echo "==> key at all."
 else
-  echo "==> GEMINI_API_KEY detected. Building with cloud AI fallback enabled."
-  echo "==> WARNING: the key will be embedded in the APK. Do not ship this build"
-  echo "==> publicly. For the demo, rebuild without .env (or with the placeholder)."
+  EMBEDDED_KEY=1
+  echo "==> ALLOW_EMBEDDED_KEY=1 — compiling GEMINI_API_KEY into the binary."
+  echo "==> *** DO NOT PUBLISH THIS APK. *** The key is recoverable from it"
+  echo "==> with a single grep. Re-run without ALLOW_EMBEDDED_KEY for a build"
+  echo "==> you can upload."
   BUILD_ARGS+=(--dart-define=GEMINI_API_KEY="$KEY")
 fi
 
@@ -143,6 +173,79 @@ if [[ -f "$USAGE_TXT" ]]; then
   else
     echo "  ✗ R8 deleted $STRIPPED MediaPipe/protobuf classes — see"
     echo "    android/app/proguard-rules.pro (-dontwarn does NOT keep them)."
+    FAILED=1
+  fi
+fi
+
+# ── Cross-device sync checks ───────────────────────────────────────────
+# The admin panel (broadcasts, campaign requests, safety reports) syncs over
+# Firestore, and an incoming broadcast raises a tray notification on every
+# other device. All three parts below are invisible to analyze/test — they
+# live in the merged manifest and the packaged dex — and each fails silently
+# at runtime: no crash, just an admin whose broadcast reaches nobody.
+#
+# `strings` is binutils; skip rather than fail if the box doesn't have it.
+if ! command -v strings >/dev/null 2>&1; then
+  echo "  ~ strings(1) not found — skipping Firebase/notification checks"
+else
+  # 4. Firebase must be wired, and to the RIGHT project. The google-services
+  #    Gradle plugin already hard-fails when the JSON is absent, so this is
+  #    really guarding against a stale file for a different project.
+  if [[ "$(unzip -p "$APK" resources.arsc | strings -a | grep -c "$FIREBASE_PROJECT_ID" || true)" -gt 0 ]]; then
+    echo "  ✓ Firebase wired to $FIREBASE_PROJECT_ID"
+  else
+    echo "  ✗ APK carries no reference to Firebase project $FIREBASE_PROJECT_ID."
+    echo "    android/app/google-services.json is for a different project (or"
+    echo "    was swapped) — admin broadcasts will not reach other devices."
+    FAILED=1
+  fi
+
+  # 5. Without the plugin there is no tray notification: a broadcast still
+  #    syncs and still updates the in-app bell, so this regression is only
+  #    visible if you happen to be watching a second phone's lock screen.
+  if [[ "$(unzip -p "$APK" 'classes*.dex' 2>/dev/null | strings -a | grep -c 'flutterlocalnotifications' || true)" -gt 0 ]]; then
+    echo "  ✓ Local-notification plugin packaged"
+  else
+    echo "  ✗ flutter_local_notifications is not in the APK — incoming admin"
+    echo "    broadcasts will sync silently, with no notification."
+    FAILED=1
+  fi
+
+  # 6. No Gemini key compiled into the Dart binary. `--dart-define` values are
+  #    plaintext literals in libapp.so, so a public APK built with one has a
+  #    public key — `strings libapp.so | grep AIzaSy` is the whole attack.
+  #    The key is delivered at runtime from Firestore instead
+  #    (lib/core/remote_key_service.dart), so there is never a reason for one
+  #    to be in here. Scans libapp.so ONLY: the Firebase Android API key is
+  #    also an AIzaSy string, but it lives in resources.arsc and is meant to
+  #    ship.
+  #
+  #    Matches BOTH credential shapes this project has actually had in .env:
+  #    `AIzaSy…` (a real Google API key) and `AQ.Ab…` (the OAuth-style
+  #    ephemeral token). A grep for AIzaSy alone would have waved through the
+  #    keyed build made earlier in this project's history.
+  KEY_HITS="$(unzip -p "$APK" lib/arm64-v8a/libapp.so | strings -a | grep -cE 'AIzaSy|AQ\.Ab' || true)"
+  if [[ "$KEY_HITS" -eq 0 ]]; then
+    echo "  ✓ No API key compiled into libapp.so"
+  elif [[ "$EMBEDDED_KEY" == "1" ]]; then
+    # Opted in above, so this is expected — say it loudly rather than failing,
+    # or there'd be no way to make a local cloud-AI build at all.
+    echo "  ! API key IS baked into libapp.so (ALLOW_EMBEDDED_KEY=1)"
+    echo "    This APK is for local testing only — do not upload it."
+  else
+    echo "  ✗ A Gemini API key is baked into libapp.so, but this build never"
+    echo "    passed one. Something else injected it — inspect before shipping."
+    FAILED=1
+  fi
+
+  # 7. Binary AndroidManifest keeps its string pool in UTF-16, hence -el.
+  #    Missing this permission is silent on Android 12 and below and total on
+  #    13+, so a phone-dependent "notifications don't work" report.
+  if [[ "$(unzip -p "$APK" AndroidManifest.xml | strings -el | grep -c 'POST_NOTIFICATIONS' || true)" -gt 0 ]]; then
+    echo "  ✓ POST_NOTIFICATIONS declared"
+  else
+    echo "  ✗ POST_NOTIFICATIONS missing from the merged manifest — Android 13+"
+    echo "    devices will silently drop every notification."
     FAILED=1
   fi
 fi

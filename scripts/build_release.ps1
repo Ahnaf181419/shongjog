@@ -1,11 +1,17 @@
-# Build the release APK, optionally injecting GEMINI_API_KEY from .env (or env var).
+# Build the shippable release APK.
 #
 # Usage:
-#   .\scripts\build_release.ps1                              # reads .env if present
-#   $env:GEMINI_API_KEY="xxx"; .\scripts\build_release.ps1   # override via env
+#   .\scripts\build_release.ps1                                        # the one you want
+#   $env:ALLOW_EMBEDDED_KEY="1"; .\scripts\build_release.ps1           # local dev only
 #
-# The demo-submission APK SHOULD be built WITHOUT a key (offline-purity + no
-# billable credential in a public artifact). See CONTRIBUTING.md <-"Build with key">.
+# NO API KEY IS COMPILED IN BY DEFAULT, and .env is deliberately ignored.
+# A --dart-define value ends up as a plaintext literal in libapp.so, so any
+# public APK built with one has a public key. The app fetches its key at
+# runtime from Firestore config/cloud_ai instead - out of the binary, and
+# revocable without shipping a new build.
+#
+# ALLOW_EMBEDDED_KEY=1 restores the old behaviour for local cloud-AI work.
+# That build is NOT publishable.
 #
 # Never commit the real .env - it is already in .gitignore.
 #
@@ -20,18 +26,31 @@ $RepoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
 $EnvFile  = Join-Path $RepoRoot ".env"
 $Placeholder = "YOUR_GOOGLE_AI_STUDIO_KEY_HERE"
 
-# 1. Start from whatever the caller exported (env wins over file).
-$Key = [System.Environment]::GetEnvironmentVariable("GEMINI_API_KEY")
+# The Firebase project every device must sync against. google-services.json is
+# gitignored and downloaded per-developer, so two people can hold valid files
+# for DIFFERENT projects — the build succeeds on both and the phones then talk
+# to two separate backends, which looks exactly like "sync is broken". Pinning
+# the id turns that into a build failure. Not a secret: it ships in the APK.
+$FirebaseProjectId = "shongjog-007"
 
-# 2. If nothing in env, try .env (parse line by line).
-if ([string]::IsNullOrEmpty($Key) -and (Test-Path $EnvFile)) {
-  Get-Content $EnvFile | ForEach-Object {
-    $line = $_.Trim()
-    if ($line -and -not $line.StartsWith("#") -and $line.Contains("=")) {
-      $parts  = $line -split "=", 2
-      $name   = $parts[0].Trim()
-      $value  = $parts[1].Trim()
-      if ($name -eq "GEMINI_API_KEY") { $Key = $value }
+$AllowEmbeddedKey =
+  [System.Environment]::GetEnvironmentVariable("ALLOW_EMBEDDED_KEY") -eq "1"
+
+# Resolve a key ONLY when explicitly opted in. The default path never reads
+# .env at all - leaving the file on disk must not silently produce an
+# unpublishable APK.
+$Key = $null
+if ($AllowEmbeddedKey) {
+  $Key = [System.Environment]::GetEnvironmentVariable("GEMINI_API_KEY")
+  if ([string]::IsNullOrEmpty($Key) -and (Test-Path $EnvFile)) {
+    Get-Content $EnvFile | ForEach-Object {
+      $line = $_.Trim()
+      if ($line -and -not $line.StartsWith("#") -and $line.Contains("=")) {
+        $parts  = $line -split "=", 2
+        $name   = $parts[0].Trim()
+        $value  = $parts[1].Trim()
+        if ($name -eq "GEMINI_API_KEY") { $Key = $value }
+      }
     }
   }
 }
@@ -66,14 +85,19 @@ if ($LASTEXITCODE -eq 0) {
 if ($preFailed) { Write-Error "==> Source is not demo-safe"; exit 1 }
 
 # 3. Build (arm64-v8a only).
+$embeddedKey = $false
 if ([string]::IsNullOrEmpty($Key) -or $Key -eq $Placeholder) {
-  Write-Host "==> GEMINI_API_KEY not set. Building OFFLINE (cloud fallback disabled)."
-  Write-Host "==> This is the correct path for the demo-submission APK."
+  Write-Host "==> No key compiled in - this build is publishable."
+  Write-Host "==> Cloud AI still works on device: the app fetches its key at first"
+  Write-Host "==> launch from Firestore config/cloud_ai. On-device Gemma 4 needs"
+  Write-Host "==> no key at all."
   flutter build apk --release --target-platform android-arm64
 } else {
-  Write-Host "==> GEMINI_API_KEY detected. Building with cloud AI fallback enabled."
-  Write-Host "==> WARNING: the key will be embedded in the APK. Do not ship this build"
-  Write-Host "==> publicly. For the demo, rebuild without .env (or with the placeholder)."
+  $embeddedKey = $true
+  Write-Host "==> ALLOW_EMBEDDED_KEY=1 - compiling GEMINI_API_KEY into the binary."
+  Write-Host "==> *** DO NOT PUBLISH THIS APK. *** The key is recoverable from it"
+  Write-Host "==> with a single grep. Re-run without ALLOW_EMBEDDED_KEY for a build"
+  Write-Host "==> you can upload."
   flutter build apk --release --target-platform android-arm64 --dart-define=GEMINI_API_KEY=$Key
 }
 
@@ -85,8 +109,31 @@ if (-not (Test-Path $Apk)) { Write-Error "APK not found at $Apk"; exit 1 }
 
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $zip = [System.IO.Compression.ZipFile]::OpenRead($Apk)
+
+# Decode APK entries in memory — the Firebase/notification checks below look
+# INSIDE resources.arsc, classes*.dex and the binary manifest, not just at the
+# file listing. $encoding is 'ASCII' for the first two and 'Unicode' for the
+# manifest, whose binary-XML string pool is UTF-16.
+function Get-EntryText($zip, $pattern, $encoding) {
+  $sb = New-Object System.Text.StringBuilder
+  foreach ($e in $zip.Entries) {
+    if ($e.FullName -notlike $pattern) { continue }
+    $s = $e.Open()
+    try {
+      $ms = New-Object System.IO.MemoryStream
+      $s.CopyTo($ms)
+      [void]$sb.Append([System.Text.Encoding]::$encoding.GetString($ms.ToArray()))
+      $ms.Dispose()
+    } finally { $s.Dispose() }
+  }
+  return $sb.ToString()
+}
+
 try {
   $names = $zip.Entries | ForEach-Object { $_.FullName }
+  $arscText = Get-EntryText $zip "resources.arsc" "ASCII"
+  $dexText = Get-EntryText $zip "classes*.dex" "ASCII"
+  $manifestText = Get-EntryText $zip "AndroidManifest.xml" "Unicode"
 } finally {
   $zip.Dispose()
 }
@@ -117,6 +164,60 @@ if (Test-Path $usageTxt) {
     Write-Host "        android/app/proguard-rules.pro (-dontwarn does NOT keep them)."
     $failed = $true
   }
+}
+
+# Cross-device sync checks (mirrors build_release.sh). The admin panel syncs
+# over Firestore and an incoming broadcast raises a tray notification on every
+# other device. All three are invisible to analyze/test — they live in the
+# merged manifest and the packaged dex — and each fails silently at runtime:
+# no crash, just an admin whose broadcast reaches nobody.
+if ($arscText.Contains($FirebaseProjectId)) {
+  Write-Host "  OK  Firebase wired to $FirebaseProjectId"
+} else {
+  Write-Host "  FAIL  APK carries no reference to Firebase project $FirebaseProjectId."
+  Write-Host "        android/app/google-services.json is for a different project —"
+  Write-Host "        admin broadcasts will not reach other devices."
+  $failed = $true
+}
+if ($dexText.Contains("flutterlocalnotifications")) {
+  Write-Host "  OK  Local-notification plugin packaged"
+} else {
+  Write-Host "  FAIL  flutter_local_notifications is not in the APK — incoming"
+  Write-Host "        admin broadcasts will sync silently, with no notification."
+  $failed = $true
+}
+# No Gemini key compiled into the Dart binary. --dart-define values are
+# plaintext literals in libapp.so, so a public APK built with one has a public
+# key. The key is delivered at runtime from Firestore instead. Scans libapp.so
+# ONLY: the Firebase Android API key is also an AIzaSy string, but it lives in
+# resources.arsc and is meant to ship.
+$zip2 = [System.IO.Compression.ZipFile]::OpenRead($Apk)
+try {
+  $libappText = Get-EntryText $zip2 "lib/arm64-v8a/libapp.so" "ASCII"
+} finally { $zip2.Dispose() }
+# Matches BOTH credential shapes this project has actually had in .env:
+# 'AIzaSy...' (a real Google API key) and 'AQ.Ab...' (the OAuth-style
+# ephemeral token). A check for AIzaSy alone would wave the latter through.
+if (-not ($libappText -match 'AIzaSy|AQ\.Ab')) {
+  Write-Host "  OK  No API key compiled into libapp.so"
+} elseif ($embeddedKey) {
+  # Opted in above, so this is expected - say it loudly rather than failing,
+  # or there'd be no way to make a local cloud-AI build at all.
+  Write-Host "  !   API key IS baked into libapp.so (ALLOW_EMBEDDED_KEY=1)"
+  Write-Host "      This APK is for local testing only - do not upload it."
+} else {
+  Write-Host "  FAIL  A Gemini API key is baked into libapp.so, but this build"
+  Write-Host "        never passed one. Something else injected it - inspect"
+  Write-Host "        before shipping."
+  $failed = $true
+}
+
+if ($manifestText.Contains("POST_NOTIFICATIONS")) {
+  Write-Host "  OK  POST_NOTIFICATIONS declared"
+} else {
+  Write-Host "  FAIL  POST_NOTIFICATIONS missing from the merged manifest —"
+  Write-Host "        Android 13+ devices will silently drop every notification."
+  $failed = $true
 }
 
 if ($failed) { Write-Error "==> BUILD IS NOT DEMO-SAFE"; exit 1 }
