@@ -30,6 +30,25 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
+    // Shared cloud-AI credential, delivered to installed apps instead of
+    // being compiled into the APK (see lib/core/remote_key_service.dart).
+    //
+    // WRITE IS DENIED TO EVERY CLIENT, including an admin device. The key is
+    // edited by hand in the Firebase console, so no code path — and no
+    // attacker holding a decompiled build — can overwrite it and redirect
+    // every device's traffic to a key they control.
+    //
+    // Read is open to any signed-in device because that is the point: the
+    // published APK carries no key and fetches this one. That also means any
+    // signed-in party can read it, so the key here is BURNABLE by design —
+    // restrict it to the Generative Language API in Cloud Console, cap its
+    // quota, and rotate it after judging. Blanking this field revokes it on
+    // every installed device at the next launch, with no new release.
+    match /config/{doc} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
     // Bootstrap doc for the client-asserted admin role. Self-writable only
     // — see the auth-model note above for why this is nominal, not secure.
     match /users/{uid} {

@@ -11,8 +11,11 @@ import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'app/app.dart';
 import 'core/admin_broadcast_service.dart';
 import 'core/connectivity_provider.dart';
+import 'core/device_registry_service.dart';
 import 'core/firebase_auth_service.dart';
+import 'core/local_notification_service.dart';
 import 'core/model_manager.dart';
+import 'core/remote_key_service.dart';
 import 'features/admin/campaign_request.dart';
 import 'features/safe_beacon/safety_status_service.dart';
 
@@ -69,10 +72,38 @@ Future<void> main() async {
   } catch (e) {
     debugPrint('Firebase init failed: $e');
   }
+  // Pull the cloud-AI key from Firestore into the device's secure store, so
+  // the published APK can ship with NO key compiled into it (a --dart-define
+  // key is a plaintext literal in libapp.so — one `grep` recovers it from a
+  // public download). Awaited, not fire-and-forget: ChatScreen reads the
+  // stored key when it builds, and on a first launch that happens seconds
+  // from now. One small doc read, served from Firestore's offline cache on
+  // every launch after the first.
+  try {
+    await remoteKeyService.syncOrRevoke();
+  } catch (e) {
+    debugPrint('RemoteKeyService sync failed: $e');
+  }
+  // Must precede adminBroadcastService.initialize(): that subscribes to the
+  // broadcast stream, and the first inbound broadcast raises a tray
+  // notification through this service.
+  try {
+    await localNotificationService.initialize();
+  } catch (e) {
+    debugPrint('LocalNotificationService init failed: $e');
+  }
   try {
     await adminBroadcastService.initialize();
   } catch (e) {
     debugPrint('AdminBroadcastService init failed: $e');
+  }
+  // Registers this device in `users/{uid}` and starts its heartbeat, so the
+  // admin panel's Users page and stat row reflect every device running the
+  // app — not just the Bluetooth peers within mesh range of the admin.
+  try {
+    await deviceRegistryService.initialize();
+  } catch (e) {
+    debugPrint('DeviceRegistryService init failed: $e');
   }
   try {
     await campaignRequestService.initialize();
