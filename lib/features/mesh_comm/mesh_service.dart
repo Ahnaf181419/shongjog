@@ -96,6 +96,12 @@ class MeshService {
   /// How long a disconnected peer stays in the list before removal.
   static const _disconnectTtl = Duration(seconds: 30);
 
+  /// App-wide periodic timer that keeps discovery alive regardless of which
+  /// screen is active. Previously this lived only in MeshRadarScreen and died
+  /// when the user navigated away, breaking peer discovery for both devices.
+  Timer? _discoveryTimer;
+  static const _discoveryInterval = Duration(seconds: 15);
+
   /// Multi-hop SOS relay engine. Wired lazily — the listener is
   /// attached to the messages stream on first [start]().
   SosRelayEngine? _relayEngine;
@@ -210,6 +216,7 @@ class MeshService {
       activeTransport = MeshTransportType.nearbyConnections;
       debugPrint('MeshService: using Nearby Connections (GMS detected)');
       _running = true;
+      _startDiscoveryTimer();
       _peersController.add(peerList);
       return MeshStartResult(
         ok: true,
@@ -253,6 +260,7 @@ class MeshService {
     });
 
     _running = true;
+    _startDiscoveryTimer();
     _peersController.add(peerList);
     return MeshStartResult(
       ok: true,
@@ -260,6 +268,19 @@ class MeshService {
       discoveryOk: true,
       wifiOn: wifiOn,
     );
+  }
+
+  /// Start the app-wide discovery refresh timer. Idempotent — cancels any
+  /// existing timer before creating a new one. Also restarts advertising
+  /// so the username is always visible to nearby peers.
+  void _startDiscoveryTimer() {
+    _discoveryTimer?.cancel();
+    _discoveryTimer = Timer.periodic(_discoveryInterval, (_) {
+      if (_running) {
+        restartDiscovery();
+        restartAdvertising();
+      }
+    });
   }
 
   Future<void> restartDiscovery() async {
@@ -283,8 +304,30 @@ class MeshService {
     }
   }
 
+  /// Restart advertising so the username is always broadcast to nearby peers.
+  /// If advertising was dropped by the OS, this re-establishes it.
+  Future<void> restartAdvertising() async {
+    if (!_running) return;
+    if (activeTransport == MeshTransportType.wifiDirect) return;
+    try {
+      await Nearby().stopAdvertising();
+      await Nearby().startAdvertising(
+        userName,
+        strategy,
+        serviceId: _kServiceId,
+        onConnectionInitiated: _onConnectionInitiated,
+        onConnectionResult: _onConnectionResult,
+        onDisconnected: _onDisconnected,
+      );
+    } catch (_) {
+      // Advertising restart is best-effort.
+    }
+  }
+
   Future<void> stop() async {
     _running = false;
+    _discoveryTimer?.cancel();
+    _discoveryTimer = null;
     _wdPeerSub?.cancel();
     _wdMsgSub?.cancel();
     if (activeTransport == MeshTransportType.wifiDirect) {
@@ -314,15 +357,32 @@ class MeshService {
     final existing = _peers[id];
     if (existing != null && existing.status == PeerStatus.connected) return;
 
+    final displayName = name.substring(kMeshPeerPrefix.length);
+    if (displayName.isEmpty) return;
+
+    // Deduplication by display name: if a different endpoint ID arrives with
+    // the same name (e.g. the peer restarted and got a new ID), remove the
+    // stale entry so the user doesn't see two entries for the same person.
+    String? staleId;
+    for (final entry in _peers.entries) {
+      if (entry.key != id && entry.value.name == name) {
+        staleId = entry.key;
+        break;
+      }
+    }
+    if (staleId != null) {
+      _disconnectTimers.remove(staleId)?.cancel();
+      _peers.remove(staleId);
+    }
+
     // If this peer was disconnected, cancel its cleanup timer — it's
     // coming back into range. The connection flow will promote it to
     // connected via _onConnectionResult.
     _disconnectTimers.remove(id)?.cancel();
 
-    final displayName = name.substring(kMeshPeerPrefix.length);
     _peers[id] = MeshPeer(
       endpointId: id,
-      name: displayName.isNotEmpty ? displayName : id,
+      name: name,
       status: PeerStatus.disconnected,
     );
     _peersController.add(peerList);

@@ -676,7 +676,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               const SizedBox(height: 20),
               TextButton.icon(
-                onPressed: () => MainShell.goToTab(context, 2),
+                onPressed: () => MainShell.goToTab(context, 3),
                 icon: const Icon(Icons.style_outlined, size: 18),
                 label: Text(AppLocalizations.of(context).chatQuickCards),
               ),

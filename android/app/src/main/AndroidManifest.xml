@@ -19,6 +19,10 @@
          arrives over Firestore. Runtime-requested on Android 13+ from
          LocalNotificationService.initialize(); install-time below that. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- VIBRATE + USE_FULL_SCREEN_INTENT: incoming mesh call notification
+         with sound and heads-up display even when app is backgrounded. -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
 
     <!-- Mesh Networking (Phase 4.7) -->
     <uses-permission android:name="android.permission.BLUETOOTH"/>
