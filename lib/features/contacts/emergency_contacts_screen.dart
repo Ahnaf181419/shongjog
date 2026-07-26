@@ -156,6 +156,7 @@ class _PanicHero extends StatelessWidget {
                         fontSize: 19,
                         fontWeight: FontWeight.w600,
                         fontFamily: ShongjogTheme.fontFamily,
+                        fontFamilyFallback: ShongjogTheme.fontFallback,
                         color: Theme.of(context).colorScheme.onError,
                       ),
                     ),
@@ -165,6 +166,7 @@ class _PanicHero extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14,
                         fontFamily: ShongjogTheme.fontFamily,
+                        fontFamilyFallback: ShongjogTheme.fontFallback,
                         color: Colors.white.withValues(alpha: 0.85),
                       ),
                     ),
@@ -256,6 +258,7 @@ class _ContactRow extends StatelessWidget {
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           fontFamily: ShongjogTheme.fontFamily,
+                          fontFamilyFallback: ShongjogTheme.fontFallback,
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
@@ -265,6 +268,7 @@ class _ContactRow extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 13,
                           fontFamily: ShongjogTheme.fontFamily,
+                          fontFamilyFallback: ShongjogTheme.fontFallback,
                           color: Theme.of(context)
                               .colorScheme
                               .onSurfaceVariant,
@@ -279,6 +283,7 @@ class _ContactRow extends StatelessWidget {
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     fontFamily: ShongjogTheme.fontFamily,
+                    fontFamilyFallback: ShongjogTheme.fontFallback,
                     color: accent,
                   ),
                 ),
@@ -309,6 +314,7 @@ class _SectionLabel extends StatelessWidget {
         fontSize: 14,
         fontWeight: FontWeight.w600,
         fontFamily: ShongjogTheme.fontFamily,
+        fontFamilyFallback: ShongjogTheme.fontFallback,
         color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
     );
@@ -337,6 +343,7 @@ class _EmptyCustomState extends StatelessWidget {
             style: TextStyle(
               fontSize: 15,
               fontFamily: ShongjogTheme.fontFamily,
+              fontFamilyFallback: ShongjogTheme.fontFallback,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
@@ -427,6 +434,7 @@ class _AddContactSheetState extends State<_AddContactSheet> {
               fontSize: 20,
               fontWeight: FontWeight.w600,
               fontFamily: ShongjogTheme.fontFamily,
+              fontFamilyFallback: ShongjogTheme.fontFallback,
               color: Theme.of(context).colorScheme.onSurface,
             ),
           ),

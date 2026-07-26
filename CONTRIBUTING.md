@@ -56,7 +56,7 @@ lib/
 assets/
 ├── kb/                 ← Build-time embedded corpus + vectors
 ├── shelter/            ← GeoJSON
-├── fonts/              ← HindSiliguri
+├── fonts/              ← AnekBangla (Bangla) + Manrope (Latin fallback)
 ├── sound/              ← chime.wav, knock.wav
 └── vosk/               ← Offline STT model (when ready)
 tools/                  ← Python: build_kb.py, verify_kb.py, corpus.json, .venv/

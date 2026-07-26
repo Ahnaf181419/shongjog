@@ -150,6 +150,7 @@ class _PathChip extends StatelessWidget {
         path.label(context),
         style: TextStyle(
           fontFamily: ShongjogTheme.fontFamily,
+          fontFamilyFallback: ShongjogTheme.fontFallback,
           fontSize: 11,
           fontWeight: FontWeight.w600,
           color: tint,

@@ -43,7 +43,7 @@ git tag hackathon-final vX.Y.Z         # tag the demo build
 - [ ] `assets/kb/vectors.bin` is current (matches corpus via tools/verify_kb.py)
 - [ ] `assets/kb/meta.json` reflects the same build
 - [ ] `assets/shelter/cyclone_shelters.geojson` spot-checked
-- [ ] `assets/fonts/HindSiliguri-*.ttf` bundled
+- [ ] `assets/fonts/AnekBangla.ttf` + `assets/fonts/Manrope.ttf` bundled
 - [ ] `assets/sound/chime.wav` and `knock.wav` present (auto-no-op if missing — check
       `sound_service.dart` confirms)
 - [ ] `assets/vosk/` populated (if Vosk is online path); otherwise `VoskSttProvider` stub

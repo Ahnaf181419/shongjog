@@ -67,7 +67,8 @@ Read `docs/PROJECT-STATUS.md` first — it's the entry point. Then `docs/archite
   is the documented pattern for models this size.
 - **No medical/advice content from outside the whitelist.** Allowed sources: WHO, BDRCS,
   MoDMR, BMD, CDC, IFRC. See `docs/corpus.md` §5 and `tools/README.md`.
-- **No English in the user UI.** User surface is Bangla (HindSiliguri). English is only
+- **No English in the user UI.** User surface is Bangla (AnekBangla; Latin
+  characters use Manrope via `fontFamilyFallback`). English is only
   for logs, code identifiers, and engineering docs.
 - **Bangla numerals (০-৯) and danda (`।`)** in user-facing strings. Latin digits and `.`
   only inside logs / `assert` / `FormatException` messages. See `CONTRIBUTING.md` §"Bangla

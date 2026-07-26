@@ -363,6 +363,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               fontSize: 14,
               fontWeight: FontWeight.w700,
               fontFamily: ShongjogTheme.fontFamily,
+              fontFamilyFallback: ShongjogTheme.fontFallback,
               color: Theme.of(context).colorScheme.primary,
             ),
           ),

@@ -98,16 +98,12 @@ flutter:
     - assets/sound/knock.wav
     - assets/emergency/
   fonts:
-    - family: HindSiliguri
+    - family: AnekBangla
       fonts:
-        - asset: assets/fonts/HindSiliguri-Light.ttf
-          weight: 300
-        - asset: assets/fonts/HindSiliguri-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/HindSiliguri-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/HindSiliguri-SemiBold.ttf
-          weight: 600
+        - asset: assets/fonts/AnekBangla.ttf
+    - family: Manrope
+      fonts:
+        - asset: assets/fonts/Manrope.ttf
 
 flutter_launcher_icons:
   android: "launcher_icon"

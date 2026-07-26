@@ -69,7 +69,13 @@ class ShongjogTheme {
   static const Color darkInk = inkDark;
 
   // ─── Bangla-first font ────────────────────────────────────
-  static const String fontFamily = 'HindSiliguri';
+  // Primary: Anek Bangla — modern variable font, crisp Bangla numerals.
+  // Fallback: Manrope — for Latin characters (English diagnostics, version
+  // numbers, About screen, etc.). Flutter's fontFamilyFallback chain routes
+  // each glyph to the first font that has it, so a Bangla string with a
+  // few Latin characters renders each script in its own typeface.
+  static const String fontFamily = 'AnekBangla';
+  static const List<String> fontFallback = ['Manrope'];
   static const double bodyFloor = 17.0;
   static const double bodyLargeFloor = 20.0;
 
@@ -252,6 +258,7 @@ class ShongjogTheme {
       bodyColor: textPrimary,
       displayColor: textPrimary,
       fontFamily: fontFamily,
+      fontFamilyFallback: fontFallback,
     );
 
     final colorScheme = ColorScheme(
@@ -301,11 +308,13 @@ class ShongjogTheme {
           height: 1.2,
           fontWeight: FontWeight.w600,
           fontFamily: fontFamily,
+          fontFamilyFallback: fontFallback,
         ),
         labelMedium: tt.labelMedium?.copyWith(
           fontSize: 14,
           fontWeight: FontWeight.w600,
           fontFamily: fontFamily,
+          fontFamilyFallback: fontFallback,
           color: textSecondary,
           letterSpacing: 0.02,
         ),
@@ -322,6 +331,7 @@ class ShongjogTheme {
           fontSize: 22,
           fontWeight: FontWeight.w600,
           fontFamily: fontFamily,
+          fontFamilyFallback: fontFallback,
         ),
       ),
       cardTheme: CardThemeData(
@@ -342,6 +352,7 @@ class ShongjogTheme {
         labelTextStyle: WidgetStatePropertyAll(
           TextStyle(
             fontFamily: fontFamily,
+            fontFamilyFallback: fontFallback,
             fontSize: 12,
             fontWeight: FontWeight.w500,
           ),
@@ -373,6 +384,7 @@ class ShongjogTheme {
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         labelStyle: TextStyle(
           fontFamily: fontFamily,
+          fontFamilyFallback: fontFallback,
           color: textSecondary,
         ),
       ),
@@ -387,6 +399,7 @@ class ShongjogTheme {
             fontSize: 17,
             fontWeight: FontWeight.w600,
             fontFamily: fontFamily,
+            fontFamilyFallback: fontFallback,
           ),
         ),
       ),
@@ -410,6 +423,7 @@ class ShongjogTheme {
           textStyle: WidgetStateProperty.all(
             TextStyle(
               fontFamily: fontFamily,
+              fontFamilyFallback: fontFallback,
               fontSize: 15,
               fontWeight: FontWeight.w500,
             ),
@@ -437,12 +451,14 @@ class ShongjogTheme {
         textColor: textPrimary,
         titleTextStyle: TextStyle(
           fontFamily: fontFamily,
+          fontFamilyFallback: fontFallback,
           fontSize: 17,
           fontWeight: FontWeight.w500,
           color: textPrimary,
         ),
         subtitleTextStyle: TextStyle(
           fontFamily: fontFamily,
+          fontFamilyFallback: fontFallback,
           fontSize: 14,
           color: textSecondary,
         ),
@@ -460,6 +476,7 @@ class ShongjogTheme {
         backgroundColor: textPrimary,
         contentTextStyle: TextStyle(
           fontFamily: fontFamily,
+          fontFamilyFallback: fontFallback,
           color: isLight ? white : scaffoldDark,
         ),
         shape: RoundedRectangleBorder(

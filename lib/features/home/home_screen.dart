@@ -176,6 +176,7 @@ class _ProfileTitleState extends State<_ProfileTitle> {
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                   fontFamily: ShongjogTheme.fontFamily,
+                  fontFamilyFallback: ShongjogTheme.fontFallback,
                   color: cs.onSurface,
                 ),
               ),

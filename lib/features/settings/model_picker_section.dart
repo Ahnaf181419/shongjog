@@ -111,6 +111,7 @@ class _ModelPickerSectionState extends State<ModelPickerSection> {
               Flexible(
                 child: Text(l10n.modelRamLabel(ramText), style: TextStyle(
                   fontFamily: ShongjogTheme.fontFamily,
+                  fontFamilyFallback: ShongjogTheme.fontFallback,
                   color: cs.onSurfaceVariant,
                   fontWeight: FontWeight.w500,
                 )),
@@ -127,6 +128,7 @@ class _ModelPickerSectionState extends State<ModelPickerSection> {
               l10n.modelStorageUsed(DeviceCapability.formatBytesBn(_totalStorage)),
               style: TextStyle(
                 fontFamily: ShongjogTheme.fontFamily,
+                fontFamilyFallback: ShongjogTheme.fontFallback,
                 color: cs.onSurfaceVariant,
                 fontSize: 13,
               ),
@@ -244,6 +246,7 @@ class _ModelCard extends StatelessWidget {
                                 : AppLocalizations.of(context).modelPowerfulLabel,
                             style: const TextStyle(
                               fontFamily: ShongjogTheme.fontFamily,
+                              fontFamilyFallback: ShongjogTheme.fontFallback,
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
                             ),
@@ -258,11 +261,13 @@ class _ModelCard extends StatelessWidget {
                       ),
                       Text(rec.sizeLabel(context), style: TextStyle(
                         fontFamily: ShongjogTheme.fontFamily,
+                        fontFamilyFallback: ShongjogTheme.fontFallback,
                         color: cs.onSurfaceVariant,
                         fontSize: 13,
                       )),
                       Text(rec.descriptionLabel(context), style: TextStyle(
                         fontFamily: ShongjogTheme.fontFamily,
+                        fontFamilyFallback: ShongjogTheme.fontFallback,
                         color: cs.onSurfaceVariant,
                         fontSize: 12,
                       )),

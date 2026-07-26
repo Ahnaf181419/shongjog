@@ -74,7 +74,7 @@ Grab the latest release APK from the [**Releases**](https://github.com/Ahnaf1814
 | `assets/shelter/cyclone_shelters.geojson` | 25 cyclone shelter locations |
 | `assets/emergency/directory.json` | 22-entry emergency contact directory |
 | `assets/sound/chime.wav`, `assets/sound/knock.wav` | UI sound effects |
-| `assets/fonts/HindSiliguri-*.ttf` | Bangla typeface (Light, Regular, Medium, SemiBold) |
+| `assets/fonts/AnekBangla.ttf`, `assets/fonts/Manrope.ttf` | Bangla typeface + Latin fallback (variable fonts, single file each) |
 
 ## Prerequisites
 *   **SDK:** Dart `^3.12.0` / Flutter `3.x`

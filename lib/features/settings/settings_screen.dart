@@ -166,6 +166,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _kbVersion ?? '—',
               style: TextStyle(
                 fontFamily: ShongjogTheme.fontFamily,
+                fontFamilyFallback: ShongjogTheme.fontFallback,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
@@ -539,6 +540,7 @@ class _SectionHeader extends StatelessWidget {
           fontWeight: FontWeight.w600,
           letterSpacing: -0.01,
           fontFamily: ShongjogTheme.fontFamily,
+          fontFamilyFallback: ShongjogTheme.fontFallback,
           color: Theme.of(context).colorScheme.onSurface,
         ),
       ),
@@ -630,6 +632,7 @@ class _ProfileRow extends StatelessWidget {
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
                         fontFamily: ShongjogTheme.fontFamily,
+                        fontFamilyFallback: ShongjogTheme.fontFallback,
                         color: profile.name.isNotEmpty
                             ? cs.onSurface
                             : cs.onSurfaceVariant,
@@ -642,6 +645,7 @@ class _ProfileRow extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 14,
                           fontFamily: ShongjogTheme.fontFamily,
+                          fontFamilyFallback: ShongjogTheme.fontFallback,
                           color: cs.onSurfaceVariant,
                         ),
                       ),
@@ -686,6 +690,7 @@ class _ThemeSegmentedRow extends StatelessWidget {
                         fontSize: 14,
                         height: 1.4,
                         fontFamily: ShongjogTheme.fontFamily,
+                        fontFamilyFallback: ShongjogTheme.fontFallback,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
@@ -753,6 +758,7 @@ class _LanguageSegmentedRow extends StatelessWidget {
                         fontSize: 14,
                         height: 1.4,
                         fontFamily: ShongjogTheme.fontFamily,
+                        fontFamilyFallback: ShongjogTheme.fontFallback,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
@@ -860,6 +866,7 @@ class _ModelInfoTile extends StatelessWidget {
               fontSize: 13,
               color: cs.onSurfaceVariant,
               fontFamily: ShongjogTheme.fontFamily,
+              fontFamilyFallback: ShongjogTheme.fontFallback,
             ),
           ),
         ],
