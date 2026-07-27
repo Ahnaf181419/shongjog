@@ -109,8 +109,18 @@ dist/
 package-lock.json
 yarn.lock
 crashlytics/
-firebase*.json
+# Service-account private keys — real secrets. NOT `firebase*.json`, which
+# also swallowed firebase.json / firestore.indexes.json: those are deploy
+# config with nothing sensitive in them and belong in the repo, so
+# `firebase deploy --only firestore:rules` works on a fresh clone.
+firebase-adminsdk-*.json
+*-firebase-adminsdk-*.json
+serviceAccountKey.json
+# Per-developer download from the Firebase console. Contains the project's
+# public Android API key — not a secret, but it is per-project config that
+# each developer fetches themselves.
 google-services.json
+GoogleService-Info.plist
 *.tmp
 *.bak
 !pubspec.lock
