@@ -15,6 +15,7 @@ import '../../knowledge/kb_loader.dart';
 import '../../rag/keyword_retriever.dart';
 import '../../rag/types.dart';
 import '../audio/sound_service.dart';
+import '../cloud_ai/api_key_ring.dart';
 import '../cloud_ai/cloud_ai_service.dart';
 import '../emergency/emergency_sheet.dart';
 import '../shelter/shelter_model.dart';
@@ -205,14 +206,27 @@ class _ChatScreenState extends State<ChatScreen> {
 
     CloudAiService? cloudAi;
     try {
-      // Try runtime API key first (from secure storage), then fall back to compile-time
+      // Runtime keys first (secure storage, populated from Firestore by
+      // RemoteKeyService), then the compile-time define as a last resort.
+      // The ring rotates past any key whose daily free-tier quota is spent —
+      // see ApiKeyRing.
       final keyStore = ApiKeyStore();
-      var apiKey = await keyStore.getKey();
-      if (apiKey == null || apiKey.isEmpty) {
-        apiKey = const String.fromEnvironment('GEMINI_API_KEY');
+      var keys = await keyStore.getKeys();
+      if (keys.isEmpty) {
+        const compiled = String.fromEnvironment('GEMINI_API_KEY');
+        if (compiled.isNotEmpty) keys = [compiled];
       }
-      if (apiKey.isNotEmpty) {
-        cloudAi = CloudAiService(apiKey: apiKey);
+      if (keys.isNotEmpty) {
+        cloudAi = CloudAiService(
+          keys: ApiKeyRing(
+            keys: keys,
+            // Resume on the key that last worked — a fresh start would spend
+            // a round trip rediscovering that key #1 is out of quota on
+            // every single app launch.
+            startIndex: await keyStore.getActiveIndex(),
+            onIndexChanged: keyStore.saveActiveIndex,
+          ),
+        );
       }
     } catch (e) {
       debugPrint('CloudAI init error: $e');

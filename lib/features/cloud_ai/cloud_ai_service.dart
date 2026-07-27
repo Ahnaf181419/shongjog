@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import '../../core/connectivity_provider.dart';
 import '../../rag/prompt_builder.dart';
 import '../../rag/types.dart';
+import 'api_key_ring.dart';
 
 /// Cloud AI service with multi-model routing.
 ///
@@ -38,11 +39,24 @@ class CloudAiService {
   static const String _baseUrl =
       'https://generativelanguage.googleapis.com/v1beta';
 
-  final String _apiKey;
+  final ApiKeyRing _keys;
   final http.Client _http;
 
-  CloudAiService({required this._apiKey, http.Client? httpClient})
-      : _http = httpClient ?? http.Client();
+  CloudAiService({required ApiKeyRing keys, http.Client? httpClient})
+      // The field is private and the parameter is not — Dart has no private
+      // named parameter, so an initializing formal can't express this.
+      // ignore: prefer_initializing_formals
+      : _keys = keys,
+        _http = httpClient ?? http.Client();
+
+  /// Convenience for the single-key callers (manual in-app key entry, the
+  /// compile-time `--dart-define` fallback).
+  CloudAiService.singleKey(String apiKey, {http.Client? httpClient})
+      : this(keys: ApiKeyRing.single(apiKey), httpClient: httpClient);
+
+  /// Whether any key is configured at all. False is a normal state: the app
+  /// runs on on-device Gemma 4 and the RAG corpus with no cloud tier.
+  bool get hasKey => _keys.isNotEmpty;
 
   Future<bool> get isOnline async => connectivityProvider.isOnline;
 
@@ -71,31 +85,83 @@ class CloudAiService {
       'parts': [{'text': userMessage}],
     });
 
-    // 1. Try primary with 10s timeout
-    try {
-      final text = await _generate(primaryModelId, contents);
-      if (text != null) return text;
-    } catch (e) {
-      debugPrint('Primary ($primaryModelId) failed: $e');
+    if (_keys.isEmpty) {
+      throw CloudAiUnavailableException('No API key configured');
+    }
+    _keys.beginRequest();
 
-      if (_isRateLimited(e)) {
-        debugPrint('Rate limited on primary, retrying in 2s...');
-        await Future.delayed(const Duration(seconds: 2));
-        try {
-          final retry = await _generate(primaryModelId, contents);
-          if (retry != null) return retry;
-        } catch (retryError) {
-          debugPrint('Retry failed: $retryError');
+    // 1. Primary model, walking the key ring. A key-fatal error (daily quota
+    //    spent, key blocked or revoked) means THIS key is done, not that the
+    //    request is impossible — so step to the next key and retry rather
+    //    than degrade. These errors come back in well under a second, so a
+    //    full lap of four keys costs far less than one 10s timeout.
+    while (true) {
+      try {
+        final text = await _generate(primaryModelId, contents);
+        if (text != null) return text;
+        break; // reached the model but got nothing usable — try the fallback
+      } catch (e) {
+        debugPrint('Primary ($primaryModelId) key #${_keys.activeIndex} '
+            'failed: $e');
+        if (isKeyFatal(e) && _keys.advance()) {
+          debugPrint('Rotating to key #${_keys.activeIndex}');
+          continue;
         }
+        // Either the whole ring is spent, or this is not the key's fault
+        // (5xx, timeout, a model-level rejection). Rotating again would burn
+        // the remaining keys against the same wall.
+        if (_isRateLimited(e)) {
+          // Per-MINUTE burst limits do recover in seconds, unlike the daily
+          // quota that rotation handles. Worth one short wait — but only
+          // now, once rotating has stopped being an option.
+          debugPrint('All keys rate limited, retrying in 2s...');
+          await Future.delayed(const Duration(seconds: 2));
+          try {
+            final retry = await _generate(primaryModelId, contents);
+            if (retry != null) return retry;
+          } catch (retryError) {
+            debugPrint('Retry failed: $retryError');
+          }
+        }
+        break;
       }
     }
 
-    // 2. Auto-switch to fallback
+    // 2. Auto-switch to fallback model, on whichever key we ended up holding.
     return _generateOrThrow(fallbackModelId, contents, 'কোনো উত্তর পাওয়া যায়নি।');
   }
 
   Future<String> generate(String prompt) async {
     return generateWithHistory(userMessage: prompt, history: const []);
+  }
+
+  /// Whether [e] means *this key* is finished, as opposed to the request
+  /// being impossible for everyone.
+  ///
+  /// Rotating is only worth it for the former. A 500, a timeout, or a
+  /// model-level 404 hits every key identically, so trying the next three
+  /// just spends them for nothing and adds latency to an emergency answer.
+  @visibleForTesting
+  static bool isKeyFatal(Object e) {
+    final s = e.toString().toUpperCase();
+    // Daily/per-project quota spent.
+    if (s.contains('RESOURCE_EXHAUSTED') || s.contains('HTTP 429')) return true;
+    // Key disabled, restricted to other APIs, or the API turned off for the
+    // project the key belongs to.
+    if (s.contains('API_KEY_SERVICE_BLOCKED') ||
+        s.contains('SERVICE_DISABLED') ||
+        s.contains('PERMISSION_DENIED') ||
+        s.contains('HTTP 403')) {
+      return true;
+    }
+    // Malformed, revoked, or wrong-type credential.
+    if (s.contains('API_KEY_INVALID') ||
+        s.contains('UNAUTHENTICATED') ||
+        s.contains('ACCESS_TOKEN_TYPE_UNSUPPORTED') ||
+        s.contains('HTTP 401')) {
+      return true;
+    }
+    return false;
   }
 
   /// Whether [modelId] accepts `generationConfig.thinkingConfig`.
@@ -197,7 +263,7 @@ class CloudAiService {
 
     final response = await _http
         .post(uri, headers: {
-          'x-goog-api-key': _apiKey,
+          'x-goog-api-key': _keys.activeKey,
           'Content-Type': 'application/json',
         }, body: body)
         .timeout(const Duration(seconds: 10));
