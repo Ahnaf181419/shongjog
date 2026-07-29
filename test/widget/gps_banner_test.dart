@@ -19,7 +19,7 @@ void main() {
         find.textContaining('সমগ্র বাংলাদেশ দেখানো হচ্ছে'),
         findsOneWidget,
       );
-      expect(find.byIcon(Icons.location_off), findsOneWidget);
+      expect(find.byIcon(Icons.location_off_rounded), findsOneWidget);
     });
 
     testWidgets('shows supplied error message verbatim', (tester) async {

@@ -266,7 +266,7 @@ class _ContactRow extends StatelessWidget {
                       Text(
                         contact.category.label(context),
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 14,
                           fontFamily: ShongjogTheme.fontFamily,
                           fontFamilyFallback: ShongjogTheme.fontFallback,
                           color: Theme.of(context)

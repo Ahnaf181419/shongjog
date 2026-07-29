@@ -136,7 +136,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
         actions: [
           IconButton(
             tooltip: l10n.shelterSearchTooltip,
-            icon: Icon(_vm.showSearchPanel ? Icons.close : Icons.search),
+            icon: Icon(_vm.showSearchPanel ? Icons.close_rounded : Icons.search_rounded),
             onPressed: () {
               _vm.toggleSearchPanel();
               // Fire the AI safety-ranking after the panel opens so the
@@ -149,7 +149,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
           if (_vm.selectedShelter != null)
             IconButton(
               tooltip: l10n.shelterClearRoute,
-              icon: const Icon(Icons.alt_route),
+              icon: const Icon(Icons.alt_route_rounded),
               onPressed: _vm.clearRoute,
             ),
         ],
@@ -169,7 +169,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                             .colorScheme
                             .onSurface
                             .withValues(alpha: ShelterConstants.bannerBgAlpha),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(ShongjogTheme.radiusLg),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -186,7 +186,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                           Expanded(
                             child: Text(
                               l10n.shelterOfflineBanner,
-                              style: const TextStyle(fontSize: 13),
+                              style: const TextStyle(fontSize: 14),
                             ),
                           ),
                         ],
@@ -510,7 +510,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                   height: 40,
                   decoration: BoxDecoration(
                     color: ShongjogTheme.alert.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
                   ),
                   child: Icon(
                     c.type == CampaignType.rescueOperation
@@ -533,16 +533,15 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: ShongjogTheme.success.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
+                        decoration: ShongjogTheme.toneChip(
+                            context, SemanticTone.success),
                         child: Text(
                           l10n.shelterApproved,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: ShongjogTheme.success,
+                            color: ShongjogTheme.toneInk(
+                                context, SemanticTone.success),
                           ),
                         ),
                       ),
@@ -559,7 +558,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
               const SizedBox(height: 8),
               Text(l10n.shelterDesc,
                   style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: cs.onSurfaceVariant)),
               const SizedBox(height: 4),
@@ -580,7 +579,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
               width: 80,
               child: Text(k,
                   style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 14,
                       color: Theme.of(context).colorScheme.onSurfaceVariant))),
           Expanded(
               child: Text(v,
@@ -701,7 +700,7 @@ class _AiBriefRowState extends State<_AiBriefRow> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: cs.primaryContainer.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -716,7 +715,7 @@ class _AiBriefRowState extends State<_AiBriefRow> {
                 Text(
                   AppLocalizations.of(context).shelterAiRiskAssessment,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: cs.primary,
                   ),
@@ -729,7 +728,7 @@ class _AiBriefRowState extends State<_AiBriefRow> {
                         child: Text(
                           _brief!,
                           style: TextStyle(
-                              fontSize: 13, color: cs.onSurface),
+                              fontSize: 14, color: cs.onSurface),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -744,7 +743,7 @@ class _AiBriefRowState extends State<_AiBriefRow> {
                 else
                   Text(
                     _brief ?? '...',
-                    style: TextStyle(fontSize: 13, color: cs.onSurface),
+                    style: TextStyle(fontSize: 14, color: cs.onSurface),
                   ),
               ],
             ),

@@ -32,11 +32,11 @@ class ShelterRouteInfoCard extends StatelessWidget {
     final bnName = selected.nameBn.isNotEmpty ? selected.nameBn : selected.name;
     return Material(
       elevation: 8,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(ShongjogTheme.radius),
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(ShongjogTheme.radius),
           border: Border.all(color: ShongjogTheme.border),
         ),
         padding: const EdgeInsets.all(16),
@@ -53,7 +53,7 @@ class ShelterRouteInfoCard extends StatelessWidget {
                     color: ShongjogTheme.ocean.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.shield,
+                  child: const Icon(Icons.shield_rounded,
                       color: ShongjogTheme.ocean, size: 20),
                 ),
                 const SizedBox(width: 12),
@@ -67,7 +67,7 @@ class ShelterRouteInfoCard extends StatelessWidget {
                       if (selected.capacity != null)
                         Text(l10n.shelterCapacityCount('${selected.capacity}'),
                             style: const TextStyle(
-                                fontSize: 13,
+                                fontSize: 14,
                                 color: ShongjogTheme.inkSecondary)),
                     ],
                   ),
@@ -92,11 +92,11 @@ class ShelterRouteInfoCard extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: ShongjogTheme.ocean.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.route,
+                    const Icon(Icons.route_rounded,
                         color: ShongjogTheme.ocean, size: 18),
                     const SizedBox(width: 8),
                     Text(
@@ -115,7 +115,7 @@ class ShelterRouteInfoCard extends StatelessWidget {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: onCancel,
-                    icon: const Icon(Icons.close, size: 18),
+                    icon: const Icon(Icons.close_rounded, size: 18),
                     label: Text(l10n.cancel),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: ShongjogTheme.inkSecondary,
@@ -126,7 +126,7 @@ class ShelterRouteInfoCard extends StatelessWidget {
                 Expanded(
                   child: FilledButton.icon(
                     onPressed: onDetails,
-                    icon: const Icon(Icons.info_outline, size: 18),
+                    icon: const Icon(Icons.info_outline_rounded, size: 18),
                     label: Text(l10n.shelterDetails),
                   ),
                 ),

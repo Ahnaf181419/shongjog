@@ -161,7 +161,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
             width: double.infinity,
             child: FilledButton.icon(
               onPressed: _generate,
-              icon: const Icon(Icons.auto_awesome),
+              icon: const Icon(Icons.auto_awesome_rounded),
               label: Text(l10n.plannerGenerate),
             ),
           ),
@@ -190,7 +190,7 @@ class _ResultView extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: ShongjogTheme.ocean.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
             ),
             child: Row(
               children: [
@@ -212,7 +212,7 @@ class _ResultView extends StatelessWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: onReset,
-                  icon: const Icon(Icons.refresh),
+                  icon: const Icon(Icons.refresh_rounded),
                   label: Text(l10n.plannerNewPlan),
                 ),
               ),
@@ -220,7 +220,7 @@ class _ResultView extends StatelessWidget {
               Expanded(
                 child: FilledButton.icon(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.check),
+                  icon: const Icon(Icons.check_rounded),
                   label: Text(l10n.plannerDone),
                 ),
               ),
@@ -266,7 +266,7 @@ class _StepperRow extends StatelessWidget {
         children: [
           Expanded(child: Text(label)),
           IconButton(
-            icon: const Icon(Icons.remove_circle_outline),
+            icon: const Icon(Icons.remove_circle_outline_rounded),
             onPressed: () {
               final v = (int.tryParse(controller.text) ?? 0) - 1;
               if (v >= 0) {
@@ -292,7 +292,7 @@ class _StepperRow extends StatelessWidget {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.add_circle_outline),
+            icon: const Icon(Icons.add_circle_outline_rounded),
             onPressed: () {
               final v = (int.tryParse(controller.text) ?? 0) + 1;
               if (v <= max) {

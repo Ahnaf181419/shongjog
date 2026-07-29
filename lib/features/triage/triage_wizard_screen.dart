@@ -8,6 +8,7 @@ import '../quick_cards/cards_data.dart';
 import 'decision_tree.dart';
 import 'triage_state.dart';
 import 'triage_tts.dart';
+import '../../app/theme.dart';
 
 /// Convert Latin digits to Bengali numerals for UI strings.
 /// AGENTS.md: Bangla numerals (০-৯) in user-facing strings.
@@ -102,53 +103,32 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
     _maybeSpeak();
     return Scaffold(
       appBar: AppBar(
-        leading: route == null
-            ? Padding(
-                padding: const EdgeInsetsDirectional.only(start: 16),
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: cs.primary,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      AppLocalizations.of(context).triageTitle,
-                      style: TextStyle(
-                        color: cs.onPrimary,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-              )
-            : null,
-        title: route == null
-            ? const SizedBox.shrink()
-            : Text(AppLocalizations.of(context).triageTitle),
-        backgroundColor: cs.surfaceContainerHighest,
+        title: Text(AppLocalizations.of(context).triageTitle),
         actions: [
           if (_state.answers.isNotEmpty) ...[
             if (_state.elapsedBn().isNotEmpty)
               Padding(
-                padding: const EdgeInsets.only(right: 4),
+                padding: const EdgeInsetsDirectional.only(end: 4),
                 child: Center(
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: cs.primary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      _state.elapsedBn(),
-                      style: TextStyle(
-                        color: cs.primary,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
+                        horizontal: 10, vertical: 6),
+                    decoration: ShongjogTheme.statusChip(context),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.timer_outlined,
+                            size: 14, color: cs.onSurfaceVariant),
+                        const SizedBox(width: 4),
+                        Text(
+                          _state.elapsedBn(),
+                          style: TextStyle(
+                            color: cs.onSurfaceVariant,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -156,7 +136,7 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
             IconButton(
               tooltip: AppLocalizations.of(context).triageRestart,
               onPressed: _reset,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
             ),
           ],
         ],
@@ -292,7 +272,7 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
             const SizedBox(height: 24),
             FilledButton.icon(
               onPressed: () => _openMatchingCard(context, route),
-              icon: const Icon(Icons.check),
+              icon: const Icon(Icons.check_rounded),
               label: Text(l10n.triageViewCard),
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(64),
@@ -302,7 +282,7 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
             const SizedBox(height: 12),
             FilledButton.icon(
               onPressed: () => _call999(context),
-              icon: const Icon(Icons.phone),
+              icon: const Icon(Icons.phone_rounded),
               label: Text(l10n.triageCall999),
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(64),
@@ -312,7 +292,7 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
             const SizedBox(height: 12),
             OutlinedButton.icon(
               onPressed: () => _handoffTo999(context),
-              icon: const Icon(Icons.forward_to_inbox),
+              icon: const Icon(Icons.forward_to_inbox_rounded),
               label: Text(l10n.triageNotify999),
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size.fromHeight(56),
@@ -323,7 +303,7 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
             const SizedBox(height: 12),
             OutlinedButton.icon(
               onPressed: _reset,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(l10n.triageRestart),
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size.fromHeight(56),
@@ -456,7 +436,7 @@ class _BigAnswerButton extends StatelessWidget {
         foregroundColor: Colors.white,
         minimumSize: const Size.fromHeight(120),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(ShongjogTheme.radius),
         ),
         textStyle: const TextStyle(
           fontSize: 32,
@@ -505,14 +485,14 @@ class _RecapChipState extends State<_RecapChip> {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: cs.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
         border: Border.all(color: cs.outlineVariant),
       ),
       child: Text(
         summary,
         textAlign: TextAlign.center,
         style: TextStyle(
-          fontSize: 13,
+          fontSize: 14,
           color: cs.onSurfaceVariant,
           height: 1.4,
         ),
@@ -540,7 +520,7 @@ class _InlineSteps extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       decoration: BoxDecoration(
         color: cs.primaryContainer.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
         border: Border.all(color: cs.outlineVariant),
       ),
       child: Column(
@@ -553,7 +533,7 @@ class _InlineSteps extends StatelessWidget {
               Text(
                 l10n.triageDoNow,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: cs.onPrimaryContainer,
                 ),
@@ -572,7 +552,7 @@ class _InlineSteps extends StatelessWidget {
                     child: Text(
                       '${_bn(entry.key + 1)}.',
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: cs.primary,
                       ),
@@ -582,7 +562,7 @@ class _InlineSteps extends StatelessWidget {
                     child: Text(
                       entry.value,
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 14,
                         height: 1.4,
                         color: cs.onSurface,
                       ),
@@ -604,7 +584,7 @@ class _InlineSteps extends StatelessWidget {
     return QuickCard(
       id: '__missing__',
       titleBn: l10n.triageCardNotFound,
-      icon: Icons.help_outline,
+      icon: Icons.help_outline_rounded,
       color: Colors.grey,
       stepsBn: const [],
     );

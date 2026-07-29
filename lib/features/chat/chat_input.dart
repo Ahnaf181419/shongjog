@@ -214,7 +214,7 @@ class ChatInputState extends State<ChatInput>
                   minimumSize: const Size(0, 0),
                   backgroundColor: cs.primary,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(ShongjogTheme.radiusLg),
                   ),
                   padding: EdgeInsets.zero,
                   textStyle: const TextStyle(

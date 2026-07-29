@@ -289,12 +289,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 FilledButton(
                   onPressed: _saving ? null : _save,
                   child: _saving
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Colors.white,
+                            // On cs.primary, which is light blue in dark mode.
+                            color: Theme.of(context).colorScheme.onPrimary,
                           ),
                         )
                       : Text(l10n.save),

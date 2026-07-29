@@ -4,6 +4,7 @@ import '../../app/theme.dart';
 import '../../l10n/app_localizations.dart';
 import 'risk_prompt_builder.dart';
 import 'risk_service.dart';
+import '../../core/bangla_numerals.dart';
 
 /// AI Risk Assessment screen (Module C).
 class RiskScreen extends StatefulWidget {
@@ -135,7 +136,7 @@ class _RiskScreenState extends State<RiskScreen> {
             width: double.infinity,
             child: FilledButton.icon(
               onPressed: _assess,
-              icon: const Icon(Icons.auto_awesome),
+              icon: const Icon(Icons.auto_awesome_rounded),
               label: Text(l10n.riskAssessButton),
             ),
           ),
@@ -150,22 +151,35 @@ class _ResultView extends StatelessWidget {
   final VoidCallback onReset;
   const _ResultView({required this.result, required this.onReset});
 
-  Color _color() {
-    if (result.score >= 7) return Colors.red;
-    if (result.score >= 4) return Colors.orange;
-    return Colors.green;
+  /// Severity band for the score.
+  ///
+  /// Colour alone cannot carry this. Red/amber/green is the single hardest
+  /// palette for a red-green colourblind reader — roughly 1 in 12 men — and
+  /// this is the screen that tells someone how exposed their home is. So the
+  /// band drives a colour, an icon *and* a written label, and any one of the
+  /// three is enough to read the result.
+  SemanticTone get _tone {
+    if (result.score >= 7) return SemanticTone.danger;
+    if (result.score >= 4) return SemanticTone.warning;
+    return SemanticTone.success;
   }
+
+  IconData get _icon => switch (_tone) {
+        SemanticTone.danger => Icons.error_rounded,
+        SemanticTone.warning => Icons.warning_amber_rounded,
+        _ => Icons.check_circle_rounded,
+      };
+
+  String _label(AppLocalizations l10n) => switch (_tone) {
+        SemanticTone.danger => l10n.riskLevelHigh,
+        SemanticTone.warning => l10n.riskLevelMedium,
+        _ => l10n.riskLevelLow,
+      };
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final scoreBn = result.score.toString().split('').map((c) {
-      const m = {
-        '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
-        '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯',
-      };
-      return m[c] ?? c;
-    }).join();
+    final scoreBn = banglaNumber(result.score);
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -179,8 +193,10 @@ class _ResultView extends StatelessWidget {
                   height: 120,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: _color().withValues(alpha: 0.15),
-                    border: Border.all(color: _color(), width: 4),
+                    color:
+                        ShongjogTheme.toneFill(context, _tone).withValues(alpha: 0.15),
+                    border: Border.all(
+                        color: ShongjogTheme.toneFill(context, _tone), width: 4),
                   ),
                   alignment: Alignment.center,
                   child: Column(
@@ -190,18 +206,50 @@ class _ResultView extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 36,
                               fontWeight: FontWeight.bold,
-                              color: _color())),
+                              color: ShongjogTheme.toneInk(context, _tone))),
                       Text(l10n.riskScoreDenominator,
                           style: TextStyle(
-                              fontSize: 14, color: _color())),
+                              fontSize: 14,
+                              color: ShongjogTheme.toneInk(context, _tone))),
                     ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // The written band, with an icon whose SHAPE differs per level
+                // (octagon / triangle / circle). Readable in greyscale, and
+                // announced by TalkBack via the Semantics label below.
+                Semantics(
+                  label: '${_label(l10n)}. ${l10n.riskScoreLabel} $scoreBn'
+                      '${l10n.riskScoreDenominator}',
+                  container: true,
+                  child: ExcludeSemantics(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      decoration: ShongjogTheme.toneChip(context, _tone),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(_icon,
+                              size: 18,
+                              color: ShongjogTheme.toneInk(context, _tone)),
+                          const SizedBox(width: 6),
+                          Text(_label(l10n),
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: ShongjogTheme.toneInk(context, _tone),
+                              )),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(l10n.riskScoreLabel,
                     style: TextStyle(
-                        color: ShongjogTheme.inkSecondary,
-                        fontSize: 13)),
+                        color: ShongjogTheme.bodySecondary(context),
+                        fontSize: 14)),
               ],
             ),
           ),
@@ -210,7 +258,7 @@ class _ResultView extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: ShongjogTheme.ocean.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
             ),
             child: Text(result.summary,
                 style: const TextStyle(fontSize: 14, height: 1.6)),
@@ -224,7 +272,7 @@ class _ResultView extends StatelessWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: onReset,
-                  icon: const Icon(Icons.refresh),
+                  icon: const Icon(Icons.refresh_rounded),
                   label: Text(l10n.riskRetry),
                 ),
               ),
@@ -232,7 +280,7 @@ class _ResultView extends StatelessWidget {
               Expanded(
                 child: FilledButton.icon(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.check),
+                  icon: const Icon(Icons.check_rounded),
                   label: Text(l10n.riskDone),
                 ),
               ),

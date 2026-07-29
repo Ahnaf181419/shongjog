@@ -70,7 +70,7 @@ class _SituationSummaryScreenState extends State<SituationSummaryScreen> {
             const SizedBox(height: 24),
             FilledButton.icon(
               onPressed: _generate,
-              icon: const Icon(Icons.auto_awesome),
+              icon: const Icon(Icons.auto_awesome_rounded),
               label: const Text('সারাংশ তৈরি করুন'),
             ),
           ],
@@ -96,7 +96,7 @@ class _ResultView extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: ShongjogTheme.ocean.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
             ),
             child: Row(
               children: [
@@ -118,7 +118,7 @@ class _ResultView extends StatelessWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: onReset,
-                  icon: const Icon(Icons.refresh),
+                  icon: const Icon(Icons.refresh_rounded),
                   label: const Text('পুনরায়'),
                 ),
               ),
@@ -126,7 +126,7 @@ class _ResultView extends StatelessWidget {
               Expanded(
                 child: FilledButton.icon(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.check),
+                  icon: const Icon(Icons.check_rounded),
                   label: const Text('সম্পন্ন'),
                 ),
               ),

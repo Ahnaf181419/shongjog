@@ -53,7 +53,7 @@ class _EmergencySheetState extends State<EmergencySheet> {
         foregroundColor: ShongjogTheme.inkDark,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: const Icon(Icons.close_rounded),
           tooltip: l10n.emergencyCloseTooltip,
           onPressed: () => Navigator.pop(context),
         ),
@@ -65,7 +65,7 @@ class _EmergencySheetState extends State<EmergencySheet> {
           child: Column(
             children: [
               const Spacer(),
-              const Icon(Icons.phone_in_talk,
+              const Icon(Icons.phone_in_talk_rounded,
                   size: 56, color: ShongjogTheme.alertBright),
               const SizedBox(height: 16),
               Text(
@@ -188,7 +188,7 @@ class _EmergencySheetState extends State<EmergencySheet> {
                         ),
                         child: Icon(
                           _dragProgress >= 0.9
-                              ? Icons.phone
+                              ? Icons.phone_rounded
                               : Icons.arrow_forward_rounded,
                           color: Colors.white,
                           size: 26,
@@ -212,7 +212,7 @@ class _EmergencySheetState extends State<EmergencySheet> {
       height: 56,
       child: FilledButton.icon(
         onPressed: _confirmDial,
-        icon: const Icon(Icons.phone),
+        icon: const Icon(Icons.phone_rounded),
         label: Text(l10n.emergencyCallButton),
       ),
     );

@@ -133,7 +133,7 @@ class _AirQualityCardState extends State<AirQualityCard> {
                 if (!_loading)
                   InkWell(
                     onTap: _load,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(ShongjogTheme.radiusLg),
                     child: Padding(
                       padding: const EdgeInsets.all(4),
                       child: Icon(Icons.refresh_rounded,
@@ -165,7 +165,7 @@ class _AirQualityCardState extends State<AirQualityCard> {
           ),
           const SizedBox(width: 10),
           Text(l10n.fetchingData,
-              style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
+              style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant)),
         ],
       );
     }
@@ -179,7 +179,7 @@ class _AirQualityCardState extends State<AirQualityCard> {
             Expanded(
               child: Text(
                 l10n.failedToFetchTryAgain,
-                style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+                style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
               ),
             ),
           ],
@@ -200,7 +200,7 @@ class _AirQualityCardState extends State<AirQualityCard> {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
             color: sevColor.withValues(alpha: 0.14),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(ShongjogTheme.radiusLg),
             border: Border.all(color: sevColor.withValues(alpha: 0.4)),
           ),
           child: Row(
@@ -211,7 +211,7 @@ class _AirQualityCardState extends State<AirQualityCard> {
               Text(
                 s.severity.label(context),
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: sevColor,
                 ),
@@ -229,7 +229,7 @@ class _AirQualityCardState extends State<AirQualityCard> {
               Text(
                 'PM2.5',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 14,
                   color: cs.onSurfaceVariant,
                   fontWeight: FontWeight.w500,
                 ),
@@ -250,7 +250,7 @@ class _AirQualityCardState extends State<AirQualityCard> {
                   Text(
                     'µg/m³',
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 14,
                       color: cs.onSurfaceVariant,
                     ),
                   ),
@@ -267,7 +267,7 @@ class _AirQualityCardState extends State<AirQualityCard> {
             Text(
               'PM10',
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 14,
                 color: cs.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
               ),

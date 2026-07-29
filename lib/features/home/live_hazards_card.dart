@@ -7,6 +7,7 @@ import '../hazards/gdacs_service.dart';
 import '../hazards/usgs_earthquake_service.dart';
 import 'hazards_item.dart';
 import 'hazards_list_screen.dart';
+import '../../app/theme.dart';
 
 /// Home-screen card showing live natural hazards near Bangladesh.
 ///
@@ -147,7 +148,7 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
                 if (!_loading)
                   InkWell(
                     onTap: _load,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(ShongjogTheme.radiusLg),
                     child: Padding(
                       padding: const EdgeInsets.all(4),
                       child: Icon(Icons.refresh_rounded,
@@ -183,7 +184,7 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
             const SizedBox(width: 10),
             Text(
               l10n.hazardsLoading,
-              style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+              style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
             ),
           ],
         ),
@@ -200,7 +201,7 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
             Expanded(
               child: Text(
                 l10n.hazardsLoadError,
-                style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+                style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
               ),
             ),
           ],
@@ -218,7 +219,7 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
           Expanded(
             child: Text(
               l10n.hazardsNoAlerts,
-              style: TextStyle(fontSize: 13, color: cs.onSurface),
+              style: TextStyle(fontSize: 14, color: cs.onSurface),
             ),
           ),
         ],
@@ -248,7 +249,7 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
                     Text(
                       l10n.hazardsShowMore(items.length - 3),
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.w500,
                         color: cs.primary,
                       ),
@@ -288,7 +289,7 @@ class HazardsRow extends StatelessWidget {
                 TextSpan(
                   text: item.title,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: cs.onSurface,
                     height: 1.25,
@@ -299,7 +300,7 @@ class HazardsRow extends StatelessWidget {
                   TextSpan(
                     text: item.subtitle,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 14,
                       color: cs.onSurfaceVariant,
                       height: 1.25,
                     ),
@@ -313,7 +314,7 @@ class HazardsRow extends StatelessWidget {
                   TextSpan(
                     text: '  ${AppLocalizations.of(context).hazardsNearbyBadge}',
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: cs.onSurfaceVariant.withValues(alpha: 0.8),
                       height: 1.25,

@@ -40,6 +40,22 @@ import 'theme.dart';
 class ShongjogApp extends StatelessWidget {
   const ShongjogApp({super.key});
 
+  /// Upper bound on the OS text scale.
+  ///
+  /// Android lets a user pick up to 2.0x. Honouring that fully is the right
+  /// default for a reading app, but Shongjog's screens are dense — a triage
+  /// wizard, a shelter map with overlays, a chat composer — and were laid out
+  /// against a 14sp floor. Past ~1.5x, labels stop wrapping and start
+  /// clipping, which loses information rather than enlarging it.
+  ///
+  /// 1.5x is a deliberate compromise: it is 50% larger type, the range that
+  /// covers most low-vision users, while keeping every layout intact. It is a
+  /// ceiling, not a floor — anyone below it is unaffected.
+  ///
+  /// Downscaling is NOT clamped. A user who has shrunk their system text has
+  /// chosen that, and nothing here should override it upward.
+  static const double maxTextScale = 1.5;
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
@@ -54,6 +70,15 @@ class ShongjogApp extends StatelessWidget {
           locale: localeController.locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
+          builder: (context, child) {
+            final mq = MediaQuery.of(context);
+            return MediaQuery(
+              data: mq.copyWith(
+                textScaler: mq.textScaler.clamp(maxScaleFactor: maxTextScale),
+              ),
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
           home: Builder(
             builder: (navContext) => SplashScreen(
               onComplete: () {

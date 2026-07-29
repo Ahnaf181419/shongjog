@@ -43,7 +43,7 @@ class HazardsItem {
       );
 
   factory HazardsItem.fromQuake(EarthquakeEvent q) => HazardsItem(
-        icon: Icons.public,
+        icon: Icons.public_rounded,
         title: 'ভূমিকম্প M${q.magnitude.toStringAsFixed(1)}',
         subtitle: q.place,
         color: _colorForQuake(q.severity),
@@ -77,7 +77,7 @@ class HazardsItem {
   static IconData _iconForEonet(EonetCategory c) => switch (c) {
         EonetCategory.severeStorms => Icons.thunderstorm_rounded,
         EonetCategory.floods => Icons.water_rounded,
-        EonetCategory.earthquakes => Icons.public,
+        EonetCategory.earthquakes => Icons.public_rounded,
         EonetCategory.wildfires => Icons.local_fire_department_rounded,
         EonetCategory.volcanoes => Icons.whatshot_rounded,
         EonetCategory.landslides => Icons.landscape_rounded,

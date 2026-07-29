@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/router.dart';
 import '../../l10n/app_localizations.dart';
+import '../../app/theme.dart';
 
 /// Dedicated Tools tab showing all AI-powered tools as a grid.
 class ToolsScreen extends StatelessWidget {
@@ -92,12 +93,12 @@ class _ToolTile extends StatelessWidget {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
         side: BorderSide(color: cs.outlineVariant),
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -108,7 +109,7 @@ class _ToolTile extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: cs.onSurface,
                 ),

@@ -226,7 +226,7 @@ const kQuickCards = <QuickCard>[
   QuickCard(
     id: 'heatwave',
     titleBn: 'তীব্র দাবদাহ হলে করণীয়',
-    icon: Icons.sunny,
+    icon: Icons.wb_sunny_rounded,
     color: ShongjogTheme.alert,
     stepsBn: [
       'দিনের তীব্র রোদে সরাসরি যাওয়া এড়িয়ে চলুন',

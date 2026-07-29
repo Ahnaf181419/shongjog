@@ -223,10 +223,11 @@ class _SafeBeaconScreenState extends State<SafeBeaconScreen> {
                     ),
                   ),
                   child: _sending
-                      ? const SizedBox(
+                      ? SizedBox(
                           height: 32, width: 32,
                           child: CircularProgressIndicator(
-                            strokeWidth: 3, color: Colors.white,
+                            strokeWidth: 3,
+                            color: Theme.of(context).colorScheme.onPrimary,
                           ),
                         )
                       : Text(AppLocalizations.of(context).safeBeaconButton),

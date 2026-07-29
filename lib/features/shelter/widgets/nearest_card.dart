@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../nearest_shelter.dart';
+import '../../../app/theme.dart';
 
 /// Card overlay above the map showing the [top3] nearest ranked
 /// shelters (only visible when no route is active and search is
@@ -21,11 +22,11 @@ class NearestCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Material(
       elevation: 8,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(ShongjogTheme.radius),
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(ShongjogTheme.radius),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Column(
@@ -34,7 +35,7 @@ class NearestCard extends StatelessWidget {
           children: [
             Text(l10n.shelterNearest3,
                 style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: Theme.of(context).colorScheme.onSurfaceVariant)),
             const SizedBox(height: 4),
@@ -89,7 +90,7 @@ class _ShelterRow extends StatelessWidget {
             Text(
               '${km.toStringAsFixed(1)} ${l10n.shelterKm}',
               style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 14,
                   color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ],

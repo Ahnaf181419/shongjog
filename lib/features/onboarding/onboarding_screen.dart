@@ -253,7 +253,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             AppLocalizations.of(context).onboardingPermHint,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 14,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
@@ -292,7 +292,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             AppLocalizations.of(context).onboardingModelHint,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
               color: Theme.of(context).colorScheme.primary,
             ),
@@ -328,7 +328,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         fontSize: 16, fontWeight: FontWeight.w500)),
                 Text(desc,
                     style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 14,
                         color:
                             Theme.of(context).colorScheme.onSurfaceVariant)),
               ],

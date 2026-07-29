@@ -8,6 +8,7 @@ import '../../features/mesh_comm/mesh_service.dart';
 import '../../features/admin/campaign_request.dart';
 import '../safe_beacon/safety_status_service.dart';
 import 'admin_widgets.dart';
+import '../../core/bangla_numerals.dart';
 
 class AdminPanelScreen extends StatefulWidget {
   const AdminPanelScreen({super.key});
@@ -83,13 +84,15 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.error,
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
                         ),
                         child: Text(
-                          _bnNum(pendingCount),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
+                          banglaNumber(pendingCount),
+                          style: TextStyle(
+                            // Sits on cs.error, which is a LIGHT red in dark
+                            // mode — white here measured 2.77:1 there.
+                            color: Theme.of(context).colorScheme.onError,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -120,7 +123,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                       Text(
                         l10n.adminPanelTitle.toUpperCase(),
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 14,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 1.2,
                           color: cs.primary,
@@ -148,7 +151,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                             Text(
                               l10n.adminDashboardSubtitle,
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 14,
                                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                             ),
@@ -238,10 +241,6 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
 
 // ── Bengali numeral helper ──────────────────────────────────
 
-String _bnNum(int n) {
-  const digits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-  return n.toString().split('').map((d) => digits[int.parse(d)]).join();
-}
 
 // ── Pending-requests AppBar badge ──────────────────────────
 
@@ -263,7 +262,7 @@ class _PendingBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: cs.error,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(ShongjogTheme.radius),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -271,10 +270,10 @@ class _PendingBadge extends StatelessWidget {
           Icon(Icons.notifications_active_rounded, size: 14, color: cs.onError),
           const SizedBox(width: 4),
           Text(
-            _bnNum(count),
+            banglaNumber(count),
             style: TextStyle(
               color: cs.onError,
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -303,7 +302,7 @@ class _AdminStatRow extends StatelessWidget {
             child: _MiniStat(
               icon: Icons.people_rounded,
               label: l10n.adminStatUsers,
-              value: _bnNum(deviceRegistryService.totalDevices),
+              value: banglaNumber(deviceRegistryService.totalDevices),
               tint: cs.primary,
             ),
           ),
@@ -312,7 +311,7 @@ class _AdminStatRow extends StatelessWidget {
             child: _MiniStat(
               icon: Icons.offline_bolt_rounded,
               label: l10n.adminStatOffline,
-              value: _bnNum(deviceRegistryService.offlineCount),
+              value: banglaNumber(deviceRegistryService.offlineCount),
               tint: ShongjogTheme.success,
             ),
           ),
@@ -321,7 +320,7 @@ class _AdminStatRow extends StatelessWidget {
             child: _MiniStat(
               icon: Icons.bluetooth_rounded,
               label: l10n.adminStatMesh,
-              value: _bnNum(meshService.peerCount),
+              value: banglaNumber(meshService.peerCount),
               tint: cs.primary,
             ),
           ),
@@ -370,7 +369,7 @@ class _MiniStat extends StatelessWidget {
           ),
           Text(
             label,
-            style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+            style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
           ),
         ],
       ),
@@ -450,7 +449,7 @@ class _AdminTile extends StatelessWidget {
                         Text(
                           'বিস্তারিত',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             color: cs.onSurfaceVariant,
                           ),
                         ),
@@ -467,13 +466,13 @@ class _AdminTile extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: cs.error,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
                     ),
                     child: Text(
-                      _bnNum(badgeCount!),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
+                      banglaNumber(badgeCount!),
+                      style: TextStyle(
+                        color: cs.onError,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

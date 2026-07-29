@@ -52,11 +52,33 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
   final TextEditingController _ctrl = TextEditingController();
   late List<RankedShelter> _displayed = widget.ranked;
 
+  /// Active division filter (`all` = no filter). Mirrors the chip-row
+  /// in DirectoryScreen so the two features stay visually consistent.
+  String _division = 'all';
+
   // Semantic search state.
   Timer? _debounce;
   SemanticSearchResult? _semanticResult;
   List<dynamic>? _semanticHits;
   bool _semanticLoading = false;
+
+  /// Division keys -> localized labels. Reuses the emergency-directory
+  /// getters so no new l10n keys are required; the labels are just the
+  /// eight division names which read the same in either feature.
+  static Map<String, String> _divisions(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return <String, String>{
+      'all': l10n.allDivisions,
+      'dhaka': l10n.emergencyDirDhaka,
+      'chattogram': l10n.emergencyDirChattogram,
+      'rajshahi': l10n.emergencyDirRajshahi,
+      'khulna': l10n.emergencyDirKhulna,
+      'barisal': l10n.emergencyDirBarishal,
+      'sylhet': l10n.emergencyDirSylhet,
+      'rangpur': l10n.emergencyDirRangpur,
+      'mymensingh': l10n.emergencyDirMymensingh,
+    };
+  }
 
   @override
   void initState() {
@@ -152,18 +174,24 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
   void _refresh() {
     final query = _ctrl.text.trim().toLowerCase();
     setState(() {
-      if (query.isEmpty) {
-        _displayed = widget.ranked;
-        return;
-      }
       _displayed = widget.ranked.where((r) {
         final s = r.shelter;
+        // Division facet: 'all' passes everything; otherwise the
+        // shelter's division key must match. Shelters without a
+        // division (legacy/sample records) only show under 'all'.
+        if (_division != 'all' && s.division != _division) return false;
+        if (query.isEmpty) return true;
         return s.name.toLowerCase().contains(query) ||
             s.nameBn.contains(query) ||
             s.source.toLowerCase().contains(query);
       }).toList();
     });
   }
+
+  /// Whether the current dataset carries any division-tagged shelters.
+  /// When false (legacy sample data), the chip row is hidden entirely.
+  bool get _hasDivisions =>
+      widget.ranked.any((r) => r.shelter.division != null);
 
   @override
   Widget build(BuildContext context) {
@@ -180,14 +208,43 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
                 autofocus: true,
                 decoration: InputDecoration(
                   hintText: l10n.shelterSearchHint,
-                  prefixIcon: const Icon(Icons.search),
+                  prefixIcon: const Icon(Icons.search_rounded),
                   suffixIcon: IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Icons.close_rounded),
                     onPressed: widget.onClose,
                   ),
                 ),
               ),
             ),
+            // Division facet — mirrors DirectoryScreen's chip row so the
+            // two filters look and behave identically. Only shown when
+            // the dataset actually carries divisions (legacy 25-record
+            // set had none); we detect that by scanning the ranked list.
+            if (_hasDivisions)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 12, vertical: 4),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      for (final entry in _divisions(context).entries)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            label: Text(entry.value),
+                            selected: _division == entry.key,
+                            onSelected: (sel) {
+                              if (!sel) return;
+                              setState(() => _division = entry.key);
+                              _refresh();
+                            },
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
             Expanded(
               child: _buildBody(context),
             ),
@@ -228,7 +285,7 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
               color: ShongjogTheme.ocean.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.shield,
+            child: const Icon(Icons.shield_rounded,
                 color: ShongjogTheme.ocean, size: 22),
           ),
           title: Text(bnName,
@@ -237,9 +294,9 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
             '${r.km.toStringAsFixed(1)} ${l10n.shelterUnitKm}'
             '${s.capacity != null ? '  •  ${s.capacity} ${l10n.shelterUnitPeople}' : ''}'
             '  •  ${s.source}',
-            style: const TextStyle(fontSize: 13),
+            style: const TextStyle(fontSize: 14),
           ),
-          trailing: const Icon(Icons.chevron_right),
+          trailing: const Icon(Icons.chevron_right_rounded),
           onTap: () => widget.onSelect(r),
         );
       },
@@ -258,7 +315,7 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.search_off, size: 48,
+            Icon(Icons.search_off_rounded, size: 48,
                 color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(height: 12),
             Text(l10n.shelterNoSearchResults,
@@ -266,7 +323,7 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
                     color: Theme.of(context).colorScheme.onSurfaceVariant)),
             const SizedBox(height: 4),
             Text(l10n.shelterTryDifferentWords,
-                style: const TextStyle(fontSize: 13)),
+                style: const TextStyle(fontSize: 14)),
           ],
         ),
       );
@@ -286,12 +343,12 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
           label = h.displayName;
           lat = h.lat;
           lon = h.lon;
-          icon = Icons.place;
+          icon = Icons.place_rounded;
         } else if (h is OverpassPoi) {
           label = h.nameBn ?? h.name;
           lat = h.lat;
           lon = h.lon;
-          icon = Icons.local_hospital;
+          icon = Icons.local_hospital_rounded;
         } else {
           return const SizedBox.shrink();
         }
@@ -309,7 +366,7 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontWeight: FontWeight.w500)),
-          trailing: const Icon(Icons.chevron_right),
+          trailing: const Icon(Icons.chevron_right_rounded),
           onTap: () => widget.onPoiSelect!(lat, lon, label),
         );
       },

@@ -28,7 +28,7 @@ class QuickCardDetailScreen extends StatelessWidget {
         foregroundColor: cs.onSurface,
         leading: IconButton(
           tooltip: l10n.cardDetailBack,
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
       ),
@@ -65,7 +65,7 @@ class QuickCardDetailScreen extends StatelessWidget {
     return QuickCard(
       id: '__missing__',
       titleBn: l10n.cardDetailNotFound,
-      icon: Icons.help_outline,
+      icon: Icons.help_outline_rounded,
       color: Colors.grey,
       stepsBn: [],
     );
@@ -87,7 +87,7 @@ class _StepTile extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: ShongjogTheme.cardSurface(context),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
         border: Border.all(color: ShongjogTheme.hairline(context)),
       ),
       padding: const EdgeInsets.all(14),

@@ -17,6 +17,7 @@ import '../weather/weather_card.dart';
 import 'air_quality_card.dart';
 import 'live_hazards_card.dart';
 import 'marine_card.dart';
+import '../../core/bangla_numerals.dart';
 
 /// Home tab — context-first dashboard.
 ///
@@ -205,7 +206,7 @@ class _EmergencyCallPill extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: () => pushNamedSafe(context, AppRoutes.emergencyContacts),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: ShongjogTheme.emergencyPill(context),
@@ -248,7 +249,6 @@ class _NotificationBell extends StatefulWidget {
 }
 
 class _NotificationBellState extends State<_NotificationBell> {
-  static const _bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
 
   @override
   void initState() {
@@ -266,8 +266,6 @@ class _NotificationBellState extends State<_NotificationBell> {
     if (mounted) setState(() {});
   }
 
-  String _bnNum(int n) =>
-      n.toString().split('').map((d) => _bnDigits[int.parse(d)]).join();
 
   @override
   Widget build(BuildContext context) {
@@ -291,9 +289,9 @@ class _NotificationBellState extends State<_NotificationBell> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                _bnNum(count),
+                banglaNumber(count),
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: Theme.of(context).colorScheme.onError,
                   height: 1.2,
@@ -395,7 +393,7 @@ class _StatusChip extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
               color: cs.onSurface,
               height: 1.2,
@@ -471,14 +469,10 @@ class _OfflineDotState extends State<_OfflineDot>
 // ════════════════════════════════════════════════════════════════
 
 class _EmergencyTriad extends StatelessWidget {
-  String _bnNum(int n) {
-    const digits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-    return n.toString().split('').map((d) => digits[int.parse(d)]).join();
-  }
 
   @override
   Widget build(BuildContext context) {
-    final countBn = _bnNum(kQuickCards.length);
+    final countBn = banglaNumber(kQuickCards.length);
     return Column(
       children: [
         IntrinsicHeight(
@@ -568,7 +562,7 @@ class _DirectoryTile extends StatelessWidget {
                     Text(
                       AppLocalizations.of(context).emergencyDirectoryDesc,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         color: cs.onSurfaceVariant,
                       ),
                     ),
@@ -626,7 +620,7 @@ class _SafeBeaconTile extends StatelessWidget {
                     Text(
                       AppLocalizations.of(context).imSafeDesc,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         color: cs.onTertiaryContainer.withValues(alpha: 0.8),
                       ),
                     ),
@@ -693,7 +687,7 @@ class _TipCard extends StatelessWidget {
             height: 40,
             decoration: BoxDecoration(
               color: cs.primary.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
             ),
             child: Icon(Icons.lightbulb_rounded,
                 color: cs.primary, size: 22),
@@ -771,7 +765,7 @@ class _TriageTile extends StatelessWidget {
                     Text(
                       '১০+ ধরনের জরুরি অবস্থায় প্রাথমিক চিকিৎসা',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         color: cs.onErrorContainer.withValues(alpha: 0.8),
                       ),
                     ),
@@ -930,12 +924,10 @@ abstract class MainShellRoute {
 class _ModelDownloadBanner extends StatelessWidget {
   const _ModelDownloadBanner();
 
-  static const _bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
 
   String _bnPct(double? progress) {
     if (progress == null) return '';
-    final pct = (progress * 100).round();
-    return '${pct.toString().split('').map((d) => _bnDigits[int.parse(d)]).join()}%';
+    return '${banglaNumber((progress * 100).round())}%';
   }
 
   @override
@@ -971,7 +963,7 @@ class _ModelDownloadBanner extends StatelessWidget {
                     Text(
                       AppLocalizations.of(context).modelDownloadProgress(_bnPct(progress)),
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.w500,
                         color: cs.primary,
                       ),
@@ -980,7 +972,7 @@ class _ModelDownloadBanner extends StatelessWidget {
                     Text(
                       AppLocalizations.of(context).modelDownloading,
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 14,
                         color: cs.onSurfaceVariant,
                       ),
                     ),

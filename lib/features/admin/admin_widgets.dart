@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../app/theme.dart';
 
 /// Shared premium primitives for the admin section — kept in one place so
 /// the dashboard, panel grid, and sub-pages read as one surface instead of
@@ -67,9 +68,9 @@ class DangerListEntry extends StatelessWidget {
     if (active) {
       return Material(
         color: cs.error,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(ShongjogTheme.radius),
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(ShongjogTheme.radius),
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -80,7 +81,7 @@ class DangerListEntry extends StatelessWidget {
                   height: 40,
                   decoration: BoxDecoration(
                     color: cs.onError.withValues(alpha: 0.18),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
                   ),
                   child: Icon(Icons.warning_rounded, color: cs.onError, size: 22),
                 ),
@@ -102,7 +103,7 @@ class DangerListEntry extends StatelessWidget {
                         value: _bn(dangerCount),
                         style: TextStyle(
                           color: cs.onError.withValues(alpha: 0.9),
-                          fontSize: 13,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -121,15 +122,15 @@ class DangerListEntry extends StatelessWidget {
     // but taking up no more visual weight than the situation warrants.
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(ShongjogTheme.radius),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(ShongjogTheme.radius),
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             border: Border.all(color: cs.error.withValues(alpha: 0.25)),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(ShongjogTheme.radius),
           ),
           child: Row(
             children: [

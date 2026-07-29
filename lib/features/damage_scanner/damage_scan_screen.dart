@@ -218,7 +218,7 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
             width: double.infinity,
             child: FilledButton.icon(
               onPressed: () => _pick(ImageSource.camera),
-              icon: const Icon(Icons.camera_alt),
+              icon: const Icon(Icons.camera_alt_rounded),
               label: Text(l10n.damageCamera),
             ),
           ),
@@ -240,12 +240,12 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.info_outline, size: 18),
+                const Icon(Icons.info_outline_rounded, size: 18),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     l10n.damageFeatureInfo,
-                    style: const TextStyle(fontSize: 12),
+                    style: const TextStyle(fontSize: 14),
                   ),
                 ),
               ],
@@ -279,7 +279,7 @@ class _ResultView extends StatelessWidget {
         children: [
           if (imagePath != null) ...[
             ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
               child: Image.file(File(imagePath!), fit: BoxFit.cover,
                   height: 220, width: double.infinity),
             ),
@@ -292,13 +292,13 @@ class _ResultView extends StatelessWidget {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: ShongjogTheme.ocean.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(l10n.damageTypeLabel,
-                          style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                          style: const TextStyle(fontSize: 14, color: Colors.grey)),
                       const SizedBox(height: 4),
                       Text(result.toBanglaType,
                           style: const TextStyle(
@@ -312,7 +312,7 @@ class _ResultView extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: sevColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
                   border: Border.all(color: sevColor, width: 2),
                 ),
                 child: Column(
@@ -325,7 +325,7 @@ class _ResultView extends StatelessWidget {
                     if (result.confidence > 0)
                       Text(
                         '${(result.confidence * 100).toStringAsFixed(0)}%',
-                        style: TextStyle(color: sevColor, fontSize: 11),
+                        style: TextStyle(color: sevColor, fontSize: 14),
                       ),
                   ],
                 ),
@@ -356,7 +356,7 @@ class _ResultView extends StatelessWidget {
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: onScanAnother,
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded),
               label: Text(l10n.damageScanAnother),
             ),
           ),
@@ -391,7 +391,7 @@ class _ErrorView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, size: 64,
+          Icon(Icons.error_outline_rounded, size: 64,
               color: Theme.of(context).colorScheme.error),
           const SizedBox(height: 16),
           Text(message,
@@ -400,7 +400,7 @@ class _ErrorView extends StatelessWidget {
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: onRetry,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             label: Text(l10n.damageTryAgain),
           ),
         ],

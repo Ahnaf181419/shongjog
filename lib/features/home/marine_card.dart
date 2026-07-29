@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import '../../core/connectivity_provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../environment/marine_service.dart';
+import '../../app/theme.dart';
 
 /// Marine wave-forecast card — coast-aware.
 ///
@@ -157,7 +158,7 @@ class _MarineCardState extends State<MarineCard> {
                   Text(
                     _reference!.label(context),
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 14,
                       color: cs.onSurfaceVariant,
                     ),
                   ),
@@ -165,7 +166,7 @@ class _MarineCardState extends State<MarineCard> {
                   const SizedBox(width: 8),
                   InkWell(
                     onTap: _load,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(ShongjogTheme.radiusLg),
                     child: Padding(
                       padding: const EdgeInsets.all(4),
                       child: Icon(Icons.refresh_rounded,
@@ -197,7 +198,7 @@ class _MarineCardState extends State<MarineCard> {
           ),
           const SizedBox(width: 10),
           Text(l10n.fetchingData,
-              style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
+              style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant)),
         ],
       );
     }
@@ -211,7 +212,7 @@ class _MarineCardState extends State<MarineCard> {
             Expanded(
               child: Text(
                 l10n.failedToFetchTryAgain,
-                style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+                style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
               ),
             ),
           ],
@@ -232,7 +233,7 @@ class _MarineCardState extends State<MarineCard> {
               child: Text(
                 l10n.failedToFetchTryAgain,
                 style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ),
@@ -252,7 +253,7 @@ class _MarineCardState extends State<MarineCard> {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: sevColor.withValues(alpha: 0.14),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(ShongjogTheme.radiusLg),
                 border: Border.all(color: sevColor.withValues(alpha: 0.4)),
               ),
               child: Row(
@@ -264,7 +265,7 @@ class _MarineCardState extends State<MarineCard> {
                   Text(
                     today.severity.label(context),
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: sevColor,
                     ),
@@ -280,7 +281,7 @@ class _MarineCardState extends State<MarineCard> {
                 children: [
                   Text(l10n.maxWave,
                       style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 14,
                           color: cs.onSurfaceVariant,
                           fontWeight: FontWeight.w500)),
                   Row(
@@ -298,7 +299,7 @@ class _MarineCardState extends State<MarineCard> {
                       const SizedBox(width: 4),
                       Text(l10n.meter,
                           style: TextStyle(
-                              fontSize: 11, color: cs.onSurfaceVariant)),
+                              fontSize: 14, color: cs.onSurfaceVariant)),
                     ],
                   ),
                 ],
@@ -355,7 +356,7 @@ class _MarineDayCell extends StatelessWidget {
           Text(
             _label(context, day.date),
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: cs.onSurface,
             ),
@@ -364,7 +365,7 @@ class _MarineDayCell extends StatelessWidget {
           Text(
             '${day.waveHeightMaxM.toStringAsFixed(1)} ${AppLocalizations.of(context).meterShort}',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 14,
               color: cs.onSurfaceVariant,
             ),
           ),

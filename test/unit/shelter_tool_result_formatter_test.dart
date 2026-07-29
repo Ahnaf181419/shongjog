@@ -85,16 +85,7 @@ void main() {
     });
   });
 
-  group('ShelterToolResultFormatter.toBanglaDigits', () {
-    test('converts ASCII digits to Bengali numerals', () {
-      expect(ShelterToolResultFormatter.toBanglaDigits('3.4'), '৩.৪');
-      expect(ShelterToolResultFormatter.toBanglaDigits('1200'), '১২০০');
-      expect(ShelterToolResultFormatter.toBanglaDigits('0'), '০');
-    });
-
-    test('leaves non-digit characters untouched', () {
-      expect(ShelterToolResultFormatter.toBanglaDigits('km 12.5'),
-          'km ১২.৫');
-    });
-  });
+  // Numeral conversion moved to lib/core/bangla_numerals.dart when the five
+  // duplicate implementations were consolidated. Its tests moved with it,
+  // to test/unit/bangla_numerals_test.dart.
 }

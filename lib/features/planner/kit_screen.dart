@@ -115,7 +115,7 @@ class _KitScreenState extends State<KitScreen> {
                         const SizedBox(height: 24),
                         FilledButton.icon(
                           onPressed: _generate,
-                          icon: const Icon(Icons.auto_awesome),
+                          icon: const Icon(Icons.auto_awesome_rounded),
                           label: Text(l10n.kitGenerateButton),
                         ),
                       ],
@@ -143,7 +143,7 @@ class _ResultView extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: ShongjogTheme.ocean.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
             ),
             child: Row(
               children: [
@@ -165,7 +165,7 @@ class _ResultView extends StatelessWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: onReset,
-                  icon: const Icon(Icons.refresh),
+                  icon: const Icon(Icons.refresh_rounded),
                   label: Text(l10n.kitRetry),
                 ),
               ),
@@ -173,7 +173,7 @@ class _ResultView extends StatelessWidget {
               Expanded(
                 child: FilledButton.icon(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.check),
+                  icon: const Icon(Icons.check_rounded),
                   label: Text(l10n.kitDone),
                 ),
               ),

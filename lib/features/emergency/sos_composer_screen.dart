@@ -112,7 +112,7 @@ class _SosComposerScreenState extends State<SosComposerScreen> {
               hintText: l10n.sosDescribeHint,
               border: const OutlineInputBorder(),
               suffixIcon: IconButton(
-                icon: const Icon(Icons.auto_fix_high),
+                icon: const Icon(Icons.auto_fix_high_rounded),
                 tooltip: l10n.sosAiTooltip,
                 onPressed: _isProcessing ? null : _processWithAi,
               ),
@@ -145,11 +145,11 @@ class _SosComposerScreenState extends State<SosComposerScreen> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.sms, size: 16, color: cs.primary),
+                    Icon(Icons.sms_rounded, size: 16, color: cs.primary),
                     const SizedBox(width: 4),
                     Text(l10n.sosSmsPreview,
                         style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: cs.primary)),
                   ],
@@ -158,7 +158,7 @@ class _SosComposerScreenState extends State<SosComposerScreen> {
                 Text(
                   _smsPreview,
                   style: TextStyle(
-                      fontSize: 13, color: cs.onSurface, height: 1.4),
+                      fontSize: 14, color: cs.onSurface, height: 1.4),
                 ),
               ],
             ),
@@ -171,7 +171,7 @@ class _SosComposerScreenState extends State<SosComposerScreen> {
           padding: const EdgeInsets.all(16),
           child: FilledButton.icon(
             onPressed: _sendSos,
-            icon: const Icon(Icons.call),
+            icon: const Icon(Icons.call_rounded),
             label: Text(l10n.sosCall999Button),
             style: FilledButton.styleFrom(
               backgroundColor: cs.error,

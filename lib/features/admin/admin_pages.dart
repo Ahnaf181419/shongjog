@@ -10,6 +10,7 @@ import '../../features/safe_beacon/safety_status_service.dart';
 import '../../l10n/app_localizations.dart';
 import 'admin_widgets.dart';
 import 'campaign_request.dart';
+import '../../core/bangla_numerals.dart';
 
 /// Admin Dashboard page — live system overview.
 ///
@@ -54,7 +55,7 @@ class AdminDashboardPage extends StatelessWidget {
           Text(
             l10n.adminDashboardSubtitle,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 14,
               color: cs.onSurfaceVariant,
             ),
           ),
@@ -68,19 +69,19 @@ class AdminDashboardPage extends StatelessWidget {
                 _StatInfo(
                   icon: Icons.people_rounded,
                   label: l10n.adminSafetyTotal,
-                  value: _bnDigits(safetyStatusService.totalUsers),
+                  value: banglaNumber(safetyStatusService.totalUsers),
                   tint: cs.primary,
                 ),
                 _StatInfo(
                   icon: Icons.check_circle_rounded,
                   label: l10n.adminSafetySafe,
-                  value: _bnDigits(safetyStatusService.safeCount),
+                  value: banglaNumber(safetyStatusService.safeCount),
                   tint: ShongjogTheme.success,
                 ),
                 _StatInfo(
                   icon: Icons.warning_rounded,
                   label: l10n.adminSafetyDanger,
-                  value: _bnDigits(safetyStatusService.dangerCount),
+                  value: banglaNumber(safetyStatusService.dangerCount),
                   tint: cs.error,
                 ),
               ]);
@@ -282,7 +283,7 @@ class _DeviceTile extends StatelessWidget {
         subtitle: Text(
           detail,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 14,
             fontFamily: detailIsMonospace ? 'monospace' : null,
             color: cs.onSurfaceVariant,
           ),
@@ -290,7 +291,7 @@ class _DeviceTile extends StatelessWidget {
         trailing: Text(
           isOnline ? l10n.adminDeviceOnline : l10n.adminDeviceOffline,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
             color: isOnline ? dot : cs.onSurfaceVariant,
           ),
@@ -316,7 +317,7 @@ class _Chip extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 10,
+          fontSize: 14,
           fontWeight: FontWeight.w600,
           color: tint,
         ),
@@ -563,7 +564,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             info.label,
-            style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+            style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
           ),
         ],
       ),
@@ -596,7 +597,7 @@ class _QuickActions extends StatelessWidget {
             _QuickChip(
               icon: Icons.campaign_rounded,
               label: pending > 0
-                  ? '${l10n.adminReviewCampaigns} (${_bnDigits(pending)})'
+                  ? '${l10n.adminReviewCampaigns} (${banglaNumber(pending)})'
                   : l10n.adminReviewCampaigns,
               route: AppRoutes.adminCampaigns,
               badgeCount: pending,
@@ -614,7 +615,7 @@ class _QuickActions extends StatelessWidget {
             _QuickChip(
               icon: Icons.warning_rounded,
               label: safetyStatusService.dangerCount > 0
-                  ? '${l10n.adminSafetyDanger} (${_bnDigits(safetyStatusService.dangerCount)})'
+                  ? '${l10n.adminSafetyDanger} (${banglaNumber(safetyStatusService.dangerCount)})'
                   : l10n.adminDangerListTitle,
               route: AppRoutes.adminDangerList,
               badgeCount: safetyStatusService.dangerCount,
@@ -643,9 +644,9 @@ class _QuickChip extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return Material(
       color: cs.primary.withValues(alpha: 0.08),
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(ShongjogTheme.radiusLg),
       child: InkWell(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(ShongjogTheme.radiusLg),
         onTap: () => Navigator.pushNamed(context, route),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -656,7 +657,7 @@ class _QuickChip extends StatelessWidget {
               const SizedBox(width: 6),
               Text(label,
                   style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: cs.onSurface)),
               if (badgeCount > 0) ...[
@@ -665,13 +666,13 @@ class _QuickChip extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: cs.error,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
                   ),
                   child: Text(
-                    _bnDigits(badgeCount),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
+                    banglaNumber(badgeCount),
+                    style: TextStyle(
+                      color: cs.onError,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -716,7 +717,7 @@ class _CampaignRequestTile extends StatelessWidget {
         title: Text(req.type.label(context)),
         subtitle: Text(
           '${req.userName}\n${req.address}',
-          style: const TextStyle(fontSize: 12),
+          style: const TextStyle(fontSize: 14),
         ),
         isThreeLine: true,
         trailing: req.status == CampaignStatus.pending
@@ -743,15 +744,6 @@ class _CampaignRequestTile extends StatelessWidget {
   }
 }
 
-// ── Bengali digit helper (local, mirrors model_manager's) ──────────
-
-String _bnDigits(int n) => n.toString().split('').map((c) {
-      const m = {
-        '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
-        '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯',
-      };
-      return m[c] ?? c;
-    }).join();
 // ── Admin Danger List page — users currently in danger with GPS ──
 
 /// Shows every user who reported danger, sorted newest-first.
@@ -824,7 +816,7 @@ class _DangerCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       shape: RoundedRectangleBorder(
         side: BorderSide(color: cs.error.withValues(alpha: 0.3)),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
       ),
       child: Padding(
         padding: const EdgeInsets.all(14),
@@ -854,7 +846,7 @@ class _DangerCard extends StatelessWidget {
                   child: Text(
                     report.dangerType?.label(l10n) ?? '',
                     style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         color: cs.error,
                         fontWeight: FontWeight.w500),
                   ),
@@ -880,7 +872,7 @@ class _DangerCard extends StatelessWidget {
                   },
                   icon: const Icon(Icons.map_rounded, size: 18),
                   label: Text(l10n.adminDangerOpenMap,
-                      style: const TextStyle(fontSize: 13)),
+                      style: const TextStyle(fontSize: 14)),
                 ),
               ),
             ],
@@ -894,9 +886,9 @@ class _DangerCard extends StatelessWidget {
     final now = DateTime.now();
     final diff = now.difference(t);
     if (diff.inMinutes < 1) return 'এইমাত্র';
-    if (diff.inMinutes < 60) return '${_bnDigits(diff.inMinutes)} মিনিট আগে';
-    if (diff.inHours < 24) return '${_bnDigits(diff.inHours)} ঘণ্টা আগে';
-    return '${_bnDigits(diff.inDays)} দিন আগে';
+    if (diff.inMinutes < 60) return '${banglaNumber(diff.inMinutes)} মিনিট আগে';
+    if (diff.inHours < 24) return '${banglaNumber(diff.inHours)} ঘণ্টা আগে';
+    return '${banglaNumber(diff.inDays)} দিন আগে';
   }
 }
 
@@ -917,7 +909,7 @@ class _InfoRow extends StatelessWidget {
             child: Text(
               text,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 14,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),

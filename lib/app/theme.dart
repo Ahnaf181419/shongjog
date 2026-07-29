@@ -1,4 +1,10 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+
+/// The meaning a status colour carries. Separate from the brand accent —
+/// these are reserved for state and are never used as decoration.
+enum SemanticTone { success, warning, danger, info }
 
 /// Shongjog design tokens — Deep Ocean Blue identity.
 ///
@@ -46,27 +52,49 @@ class ShongjogTheme {
   static const Color alert = Color(0xFFDC2626); // red-600 — light mode
   static const Color alertBright = Color(0xFFF87171); // red-400 — dark mode
 
-  // ─── Semantic ─────────────────────────────────────────────
+  // ─── Semantic FILLS (icons, solid marks, tint backgrounds) ─
+  //
+  // These are mid-tone and are NOT safe as text. `success` measures 3.30:1 on
+  // white — below the 4.5:1 floor before any background tint is applied. Use
+  // the ink steps below for anything a user has to read.
   static const Color success = Color(0xFF16A34A); // green-600
   static const Color successBright = Color(0xFF4ADE80); // green-400
+  static const Color warning = Color(0xFFB45309); // amber-700
+  static const Color warningBright = Color(0xFFFCD34D); // amber-300
 
-  // ─── Backward-compatible aliases (old token names → new) ───
-  @Deprecated('Use ocean instead')
-  static const Color calmTeal = ocean;
-  @Deprecated('Use oceanBright instead')
-  static const Color calmTealPlus = oceanBright;
-  @Deprecated('Use alert instead')
-  static const Color alertRed = alert;
-  @Deprecated('Use alertBright instead')
-  static const Color alertRedDark = alertBright;
-  @Deprecated('Use scaffoldDark instead')
-  static const Color darkBg = scaffoldDark;
-  @Deprecated('Use surfaceDark instead')
-  static const Color darkSurface = surfaceDark;
-  @Deprecated('Use borderDark instead')
-  static const Color darkBorder = borderDark;
-  @Deprecated('Use inkDark instead')
-  static const Color darkInk = inkDark;
+  // ─── Semantic INK (text-safe steps) ───────────────────────
+  //
+  // Two steps darker than the fills, because a status chip paints its label on
+  // a ~15% tint of its own hue — which raises the background luminance and
+  // eats the contrast the flat colour appeared to have. Measured on the worst
+  // ground in the app (a 15% tint over `surfaceDim`):
+  //
+  //   green-600 #16A34A  2.57:1  <- what the badges used to be
+  //   green-800 #166534  5.18:1  <- successInk
+  //   amber-800 #92400E  5.15:1  <- warningInk
+  //   red-800   #991B1B  5.82:1  <- dangerInk
+  //
+  // Prefer [toneInk] / [toneChip] over reaching for these directly — they pick
+  // the right step for the active brightness.
+  static const Color successInk = Color(0xFF166534); // green-800
+  static const Color successInkDark = Color(0xFF86EFAC); // green-300
+  static const Color warningInk = Color(0xFF92400E); // amber-800
+  static const Color warningInkDark = Color(0xFFFCD34D); // amber-300
+  static const Color dangerInk = Color(0xFF991B1B); // red-800
+  static const Color dangerInkDark = Color(0xFFFCA5A5); // red-300
+
+  /// Info ink. Deliberately a step darker than [ocean]: the brand primary is
+  /// 5.93:1 flat but only 4.37:1 once it sits on a 15% tint of itself, so it
+  /// cannot double as its own chip label. Same locked hue (~205°).
+  static const Color infoInk = Color(0xFF075985); // sky-800
+  static const Color infoInkDark = Color(0xFF7DD3FC); // sky-300
+
+  // The teal-era aliases (calmTeal, alertRed, darkBg, …) are gone — the
+  // migration to the ocean palette is complete and every call site moved.
+  // They were worth keeping while in use; keeping them past that just
+  // offered two names for one colour, and `isE2b ? calmTeal : ocean` had
+  // already appeared in the wild — a ternary whose branches were the same
+  // value, because calmTeal WAS ocean.
 
   // ─── Bangla-first font ────────────────────────────────────
   // Primary: Anek Bangla — modern variable font, crisp Bangla numerals.
@@ -80,7 +108,13 @@ class ShongjogTheme {
   static const double bodyLargeFloor = 20.0;
 
   // ─── Shape ────────────────────────────────────────────────
-  static const double radiusSm = 10.0;
+  //
+  // docs/design.md §5.4 locks the app to 12dp and 16dp surfaces, with 20dp
+  // reserved for sheet top corners. `radiusSm` was 10dp — a value that
+  // appears nowhere in the spec — while 12dp was the single most common
+  // literal in the codebase (29 uses). The token was the drift, not the call
+  // sites, so it now matches the spec it claims to implement.
+  static const double radiusSm = 12.0;
   static const double radius = 16.0;
   static const double radiusLg = 20.0;
 
@@ -183,7 +217,7 @@ class ShongjogTheme {
     final isLight = cs.brightness == Brightness.light;
     return BoxDecoration(
       color: cs.onPrimary.withValues(alpha: isLight ? 0.18 : 0.22),
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(radius),
     );
   }
 
@@ -201,6 +235,85 @@ class ShongjogTheme {
     );
   }
 
+  /// Text-safe colour for [tone], adapted to the active brightness.
+  ///
+  /// Use this for any status text. See the ink tokens for why the fills are
+  /// not interchangeable with these.
+  static Color toneInk(BuildContext c, SemanticTone tone) {
+    final dark = Theme.of(c).brightness == Brightness.dark;
+    return switch (tone) {
+      SemanticTone.success => dark ? successInkDark : successInk,
+      SemanticTone.warning => dark ? warningInkDark : warningInk,
+      SemanticTone.danger => dark ? dangerInkDark : dangerInk,
+      SemanticTone.info => dark ? infoInkDark : infoInk,
+    };
+  }
+
+  /// Fill colour for [tone] — icons, solid marks, progress. Never text.
+  static Color toneFill(BuildContext c, SemanticTone tone) {
+    final dark = Theme.of(c).brightness == Brightness.dark;
+    return switch (tone) {
+      SemanticTone.success => dark ? successBright : success,
+      SemanticTone.warning => dark ? warningBright : warning,
+      SemanticTone.danger => dark ? alertBright : alert,
+      SemanticTone.info => Theme.of(c).colorScheme.primary,
+    };
+  }
+
+  /// Foreground for a SOLID [toneFill] background — a filled button, a badge
+  /// with no tint, a snackbar.
+  ///
+  /// Picks whichever neutral extreme actually has more contrast on that fill,
+  /// rather than defaulting to white. That default is wrong more often than
+  /// it looks: white on the light-mode success fill is 3.30:1, while ink on
+  /// the same fill is 5.42:1. In dark mode every fill is a light step, so ink
+  /// wins across the board.
+  ///
+  /// Computed rather than tabulated so it stays correct if a fill is retuned.
+  static Color onToneFill(BuildContext c, SemanticTone tone) {
+    final fill = toneFill(c, tone);
+    final onLight = _contrastRatio(ink, fill);
+    final onWhite = _contrastRatio(white, fill);
+    return onWhite >= onLight ? white : ink;
+  }
+
+  /// WCAG 2.1 relative luminance.
+  static double _relativeLuminance(Color c) {
+    double ch(double v) =>
+        v <= 0.03928 ? v / 12.92 : math.pow((v + 0.055) / 1.055, 2.4).toDouble();
+    return 0.2126 * ch(c.r) + 0.7152 * ch(c.g) + 0.0722 * ch(c.b);
+  }
+
+  static double _contrastRatio(Color a, Color b) {
+    final la = _relativeLuminance(a);
+    final lb = _relativeLuminance(b);
+    final hi = la > lb ? la : lb;
+    final lo = la > lb ? lb : la;
+    return (hi + 0.05) / (lo + 0.05);
+  }
+
+  /// Tinted status chip — the container half of a status badge.
+  ///
+  /// Pair it with [toneInk] for the label. Going through this pair is what
+  /// keeps a badge readable: the tint here and the ink there were measured
+  /// against each other, so no call site has to re-derive the contrast.
+  ///
+  /// ```dart
+  /// Container(
+  ///   decoration: ShongjogTheme.toneChip(context, SemanticTone.success),
+  ///   child: Text(label, style: TextStyle(
+  ///     color: ShongjogTheme.toneInk(context, SemanticTone.success),
+  ///     fontSize: 14,
+  ///   )),
+  /// )
+  /// ```
+  static BoxDecoration toneChip(BuildContext c, SemanticTone tone) {
+    return BoxDecoration(
+      color: toneFill(c, tone).withValues(alpha: 0.15),
+      borderRadius: BorderRadius.circular(radiusSm),
+    );
+  }
+
   /// Status chip — hairline pill for inline status lines on the body.
   /// Sits on the scaffold; uses `surfaceContainerHighest` so it lifts off
   /// the bg subtly without screaming for attention.
@@ -208,7 +321,7 @@ class ShongjogTheme {
     final cs = Theme.of(context).colorScheme;
     return BoxDecoration(
       color: cs.surfaceContainerHighest,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(radiusSm),
       border: Border.all(color: cs.outlineVariant),
     );
   }
@@ -225,7 +338,7 @@ class ShongjogTheme {
     final cs = Theme.of(context).colorScheme;
     return BoxDecoration(
       color: cs.error,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(radiusSm),
     );
   }
 
@@ -353,6 +466,11 @@ class ShongjogTheme {
           TextStyle(
             fontFamily: fontFamily,
             fontFamilyFallback: fontFallback,
+            // The one documented exception to the 14sp caption floor, and it
+            // is pinned in test/unit/type_scale_test.dart. Material 3 specs
+            // navigation labels at 12sp; they are persistent chrome rather
+            // than content, each paired with a 26px icon that carries the
+            // affordance. Five Bangla labels at 14sp overflow the 72px bar.
             fontSize: 12,
             fontWeight: FontWeight.w500,
           ),

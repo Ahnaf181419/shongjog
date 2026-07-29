@@ -1,4 +1,5 @@
 import 'nearest_shelter.dart';
+import '../../core/bangla_numerals.dart';
 
 /// Formats the result of a `find_nearest_shelter` tool call into a
 /// Bangla chat message.
@@ -42,11 +43,4 @@ class ShelterToolResultFormatter {
   /// Convert ASCII digits in [s] to Bengali numerals (০-৯). Leaves all
   /// other characters (letters, punctuation, the decimal point)
   /// untouched. Used for distances, capacities, and list indices.
-  static String toBanglaDigits(String s) {
-    const map = {
-      '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
-      '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯',
-    };
-    return s.split('').map((c) => map[c] ?? c).join();
-  }
 }

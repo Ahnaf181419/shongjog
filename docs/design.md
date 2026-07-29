@@ -191,7 +191,12 @@ strictly emergency-only and never decorative.
 | `inkMuted` | `#94A3B8` (slate-400) | Icons / hints only | on `scaffoldLight`: 3.0:1 (large); not for body |
 | `ocean` | `#0369A1` (sky-700) | Identity — AppBar accents, primary CTA, mic FAB | on `scaffoldLight`: 7.4:1 (AAA) |
 | `alert` | `#DC2626` (red-600) | Emergency-only — 999 dial, SOS, snakebite-don't | on `scaffoldLight`: 5.0:1 (AA+); large elements only |
-| `success` | `#16A34A` (green-600) | Shelter map markers + read-state | on `scaffoldLight`: 3.0:1; large only |
+| `success` | `#16A34A` (green-600) | **Fills only** — map markers, icons, chip tints. Never text. | on `scaffoldLight`: 3.3:1 — below the 4.5:1 text floor |
+| `successInk` | `#166534` (green-800) | Status **text** on a success tint | on a 15% success tint over `surfaceDim`: 5.2:1 |
+| `warning` | `#B45309` (amber-700) | Fills only — the middle band of a severity ramp | — |
+| `warningInk` | `#92400E` (amber-800) | Warning **text** | on its own 15% tint: 5.2:1 |
+| `dangerInk` | `#991B1B` (red-800) | Danger **text** on an alert tint | on its own 15% tint: 5.8:1 |
+| `infoInk` | `#075985` (sky-800) | Brand-toned status text | on a 15% `ocean` tint: 5.6:1 |
 | `border` | `#E2E8F0` (slate-200) | Hairlines | on `scaffoldLight`: visible |
 
 **Dark mode (system preference):**
@@ -260,6 +265,12 @@ both demand larger type.
   identically across mic label, card list, and footer chip.
 - Numbers in user-facing copy: Bangla numerals (০-৯). Western digits only in internal
   logs and the debug overlay.
+- Conversion lives in `lib/core/bangla_numerals.dart` (`banglaNumber` / `toBanglaDigits`)
+  — one implementation, not five.
+- **Floor: 14sp.** Enforced by `test/unit/type_scale_test.dart`, which reads the source;
+  `textTheme` alone cannot catch an inline `TextStyle(fontSize: 11)`. Bangla carries more
+  vertical detail than Latin at the same size, so small type costs more here. The single
+  exemption is the NavigationBar label (Material specs 12sp for nav chrome).
 
 **Font fallback chain:** Hind Siliguri → Noto Sans Bengali → system Bengali →
 Devanagari (last resort, degraded).
@@ -279,6 +290,43 @@ Devanagari (last resort, degraded).
 **Shape consistency lock:** all surfaces use 12dp or 16dp corners; the mic FAB is the
 only full-pill shape in the app. No mixing radii on the same screen unless there is a
 documented rule.
+
+> `ShongjogTheme.radiusSm` was 10dp — a value this spec never named — while 12dp was
+> the most common literal in the app. The token was the drift, not the call sites; it
+> is now 12dp. Tokens: `radiusSm` 12 / `radius` 16 / `radiusLg` 20.
+
+### 5.4b Semantic tones — use the API, not the raw tokens
+
+Status colour has one entry point: `SemanticTone` (`success` / `warning` /
+`danger` / `info`) plus four helpers on `ShongjogTheme`.
+
+| Helper | Returns | Use for |
+|---|---|---|
+| `toneFill(context, tone)` | mid-tone | icons, solid marks, chip tint bases. **Never text.** |
+| `toneInk(context, tone)` | dark/light step | any status **text** |
+| `toneChip(context, tone)` | `BoxDecoration` | the tinted container of a badge |
+| `onToneFill(context, tone)` | ink or white | the label on a **solid** tone button |
+
+Each picks the right step for the active brightness, so call sites carry no
+`isLight ? … : …` branching.
+
+**Why the split exists.** A badge paints its label on a ~15% tint of its own
+hue, which lifts the background luminance and eats the contrast the flat
+colour appeared to have. Painting `success` on a `success` tint measured
+**2.57:1** — a little over half the 4.5:1 floor. The ink steps are two stops
+darker so the pair survives compositing.
+
+**`onToneFill` is computed, not tabulated.** White is the intuitive foreground
+for a filled button and is wrong for several tones: white on the light-mode
+success fill is 3.30:1, while ink on the same fill is 5.42:1.
+
+Every pairing is pinned by `test/unit/theme_contrast_test.dart`, which
+composites the tint before measuring. A failure there is a real defect.
+
+**Colour is never the only channel.** Severity also carries an icon whose
+*shape* differs per level and a written label — red/amber/green is the hardest
+palette for a red-green colourblind reader, and the risk screen tells someone
+how exposed their home is.
 
 ### 5.5 Motion (tightened, premium-grade)
 

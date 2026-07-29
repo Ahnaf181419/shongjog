@@ -185,7 +185,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: Text(AppLocalizations.of(context).offlineAiFailed),
                 subtitle: Text(
                   err,
-                  style: const TextStyle(fontSize: 11),
+                  style: const TextStyle(fontSize: 14),
                 ),
                 onTap: () => showDialog<void>(
                   context: context,
@@ -353,7 +353,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           .colorScheme
                                           .onSurface
                                           .withValues(alpha: 0.08),
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
                                 ),
                                 child: Icon(
                                   selectedLocation != null
@@ -390,7 +390,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           ? '${selectedLocation!.latitude.toStringAsFixed(4)}, ${selectedLocation!.longitude.toStringAsFixed(4)}'
                                           : AppLocalizations.of(context).campaignLocationTap,
                                       style: TextStyle(
-                                        fontSize: 13,
+                                        fontSize: 14,
                                         color: Theme.of(context)
                                             .colorScheme
                                             .onSurfaceVariant,
@@ -811,7 +811,7 @@ class _ModelInfoTile extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
         border: Border.all(color: cs.outlineVariant),
       ),
       child: Column(
@@ -820,10 +820,12 @@ class _ModelInfoTile extends StatelessWidget {
           Row(
             children: [
               Icon(
+                // The icon glyph already distinguishes E2B from E4B; the
+                // colour never did — `calmTeal` is an alias OF `ocean`, so
+                // both branches of the old ternary resolved to the same
+                // value. Routed through the scheme so it adapts to dark mode.
                 isE2b ? Icons.bolt_rounded : Icons.psychology_rounded,
-                color: isE2b
-                    ? ShongjogTheme.calmTeal
-                    : ShongjogTheme.ocean,
+                color: Theme.of(context).colorScheme.primary,
                 size: 22,
               ),
               const SizedBox(width: 8),
@@ -863,7 +865,7 @@ class _ModelInfoTile extends StatelessWidget {
           Text(
             rec.descriptionLabel(context),
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 14,
               color: cs.onSurfaceVariant,
               fontFamily: ShongjogTheme.fontFamily,
               fontFamilyFallback: ShongjogTheme.fontFallback,
@@ -883,14 +885,14 @@ class _ModelInfoTile extends StatelessWidget {
           Text(
             '$label: ',
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 14,
               color: cs.onSurfaceVariant,
             ),
           ),
           Text(
             value,
             style: const TextStyle(
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
           ),

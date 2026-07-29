@@ -304,23 +304,28 @@ void main() {
     expect(text, contains('ট্রায়াজ:'));
   });
 
-  // ── Cycle 7 (G): AppBar restyle + elapsed badge + home subtitle ─────
-  testWidgets('AppBar uses surfaceContainerHighest, not errorContainer',
+  // ── AppBar: calm, stable chrome — never errorContainer, title in slot ─
+  testWidgets('AppBar background never goes errorContainer (stays calm)',
       (tester) async {
     await _driveToTerminal(tester, taps: const ['হ্যাঁ', 'হ্যাঁ', 'হ্যাঁ']);
     final appBar = tester.widget<AppBar>(find.byType(AppBar).first);
     final cs = Theme.of(tester.element(find.byType(AppBar).first)).colorScheme;
-    // AppBar background must be surfaceContainerHighest (not errorContainer).
-    expect(appBar.backgroundColor, cs.surfaceContainerHighest);
+    // The triage bar must never go red; emergency tone lives in the body.
+    expect(appBar.backgroundColor, isNot(equals(cs.errorContainer)));
   });
 
-  testWidgets('AppBar has a leading "ট্রায়াজ" chip on question screen',
+  testWidgets('AppBar shows the full title in the title slot on question screen',
       (tester) async {
     await _driveToTerminal(tester, taps: const ['হ্যাঁ']);
-    // On the question screen, AppBar.leading should be a chip labelled
-    // "ট্রায়াজ".
-    final appBar = tester.widget<AppBar>(find.byType(AppBar).first);
-    expect(appBar.leading, isNotNull);
+    // Title is plain text in the title slot (not a narrow leading pill), so
+    // the full string must render as one node and never wrap as "Tr/ia".
+    expect(
+      find.descendant(
+        of: find.byType(AppBar),
+        matching: find.text('ট্রায়াজ উইজার্ড'),
+      ),
+      findsOneWidget,
+    );
   });
 }
 

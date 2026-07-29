@@ -130,7 +130,7 @@ class _ModelPickerSectionState extends State<ModelPickerSection> {
                 fontFamily: ShongjogTheme.fontFamily,
                 fontFamilyFallback: ShongjogTheme.fontFallback,
                 color: cs.onSurfaceVariant,
-                fontSize: 13,
+                fontSize: 14,
               ),
             ),
           ),
@@ -160,7 +160,7 @@ class _TierBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(label, style: TextStyle(
-        fontSize: 11,
+        fontSize: 14,
         fontWeight: FontWeight.bold,
         color: isLight ? ShongjogTheme.ocean : ShongjogTheme.oceanBright,
       )),
@@ -188,7 +188,6 @@ class _ModelCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final isLight = cs.brightness == Brightness.light;
     final state = modelManager.getState(rec.variant);
     final progress = modelManager.getProgress(rec.variant);
     final isActive = modelManager.activeVariant == rec.variant;
@@ -225,7 +224,7 @@ class _ModelCard extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                  isActive ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                  isActive ? Icons.radio_button_checked_rounded : Icons.radio_button_unchecked_rounded,
                   color: isActive ? cs.primary : cs.onSurfaceVariant,
                 ),
                 const SizedBox(width: 12),
@@ -252,24 +251,24 @@ class _ModelCard extends StatelessWidget {
                             ),
                           ),
                           if (rec.recommended && !rec.advancedOnly)
-                            _Badge(l10n.modelBadgeExpected, isLight ? ShongjogTheme.success : ShongjogTheme.successBright)
+                            _Badge(l10n.modelBadgeExpected, SemanticTone.success)
                           else if (rec.advancedOnly)
-                            _Badge(l10n.modelBadgeAdvanced, isLight ? ShongjogTheme.alert : ShongjogTheme.alertBright)
+                            _Badge(l10n.modelBadgeAdvanced, SemanticTone.danger)
                           else
-                            _Badge(l10n.modelBadgeHeavy, isLight ? ShongjogTheme.alert : ShongjogTheme.alertBright)
+                            _Badge(l10n.modelBadgeHeavy, SemanticTone.danger)
                         ],
                       ),
                       Text(rec.sizeLabel(context), style: TextStyle(
                         fontFamily: ShongjogTheme.fontFamily,
                         fontFamilyFallback: ShongjogTheme.fontFallback,
                         color: cs.onSurfaceVariant,
-                        fontSize: 13,
+                        fontSize: 14,
                       )),
                       Text(rec.descriptionLabel(context), style: TextStyle(
                         fontFamily: ShongjogTheme.fontFamily,
                         fontFamilyFallback: ShongjogTheme.fontFallback,
                         color: cs.onSurfaceVariant,
-                        fontSize: 12,
+                        fontSize: 14,
                       )),
                     ],
                   ),
@@ -293,7 +292,7 @@ class _ModelCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    Text('${((progress ?? 0) * 100).round()}%', style: const TextStyle(fontSize: 12)),
+                    Text('${((progress ?? 0) * 100).round()}%', style: const TextStyle(fontSize: 14)),
                   ],
                 ),
               ),
@@ -305,7 +304,7 @@ class _ModelCard extends StatelessWidget {
                   if (state == ModelState.notDownloaded || state == ModelState.failed)
                     FilledButton.icon(
                       onPressed: () => _download(context),
-                      icon: const Icon(Icons.download, size: 18),
+                      icon: const Icon(Icons.download_rounded, size: 18),
                       label: Text(
                           state == ModelState.failed ? l10n.modelRetry : l10n.modelDownload),
                       style: _inRowButtonStyle,
@@ -314,7 +313,7 @@ class _ModelCard extends StatelessWidget {
                   if (state == ModelState.ready && !isActive)
                     FilledButton.icon(
                       onPressed: () => modelManager.setActiveVariant(rec.variant),
-                      icon: const Icon(Icons.check, size: 18),
+                      icon: const Icon(Icons.check_rounded, size: 18),
                       label: Text(l10n.modelActivate),
                       style: _inRowButtonStyle,
                     ),
@@ -322,7 +321,10 @@ class _ModelCard extends StatelessWidget {
                   if (state == ModelState.ready && isActive)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
-                      child: Text(l10n.modelActiveStatus, style: const TextStyle(fontWeight: FontWeight.bold, color: ShongjogTheme.calmTeal)),
+                      child: Text(l10n.modelActiveStatus,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: cs.primary)),
                     ),
 
                   if (storageUsage > 0) ...[
@@ -332,7 +334,7 @@ class _ModelCard extends StatelessWidget {
                       child: Text(
                         DeviceCapability.formatBytesBn(storageUsage),
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 14,
                           color: cs.onSurfaceVariant,
                         ),
                       ),
@@ -407,23 +409,25 @@ class _ModelCard extends StatelessWidget {
   }
 }
 
+/// Small status badge — tinted chip with a label.
+///
+/// Takes a [SemanticTone] rather than a raw colour so the tint and the ink
+/// cannot drift apart: painting the label in the same mid-tone green as the
+/// background put this badge at 2.57:1, well under the 4.5:1 floor.
 class _Badge extends StatelessWidget {
   final String text;
-  final Color color;
-  const _Badge(this.text, this.color);
+  final SemanticTone tone;
+  const _Badge(this.text, this.tone);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(4),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: ShongjogTheme.toneChip(context, tone),
       child: Text(text, style: TextStyle(
-        fontSize: 11,
-        color: color,
-        fontWeight: FontWeight.bold,
+        fontSize: 14,
+        color: ShongjogTheme.toneInk(context, tone),
+        fontWeight: FontWeight.w700,
       )),
     );
   }

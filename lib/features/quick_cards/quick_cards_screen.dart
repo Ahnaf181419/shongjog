@@ -3,6 +3,7 @@ import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../app/theme.dart';
 import 'cards_data.dart';
+import '../../core/bangla_numerals.dart';
 
 /// Quick cards screen — 8 static Bangla emergency cards.
 /// Works with no model loaded (safety net, docs/prd.md M4).
@@ -53,25 +54,25 @@ class _QuickCardsScreenState extends State<QuickCardsScreen> {
                   color: ShongjogTheme.bodySecondary(context),
                   fontSize: 16,
                 ),
-                prefixIcon: Icon(Icons.search, color: ShongjogTheme.bodySecondary(context)),
+                prefixIcon: Icon(Icons.search_rounded, color: ShongjogTheme.bodySecondary(context)),
                 filled: true,
                 fillColor: ShongjogTheme.cardSurface(context),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
                   borderSide: BorderSide(color: ShongjogTheme.hairline(context)),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
                   borderSide: BorderSide(color: ShongjogTheme.hairline(context)),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
                   borderSide: BorderSide(color: ShongjogTheme.ocean, width: 2),
                 ),
                 suffixIcon: _query.isNotEmpty
                     ? IconButton(
-                        icon: Icon(Icons.clear, color: ShongjogTheme.bodySecondary(context)),
+                        icon: Icon(Icons.clear_rounded, color: ShongjogTheme.bodySecondary(context)),
                         onPressed: () {
                           _searchController.clear();
                           setState(() => _query = '');
@@ -111,7 +112,7 @@ class _CardTile extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: ShongjogTheme.cardSurface(context),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
         border: Border.all(color: ShongjogTheme.hairline(context)),
       ),
       clipBehavior: Clip.antiAlias,
@@ -125,7 +126,7 @@ class _CardTile extends StatelessWidget {
             height: 44,
             decoration: BoxDecoration(
               color: card.color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
             ),
             child: Icon(card.icon, color: card.color, size: 24),
           ),
@@ -156,9 +157,9 @@ class _CardTile extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            _bnNum(e.key + 1),
+                            banglaNumber(e.key + 1),
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: card.color,
                             ),
@@ -182,7 +183,7 @@ class _CardTile extends StatelessWidget {
               padding: const EdgeInsets.only(top: 12, left: 34),
               child: ActionChip(
                 avatar: Icon(
-                  Icons.auto_awesome,
+                  Icons.auto_awesome_rounded,
                   size: 16,
                   color: card.color,
                 ),
@@ -202,8 +203,4 @@ class _CardTile extends StatelessWidget {
     );
   }
 
-  String _bnNum(int n) {
-    const digits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-    return n.toString().split('').map((d) => digits[int.parse(d)]).join();
-  }
 }

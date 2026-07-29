@@ -271,7 +271,7 @@ class _SplashScreenState extends State<SplashScreen>
                     child: Text(
                       AppLocalizations.of(context).splashTagline2,
                       style: const TextStyle(
-                        fontSize: 13,
+                        fontSize: 14,
                         color: Colors.white,
                         letterSpacing: 1.2,
                       ),

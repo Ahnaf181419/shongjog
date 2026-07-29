@@ -6,8 +6,8 @@ import 'package:shongjog/features/shelter/shelter_model.dart';
 import 'package:shongjog/features/shelter/shelter_repository.dart';
 
 void main() {
-  group('ShelterRepository', () {
-    test('loadAll() parses a canonical GeoJSON FeatureCollection', () async {
+  group('ShelterRepository.parseGeoJson', () {
+    test('parses a canonical GeoJSON FeatureCollection', () {
       // Mimics the real assets/shelter/cyclone_shelters.geojson layout:
       // features.geometry.coordinates are [lon, lat] per the spec.
       final raw = jsonEncode({
@@ -20,9 +20,13 @@ void main() {
               'coordinates': [89.55, 22.85],
             },
             'properties': {
+              'id': 'bd-shelter-khulna-001',
+              'division': 'khulna',
+              'district': 'খুলনা',
               'name': 'Khulna Shelter A',
               'name_bn': 'খুলনা শেল্টার এ',
               'capacity': 1200,
+              'type': 'cyclone',
               'source': 'MoDMR',
             },
           },
@@ -42,26 +46,35 @@ void main() {
         ],
       });
 
-      final repo = _RepoFromString(raw);
-      final shelters = await repo.loadAll();
+      final shelters = ShelterRepository.parseGeoJson(raw);
 
       expect(shelters, hasLength(2));
-      expect(shelters[0], const Shelter(
+      expect(
+          shelters[0],
+          const Shelter(
+            id: 'bd-shelter-khulna-001',
+            division: 'khulna',
+            district: 'খুলনা',
             name: 'Khulna Shelter A',
             nameBn: 'খুলনা শেল্টার এ',
             lat: 22.85,
             lon: 89.55,
             capacity: 1200,
+            type: 'cyclone',
             source: 'MoDMR',
           ));
-      expect(shelters[0].lat, 22.85,
-          reason: 'coords[1] is lat');
-      expect(shelters[0].lon, 89.55,
-          reason: 'coords[0] is lon');
+      expect(shelters[0].lat, 22.85, reason: 'coords[1] is lat');
+      expect(shelters[0].lon, 89.55, reason: 'coords[0] is lon');
       expect(shelters[1].nameBn, 'বরিশাল সাইক্লোন শেল্টার');
+      // Second record omits the new fields -> defaults apply.
+      expect(shelters[1].id, isNull);
+      expect(shelters[1].division, isNull);
+      expect(shelters[1].district, isNull);
+      expect(shelters[1].type, 'multi',
+          reason: 'missing type defaults to multi');
     });
 
-    test('loadAll() defaults missing capacity to null', () async {
+    test('defaults missing capacity to null', () {
       final raw = jsonEncode({
         'type': 'FeatureCollection',
         'features': [
@@ -80,12 +93,12 @@ void main() {
         ],
       });
 
-      final shelters = await _RepoFromString(raw).loadAll();
+      final shelters = ShelterRepository.parseGeoJson(raw);
       expect(shelters, hasLength(1));
       expect(shelters.first.capacity, isNull);
     });
 
-    test('loadAll() defaults missing source to "OSM"', () async {
+    test('defaults missing source to "OSM"', () {
       final raw = jsonEncode({
         'type': 'FeatureCollection',
         'features': [
@@ -104,20 +117,52 @@ void main() {
         ],
       });
 
-      final shelters = await _RepoFromString(raw).loadAll();
+      final shelters = ShelterRepository.parseGeoJson(raw);
       expect(shelters.first.source, 'OSM');
     });
 
-    test('loadAll() throws FormatException on malformed JSON', () async {
-      // repoFromString uses loadString() — emulate the failure path by
-      // feeding it bad input rather than mocking. We can use the real
-      // bundle loader against an empty Features array, then call a
-      // direct repo that throws.
+    test('throws FormatException on malformed JSON', () {
       final raw = '{not valid json';
-      await expectLater(
-        _RepoFromString(raw).loadAll(),
+      expect(
+        () => ShelterRepository.parseGeoJson(raw),
         throwsA(isA<FormatException>()),
       );
+    });
+
+    test('skips a single malformed feature, keeps the rest', () {
+      // One good feature, one with a non-Point / missing coordinates.
+      // The loader must log + skip the bad row and still return the good
+      // one — the map's primary layer survives a bad row.
+      final raw = jsonEncode({
+        'type': 'FeatureCollection',
+        'features': [
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [90.0, 24.0],
+            },
+            'properties': {
+              'name': 'Good',
+              'name_bn': 'ভালো',
+              'source': 'MoDMR',
+            },
+          },
+          {
+            'type': 'Feature',
+            'geometry': {'type': 'Point', 'coordinates': []},
+            'properties': {
+              'name': 'Bad',
+              'name_bn': '',
+              'source': 'OSM',
+            },
+          },
+        ],
+      });
+
+      final shelters = ShelterRepository.parseGeoJson(raw);
+      expect(shelters, hasLength(1));
+      expect(shelters.single.name, 'Good');
     });
   });
 
@@ -156,33 +201,8 @@ void main() {
     expect(setLiteral, hasLength(2));
     expect(a.toString(), contains('A'),
         reason: 'toString surfaces field names for debuggability');
+    // toString surfaces the new fields too.
+    expect(a.toString(), contains('type: multi'));
+    expect(a.toString(), contains('division: null'));
   });
-}
-
-/// Test variant of [ShelterRepository] that reads from an in-memory
-/// string instead of the asset bundle — keeps the test offline and
-/// injects deterministic JSON.
-class _RepoFromString implements ShelterRepository {
-  final String _raw;
-  _RepoFromString(this._raw);
-
-  @override
-  Future<List<Shelter>> loadAll() async {
-    final gj = jsonDecode(_raw) as Map<String, dynamic>;
-    final features = gj['features'] as List;
-    return features.map((f) {
-      final p = (f as Map<String, dynamic>)['properties']
-          as Map<String, dynamic>;
-      final g = f['geometry'] as Map<String, dynamic>;
-      final coords = (g['coordinates'] as List).cast<num>();
-      return Shelter(
-        name: p['name']?.toString() ?? '',
-        nameBn: p['name_bn']?.toString() ?? '',
-        lat: coords[1].toDouble(),
-        lon: coords[0].toDouble(),
-        capacity: (p['capacity'] as num?)?.toInt(),
-        source: p['source']?.toString() ?? 'OSM',
-      );
-    }).toList();
-  }
 }

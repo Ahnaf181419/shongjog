@@ -75,7 +75,7 @@ class _MainShellState extends State<MainShell> {
             children: [
               CircleAvatar(
                 radius: 30,
-                child: Icon(Icons.person, size: 30),
+                child: Icon(Icons.person_rounded, size: 30),
               ),
               SizedBox(height: 16),
               Text(

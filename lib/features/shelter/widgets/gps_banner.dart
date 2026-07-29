@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:shongjog/l10n/app_localizations.dart';
+import '../../../app/theme.dart';
 
 /// Banner showing GPS status, surfaced when GPS isn't available
 /// (permission denied, service disabled, or a generic error).
@@ -33,7 +34,7 @@ class GpsBanner extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
           boxShadow: [
             BoxShadow(
                 color: Colors.black.withValues(alpha: 0.1), blurRadius: 4),
@@ -42,7 +43,7 @@ class GpsBanner extends StatelessWidget {
         child: Row(
           children: [
             Icon(
-              Icons.location_off,
+              Icons.location_off_rounded,
               color: error != null
                   ? Theme.of(context).colorScheme.error
                   : Theme.of(context).colorScheme.onSurfaceVariant,
@@ -53,7 +54,7 @@ class GpsBanner extends StatelessWidget {
               child: Text(
                 error ?? AppLocalizations.of(context).shelterGpsUnavailable,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 14,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),

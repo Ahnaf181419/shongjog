@@ -99,7 +99,7 @@ class MessageBubble extends StatelessWidget {
                 alignment: Alignment.centerRight,
                 child: TextButton.icon(
                   onPressed: onSpeak,
-                  icon: const Icon(Icons.volume_up, size: 18),
+                  icon: const Icon(Icons.volume_up_rounded, size: 18),
                   label: Text(l10n.chatReadAloud),
                   style: TextButton.styleFrom(
                     foregroundColor: cs.primary,
@@ -151,7 +151,7 @@ class _PathChip extends StatelessWidget {
         style: TextStyle(
           fontFamily: ShongjogTheme.fontFamily,
           fontFamilyFallback: ShongjogTheme.fontFallback,
-          fontSize: 11,
+          fontSize: 14,
           fontWeight: FontWeight.w600,
           color: tint,
           height: 1.1,

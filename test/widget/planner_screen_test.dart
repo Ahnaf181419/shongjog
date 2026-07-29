@@ -19,7 +19,7 @@ void main() {
       expect(find.text('0'), findsNWidgets(3));
       expect(find.text('1'), findsNothing);
 
-      await tester.tap(find.byIcon(Icons.add_circle_outline).first);
+      await tester.tap(find.byIcon(Icons.add_circle_outline_rounded).first);
       await tester.pump();
 
       expect(find.text('1'), findsOneWidget);
@@ -31,7 +31,7 @@ void main() {
       await tester.pumpWidget(localizedApp(const PlannerScreen()));
       await tester.pumpAndSettle();
 
-      final plusButton = find.byIcon(Icons.add_circle_outline).first;
+      final plusButton = find.byIcon(Icons.add_circle_outline_rounded).first;
       await tester.tap(plusButton);
       await tester.pump();
       await tester.tap(plusButton);
@@ -47,8 +47,8 @@ void main() {
       await tester.pumpWidget(localizedApp(const PlannerScreen()));
       await tester.pumpAndSettle();
 
-      final plusButton = find.byIcon(Icons.add_circle_outline).first;
-      final minusButton = find.byIcon(Icons.remove_circle_outline).first;
+      final plusButton = find.byIcon(Icons.add_circle_outline_rounded).first;
+      final minusButton = find.byIcon(Icons.remove_circle_outline_rounded).first;
       await tester.tap(plusButton);
       await tester.pump();
       expect(find.text('1'), findsOneWidget);
@@ -80,7 +80,7 @@ void main() {
       // family-counter one.
       expect(find.text('0'), findsNWidgets(4)); // 3 family + 1 floor
 
-      final addButtons = find.byIcon(Icons.add_circle_outline);
+      final addButtons = find.byIcon(Icons.add_circle_outline_rounded);
       // Floor stepper is the 4th _StepperRow — its + button is last.
       await tester.tap(addButtons.last);
       await tester.pump();

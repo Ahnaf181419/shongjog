@@ -11,6 +11,7 @@ import 'mesh_models.dart';
 import 'mesh_service.dart';
 import 'mesh_transport.dart';
 import 'mesh_voice_service.dart';
+import '../../app/theme.dart';
 
 class MeshRadarScreen extends StatefulWidget {
   const MeshRadarScreen({super.key});
@@ -174,22 +175,24 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
             if (_started)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                decoration: BoxDecoration(
-                  color: meshService.activeTransport == MeshTransportType.wifiDirect
-                      ? Colors.orange.withValues(alpha: 0.2)
-                      : Colors.green.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                decoration: ShongjogTheme.toneChip(
+                    context,
+                    meshService.activeTransport == MeshTransportType.wifiDirect
+                        ? SemanticTone.warning
+                        : SemanticTone.success),
                 child: Text(
                   meshService.activeTransport == MeshTransportType.wifiDirect
                       ? 'Wi-Fi Direct'
                       : 'Nearby',
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: meshService.activeTransport == MeshTransportType.wifiDirect
-                        ? Colors.orange
-                        : Colors.green,
+                    color: ShongjogTheme.toneInk(
+                        context,
+                        meshService.activeTransport ==
+                                MeshTransportType.wifiDirect
+                            ? SemanticTone.warning
+                            : SemanticTone.success),
                   ),
                 ),
               ),
@@ -343,13 +346,13 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Row(
                         children: [
-                          Icon(Icons.broadcast_on_personal,
+                          Icon(Icons.broadcast_on_personal_rounded,
                               size: 14, color: cs.onSurfaceVariant),
                           const SizedBox(width: 6),
                           Text(
                             AppLocalizations.of(context).meshBroadcastAll,
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 14,
                               color: cs.onSurfaceVariant,
                             ),
                           ),
@@ -364,12 +367,13 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
                         IconButton.filled(
                           onPressed: _toggleRecording,
                           icon: Icon(
-                            _recording ? Icons.stop : Icons.mic,
-                            color: _recording ? Colors.white : cs.onPrimary,
+                            _recording ? Icons.stop_rounded : Icons.mic_rounded,
+                            // Foreground follows the active fill so the icon
+                            // stays legible in both themes.
+                            color: _recording ? cs.onError : cs.onPrimary,
                           ),
                           style: IconButton.styleFrom(
-                            backgroundColor:
-                                _recording ? Colors.red : cs.primary,
+                            backgroundColor: _recording ? cs.error : cs.primary,
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -419,7 +423,7 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
                               }
                             }
                           },
-                          icon: const Icon(Icons.send),
+                          icon: const Icon(Icons.send_rounded),
                           style: IconButton.styleFrom(
                             backgroundColor: cs.primary,
                             foregroundColor: cs.onPrimary,
@@ -452,16 +456,27 @@ class _PeerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final isOfflineSaved = peer.endpointId.startsWith('saved_');
-    final statusColor = isOfflineSaved ? Colors.grey : switch (peer.status) {
-      PeerStatus.connected => Colors.green,
-      PeerStatus.reconnecting => Colors.orange,
-      PeerStatus.disconnected => Colors.red,
+    final tone = switch (peer.status) {
+      PeerStatus.connected => SemanticTone.success,
+      PeerStatus.reconnecting => SemanticTone.warning,
+      PeerStatus.disconnected => SemanticTone.danger,
     };
+    // A saved-but-absent contact has no status to report, so it stays neutral
+    // rather than borrowing a semantic colour it hasn't earned.
+    final avatarFill = isOfflineSaved
+        ? cs.onSurfaceVariant
+        : ShongjogTheme.toneFill(context, tone);
+    // The subtitle is TEXT, so it takes the ink step — the fill above is two
+    // steps too light to read at this size.
+    final statusInk = isOfflineSaved
+        ? cs.onSurfaceVariant
+        : ShongjogTheme.toneInk(context, tone);
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: statusColor.withValues(alpha: 0.15),
-        child: Icon(Icons.person, color: statusColor),
+        backgroundColor: avatarFill.withValues(alpha: 0.15),
+        child: Icon(Icons.person_rounded, color: avatarFill),
       ),
       title: Text(
         peer.displayName,
@@ -474,7 +489,7 @@ class _PeerTile extends StatelessWidget {
             : peer.status == PeerStatus.reconnecting
                 ? AppLocalizations.of(context).meshReconnecting
                 : AppLocalizations.of(context).meshDisconnected,
-        style: TextStyle(color: statusColor, fontSize: 12),
+        style: TextStyle(color: statusInk, fontSize: 14),
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -482,11 +497,13 @@ class _PeerTile extends StatelessWidget {
           IconButton(
             icon: Icon(
               isSaved ? Icons.star_rounded : Icons.star_border_rounded,
-              color: isSaved ? Colors.amber : Colors.grey,
+              color: isSaved
+                  ? ShongjogTheme.toneFill(context, SemanticTone.warning)
+                  : cs.onSurfaceVariant,
             ),
             onPressed: onToggleSave,
           ),
-          if (!isOfflineSaved) const Icon(Icons.chevron_right),
+          if (!isOfflineSaved) const Icon(Icons.chevron_right_rounded),
         ],
       ),
       onTap: isOfflineSaved ? null : onTap,

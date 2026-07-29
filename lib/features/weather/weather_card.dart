@@ -186,7 +186,7 @@ class _WeatherCardState extends State<WeatherCard> {
                 Text(
                   l10n.weatherTodayLabel(s.conditionLabel(l10n)),
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: cs.onSurfaceVariant,
                     height: 1.2,
@@ -199,7 +199,7 @@ class _WeatherCardState extends State<WeatherCard> {
                     child: Text(
                       l10n.weatherFallbackLabel,
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 14,
                         fontWeight: FontWeight.w500,
                         color: cs.onSurfaceVariant.withValues(alpha: 0.7),
                         height: 1.2,
@@ -248,7 +248,7 @@ class _WeatherCardState extends State<WeatherCard> {
               Text(
                 '${s.precipProbabilityPct}%',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: cs.onSurfaceVariant,
                   height: 1.1,
@@ -330,7 +330,7 @@ class _WeatherCardState extends State<WeatherCard> {
                       Text(
                         errorText,
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 14,
                           color: cs.onSurfaceVariant,
                           height: 1.3,
                         ),
@@ -362,7 +362,7 @@ class _WeatherCardState extends State<WeatherCard> {
             height: 48,
             decoration: BoxDecoration(
               color: cs.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
             ),
           ),
           const SizedBox(width: 12),
@@ -374,7 +374,7 @@ class _WeatherCardState extends State<WeatherCard> {
                 Text(
                   AppLocalizations.of(context).weatherLoading,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: cs.onSurfaceVariant,
                     height: 1.2,
@@ -419,6 +419,11 @@ class _WeatherCardState extends State<WeatherCard> {
     };
   }
 
+  /// WMO weather code → glyph.
+  ///
+  /// All rounded, matching the rest of the app, with one exception:
+  /// `Icons.foggy` has no `_rounded` variant anywhere in the Material set, so
+  /// it stays baseline. Pinned in test/unit/icon_family_test.dart.
   static IconData _iconForCode(int code) {
     if (code == 0) return Icons.wb_sunny_rounded;
     if (code <= 2) return Icons.cloud_queue_rounded;
@@ -485,7 +490,7 @@ class _DayCell extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: cs.onSurface,
               height: 1.1,
@@ -495,7 +500,7 @@ class _DayCell extends StatelessWidget {
           Text(
             '${maxC.round()}°  ${minC.round()}°',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
               color: cs.onSurfaceVariant,
               height: 1.1,

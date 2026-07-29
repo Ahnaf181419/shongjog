@@ -25,6 +25,30 @@ const _shelters = [
   ),
 ];
 
+/// Shelters carrying the new `division` field, used by the chip-row test.
+const _sheltersWithDivisions = [
+  Shelter(
+    name: 'Khulna Cyclone Shelter 1',
+    nameBn: 'খুলনা সাইক্লোন শেল্টার ১',
+    lat: 22.85,
+    lon: 89.55,
+    capacity: 1200,
+    division: 'khulna',
+    type: 'cyclone',
+    source: 'MoDMR',
+  ),
+  Shelter(
+    name: 'Barisal Cyclone Shelter 1',
+    nameBn: 'বরিশাল সাইক্লোন শেল্টার ১',
+    lat: 22.70,
+    lon: 90.40,
+    capacity: 800,
+    division: 'barishal',
+    type: 'cyclone',
+    source: 'MoDMR',
+  ),
+];
+
 List<RankedShelter> _buildRanked() {
   // Use a known center so ranking is deterministic in the list order.
   final ranked = nearestShelters(
@@ -34,6 +58,15 @@ List<RankedShelter> _buildRanked() {
     k: _shelters.length,
   );
   return ranked;
+}
+
+List<RankedShelter> _buildRankedWithDivisions() {
+  return nearestShelters(
+    lat: 22.85,
+    lon: 89.55,
+    all: _sheltersWithDivisions,
+    k: _sheltersWithDivisions.length,
+  );
 }
 
 void main() {
@@ -154,9 +187,9 @@ void main() {
       // Type something, then tap the close (X) icon.
       await tester.enterText(find.byType(TextField), 'barisal');
       await tester.pump();
-      expect(find.byIcon(Icons.close), findsOneWidget);
+      expect(find.byIcon(Icons.close_rounded), findsOneWidget);
 
-      await tester.tap(find.byIcon(Icons.close));
+      await tester.tap(find.byIcon(Icons.close_rounded));
       await tester.pump();
 
       expect(closeCount, 1,
@@ -189,5 +222,61 @@ void main() {
         expect(captured!.shelter.name, 'Barisal Cyclone Shelter');
       },
     );
+
+    testWidgets('hides the division chip row when data has no divisions',
+        (tester) async {
+      // The legacy _shelters const has no `division` field, so the chip
+      // row must not render at all.
+      await tester.pumpWidget(MaterialApp(
+        locale: const Locale('bn'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: ShelterSearchPanel(
+            ranked: _buildRanked(),
+            onSelect: (_) {},
+            onClose: () {},
+          ),
+        ),
+      ));
+
+      // The Khulna chip label is 'খুলনা'; it must be absent here.
+      expect(find.text('খুলনা'), findsNothing);
+    });
+
+    testWidgets('division chip narrows results to that division',
+        (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        locale: const Locale('bn'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: ShelterSearchPanel(
+            ranked: _buildRankedWithDivisions(),
+            onSelect: (_) {},
+            onClose: () {},
+          ),
+        ),
+      ));
+
+      // Both shelters visible initially.
+      expect(find.text('খুলনা সাইক্লোন শেল্টার ১'), findsOneWidget);
+      expect(find.text('বরিশাল সাইক্লোন শেল্টার ১'), findsOneWidget);
+
+      // Tap the Khulna chip — target the FilterChip itself, not its Text
+      // label, since the label is not directly hit-testable.
+      await tester.tap(find.widgetWithText(FilterChip, 'খুলনা'));
+      await tester.pump();
+
+      expect(find.text('খুলনা সাইক্লোন শেল্টার ১'), findsOneWidget);
+      expect(find.text('বরিশাল সাইক্লোন শেল্টার ১'), findsNothing,
+          reason: 'Barisal filtered out by the Khulna chip');
+
+      // Tapping "All" (সব) restores both.
+      await tester.tap(find.widgetWithText(FilterChip, 'সব'));
+      await tester.pump();
+      expect(find.text('খুলনা সাইক্লোন শেল্টার ১'), findsOneWidget);
+      expect(find.text('বরিশাল সাইক্লোন শেল্টার ১'), findsOneWidget);
+    });
   });
 }

@@ -9,6 +9,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../shelter/cached_tile_provider.dart';
+import '../../app/theme.dart';
 
 /// Full-screen interactive map where the user can search by area,
 /// tap to drop a pin, use zoom controls, and confirm coordinates.
@@ -181,7 +182,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                   child: Text(
                     '${_selectedPoint!.latitude.toStringAsFixed(4)}, ${_selectedPoint!.longitude.toStringAsFixed(4)}',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 14,
                       fontWeight: FontWeight.w500,
                       fontFamily: 'monospace',
                       color: cs.primary,
@@ -328,7 +329,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                     constraints: const BoxConstraints(maxHeight: 200),
                     decoration: BoxDecoration(
                       color: cs.surface.withValues(alpha: 0.97),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.12),
@@ -364,7 +365,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 14,
                                       color: cs.onSurfaceVariant),
                                 )
                               : null,
@@ -415,7 +416,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   color: cs.surface.withValues(alpha: 0.95),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.1),

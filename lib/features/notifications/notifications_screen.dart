@@ -139,7 +139,7 @@ class _NotificationTile extends StatelessWidget {
                 Text(
                   timestamp,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 14,
                     color: cs.onSurfaceVariant,
                   ),
                 ),

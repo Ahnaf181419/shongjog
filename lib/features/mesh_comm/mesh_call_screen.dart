@@ -6,6 +6,7 @@ import '../../core/haptics.dart';
 import '../../l10n/app_localizations.dart';
 import 'mesh_call_service.dart';
 import 'mesh_models.dart';
+import '../../app/theme.dart';
 
 /// Full-screen in-call UI for an active offline voice call.
 ///
@@ -166,7 +167,9 @@ class _MeshCallScreenState extends State<MeshCallScreen>
                     ),
                     _CallButton(
                       icon: Icons.call_rounded,
-                      color: Colors.green,
+                      // Pairs with cs.error on the reject button above, so
+                      // both call actions come from the token layer.
+                      color: ShongjogTheme.toneFill(context, SemanticTone.success),
                       label: l10n.meshAcceptCall,
                       onTap: () {
                         HapticService.lightTap();
@@ -274,7 +277,7 @@ class _CallButton extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           label,
-          style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+          style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
         ),
       ],
     );

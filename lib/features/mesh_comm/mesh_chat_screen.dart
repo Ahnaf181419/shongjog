@@ -14,6 +14,7 @@ import 'mesh_chat_store.dart';
 import 'mesh_models.dart';
 import 'mesh_service.dart';
 import 'mesh_voice_service.dart';
+import '../../app/theme.dart';
 
 /// A voice file path is "playable" only if it points at real on-device
 /// storage. `content://` URIs from `nearby_connections` cannot be passed to
@@ -139,7 +140,10 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
                 );
               }
             },
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
             child: Text(l10n.meshDeleteChatButton),
           ),
         ],
@@ -264,12 +268,15 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
                       ? l10n.meshReconnecting
                       : l10n.meshDisconnected,
               style: TextStyle(
-                fontSize: 12,
-                color: _currentPeer.status == PeerStatus.connected
-                    ? Colors.green
-                    : _currentPeer.status == PeerStatus.reconnecting
-                        ? Colors.orange
-                        : Colors.red,
+                fontSize: 14,
+                color: ShongjogTheme.toneInk(
+                  context,
+                  switch (_currentPeer.status) {
+                    PeerStatus.connected => SemanticTone.success,
+                    PeerStatus.reconnecting => SemanticTone.warning,
+                    PeerStatus.disconnected => SemanticTone.danger,
+                  },
+                ),
               ),
             ),
           ],
@@ -302,7 +309,9 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
               PopupMenuItem(
                 value: 'delete',
                 child: ListTile(
-                  leading: const Icon(Icons.delete_outline, color: Colors.red),
+                  leading: Icon(Icons.delete_outline_rounded,
+                      color: ShongjogTheme.toneFill(
+                          context, SemanticTone.danger)),
                   title: Text(l10n.meshDeleteChatMenu),
                   dense: true,
                   contentPadding: EdgeInsets.zero,
@@ -354,12 +363,13 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
                   IconButton.filled(
                     onPressed: _toggleRecording,
                     icon: Icon(
-                      _recording ? Icons.stop : Icons.mic,
-                      color: _recording ? Colors.white : cs.onPrimary,
+                      _recording ? Icons.stop_rounded : Icons.mic_rounded,
+                      // Foreground follows whichever fill is active, so the
+                      // icon stays legible in both themes.
+                      color: _recording ? cs.onError : cs.onPrimary,
                     ),
                     style: IconButton.styleFrom(
-                      backgroundColor:
-                          _recording ? Colors.red : cs.primary,
+                      backgroundColor: _recording ? cs.error : cs.primary,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -378,7 +388,7 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
                   const SizedBox(width: 8),
                   IconButton.filled(
                     onPressed: _sendText,
-                    icon: const Icon(Icons.send),
+                    icon: const Icon(Icons.send_rounded),
                     style: IconButton.styleFrom(
                       backgroundColor: cs.primary,
                       foregroundColor: cs.onPrimary,
@@ -475,7 +485,7 @@ class _TextBubbleContent extends StatelessWidget {
                 child: Text(
                   l10n.meshHopCount('${message.hopCount}'),
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 14,
                     color: cs.onErrorContainer,
                     fontWeight: FontWeight.w600,
                   ),
@@ -685,7 +695,7 @@ class _VoicePlayerBubbleState extends State<_VoicePlayerBubble>
                       Text(
                         _bnTime(_position),
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 14,
                           color: onColorDim,
                           fontWeight: FontWeight.w500,
                         ),
@@ -693,7 +703,7 @@ class _VoicePlayerBubbleState extends State<_VoicePlayerBubble>
                       Text(
                         _bnTime(_duration),
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 14,
                           color: onColorDim,
                           fontWeight: FontWeight.w500,
                         ),
@@ -840,7 +850,7 @@ class _AttachmentButton extends StatelessWidget {
                   color: cs.primary,
                 ),
               )
-            : Icon(Icons.add_circle_outline, color: cs.onSurfaceVariant),
+            : Icon(Icons.add_circle_outline_rounded, color: cs.onSurfaceVariant),
       ),
     );
   }
@@ -871,7 +881,7 @@ class _ImageBubble extends StatelessWidget {
         ),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 220, maxHeight: 260),
           child: Image.file(
@@ -888,6 +898,11 @@ class _ImageBubble extends StatelessWidget {
 }
 
 /// Full-screen image viewer with pinch-to-zoom.
+///
+/// Deliberately single-theme: black ground and white chrome in BOTH light and
+/// dark, like every photo viewer. The theme tokens are skipped here on
+/// purpose — a light scaffold behind a photo washes it out and re-tints the
+/// user's own image. Not an oversight; do not "fix" it to `cardSurface`.
 class _FullImageScreen extends StatelessWidget {
   final String path;
   const _FullImageScreen({required this.path});
@@ -947,7 +962,7 @@ class _VideoBubbleState extends State<_VideoBubble> {
         height: 140,
         decoration: BoxDecoration(
           color: Colors.black87,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
         ),
         child: Stack(
           alignment: Alignment.center,
@@ -962,9 +977,11 @@ class _VideoBubbleState extends State<_VideoBubble> {
                 color: cs.primary.withValues(alpha: 0.85),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.play_arrow_rounded,
-                color: Colors.white,
+                // Sits on cs.primary, which is a LIGHT blue in dark mode —
+                // a hardcoded white here was near-invisible there.
+                color: cs.onPrimary,
                 size: 30,
               ),
             ),
@@ -979,7 +996,7 @@ class _VideoBubbleState extends State<_VideoBubble> {
                 ),
                 child: Text(
                   l10n.meshVideoBadge,
-                  style: TextStyle(color: Colors.white, fontSize: 11),
+                  style: TextStyle(color: Colors.white, fontSize: 14),
                 ),
               ),
             ),
@@ -991,6 +1008,11 @@ class _VideoBubbleState extends State<_VideoBubble> {
 }
 
 /// Full-screen video player with play/pause controls.
+///
+/// Single-theme by design, same as [_FullImageScreen] — black ground and
+/// white chrome in both modes. The `Colors.white24` / `black54` scrims below
+/// are media overlays sitting on user footage, not on a themed surface, so
+/// they are also correct as literals.
 class _VideoPlayerScreen extends StatefulWidget {
   final String path;
   const _VideoPlayerScreen({required this.path});
@@ -1112,12 +1134,12 @@ class _MissingMediaBubble extends StatelessWidget {
       height: 48,
       decoration: BoxDecoration(
         color: cs.errorContainer,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
       ),
       alignment: Alignment.center,
       child: Text(
         label,
-        style: TextStyle(color: cs.onErrorContainer, fontSize: 12),
+        style: TextStyle(color: cs.onErrorContainer, fontSize: 14),
       ),
     );
   }

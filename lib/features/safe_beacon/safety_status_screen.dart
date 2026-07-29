@@ -9,6 +9,7 @@ import '../emergency/emergency_actions.dart';
 import '../mesh_comm/mesh_service.dart';
 import 'safety_status_service.dart';
 import 'sms_queue.dart';
+import '../../app/theme.dart';
 
 /// "I'm Safe" / "I'm in Danger" status screen.
 ///
@@ -111,7 +112,8 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context).safetyStatusSent),
-            backgroundColor: Colors.green.shade700,
+            backgroundColor:
+                ShongjogTheme.toneFill(context, SemanticTone.success),
           ),
         );
       }
@@ -170,7 +172,8 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context).dangerAlertSent),
-            backgroundColor: Colors.red.shade700,
+            backgroundColor:
+                ShongjogTheme.toneFill(context, SemanticTone.danger),
             duration: const Duration(seconds: 4),
           ),
         );
@@ -243,19 +246,23 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
                 child: FilledButton.icon(
                   onPressed: _sending ? null : _sendDanger,
                   style: FilledButton.styleFrom(
-                    backgroundColor: Colors.red.shade700,
-                    foregroundColor: Colors.white,
+                    backgroundColor:
+                ShongjogTheme.toneFill(context, SemanticTone.danger),
+                    foregroundColor:
+                        ShongjogTheme.onToneFill(context, SemanticTone.danger),
                     minimumSize: const Size.fromHeight(120),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
+                        borderRadius: BorderRadius.circular(ShongjogTheme.radiusLg)),
                     textStyle: const TextStyle(
                         fontSize: 22, fontWeight: FontWeight.w700),
                   ),
                   icon: _sending
-                      ? const SizedBox(
+                      ? SizedBox(
                           height: 24, width: 24,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2.5, color: Colors.white))
+                              strokeWidth: 2.5,
+                              color: ShongjogTheme.onToneFill(
+                                  context, SemanticTone.danger)))
                       : const Icon(Icons.warning_rounded, size: 32),
                   label: Text(l10n.safetyDangerButton),
                 ),
@@ -268,19 +275,23 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
                 child: FilledButton.icon(
                   onPressed: _sending ? null : _sendSafe,
                   style: FilledButton.styleFrom(
-                    backgroundColor: Colors.green.shade700,
-                    foregroundColor: Colors.white,
+                    backgroundColor:
+                ShongjogTheme.toneFill(context, SemanticTone.success),
+                    foregroundColor:
+                        ShongjogTheme.onToneFill(context, SemanticTone.success),
                     minimumSize: const Size.fromHeight(120),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
+                        borderRadius: BorderRadius.circular(ShongjogTheme.radiusLg)),
                     textStyle: const TextStyle(
                         fontSize: 22, fontWeight: FontWeight.w700),
                   ),
                   icon: _sending
-                      ? const SizedBox(
+                      ? SizedBox(
                           height: 24, width: 24,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2.5, color: Colors.white))
+                              strokeWidth: 2.5,
+                              color: ShongjogTheme.onToneFill(
+                                  context, SemanticTone.success)))
                       : const Icon(Icons.check_circle_rounded, size: 32),
                   label: Text(l10n.safetySafeButton),
                 ),
@@ -295,17 +306,16 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
                   if (my == null) {
                     return Text(l10n.safetyStatusNone,
                         style: TextStyle(
-                            color: cs.onSurfaceVariant, fontSize: 13));
+                            color: cs.onSurfaceVariant, fontSize: 14));
                   }
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        my.isDanger ? Icons.warning_rounded : Icons.check_circle,
+                        my.isDanger ? Icons.warning_rounded : Icons.check_circle_rounded,
                         size: 16,
-                        color: my.isDanger
-                            ? Colors.red.shade700
-                            : Colors.green.shade700,
+                        color: ShongjogTheme.toneInk(context,
+                            my.isDanger ? SemanticTone.danger : SemanticTone.success),
                       ),
                       const SizedBox(width: 6),
                       Text(
@@ -313,10 +323,9 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
                             ? '${l10n.safetyCurrentDanger}: ${my.dangerType?.label(l10n) ?? ''}'
                             : l10n.safetyCurrentSafe,
                         style: TextStyle(
-                            color: my.isDanger
-                                ? Colors.red.shade700
-                                : Colors.green.shade700,
-                            fontSize: 13,
+                            color: ShongjogTheme.toneInk(context,
+                                my.isDanger ? SemanticTone.danger : SemanticTone.success),
+                            fontSize: 14,
                             fontWeight: FontWeight.w500),
                       ),
                     ],
@@ -352,7 +361,7 @@ class _DangerTypePicker extends StatelessWidget {
                   color: cs.onSurface)),
           const SizedBox(height: 4),
           Text(l10n.dangerTypePickerSubtitle,
-              style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
+              style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant)),
           const SizedBox(height: 16),
           Wrap(
             spacing: 10,

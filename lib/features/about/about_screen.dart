@@ -43,7 +43,7 @@ class AboutScreen extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: cs.primary,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(ShongjogTheme.radius),
             ),
             child: Column(
               children: [
@@ -82,7 +82,7 @@ class AboutScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: ShongjogTheme.cardSurface(context),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
                     border: Border.all(
                       color: ShongjogTheme.hairline(context),
                     ),
@@ -116,7 +116,7 @@ class AboutScreen extends StatelessWidget {
                             Text(
                               s.bn,
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 14,
                                 color: ShongjogTheme.bodySecondary(context),
                               ),
                             ),
@@ -135,14 +135,14 @@ class AboutScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: cs.error.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
               border: Border.all(
                 color: cs.error.withValues(alpha: 0.30),
               ),
             ),
             child: Row(
               children: [
-                Icon(Icons.phone_in_talk, color: cs.error),
+                Icon(Icons.phone_in_talk_rounded, color: cs.error),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
