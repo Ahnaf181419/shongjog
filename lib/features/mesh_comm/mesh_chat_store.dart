@@ -67,11 +67,11 @@ class MeshChatMessage {
 
 /// Persists mesh chat messages per-peer to JSON files in the app documents
 /// directory. Each peer conversation gets its own file keyed by a sanitized
-/// version of the endpoint ID.
+/// version of the display name (not the endpoint ID, which changes on restart).
 class MeshChatStore {
   static const _dirName = 'mesh_chat';
 
-  /// Sanitize an endpoint ID for use as a filename.
+  /// Sanitize a string for use as a filename.
   String _sanitize(String id) => id.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
 
   Future<Directory> _dir() async {
@@ -83,46 +83,68 @@ class MeshChatStore {
     return meshDir;
   }
 
-  Future<File> _fileFor(String peerId) async {
+  Future<File> _fileForKey(String key) async {
     final dir = await _dir();
-    return File('${dir.path}/${_sanitize(peerId)}.json');
+    return File('${dir.path}/${_sanitize(key)}.json');
   }
 
-  /// Load all persisted messages for a peer (oldest first).
-  Future<List<MeshChatMessage>> load(String peerId) async {
-    try {
-      final f = await _fileFor(peerId);
-      if (!await f.exists()) return [];
-      final raw = await f.readAsString();
-      final list = jsonDecode(raw) as List;
-      return list
-          .map((e) => MeshChatMessage.fromJson(e as Map<String, dynamic>))
-          .toList();
-    } catch (_) {
-      return [];
+  /// Load all persisted messages for a peer by display name (oldest first).
+  /// Handles migration from old endpoint-ID-keyed files transparently.
+  Future<List<MeshChatMessage>> load(String displayName, {String? oldEndpointId}) async {
+    // Try display-name key first.
+    final f = await _fileForKey(displayName);
+    if (await f.exists()) {
+      try {
+        final raw = await f.readAsString();
+        final list = jsonDecode(raw) as List;
+        return list
+            .map((e) => MeshChatMessage.fromJson(e as Map<String, dynamic>))
+            .toList();
+      } catch (_) {
+        return [];
+      }
     }
+
+    // Migration: check for old endpoint-ID-keyed file and rename it.
+    if (oldEndpointId != null && oldEndpointId.isNotEmpty) {
+      final oldFile = await _fileForKey(oldEndpointId);
+      if (await oldFile.exists()) {
+        try {
+          await oldFile.rename(f.path);
+          final raw = await f.readAsString();
+          final list = jsonDecode(raw) as List;
+          return list
+              .map((e) => MeshChatMessage.fromJson(e as Map<String, dynamic>))
+              .toList();
+        } catch (_) {
+          // Fall through to empty.
+        }
+      }
+    }
+
+    return [];
   }
 
-  /// Persist the full message list for a peer (atomic overwrite).
-  Future<void> save(String peerId, List<MeshChatMessage> messages) async {
+  /// Persist the full message list for a peer by display name (atomic overwrite).
+  Future<void> save(String displayName, List<MeshChatMessage> messages) async {
     try {
-      final f = await _fileFor(peerId);
+      final f = await _fileForKey(displayName);
       final raw = jsonEncode(messages.map((m) => m.toJson()).toList());
       await f.writeAsString(raw);
     } catch (_) {}
   }
 
-  /// Append a single message to the store for a peer.
-  Future<void> append(String peerId, MeshChatMessage message) async {
-    final existing = await load(peerId);
+  /// Append a single message to the store for a peer by display name.
+  Future<void> append(String displayName, MeshChatMessage message) async {
+    final existing = await load(displayName);
     existing.add(message);
-    await save(peerId, existing);
+    await save(displayName, existing);
   }
 
-  /// Delete all stored messages for a peer.
-  Future<void> clearPeer(String peerId) async {
+  /// Delete all stored messages for a peer by display name.
+  Future<void> clearPeer(String displayName) async {
     try {
-      final f = await _fileFor(peerId);
+      final f = await _fileForKey(displayName);
       if (await f.exists()) await f.delete();
     } catch (_) {}
   }

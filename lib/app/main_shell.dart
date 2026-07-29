@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
+import '../core/local_notification_service.dart';
 import '../core/pending_chat_prompt.dart';
 import '../features/chat/chat_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/quick_cards/quick_cards_screen.dart';
+import '../features/tools/tools_screen.dart';
 import 'dart:async';
 import '../features/shelter/shelter_map_screen.dart';
 import '../l10n/app_localizations.dart';
@@ -104,7 +107,36 @@ class _MainShellState extends State<MainShell> {
   }
 
   void _showIncomingCall(CallSignalMessage sig) {
-    // Build a synthetic peer from the signal sender info.
+    final displayName = sig.fromName.startsWith(kMeshPeerPrefix)
+        ? sig.fromName.substring(kMeshPeerPrefix.length)
+        : sig.fromName;
+
+    // Vibrate immediately for tactile feedback.
+    try {
+      HapticFeedback.vibrate();
+    } catch (_) {}
+
+    // Show a heads-up notification (visible even when on another page).
+    localNotificationService.showCallNotification(
+      callerName: displayName,
+      onTap: () {
+        // Navigate to the call screen when notification is tapped.
+        if (!mounted) return;
+        final peer = MeshPeer(
+          endpointId: sig.fromId,
+          name: sig.fromName,
+          status: PeerStatus.connected,
+        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => MeshCallScreen(peer: peer, isIncoming: true),
+          ),
+        );
+      },
+    );
+
+    // Also navigate directly if the app is in the foreground.
     final peer = MeshPeer(
       endpointId: sig.fromId,
       name: sig.fromName,
@@ -136,8 +168,10 @@ class _MainShellState extends State<MainShell> {
         case 1:
           return const ChatScreen();
         case 2:
-          return QuickCardsScreen(onRequestAiChat: _onRequestAiChat);
+          return const ToolsScreen();
         case 3:
+          return QuickCardsScreen(onRequestAiChat: _onRequestAiChat);
+        case 4:
           return const ShelterMapScreen();
         default:
           return const SizedBox.shrink();
@@ -155,6 +189,11 @@ class _MainShellState extends State<MainShell> {
       selectedIcon: Icon(Icons.auto_awesome_rounded),
       icon: Icon(Icons.auto_awesome_outlined),
       label: AppLocalizations.of(context).navAi,
+    ),
+    NavigationDestination(
+      selectedIcon: Icon(Icons.build_rounded),
+      icon: Icon(Icons.build_outlined),
+      label: AppLocalizations.of(context).navTools,
     ),
     NavigationDestination(
       selectedIcon: Icon(Icons.style_rounded),
@@ -178,7 +217,7 @@ class _MainShellState extends State<MainShell> {
       child: Scaffold(
         body: Stack(
           children: [
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 5; i++)
               Offstage(
                 offstage: _index != i,
                 child: _buildTab(i),

@@ -10,7 +10,6 @@ docs/
 ├── PROJECT-STATUS.md       ← START HERE
 ├── architecture.md         ← Technical architecture
 ├── prd.md                  ← Product requirements
-├── ai_context.md           ← AI session anchor (change log)
 ├── spike-results.md        ← On-device measurements (judge Q&A)
 │
 ├── guides/                 ← Operational how-tos
@@ -43,6 +42,7 @@ docs/
 | [`guides/OFFLINE-MODEL-SETUP.md`](guides/OFFLINE-MODEL-SETUP.md) | On-device LLM setup from scratch (flutter_gemma 1.x + LiteRT-LM) |
 | [`guides/corpus.md`](guides/corpus.md) | Knowledge base guide: topic coverage, chunk schema, source whitelist |
 | [`guides/corpus-review.md`](guides/corpus-review.md) | Corpus expert review record |
+| [`guides/ai_context.md`](guides/ai_context.md) | AI session anchor — tracks recent changes for future AI dev sessions |
 
 ---
 
@@ -121,5 +121,4 @@ Historical documents from earlier build phases. Preserved for reference.
 
 | Doc | What it covers |
 |-----|---------------|
-| [`ai_context.md`](ai_context.md) | AI session anchor — tracks recent changes for future AI dev sessions |
 | [`spike-results.md`](spike-results.md) | On-device spike results and measurements (judge Q&A reference) |

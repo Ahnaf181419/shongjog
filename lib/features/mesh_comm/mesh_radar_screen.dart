@@ -27,7 +27,6 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
   List<MeshPeer> _peers = [];
   bool _started = false;
   bool _recording = false;
-  Timer? _refreshTimer;
   List<String> _savedContacts = [];
 
   @override
@@ -121,16 +120,12 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
 
     // Kick off a fresh scan immediately on (re-)entry so the peer list
     // populates without waiting for the first periodic tick.
+    // The app-wide discovery timer in MeshService handles ongoing scans.
     meshService.restartDiscovery();
-
-    _refreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
-      meshService.restartDiscovery();
-    });
   }
 
   @override
   void dispose() {
-    _refreshTimer?.cancel();
     _msgCtrl.dispose();
     _peerSub?.cancel();
     _radarAnim.dispose();

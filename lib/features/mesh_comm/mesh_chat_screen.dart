@@ -76,7 +76,10 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
   }
 
   Future<void> _loadPersistedMessages() async {
-    final stored = await _store.load(widget.peer.endpointId);
+    final stored = await _store.load(
+      widget.peer.displayName,
+      oldEndpointId: widget.peer.endpointId,
+    );
     if (mounted && stored.isNotEmpty) {
       setState(() {
         _messages.addAll(stored.map((m) => m.toMeshMessage()));
@@ -97,7 +100,7 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
               timestamp: m.timestamp,
             ))
         .toList();
-    _lastPersist = _store.save(widget.peer.endpointId, stored);
+    _lastPersist = _store.save(_currentPeer.displayName, stored);
     await _lastPersist;
   }
 
@@ -126,7 +129,7 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
           FilledButton(
             onPressed: () async {
               Navigator.pop(ctx);
-              await _store.clearPeer(_currentPeer.endpointId);
+              await _store.clearPeer(_currentPeer.displayName);
               if (mounted) {
                 setState(() => _messages.clear());
                 ScaffoldMessenger.of(context).showSnackBar(

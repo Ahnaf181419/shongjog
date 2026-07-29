@@ -7,7 +7,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 typedef NotificationSink = Future<void> Function(
     int id, String title, String body);
 
-/// System-tray notifications for admin broadcasts.
+/// System-tray notifications for admin broadcasts and incoming mesh calls.
 ///
 /// **This is deliberately not FCM push.** Delivering to a phone whose app is
 /// fully closed needs a server holding a service-account credential to call
@@ -26,13 +26,17 @@ typedef NotificationSink = Future<void> Function(
 class LocalNotificationService {
   LocalNotificationService();
 
-  /// Android notification channel. Created implicitly on first [show] by
-  /// [AndroidNotificationChannelAction.createIfNotExists] (the plugin
-  /// default), so there's no separate channel-registration step.
+  // ── Admin broadcast channel ──────────────────────────────────────────
   static const String channelId = 'shongjog_broadcasts';
   static const String channelName = 'জরুরি ঘোষণা';
   static const String channelDescription =
       'কর্তৃপক্ষের পাঠানো জরুরি বার্তা';
+
+  // ── Incoming mesh call channel ────────────────────────────────────────
+  static const String callChannelId = 'shongjog_calls';
+  static const String callChannelName = 'মেশ কল';
+  static const String callChannelDescription =
+      'অফলাইন মেশ নেটওয়ার্ক থেকে আসা কল';
 
   /// Test seam — set to intercept [show] instead of hitting the platform
   /// channel. Mirrors `debugFilesDirOverride` on the persistence services.
@@ -54,8 +58,6 @@ class LocalNotificationService {
     try {
       await _plugin.initialize(
         settings: const InitializationSettings(
-          // @mipmap/ic_launcher always exists in a Flutter Android app, so
-          // this needs no extra drawable in the res tree.
           android: AndroidInitializationSettings('@mipmap/ic_launcher'),
         ),
       );
@@ -92,13 +94,8 @@ class LocalNotificationService {
             channelId,
             channelName,
             channelDescription: channelDescription,
-            // High, not max: an admin broadcast is urgent enough to make a
-            // sound and appear as a heads-up card, but it is not a
-            // full-screen alarm — the SOS flow owns that register.
             importance: Importance.high,
             priority: Priority.high,
-            // Broadcasts are usually longer than one line; without this the
-            // body is truncated to a single ellipsised row.
             styleInformation: BigTextStyleInformation(''),
           ),
         ),
@@ -107,6 +104,72 @@ class LocalNotificationService {
       debugPrint('LocalNotificationService: show failed: $e');
     }
   }
+
+  /// Raise an incoming-call notification with max importance (heads-up +
+  /// full-screen intent when backgrounded). [callerName] is the display
+  /// name of the remote peer. [onTap] is invoked when the user taps the
+  /// notification.
+  Future<void> showCallNotification({
+    required String callerName,
+    required VoidCallback? onTap,
+  }) async {
+    if (debugSinkOverride != null) {
+      await debugSinkOverride!(
+        _callNotificationId,
+        'মেশ কল',
+        '$callerName আপনাকে কল করছে',
+      );
+      onTap?.call();
+      return;
+    }
+    try {
+      // Create the call notification channel on first use.
+      final androidPlugin = _plugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
+      await androidPlugin?.createNotificationChannel(
+        const AndroidNotificationChannel(
+          callChannelId,
+          callChannelName,
+          description: callChannelDescription,
+          importance: Importance.max,
+          enableVibration: true,
+          enableLights: true,
+        ),
+      );
+
+      await _plugin.show(
+        id: _callNotificationId,
+        title: 'মেশ কল',
+        body: '$callerName আপনাকে কল করছে',
+        notificationDetails: NotificationDetails(
+          android: AndroidNotificationDetails(
+            callChannelId,
+            callChannelName,
+            channelDescription: callChannelDescription,
+            importance: Importance.max,
+            priority: Priority.max,
+            fullScreenIntent: true,
+            sound: const RawResourceAndroidNotificationSound('call_ringtone'),
+            // Uses the default system ringtone if call_ringtone.raw is absent.
+            styleInformation: const BigTextStyleInformation(''),
+          ),
+        ),
+      );
+    } catch (e) {
+      debugPrint('LocalNotificationService: showCallNotification failed: $e');
+    }
+    onTap?.call();
+  }
+
+  /// Dismiss the incoming-call notification (e.g. when call is answered).
+  Future<void> dismissCallNotification() async {
+    try {
+      await _plugin.cancel(id: _callNotificationId);
+    } catch (_) {}
+  }
+
+  static const int _callNotificationId = 999001;
 }
 
 /// App-wide singleton — one per app instance.

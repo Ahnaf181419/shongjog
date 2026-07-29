@@ -134,6 +134,12 @@ abstract class AppLocalizations {
   /// **'এআই'**
   String get navAi;
 
+  /// No description provided for @navTools.
+  ///
+  /// In bn, this message translates to:
+  /// **'টুলস'**
+  String get navTools;
+
   /// No description provided for @navCards.
   ///
   /// In bn, this message translates to:

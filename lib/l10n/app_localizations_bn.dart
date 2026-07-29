@@ -27,6 +27,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get navAi => 'এআই';
 
   @override
+  String get navTools => 'টুলস';
+
+  @override
   String get navCards => 'কার্ড';
 
   @override

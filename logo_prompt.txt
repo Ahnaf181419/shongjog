@@ -1,0 +1,105 @@
+## Shongjog Logo Generation Prompt
+
+Generate a logo for "Shongjog" (সংযোগ), a Bangladeshi emergency companion mobile app.
+
+### App Identity
+
+- Name meaning: "Shongjog" (সংযোগ) means "connection/link" in Bangla — connecting people
+  to safety when disaster strikes.
+- Tagline concept: "Works when the internet doesn't"
+- Purpose: Offline-first, AI-powered emergency guidance app for floods and cyclones in
+  Bangladesh. Delivers first-aid, shelter finding, emergency calling, and peer-to-peer
+  mesh communication — all without internet.
+
+### Visual Symbolism to Convey
+
+1. Connection/Link — the literal meaning of "Shongjog"; mesh networking between people
+2. Safety/Shelter — a protective canopy, umbrella, or shelter shape
+3. Bangladesh identity — subtle nod to Bangladeshi culture (water, river delta, green/red
+   national colors woven in naturally, not as a flag)
+4. Voice/Speech — the app is voice-first (microphone concept, sound waves)
+5. AI intelligence — subtle neural/brain or signal motif, not literal robot
+6. Resilience — strength, reliability, calm authority in crisis
+
+### Style Direction
+
+- Feel: Calm-in-crisis, authoritative, premium, trustworthy — NOT playful or cute
+- Genre: Modern tech app icon / logo mark, similar tier to WhatsApp, Telegram, Google
+  Meet in simplicity and memorability
+- Shape: Must work as a rounded square app icon (iOS/Android adaptive icon), a circular
+  favicon, and a horizontal lockup (icon + wordmark)
+- Simplicity: The mark must read clearly at 48x48 px (notification icon) and scale up
+  to hero size
+- Avoid: Medical crosses (conflicts with emergency, too literal), generic AI brain
+  clichés, literal phone illustrations, overly complex illustrations
+
+### Color Palette (from the app's design system — "Deep Ocean Blue")
+
+- Primary: #0369A1 (Deep Ocean Blue, sky-700) — the locked brand hue (~205°)
+- Bright accent: #38BDF8 (sky-400) — for dark backgrounds
+- Alert/Emergency (accent only): #DC2626 (red-600) — used sparingly, never decorative
+- Surface: #F8FAFC (slate-50) light / #0F172A (slate-900) dark
+- Neutrals: Slate scale for text — #0F172A to #94A3B8
+- The logo should work in monochrome white on ocean blue, monochrome ocean on white,
+  and full-color
+
+### Typography Context
+
+- The app's UI font is HindSiliguri (a Bangla-first sans-serif). If the wordmark
+  includes Bangla script (সংযোগ), it should feel cohesive with this typeface's weight
+  and rhythm — clean, rounded terminals, moderate stroke contrast.
+- The English wordmark "Shongjog" should use a clean geometric sans-serif (think Inter,
+  Plus Jakarta Sans, or similar).
+
+### Composition Options to Explore
+
+1. Abstract mark only (symbol, no text) — for the app icon
+2. Symbol + English wordmark — for marketing headers
+3. Symbol + Bangla wordmark (সংযোগ) — for localized materials
+4. Horizontal lockup — icon left, text right
+
+### Detailed Symbol Concepts (explore 2–3 of these)
+
+- Concept A — "Convergence Shield": Two flowing lines (representing rivers/people)
+  converging into a single protective arc or shelter canopy shape. The convergence point
+  forms a subtle speech bubble or signal node. The overall silhouette reads as a shield —
+  safety.
+
+- Concept B — "Mesh Ripple": A central node with 3–4 connected nodes in a mesh pattern,
+  enclosed in a soft circle. The nodes could subtly evoke a Bangladeshi water lily
+  (shapla) arrangement. Conveys peer-to-peer connection and community resilience.
+
+- Concept C — "Voice Wave Shelter": A stylized shelter/roof shape formed by concentric
+  sound/voice waves. The negative space between waves creates the silhouette of a
+  protective structure. Conveys voice-first + shelter/safety.
+
+- Concept D — "Delta Signal": A geometric representation of a river delta (Bangladesh =
+  land of rivers) with signal/connection dots at each tributary endpoint. Clean, abstract,
+  premium.
+
+### Technical Requirements
+
+- Vector (SVG/AI) output, pixel-perfect at all sizes
+- App icon: 1024x1024 master, works at 48px
+- Favicon: circular crop friendly
+- Must have strong contrast ratios (WCAG AA minimum) against both light and dark
+  backgrounds
+- No thin hairlines that disappear at small sizes — minimum stroke weight proportional
+  to icon size
+- Flat/modern design, minimal gradients (if any, subtle depth only)
+- No drop shadows in the mark itself
+
+### Mood References
+
+- The trustworthiness of 112 Emergency apps
+- The simplicity and memorability of Telegram's paper plane
+- The calm authority of WHO's visual identity
+- The tech-forward feel of Google's Material You iconography
+- Bangladesh's natural beauty: river deltas, green landscapes, monsoon resilience
+
+### What This Logo Must Communicate (priority order)
+
+1. Safety & Trust — "This app will help me in an emergency"
+2. Connection — "It connects me to help, to people, to guidance"
+3. Technology — "This is intelligent, modern, and reliable"
+4. Bangladesh — "This is made for me, for my country"
