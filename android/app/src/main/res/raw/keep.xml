@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Resource-shrinker keep list.
+
+  Flutter's Gradle plugin turns on `shrinkResources` for release builds. The
+  shrinker decides what is reachable by scanning Java/Kotlin code and XML — it
+  cannot see a resource named only inside a Dart string.
+
+  `ic_notification` is referenced solely from
+  `LocalNotificationService.smallIcon` ('@drawable/ic_notification'), so the
+  shrinker classified it as unused and stripped it from the release APK. Debug
+  builds were fine, which is the worst kind of difference: the icon works
+  through every local test and disappears in the build people install.
+
+  Verified with `aapt2 dump resources` — before this file, drawable/ic_notification
+  was present in merged-not-compiled-resources but absent from the APK.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_notification" />

@@ -248,6 +248,42 @@ else
     echo "    devices will silently drop every notification."
     FAILED=1
   fi
+
+  # 8. Speech engine visibility. Android 11+ hides the system recogniser and
+  #    the TTS engine unless the app declares intent to resolve them, and we
+  #    target 36. Without these, initialize() returns false and voice input
+  #    reports a microphone-permission error that isn't one.
+  MANIFEST_STRINGS="$(unzip -p "$APK" AndroidManifest.xml | strings -el)"
+  if [[ "$(grep -c 'android.speech.RecognitionService' <<<"$MANIFEST_STRINGS" || true)" -gt 0 &&
+        "$(grep -c 'TTS_SERVICE' <<<"$MANIFEST_STRINGS" || true)" -gt 0 ]]; then
+    echo "  ✓ Speech recogniser + TTS queries declared"
+  else
+    echo "  ✗ <queries> is missing the speech intents — voice input and"
+    echo "    read-aloud will both fail on Android 11+."
+    FAILED=1
+  fi
+
+  # 9. The notification small icon is named ONLY from a Dart string, so the
+  #    release resource shrinker cannot see it and happily strips it. Debug
+  #    builds keep it, which makes this invisible until someone installs the
+  #    release APK and no notification ever appears. res/raw/keep.xml is what
+  #    holds it in; this gate proves the keep rule actually worked.
+  if command -v aapt2 >/dev/null 2>&1; then
+    # grep -c, never grep -q: with `set -o pipefail`, -q exits on the first
+    # match and SIGPIPEs aapt2, which fails the whole pipeline and reports a
+    # missing resource that is actually present. Same trap as check 7.
+    if [[ "$(aapt2 dump resources "$APK" 2>/dev/null |
+             grep -c 'drawable/ic_notification' || true)" -gt 0 ]]; then
+      echo "  ✓ Notification icon survived resource shrinking"
+    else
+      echo "  ✗ drawable/ic_notification was stripped from the APK. Android"
+      echo "    resolves the missing id to 0 and refuses to post the"
+      echo "    notification. Check android/app/src/main/res/raw/keep.xml."
+      FAILED=1
+    fi
+  else
+    echo "  ! aapt2 not on PATH — skipped the notification-icon check"
+  fi
 fi
 
 echo

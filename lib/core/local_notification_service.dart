@@ -1,3 +1,5 @@
+import 'dart:ui' show Color;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -38,6 +40,28 @@ class LocalNotificationService {
   static const String callChannelDescription =
       'অফলাইন মেশ নেটওয়ার্ক থেকে আসা কল';
 
+  /// Status-bar icon.
+  ///
+  /// This used to be `@mipmap/ic_launcher` — a resource that does not exist in
+  /// this project. The launcher icon is named `launcher_icon`, so Android
+  /// resolved the identifier to 0, and posting a notification with
+  /// `setSmallIcon(0)` is rejected with "Invalid notification (no valid small
+  /// icon)". Every broadcast notification failed at the platform boundary.
+  ///
+  /// It is also a dedicated monochrome asset rather than the launcher icon.
+  /// Android renders a small icon's ALPHA CHANNEL ONLY and tints it, so a
+  /// full-colour icon collapses to a solid white blob — the blue ground and
+  /// the navy S both become opaque. `ic_notification` is the S alone as a
+  /// silhouette, generated at 24/36/48/72/96px.
+  static const String smallIcon = '@drawable/ic_notification';
+
+  /// Accent applied to the tinted small icon and the app name in the shade.
+  ///
+  /// Hardcoded rather than read from `ShongjogTheme.ocean`: `core/` does not
+  /// depend on the `app/` theme layer, and inverting that for one colour is
+  /// not worth it. Keep in step with docs/design.md §5.1 if the brand moves.
+  static const Color accent = Color(0xFF0369A1);
+
   /// Test seam — set to intercept [show] instead of hitting the platform
   /// channel. Mirrors `debugFilesDirOverride` on the persistence services.
   @visibleForTesting
@@ -58,7 +82,7 @@ class LocalNotificationService {
     try {
       await _plugin.initialize(
         settings: const InitializationSettings(
-          android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+          android: AndroidInitializationSettings(smallIcon),
         ),
       );
       // No-op below Android 13, where the permission is install-time.
@@ -96,6 +120,8 @@ class LocalNotificationService {
             channelDescription: channelDescription,
             importance: Importance.high,
             priority: Priority.high,
+            icon: smallIcon,
+            color: accent,
             styleInformation: BigTextStyleInformation(''),
           ),
         ),

@@ -106,7 +106,26 @@ flutter:
       fonts:
         - asset: assets/fonts/Manrope.ttf
 
+# Launcher icon generation. Run `dart run flutter_launcher_icons` after
+# changing any of the source images below.
+#
+# minSdk is 26, so EVERY device this ships to uses an adaptive-icon launcher.
+# Without the adaptive_icon_* pair the launcher falls back to legacy treatment
+# — it shrinks the square PNG onto a white plate, which is why the icon used to
+# render as a small blue blob inside a white circle.
+#
+# `Shongjog_logo.png` is no longer used directly: it is RGB with no alpha, so
+# the area outside the squircle was baked pure black and shipped as black
+# corners. `icon_legacy.png` is the same artwork with those corners made
+# transparent; `icon_foreground.png` is the S lifted onto transparency and
+# sized to 78% of the canvas so it bleeds past the launcher mask, exactly as
+# it used to bleed past the squircle edge.
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/app_icon_blue.jpg"
+  remove_alpha_ios: true
+  image_path: "assets/icon_legacy.png"
+  adaptive_icon_background: "#006CD5"
+  adaptive_icon_foreground: "assets/icon_foreground.png"
+  web:
+    generate: true
