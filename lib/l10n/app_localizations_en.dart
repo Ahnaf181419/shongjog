@@ -318,7 +318,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get imSafe => 'My Status';
 
   @override
-  String get imSafeDesc => 'Safe or in danger — notify via mesh and SMS';
+  String get imSafeDesc => 'Safe or in danger';
 
   @override
   String get triageWizard => 'Triage Wizard';
@@ -520,6 +520,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatTryAgain => 'Try again';
+
+  @override
+  String get chatSttUnavailable =>
+      'Speech recognition is not available on this phone. Type your message instead.';
 
   @override
   String get chatMicPermission =>
@@ -2154,6 +2158,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get riskScoreDenominator => '/ 10';
+
+  @override
+  String get riskLevelHigh => 'High risk';
+
+  @override
+  String get riskLevelMedium => 'Moderate risk';
+
+  @override
+  String get riskLevelLow => 'Low risk';
 
   @override
   String get riskScoreLabel => 'Risk Score';

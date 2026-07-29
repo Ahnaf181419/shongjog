@@ -80,5 +80,28 @@
             <action android:name="android.intent.action.DIAL"/>
             <data android:scheme="tel"/>
         </intent>
+        <!--
+          Package visibility for the speech engines. Android 11 (API 30)
+          hides other packages from an app unless it declares intent it
+          wants to resolve, and we target API 36.
+
+          Without the first entry, SpeechRecognizer.isRecognitionAvailable()
+          returns false, speech_to_text's initialize() returns false, and the
+          mic button reports a *permission* problem that isn't one — the
+          microphone permission was granted, the app simply could not see the
+          system recogniser. That is the whole of "voice input does nothing".
+
+          The second entry is the same rule for the TTS engine, which reads
+          answers back when auto-read is on.
+
+          Required by speech_to_text README §Android SDK 30 and
+          flutter_tts README §Android 11.
+        -->
+        <intent>
+            <action android:name="android.speech.RecognitionService"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE"/>
+        </intent>
     </queries>
 </manifest>

@@ -701,7 +701,7 @@ abstract class AppLocalizations {
   /// No description provided for @imSafeDesc.
   ///
   /// In bn, this message translates to:
-  /// **'নিরাপদ বা বিপদে — মেশ ও এসএমএস দিয়ে জানান'**
+  /// **'নিরাপদ বা বিপদে'**
   String get imSafeDesc;
 
   /// No description provided for @triageWizard.
@@ -1069,6 +1069,12 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'আবার চেষ্টা করুন'**
   String get chatTryAgain;
+
+  /// No description provided for @chatSttUnavailable.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই ফোনে ভয়েস শনাক্তকরণ নেই। টাইপ করে পাঠান।'**
+  String get chatSttUnavailable;
 
   /// No description provided for @chatMicPermission.
   ///
@@ -4201,6 +4207,24 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'/ ১০'**
   String get riskScoreDenominator;
+
+  /// No description provided for @riskLevelHigh.
+  ///
+  /// In bn, this message translates to:
+  /// **'উচ্চ ঝুঁকি'**
+  String get riskLevelHigh;
+
+  /// No description provided for @riskLevelMedium.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাঝারি ঝুঁকি'**
+  String get riskLevelMedium;
+
+  /// No description provided for @riskLevelLow.
+  ///
+  /// In bn, this message translates to:
+  /// **'কম ঝুঁকি'**
+  String get riskLevelLow;
 
   /// No description provided for @riskScoreLabel.
   ///

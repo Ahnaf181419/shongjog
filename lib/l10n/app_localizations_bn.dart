@@ -316,7 +316,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get imSafe => 'আমার অবস্থা জানান';
 
   @override
-  String get imSafeDesc => 'নিরাপদ বা বিপদে — মেশ ও এসএমএস দিয়ে জানান';
+  String get imSafeDesc => 'নিরাপদ বা বিপদে';
 
   @override
   String get triageWizard => 'ট্রায়াজ উইজার্ড';
@@ -520,6 +520,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get chatTryAgain => 'আবার চেষ্টা করুন';
+
+  @override
+  String get chatSttUnavailable =>
+      'এই ফোনে ভয়েস শনাক্তকরণ নেই। টাইপ করে পাঠান।';
 
   @override
   String get chatMicPermission => 'মাইক্রোফোন অনুমতি নেই। সেটিংসে যেতে চাপুন।';
@@ -2157,6 +2161,15 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get riskScoreDenominator => '/ ১০';
+
+  @override
+  String get riskLevelHigh => 'উচ্চ ঝুঁকি';
+
+  @override
+  String get riskLevelMedium => 'মাঝারি ঝুঁকি';
+
+  @override
+  String get riskLevelLow => 'কম ঝুঁকি';
 
   @override
   String get riskScoreLabel => 'ঝুঁকি স্কোর';

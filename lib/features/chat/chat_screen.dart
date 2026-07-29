@@ -436,20 +436,45 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() => _listening = false);
       return;
     }
-    // If STT failed to initialize (e.g. permission denied), offer a
-    // settings redirect so the user can recover.
+    // `_sttReady` is captured once during screen init. A single transient
+    // failure there used to disable the mic for the whole session, so retry
+    // before giving up — init() is cheap and idempotent once ready.
+    if (!_sttReady) {
+      try {
+        _sttReady = await _stt.init();
+      } catch (e) {
+        debugPrint('STT re-init failed: $e');
+        _sttReady = false;
+      }
+      if (!mounted) return;
+    }
+
     if (!_sttReady) {
       final l10n = AppLocalizations.of(context);
       final messenger = ScaffoldMessenger.of(context);
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(l10n.chatMicPermission),
-          action: SnackBarAction(
-            label: l10n.settingsTitle,
-            onPressed: () => openAppSettings(),
+      // Distinguish the two causes. They need opposite actions from the
+      // user, and conflating them sent people to re-grant a microphone
+      // permission they had already granted — which of course changed
+      // nothing, because the real problem was that no speech recogniser was
+      // reachable at all.
+      final micStatus = await Permission.microphone.status;
+      if (!mounted) return;
+
+      if (micStatus.isGranted) {
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.chatSttUnavailable)),
+        );
+      } else {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.chatMicPermission),
+            action: SnackBarAction(
+              label: l10n.settingsTitle,
+              onPressed: () => openAppSettings(),
+            ),
           ),
-        ),
-      );
+        );
+      }
       return;
     }
     HapticService.lightTap();
@@ -497,7 +522,7 @@ class _ChatScreenState extends State<ChatScreen> {
               return Text(
                 status,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: FontWeight.w400,
                   color: hasCloud || hasLocal
                       ? (isDark
@@ -512,7 +537,7 @@ class _ChatScreenState extends State<ChatScreen> {
         actions: [
           IconButton(
             tooltip: AppLocalizations.of(context).chatEmergencyCall,
-            icon: Icon(Icons.call, color: Theme.of(context).colorScheme.error),
+            icon: Icon(Icons.call_rounded, color: Theme.of(context).colorScheme.error),
             onPressed: () => EmergencySheet.show(context),
           ),
         ],
@@ -553,7 +578,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Text(
             AppLocalizations.of(context).chatLoading,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 14,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
@@ -597,14 +622,14 @@ class _ChatScreenState extends State<ChatScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.errorContainer,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(ShongjogTheme.radius),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Icon(Icons.error_outline,
+                Icon(Icons.error_outline_rounded,
                     color: Theme.of(context).colorScheme.error, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
@@ -624,13 +649,13 @@ class _ChatScreenState extends State<ChatScreen> {
               children: [
                 TextButton.icon(
                   onPressed: _retry,
-                  icon: const Icon(Icons.refresh, size: 18),
+                  icon: const Icon(Icons.refresh_rounded, size: 18),
                   label: Text(AppLocalizations.of(context).chatRetry),
                 ),
                 const SizedBox(width: 8),
                 TextButton.icon(
                   onPressed: () => EmergencySheet.show(context),
-                  icon: Icon(Icons.call,
+                  icon: Icon(Icons.call_rounded,
                       size: 18, color: Theme.of(context).colorScheme.error),
                   label: Text(AppLocalizations.of(context).chatCall999,
                       style: TextStyle(
@@ -660,7 +685,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                _listening ? Icons.mic : Icons.mic_none,
+                _listening ? Icons.mic_rounded : Icons.mic_none_rounded,
                 size: 36,
                 color: _listening
                     ? ShongjogTheme.alert
