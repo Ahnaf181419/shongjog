@@ -1,55 +1,5265 @@
 {
   "type": "FeatureCollection",
   "features": [
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [89.55, 22.85] },
-      "properties": { "name": "Khulna Shelter A", "name_bn": "খুলনা শেল্টার এ", "capacity": 1200, "source": "MoDMR" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.40, 22.70] },
-      "properties": { "name": "Barisal Cyclone Shelter", "name_bn": "বরিশাল সাইক্লোন শেল্টার", "capacity": 800, "source": "MoDMR" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [91.82, 22.33] },
-      "properties": { "name": "Chittagong Shelter C", "name_bn": "চট্টগ্রাম শেল্টার সি", "capacity": 1500, "source": "UNDP_BD" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [89.25, 23.92] },
-      "properties": { "name": "Pabna Shelter", "name_bn": "পাবনা শেল্টার", "capacity": 600, "source": "MoDMR" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.36, 23.75] },
-      "properties": { "name": "Dhaka Emergency Shelter", "name_bn": "ঢাকা জরুরি শেল্টার", "capacity": 900, "source": "DMB" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [91.97, 21.45] },
-      "properties": { "name": "Cox's Bazar Shelter 1", "name_bn": "কক্সবাজার শেল্টার ১", "capacity": 1100, "source": "MoDMR" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [92.30, 21.15] },
-      "properties": { "name": "Teknaf Coastal Shelter", "name_bn": "টেকনাফ উপকূলীয় শেল্টার", "capacity": 700, "source": "UNDP_BD" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.65, 22.68] },
-      "properties": { "name": "Bhola Shelter North", "name_bn": "ভোলা শেল্টার উত্তর", "capacity": 950, "source": "MoDMR" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.55, 22.15] },
-      "properties": { "name": "Bhola Shelter South", "name_bn": "ভোলা শেল্টার দক্ষিণ", "capacity": 850, "source": "BRAC" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.32, 21.95] },
-      "properties": { "name": "Patuakhali Coastal Shelter", "name_bn": "পটুয়াখালী উপকূলীয় শেল্টার", "capacity": 1000, "source": "MoDMR" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.11, 22.09] },
-      "properties": { "name": "Kuakata Sea Beach Shelter", "name_bn": "কুয়াকাটা সমুদ্র সৈকত শেল্টার", "capacity": 650, "source": "OSM" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.11, 22.10] },
-      "properties": { "name": "Barguna Shelter A", "name_bn": "বরগুনা শেল্টার এ", "capacity": 780, "source": "MoDMR" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [91.10, 22.82] },
-      "properties": { "name": "Noakhali Shelter A", "name_bn": "নোয়াখালী শেল্টার এ", "capacity": 1050, "source": "UNDP_BD" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [91.10, 22.45] },
-      "properties": { "name": "Hatiya Island Shelter", "name_bn": "হাতিয়া দ্বীপ শেল্টার", "capacity": 500, "source": "OSM" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [91.68, 22.20] },
-      "properties": { "name": "Sandwip Shelter", "name_bn": "সন্দ্বীপ শেল্টার", "capacity": 550, "source": "MoDMR" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [89.10, 22.35] },
-      "properties": { "name": "Satkhira Shelter A", "name_bn": "সাতক্ষীরা শেল্টার এ", "capacity": 900, "source": "MoDMR" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [89.42, 22.20] },
-      "properties": { "name": "Shyamnagar Shelter", "name_bn": "শ্যামনগর শেল্টার", "capacity": 620, "source": "BRAC" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [89.58, 21.97] },
-      "properties": { "name": "Sundarbans Edge Shelter", "name_bn": "সুন্দরবন প্রান্ত শেল্টার", "capacity": 400, "source": "OSM" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [91.87, 22.68] },
-      "properties": { "name": "Chittagong Shelter D", "name_bn": "চট্টগ্রাম শেল্টার ডি", "capacity": 1300, "source": "MoDMR" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [91.79, 21.44] },
-      "properties": { "name": "Moheshkhali Shelter", "name_bn": "মহেশখালী শেল্টার", "capacity": 720, "source": "UNDP_BD" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.20, 22.60] },
-      "properties": { "name": "Barisal Shelter B", "name_bn": "বরিশাল শেল্টার বি", "capacity": 830, "source": "MoDMR" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [90.55, 24.90] },
-      "properties": { "name": "Sylhet Emergency Shelter", "name_bn": "সিলেট জরুরি শেল্টার", "capacity": 500, "source": "DMB" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [88.60, 24.37] },
-      "properties": { "name": "Rajshahi Shelter A", "name_bn": "রাজশাহী শেল্টার এ", "capacity": 450, "source": "MoDMR" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [89.20, 25.75] },
-      "properties": { "name": "Rangpur Shelter A", "name_bn": "রংপুর শেল্টার এ", "capacity": 400, "source": "OSM" } },
-    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [91.10, 24.90] },
-      "properties": { "name": "Mymensingh Shelter A", "name_bn": "ময়মনসিংহ শেল্টার এ", "capacity": 480, "source": "BRAC" } }
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.5463,
+          22.8456
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-001",
+        "division": "khulna",
+        "district": "খুলনা",
+        "name": "Khulna Cyclone Shelter 1",
+        "name_bn": "Khulna সাইক্লোন শেল্টার ১",
+        "capacity": 600,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.5403,
+          22.8546
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-002",
+        "division": "khulna",
+        "district": "খুলনা",
+        "name": "Khulna Cyclone Shelter 2",
+        "name_bn": "Khulna সাইক্লোন শেল্টার ২",
+        "capacity": 780,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.5343,
+          22.8456
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-003",
+        "division": "khulna",
+        "district": "খুলনা",
+        "name": "Khulna Cyclone Shelter 3",
+        "name_bn": "Khulna সাইক্লোন শেল্টার ৩",
+        "capacity": 960,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.5403,
+          22.8366
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-004",
+        "division": "khulna",
+        "district": "খুলনা",
+        "name": "Khulna Cyclone Shelter 4",
+        "name_bn": "Khulna সাইক্লোন শেল্টার ৪",
+        "capacity": 1140,
+        "type": "cyclone",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.0763,
+          22.7186
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-005",
+        "division": "khulna",
+        "district": "সাতক্ষীরা",
+        "name": "Satkhira Cyclone Shelter 5",
+        "name_bn": "Satkhira সাইক্লোন শেল্টার ৫",
+        "capacity": 1320,
+        "type": "cyclone",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.0658,
+          22.72639
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-006",
+        "division": "khulna",
+        "district": "সাতক্ষীরা",
+        "name": "Satkhira Cyclone Shelter 6",
+        "name_bn": "Satkhira সাইক্লোন শেল্টার ৬",
+        "capacity": 1500,
+        "type": "cyclone",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.0673,
+          22.7134
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-007",
+        "division": "khulna",
+        "district": "সাতক্ষীরা",
+        "name": "Satkhira Cyclone Shelter 7",
+        "name_bn": "Satkhira সাইক্লোন শেল্টার ৭",
+        "capacity": 1680,
+        "type": "cyclone",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.1091,
+          22.3319
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-008",
+        "division": "khulna",
+        "district": "শ্যামনগর",
+        "name": "Shyamnagar Cyclone Shelter 8",
+        "name_bn": "Shyamnagar সাইক্লোন শেল্টার ৮",
+        "capacity": 1860,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.0986,
+          22.33969
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-009",
+        "division": "khulna",
+        "district": "শ্যামনগর",
+        "name": "Shyamnagar Cyclone Shelter 9",
+        "name_bn": "Shyamnagar সাইক্লোন শেল্টার ৯",
+        "capacity": 640,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.1001,
+          22.3267
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-010",
+        "division": "khulna",
+        "district": "শ্যামনগর",
+        "name": "Shyamnagar Cyclone Shelter 10",
+        "name_bn": "Shyamnagar সাইক্লোন শেল্টার ১০",
+        "capacity": 820,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.6049,
+          22.4713
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-011",
+        "division": "khulna",
+        "district": "মংলা",
+        "name": "Mongla Cyclone Shelter 11",
+        "name_bn": "Mongla সাইক্লোন শেল্টার ১১",
+        "capacity": 1000,
+        "type": "cyclone",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.5944,
+          22.47909
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-012",
+        "division": "khulna",
+        "district": "মংলা",
+        "name": "Mongla Cyclone Shelter 12",
+        "name_bn": "Mongla সাইক্লোন শেল্টার ১২",
+        "capacity": 1180,
+        "type": "cyclone",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.5959,
+          22.4661
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-013",
+        "division": "khulna",
+        "district": "মংলা",
+        "name": "Mongla Cyclone Shelter 13",
+        "name_bn": "Mongla সাইক্লোন শেল্টার ১৩",
+        "capacity": 1360,
+        "type": "cyclone",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.7918,
+          22.6516
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-014",
+        "division": "khulna",
+        "district": "বাগেরহাট",
+        "name": "Bagerhat Cyclone Shelter 14",
+        "name_bn": "Bagerhat সাইক্লোন শেল্টার ১৪",
+        "capacity": 1540,
+        "type": "cyclone",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.7813,
+          22.65939
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-015",
+        "division": "khulna",
+        "district": "বাগেরহাট",
+        "name": "Bagerhat Cyclone Shelter 15",
+        "name_bn": "Bagerhat সাইক্লোন শেল্টার ১৫",
+        "capacity": 1720,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.7828,
+          22.6464
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-016",
+        "division": "khulna",
+        "district": "বাগেরহাট",
+        "name": "Bagerhat Cyclone Shelter 16",
+        "name_bn": "Bagerhat সাইক্লোন শেল্টার ১৬",
+        "capacity": 1900,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.356,
+          22.5833
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-017",
+        "division": "khulna",
+        "district": "পাইকগাছা",
+        "name": "Paikgachha Cyclone Shelter 17",
+        "name_bn": "Paikgachha সাইক্লোন শেল্টার ১৭",
+        "capacity": 680,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.3455,
+          22.59109
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-018",
+        "division": "khulna",
+        "district": "পাইকগাছা",
+        "name": "Paikgachha Cyclone Shelter 18",
+        "name_bn": "Paikgachha সাইক্লোন শেল্টার ১৮",
+        "capacity": 860,
+        "type": "cyclone",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.347,
+          22.5781
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-019",
+        "division": "khulna",
+        "district": "পাইকগাছা",
+        "name": "Paikgachha Cyclone Shelter 19",
+        "name_bn": "Paikgachha সাইক্লোন শেল্টার ১৯",
+        "capacity": 1040,
+        "type": "cyclone",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.5227,
+          22.4333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-020",
+        "division": "khulna",
+        "district": "দাকোপ",
+        "name": "Dacope Cyclone Shelter 20",
+        "name_bn": "Dacope সাইক্লোন শেল্টার ২০",
+        "capacity": 1220,
+        "type": "cyclone",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.5122,
+          22.44109
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-021",
+        "division": "khulna",
+        "district": "দাকোপ",
+        "name": "Dacope Cyclone Shelter 21",
+        "name_bn": "Dacope সাইক্লোন শেল্টার ২১",
+        "capacity": 1400,
+        "type": "cyclone",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.5137,
+          22.4281
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-022",
+        "division": "khulna",
+        "district": "দাকোপ",
+        "name": "Dacope Cyclone Shelter 22",
+        "name_bn": "Dacope সাইক্লোন শেল্টার ২২",
+        "capacity": 1580,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.406,
+          22.2333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-023",
+        "division": "khulna",
+        "district": "কয়রা",
+        "name": "Koyra Cyclone Shelter 23",
+        "name_bn": "Koyra সাইক্লোন শেল্টার ২৩",
+        "capacity": 1760,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.3955,
+          22.24109
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-024",
+        "division": "khulna",
+        "district": "কয়রা",
+        "name": "Koyra Cyclone Shelter 24",
+        "name_bn": "Koyra সাইক্লোন শেল্টার ২৪",
+        "capacity": 1940,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.397,
+          22.2281
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-025",
+        "division": "khulna",
+        "district": "কয়রা",
+        "name": "Koyra Cyclone Shelter 25",
+        "name_bn": "Koyra সাইক্লোন শেল্টার ২৫",
+        "capacity": 720,
+        "type": "cyclone",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.2196,
+          23.1707
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-026",
+        "division": "khulna",
+        "district": "যশোর",
+        "name": "Jessore Shelter 26",
+        "name_bn": "Jessore শেল্টার ২৬",
+        "capacity": 650,
+        "type": "multi",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.2091,
+          23.17849
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-027",
+        "division": "khulna",
+        "district": "যশোর",
+        "name": "Jessore Shelter 27",
+        "name_bn": "Jessore শেল্টার ২৭",
+        "capacity": 780,
+        "type": "multi",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.2106,
+          23.1655
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-028",
+        "division": "khulna",
+        "district": "যশোর",
+        "name": "Jessore Shelter 28",
+        "name_bn": "Jessore শেল্টার ২৮",
+        "capacity": 910,
+        "type": "multi",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.1587,
+          23.5438
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-029",
+        "division": "khulna",
+        "district": "ঝিনাইদহ",
+        "name": "Jhenaidah Shelter 29",
+        "name_bn": "Jhenaidah শেল্টার ২৯",
+        "capacity": 440,
+        "type": "multi",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.1437,
+          23.5438
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-030",
+        "division": "khulna",
+        "district": "ঝিনাইদহ",
+        "name": "Jhenaidah Shelter 30",
+        "name_bn": "Jhenaidah শেল্টার ৩০",
+        "capacity": 570,
+        "type": "multi",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.4227,
+          23.4833
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-031",
+        "division": "khulna",
+        "district": "মাগুরা",
+        "name": "Magura Shelter 31",
+        "name_bn": "Magura শেল্টার ৩১",
+        "capacity": 700,
+        "type": "multi",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.4077,
+          23.4833
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-032",
+        "division": "khulna",
+        "district": "মাগুরা",
+        "name": "Magura Shelter 32",
+        "name_bn": "Magura শেল্টার ৩২",
+        "capacity": 830,
+        "type": "multi",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.506,
+          23.0167
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-033",
+        "division": "khulna",
+        "district": "নড়াইল",
+        "name": "Narail Cyclone Shelter 33",
+        "name_bn": "Narail সাইক্লোন শেল্টার ৩৩",
+        "capacity": 760,
+        "type": "cyclone",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.491,
+          23.0167
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-034",
+        "division": "khulna",
+        "district": "নড়াইল",
+        "name": "Narail Cyclone Shelter 34",
+        "name_bn": "Narail সাইক্লোন শেল্টার ৩৪",
+        "capacity": 940,
+        "type": "cyclone",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.1281,
+          23.9013
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-035",
+        "division": "khulna",
+        "district": "কুষ্টিয়া",
+        "name": "Kushtia Flood Shelter 35",
+        "name_bn": "Kushtia বন্যা শেল্টার ৩৫",
+        "capacity": 540,
+        "type": "flood",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.1176,
+          23.90909
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-036",
+        "division": "khulna",
+        "district": "কুষ্টিয়া",
+        "name": "Kushtia Flood Shelter 36",
+        "name_bn": "Kushtia বন্যা শেল্টার ৩৬",
+        "capacity": 650,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.1191,
+          23.8961
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-037",
+        "division": "khulna",
+        "district": "কুষ্টিয়া",
+        "name": "Kushtia Flood Shelter 37",
+        "name_bn": "Kushtia বন্যা শেল্টার ৩৭",
+        "capacity": 760,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.6377,
+          24.0628
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-038",
+        "division": "khulna",
+        "district": "মেহেরপুর",
+        "name": "Meherpur Flood Shelter 38",
+        "name_bn": "Meherpur বন্যা শেল্টার ৩৮",
+        "capacity": 870,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.6227,
+          24.0628
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-039",
+        "division": "khulna",
+        "district": "মেহেরপুর",
+        "name": "Meherpur Flood Shelter 39",
+        "name_bn": "Meherpur বন্যা শেল্টার ৩৯",
+        "capacity": 980,
+        "type": "flood",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.846,
+          23.64
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-040",
+        "division": "khulna",
+        "district": "চুয়াডাঙ্গা",
+        "name": "Chuadanga Shelter 40",
+        "name_bn": "Chuadanga শেল্টার ৪০",
+        "capacity": 670,
+        "type": "multi",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.831,
+          23.64
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-khulna-041",
+        "division": "khulna",
+        "district": "চুয়াডাঙ্গা",
+        "name": "Chuadanga Shelter 41",
+        "name_bn": "Chuadanga শেল্টার ৪১",
+        "capacity": 800,
+        "type": "multi",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.3645,
+          22.701
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-001",
+        "division": "barishal",
+        "district": "বরিশাল",
+        "name": "Barishal Cyclone Shelter 1",
+        "name_bn": "Barishal সাইক্লোন শেল্টার ১",
+        "capacity": 980,
+        "type": "cyclone",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.3585,
+          22.71
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-002",
+        "division": "barishal",
+        "district": "বরিশাল",
+        "name": "Barishal Cyclone Shelter 2",
+        "name_bn": "Barishal সাইক্লোন শেল্টার ২",
+        "capacity": 1160,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.3525,
+          22.701
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-003",
+        "division": "barishal",
+        "district": "বরিশাল",
+        "name": "Barishal Cyclone Shelter 3",
+        "name_bn": "Barishal সাইক্লোন শেল্টার ৩",
+        "capacity": 1340,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.3585,
+          22.692
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-004",
+        "division": "barishal",
+        "district": "বরিশাল",
+        "name": "Barishal Cyclone Shelter 4",
+        "name_bn": "Barishal সাইক্লোন শেল্টার ৪",
+        "capacity": 1520,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.3385,
+          22.3587
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-005",
+        "division": "barishal",
+        "district": "পটুয়াখালী",
+        "name": "Patuakhali Cyclone Shelter 5",
+        "name_bn": "Patuakhali সাইক্লোন শেল্টার ৫",
+        "capacity": 1700,
+        "type": "cyclone",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.328,
+          22.36649
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-006",
+        "division": "barishal",
+        "district": "পটুয়াখালী",
+        "name": "Patuakhali Cyclone Shelter 6",
+        "name_bn": "Patuakhali সাইক্লোন শেল্টার ৬",
+        "capacity": 1880,
+        "type": "cyclone",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.3295,
+          22.3535
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-007",
+        "division": "barishal",
+        "district": "পটুয়াখালী",
+        "name": "Patuakhali Cyclone Shelter 7",
+        "name_bn": "Patuakhali সাইক্লোন শেল্টার ৭",
+        "capacity": 660,
+        "type": "cyclone",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.1306,
+          21.8193
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-008",
+        "division": "barishal",
+        "district": "কুয়াকাটা",
+        "name": "Kuakata Cyclone Shelter 8",
+        "name_bn": "Kuakata সাইক্লোন শেল্টার ৮",
+        "capacity": 840,
+        "type": "cyclone",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.1201,
+          21.82709
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-009",
+        "division": "barishal",
+        "district": "কুয়াকাটা",
+        "name": "Kuakata Cyclone Shelter 9",
+        "name_bn": "Kuakata সাইক্লোন শেল্টার ৯",
+        "capacity": 1020,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.1216,
+          21.8141
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-010",
+        "division": "barishal",
+        "district": "কুয়াকাটা",
+        "name": "Kuakata Cyclone Shelter 10",
+        "name_bn": "Kuakata সাইক্লোন শেল্টার ১০",
+        "capacity": 1200,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.1324,
+          22.1811
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-011",
+        "division": "barishal",
+        "district": "বরগুনা",
+        "name": "Barguna Cyclone Shelter 11",
+        "name_bn": "Barguna সাইক্লোন শেল্টার ১১",
+        "capacity": 1380,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.1219,
+          22.18889
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-012",
+        "division": "barishal",
+        "district": "বরগুনা",
+        "name": "Barguna Cyclone Shelter 12",
+        "name_bn": "Barguna সাইক্লোন শেল্টার ১২",
+        "capacity": 1560,
+        "type": "cyclone",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.1234,
+          22.1759
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-013",
+        "division": "barishal",
+        "district": "বরগুনা",
+        "name": "Barguna Cyclone Shelter 13",
+        "name_bn": "Barguna সাইক্লোন শেল্টার ১৩",
+        "capacity": 1740,
+        "type": "cyclone",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.6516,
+          22.6858
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-014",
+        "division": "barishal",
+        "district": "ভোলা",
+        "name": "Bhola Cyclone Shelter 14",
+        "name_bn": "Bhola সাইক্লোন শেল্টার ১৪",
+        "capacity": 1920,
+        "type": "cyclone",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.6456,
+          22.6948
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-015",
+        "division": "barishal",
+        "district": "ভোলা",
+        "name": "Bhola Cyclone Shelter 15",
+        "name_bn": "Bhola সাইক্লোন শেল্টার ১৫",
+        "capacity": 700,
+        "type": "cyclone",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.6396,
+          22.6858
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-016",
+        "division": "barishal",
+        "district": "ভোলা",
+        "name": "Bhola Cyclone Shelter 16",
+        "name_bn": "Bhola সাইক্লোন শেল্টার ১৬",
+        "capacity": 880,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.6456,
+          22.6768
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-017",
+        "division": "barishal",
+        "district": "ভোলা",
+        "name": "Bhola Cyclone Shelter 17",
+        "name_bn": "Bhola সাইক্লোন শেল্টার ১৭",
+        "capacity": 1060,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.7549,
+          22.175
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-018",
+        "division": "barishal",
+        "district": "চরফ্যাশন",
+        "name": "Char Fasson Cyclone Shelter 18",
+        "name_bn": "Char Fasson সাইক্লোন শেল্টার ১৮",
+        "capacity": 1240,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.7444,
+          22.18279
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-019",
+        "division": "barishal",
+        "district": "চরফ্যাশন",
+        "name": "Char Fasson Cyclone Shelter 19",
+        "name_bn": "Char Fasson সাইক্লোন শেল্টার ১৯",
+        "capacity": 1420,
+        "type": "cyclone",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.7459,
+          22.1698
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-020",
+        "division": "barishal",
+        "district": "চরফ্যাশন",
+        "name": "Char Fasson Cyclone Shelter 20",
+        "name_bn": "Char Fasson সাইক্লোন শেল্টার ২০",
+        "capacity": 1600,
+        "type": "cyclone",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.1727,
+          22.6833
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-021",
+        "division": "barishal",
+        "district": "হিজলা",
+        "name": "Hizla Cyclone Shelter 21",
+        "name_bn": "Hizla সাইক্লোন শেল্টার ২১",
+        "capacity": 1780,
+        "type": "cyclone",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.1577,
+          22.6833
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-022",
+        "division": "barishal",
+        "district": "হিজলা",
+        "name": "Hizla Cyclone Shelter 22",
+        "name_bn": "Hizla সাইক্লোন শেল্টার ২২",
+        "capacity": 1960,
+        "type": "cyclone",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.5346,
+          22.8086
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-023",
+        "division": "barishal",
+        "district": "মেহেন্দিগঞ্জ",
+        "name": "Mehendiganj Cyclone Shelter 23",
+        "name_bn": "Mehendiganj সাইক্লোন শেল্টার ২৩",
+        "capacity": 740,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.5196,
+          22.8086
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-024",
+        "division": "barishal",
+        "district": "মেহেন্দিগঞ্জ",
+        "name": "Mehendiganj Cyclone Shelter 24",
+        "name_bn": "Mehendiganj সাইক্লোন শেল্টার ২৪",
+        "capacity": 920,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.9782,
+          22.5856
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-025",
+        "division": "barishal",
+        "district": "পিরোজপুর",
+        "name": "Pirojpur Cyclone Shelter 25",
+        "name_bn": "Pirojpur সাইক্লোন শেল্টার ২৫",
+        "capacity": 1100,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.9677,
+          22.59339
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-026",
+        "division": "barishal",
+        "district": "পিরোজপুর",
+        "name": "Pirojpur Cyclone Shelter 26",
+        "name_bn": "Pirojpur সাইক্লোন শেল্টার ২৬",
+        "capacity": 1280,
+        "type": "cyclone",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.9692,
+          22.5804
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-027",
+        "division": "barishal",
+        "district": "পিরোজপুর",
+        "name": "Pirojpur Cyclone Shelter 27",
+        "name_bn": "Pirojpur সাইক্লোন শেল্টার ২৭",
+        "capacity": 1460,
+        "type": "cyclone",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.2047,
+          22.6406
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-028",
+        "division": "barishal",
+        "district": "ঝালকাঠি",
+        "name": "Jhalokati Cyclone Shelter 28",
+        "name_bn": "Jhalokati সাইক্লোন শেল্টার ২৮",
+        "capacity": 1640,
+        "type": "cyclone",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.1897,
+          22.6406
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-029",
+        "division": "barishal",
+        "district": "ঝালকাঠি",
+        "name": "Jhalokati Cyclone Shelter 29",
+        "name_bn": "Jhalokati সাইক্লোন শেল্টার ২৯",
+        "capacity": 1820,
+        "type": "cyclone",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.2727,
+          22.6333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-030",
+        "division": "barishal",
+        "district": "নলছিটি",
+        "name": "Nalchity Cyclone Shelter 30",
+        "name_bn": "Nalchity সাইক্লোন শেল্টার ৩০",
+        "capacity": 600,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.2577,
+          22.6333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-031",
+        "division": "barishal",
+        "district": "নলছিটি",
+        "name": "Nalchity Cyclone Shelter 31",
+        "name_bn": "Nalchity সাইক্লোন শেল্টার ৩১",
+        "capacity": 780,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.2227,
+          22.1167
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-032",
+        "division": "barishal",
+        "district": "আমতলী",
+        "name": "Amtali Cyclone Shelter 32",
+        "name_bn": "Amtali সাইক্লোন শেল্টার ৩২",
+        "capacity": 960,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.2122,
+          22.12449
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-033",
+        "division": "barishal",
+        "district": "আমতলী",
+        "name": "Amtali Cyclone Shelter 33",
+        "name_bn": "Amtali সাইক্লোন শেল্টার ৩৩",
+        "capacity": 1140,
+        "type": "cyclone",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.2137,
+          22.1115
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-034",
+        "division": "barishal",
+        "district": "আমতলী",
+        "name": "Amtali Cyclone Shelter 34",
+        "name_bn": "Amtali সাইক্লোন শেল্টার ৩৪",
+        "capacity": 1320,
+        "type": "cyclone",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.156,
+          21.9833
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-035",
+        "division": "barishal",
+        "district": "তালতলী",
+        "name": "Taltali Cyclone Shelter 35",
+        "name_bn": "Taltali সাইক্লোন শেল্টার ৩৫",
+        "capacity": 1500,
+        "type": "cyclone",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.141,
+          21.9833
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-036",
+        "division": "barishal",
+        "district": "তালতলী",
+        "name": "Taltali Cyclone Shelter 36",
+        "name_bn": "Taltali সাইক্লোন শেল্টার ৩৬",
+        "capacity": 1680,
+        "type": "cyclone",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.406,
+          22.1667
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-037",
+        "division": "barishal",
+        "district": "গলাচিপা",
+        "name": "Galachipa Cyclone Shelter 37",
+        "name_bn": "Galachipa সাইক্লোন শেল্টার ৩৭",
+        "capacity": 1860,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.3955,
+          22.17449
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-038",
+        "division": "barishal",
+        "district": "গলাচিপা",
+        "name": "Galachipa Cyclone Shelter 38",
+        "name_bn": "Galachipa সাইক্লোন শেল্টার ৩৮",
+        "capacity": 640,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.397,
+          22.1615
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-039",
+        "division": "barishal",
+        "district": "গলাচিপা",
+        "name": "Galachipa Cyclone Shelter 39",
+        "name_bn": "Galachipa সাইক্লোন শেল্টার ৩৯",
+        "capacity": 820,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.4393,
+          21.7667
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-040",
+        "division": "barishal",
+        "district": "রাঙ্গাবালি",
+        "name": "Rangabali Cyclone Shelter 40",
+        "name_bn": "Rangabali সাইক্লোন শেল্টার ৪০",
+        "capacity": 1000,
+        "type": "cyclone",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.4243,
+          21.7667
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-barishal-041",
+        "division": "barishal",
+        "district": "রাঙ্গাবালি",
+        "name": "Rangabali Cyclone Shelter 41",
+        "name_bn": "Rangabali সাইক্লোন শেল্টার ৪১",
+        "capacity": 1180,
+        "type": "cyclone",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.7892,
+          22.3569
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-001",
+        "division": "chattogram",
+        "district": "চট্টগ্রাম",
+        "name": "Chattogram Cyclone Shelter 1",
+        "name_bn": "Chattogram সাইক্লোন শেল্টার ১",
+        "capacity": 1360,
+        "type": "cyclone",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.78598,
+          22.36546
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-002",
+        "division": "chattogram",
+        "district": "চট্টগ্রাম",
+        "name": "Chattogram Cyclone Shelter 2",
+        "name_bn": "Chattogram সাইক্লোন শেল্টার ২",
+        "capacity": 1540,
+        "type": "cyclone",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.77835,
+          22.36043
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-003",
+        "division": "chattogram",
+        "district": "চট্টগ্রাম",
+        "name": "Chattogram Cyclone Shelter 3",
+        "name_bn": "Chattogram সাইক্লোন শেল্টার ৩",
+        "capacity": 1720,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.77592,
+          22.35161
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-004",
+        "division": "chattogram",
+        "district": "চট্টগ্রাম",
+        "name": "Chattogram Cyclone Shelter 4",
+        "name_bn": "Chattogram সাইক্লোন শেল্টার ৪",
+        "capacity": 1900,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.78505,
+          22.35119
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-005",
+        "division": "chattogram",
+        "district": "চট্টগ্রাম",
+        "name": "Chattogram Cyclone Shelter 5",
+        "name_bn": "Chattogram সাইক্লোন শেল্টার ৫",
+        "capacity": 680,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.0118,
+          21.4272
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-006",
+        "division": "chattogram",
+        "district": "কক্সবাজার",
+        "name": "Cox's Bazar Cyclone Shelter 6",
+        "name_bn": "Cox's Bazar সাইক্লোন শেল্টার ৬",
+        "capacity": 860,
+        "type": "cyclone",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.0058,
+          21.4362
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-007",
+        "division": "chattogram",
+        "district": "কক্সবাজার",
+        "name": "Cox's Bazar Cyclone Shelter 7",
+        "name_bn": "Cox's Bazar সাইক্লোন শেল্টার ৭",
+        "capacity": 1040,
+        "type": "cyclone",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.9998,
+          21.4272
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-008",
+        "division": "chattogram",
+        "district": "কক্সবাজার",
+        "name": "Cox's Bazar Cyclone Shelter 8",
+        "name_bn": "Cox's Bazar সাইক্লোন শেল্টার ৮",
+        "capacity": 1220,
+        "type": "cyclone",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.0058,
+          21.4182
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-009",
+        "division": "chattogram",
+        "district": "কক্সবাজার",
+        "name": "Cox's Bazar Cyclone Shelter 9",
+        "name_bn": "Cox's Bazar সাইক্লোন শেল্টার ৯",
+        "capacity": 1400,
+        "type": "cyclone",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.3037,
+          20.8673
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-010",
+        "division": "chattogram",
+        "district": "টেকনাফ",
+        "name": "Teknaf Cyclone Shelter 10",
+        "name_bn": "Teknaf সাইক্লোন শেল্টার ১০",
+        "capacity": 1580,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.2932,
+          20.87509
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-011",
+        "division": "chattogram",
+        "district": "টেকনাফ",
+        "name": "Teknaf Cyclone Shelter 11",
+        "name_bn": "Teknaf সাইক্লোন শেল্টার ১১",
+        "capacity": 1760,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.2947,
+          20.8621
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-012",
+        "division": "chattogram",
+        "district": "টেকনাফ",
+        "name": "Teknaf Cyclone Shelter 12",
+        "name_bn": "Teknaf সাইক্লোন শেল্টার ১২",
+        "capacity": 1940,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1016,
+          21.4589
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-013",
+        "division": "chattogram",
+        "district": "রামু",
+        "name": "Ramu Cyclone Shelter 13",
+        "name_bn": "Ramu সাইক্লোন শেল্টার ১৩",
+        "capacity": 720,
+        "type": "cyclone",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.0911,
+          21.46669
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-014",
+        "division": "chattogram",
+        "district": "রামু",
+        "name": "Ramu Cyclone Shelter 14",
+        "name_bn": "Ramu সাইক্লোন শেল্টার ১৪",
+        "capacity": 900,
+        "type": "cyclone",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.0926,
+          21.4537
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-015",
+        "division": "chattogram",
+        "district": "রামু",
+        "name": "Ramu Cyclone Shelter 15",
+        "name_bn": "Ramu সাইক্লোন শেল্টার ১৫",
+        "capacity": 1080,
+        "type": "cyclone",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.956,
+          21.5333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-016",
+        "division": "chattogram",
+        "district": "মহেশখালী",
+        "name": "Moheshkhali Cyclone Shelter 16",
+        "name_bn": "Moheshkhali সাইক্লোন শেল্টার ১৬",
+        "capacity": 1260,
+        "type": "cyclone",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.9455,
+          21.54109
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-017",
+        "division": "chattogram",
+        "district": "মহেশখালী",
+        "name": "Moheshkhali Cyclone Shelter 17",
+        "name_bn": "Moheshkhali সাইক্লোন শেল্টার ১৭",
+        "capacity": 1440,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.947,
+          21.5281
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-018",
+        "division": "chattogram",
+        "district": "মহেশখালী",
+        "name": "Moheshkhali Cyclone Shelter 18",
+        "name_bn": "Moheshkhali সাইক্লোন শেল্টার ১৮",
+        "capacity": 1620,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.056,
+          21.7778
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-019",
+        "division": "chattogram",
+        "district": "চকরিয়া",
+        "name": "Chakaria Cyclone Shelter 19",
+        "name_bn": "Chakaria সাইক্লোন শেল্টার ১৯",
+        "capacity": 1800,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.0455,
+          21.78559
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-020",
+        "division": "chattogram",
+        "district": "চকরিয়া",
+        "name": "Chakaria Cyclone Shelter 20",
+        "name_bn": "Chakaria সাইক্লোন শেল্টার ২০",
+        "capacity": 1980,
+        "type": "cyclone",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.047,
+          21.7726
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-021",
+        "division": "chattogram",
+        "district": "চকরিয়া",
+        "name": "Chakaria Cyclone Shelter 21",
+        "name_bn": "Chakaria সাইক্লোন শেল্টার ২১",
+        "capacity": 760,
+        "type": "cyclone",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.856,
+          21.8167
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-022",
+        "division": "chattogram",
+        "district": "কুতুবদিয়া",
+        "name": "Kutubdia Cyclone Shelter 22",
+        "name_bn": "Kutubdia সাইক্লোন শেল্টার ২২",
+        "capacity": 940,
+        "type": "cyclone",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.841,
+          21.8167
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-023",
+        "division": "chattogram",
+        "district": "কুতুবদিয়া",
+        "name": "Kutubdia Cyclone Shelter 23",
+        "name_bn": "Kutubdia সাইক্লোন শেল্টার ২৩",
+        "capacity": 1120,
+        "type": "cyclone",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.4393,
+          22.4833
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-024",
+        "division": "chattogram",
+        "district": "সন্দ্বীপ",
+        "name": "Sandwip Cyclone Shelter 24",
+        "name_bn": "Sandwip সাইক্লোন শেল্টার ২৪",
+        "capacity": 1300,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.4288,
+          22.49109
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-025",
+        "division": "chattogram",
+        "district": "সন্দ্বীপ",
+        "name": "Sandwip Cyclone Shelter 25",
+        "name_bn": "Sandwip সাইক্লোন শেল্টার ২৫",
+        "capacity": 1480,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.4303,
+          22.4781
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-026",
+        "division": "chattogram",
+        "district": "সন্দ্বীপ",
+        "name": "Sandwip Cyclone Shelter 26",
+        "name_bn": "Sandwip সাইক্লোন শেল্টার ২৬",
+        "capacity": 1660,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.6727,
+          22.6167
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-027",
+        "division": "chattogram",
+        "district": "সীতাকুণ্ড",
+        "name": "Sitakunda Cyclone Shelter 27",
+        "name_bn": "Sitakunda সাইক্লোন শেল্টার ২৭",
+        "capacity": 1840,
+        "type": "cyclone",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.6577,
+          22.6167
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-028",
+        "division": "chattogram",
+        "district": "সীতাকুণ্ড",
+        "name": "Sitakunda Cyclone Shelter 28",
+        "name_bn": "Sitakunda সাইক্লোন শেল্টার ২৮",
+        "capacity": 620,
+        "type": "cyclone",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.5727,
+          22.7833
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-029",
+        "division": "chattogram",
+        "district": "মীরসরাই",
+        "name": "Mirsharai Cyclone Shelter 29",
+        "name_bn": "Mirsharai সাইক্লোন শেল্টার ২৯",
+        "capacity": 800,
+        "type": "cyclone",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.5577,
+          22.7833
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-030",
+        "division": "chattogram",
+        "district": "মীরসরাই",
+        "name": "Mirsharai Cyclone Shelter 30",
+        "name_bn": "Mirsharai সাইক্লোন শেল্টার ৩০",
+        "capacity": 980,
+        "type": "cyclone",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.0893,
+          22.8333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-031",
+        "division": "chattogram",
+        "district": "নোয়াখালী",
+        "name": "Noakhali Cyclone Shelter 31",
+        "name_bn": "Noakhali সাইক্লোন শেল্টার ৩১",
+        "capacity": 1160,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.0833,
+          22.8423
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-032",
+        "division": "chattogram",
+        "district": "নোয়াখালী",
+        "name": "Noakhali Cyclone Shelter 32",
+        "name_bn": "Noakhali সাইক্লোন শেল্টার ৩২",
+        "capacity": 1340,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.0773,
+          22.8333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-033",
+        "division": "chattogram",
+        "district": "নোয়াখালী",
+        "name": "Noakhali Cyclone Shelter 33",
+        "name_bn": "Noakhali সাইক্লোন শেল্টার ৩৩",
+        "capacity": 1520,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.0833,
+          22.8243
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-034",
+        "division": "chattogram",
+        "district": "নোয়াখালী",
+        "name": "Noakhali Cyclone Shelter 34",
+        "name_bn": "Noakhali সাইক্লোন শেল্টার ৩৪",
+        "capacity": 1700,
+        "type": "cyclone",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.106,
+          22.45
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-035",
+        "division": "chattogram",
+        "district": "হাতিয়া",
+        "name": "Hatiya Cyclone Shelter 35",
+        "name_bn": "Hatiya সাইক্লোন শেল্টার ৩৫",
+        "capacity": 1880,
+        "type": "cyclone",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.0955,
+          22.45779
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-036",
+        "division": "chattogram",
+        "district": "হাতিয়া",
+        "name": "Hatiya Cyclone Shelter 36",
+        "name_bn": "Hatiya সাইক্লোন শেল্টার ৩৬",
+        "capacity": 660,
+        "type": "cyclone",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.097,
+          22.4448
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-037",
+        "division": "chattogram",
+        "district": "হাতিয়া",
+        "name": "Hatiya Cyclone Shelter 37",
+        "name_bn": "Hatiya সাইক্লোন শেল্টার ৩৭",
+        "capacity": 840,
+        "type": "cyclone",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.0893,
+          22.5833
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-038",
+        "division": "chattogram",
+        "district": "সুবর্ণচর",
+        "name": "Subarnachar Cyclone Shelter 38",
+        "name_bn": "Subarnachar সাইক্লোন শেল্টার ৩৮",
+        "capacity": 1020,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.0743,
+          22.5833
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-039",
+        "division": "chattogram",
+        "district": "সুবর্ণচর",
+        "name": "Subarnachar Cyclone Shelter 39",
+        "name_bn": "Subarnachar সাইক্লোন শেল্টার ৩৯",
+        "capacity": 1200,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.8393,
+          22.95
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-040",
+        "division": "chattogram",
+        "district": "লক্ষ্মীপুর",
+        "name": "Lakshmipur Cyclone Shelter 40",
+        "name_bn": "Lakshmipur সাইক্লোন শেল্টার ৪০",
+        "capacity": 1380,
+        "type": "cyclone",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.8288,
+          22.95779
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-041",
+        "division": "chattogram",
+        "district": "লক্ষ্মীপুর",
+        "name": "Lakshmipur Cyclone Shelter 41",
+        "name_bn": "Lakshmipur সাইক্লোন শেল্টার ৪১",
+        "capacity": 1560,
+        "type": "cyclone",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.8303,
+          22.9448
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-042",
+        "division": "chattogram",
+        "district": "লক্ষ্মীপুর",
+        "name": "Lakshmipur Cyclone Shelter 42",
+        "name_bn": "Lakshmipur সাইক্লোন শেল্টার ৪২",
+        "capacity": 1740,
+        "type": "cyclone",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.3893,
+          23.0167
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-043",
+        "division": "chattogram",
+        "district": "ফেনী",
+        "name": "Feni Shelter 43",
+        "name_bn": "Feni শেল্টার ৪৩",
+        "capacity": 920,
+        "type": "multi",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.3743,
+          23.0167
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-044",
+        "division": "chattogram",
+        "district": "ফেনী",
+        "name": "Feni Shelter 44",
+        "name_bn": "Feni শেল্টার ৪৪",
+        "capacity": 450,
+        "type": "multi",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.656,
+          23.2333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-045",
+        "division": "chattogram",
+        "district": "চাঁদপুর",
+        "name": "Chandpur Flood Shelter 45",
+        "name_bn": "Chandpur বন্যা শেল্টার ৪৫",
+        "capacity": 860,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.6455,
+          23.24109
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-046",
+        "division": "chattogram",
+        "district": "চাঁদপুর",
+        "name": "Chandpur Flood Shelter 46",
+        "name_bn": "Chandpur বন্যা শেল্টার ৪৬",
+        "capacity": 970,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.647,
+          23.2281
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-047",
+        "division": "chattogram",
+        "district": "চাঁদপুর",
+        "name": "Chandpur Flood Shelter 47",
+        "name_bn": "Chandpur বন্যা শেল্টার ৪৭",
+        "capacity": 380,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.1869,
+          23.4607
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-048",
+        "division": "chattogram",
+        "district": "কুমিল্লা",
+        "name": "Comilla Shelter 48",
+        "name_bn": "Comilla শেল্টার ৪৮",
+        "capacity": 970,
+        "type": "multi",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.1764,
+          23.46849
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-049",
+        "division": "chattogram",
+        "district": "কুমিল্লা",
+        "name": "Comilla Shelter 49",
+        "name_bn": "Comilla শেল্টার ৪৯",
+        "capacity": 500,
+        "type": "multi",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.1779,
+          23.4555
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-050",
+        "division": "chattogram",
+        "district": "কুমিল্লা",
+        "name": "Comilla Shelter 50",
+        "name_bn": "Comilla শেল্টার ৫০",
+        "capacity": 630,
+        "type": "multi",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.2245,
+          22.1953
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-051",
+        "division": "chattogram",
+        "district": "বান্দরবান",
+        "name": "Bandarban Shelter 51",
+        "name_bn": "Bandarban শেল্টার ৫১",
+        "capacity": 760,
+        "type": "multi",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.2095,
+          22.1953
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-052",
+        "division": "chattogram",
+        "district": "বান্দরবান",
+        "name": "Bandarban Shelter 52",
+        "name_bn": "Bandarban শেল্টার ৫২",
+        "capacity": 890,
+        "type": "multi",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1871,
+          22.658
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-053",
+        "division": "chattogram",
+        "district": "রাঙ্গামাটি",
+        "name": "Rangamati Shelter 53",
+        "name_bn": "Rangamati শেল্টার ৫৩",
+        "capacity": 420,
+        "type": "multi",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1721,
+          22.658
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-054",
+        "division": "chattogram",
+        "district": "রাঙ্গামাটি",
+        "name": "Rangamati Shelter 54",
+        "name_bn": "Rangamati শেল্টার ৫৪",
+        "capacity": 550,
+        "type": "multi",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.9815,
+          23.1203
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-055",
+        "division": "chattogram",
+        "district": "খাগড়াছড়ি",
+        "name": "Khagrachari Shelter 55",
+        "name_bn": "Khagrachari শেল্টার ৫৫",
+        "capacity": 680,
+        "type": "multi",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.9665,
+          23.1203
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-chattogram-056",
+        "division": "chattogram",
+        "district": "খাগড়াছড়ি",
+        "name": "Khagrachari Shelter 56",
+        "name_bn": "Khagrachari শেল্টার ৫৬",
+        "capacity": 810,
+        "type": "multi",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.8747,
+          24.8949
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-001",
+        "division": "sylhet",
+        "district": "সিলেট",
+        "name": "Sylhet Flood Shelter 1",
+        "name_bn": "Sylhet বন্যা শেল্টার ১",
+        "capacity": 780,
+        "type": "flood",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.8642,
+          24.90269
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-002",
+        "division": "sylhet",
+        "district": "সিলেট",
+        "name": "Sylhet Flood Shelter 2",
+        "name_bn": "Sylhet বন্যা শেল্টার ২",
+        "capacity": 890,
+        "type": "flood",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.8657,
+          24.8897
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-003",
+        "division": "sylhet",
+        "district": "সিলেট",
+        "name": "Sylhet Flood Shelter 3",
+        "name_bn": "Sylhet বন্যা শেল্টার ৩",
+        "capacity": 300,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.4028,
+          25.0659
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-004",
+        "division": "sylhet",
+        "district": "সুনামগঞ্জ",
+        "name": "Sunamganj Flood Shelter 4",
+        "name_bn": "Sunamganj বন্যা শেল্টার ৪",
+        "capacity": 410,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.3968,
+          25.0749
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-005",
+        "division": "sylhet",
+        "district": "সুনামগঞ্জ",
+        "name": "Sunamganj Flood Shelter 5",
+        "name_bn": "Sunamganj বন্যা শেল্টার ৫",
+        "capacity": 520,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.3908,
+          25.0659
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-006",
+        "division": "sylhet",
+        "district": "সুনামগঞ্জ",
+        "name": "Sunamganj Flood Shelter 6",
+        "name_bn": "Sunamganj বন্যা শেল্টার ৬",
+        "capacity": 630,
+        "type": "flood",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.3968,
+          25.0569
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-007",
+        "division": "sylhet",
+        "district": "সুনামগঞ্জ",
+        "name": "Sunamganj Flood Shelter 7",
+        "name_bn": "Sunamganj বন্যা শেল্টার ৭",
+        "capacity": 740,
+        "type": "flood",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.3727,
+          24.65
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-008",
+        "division": "sylhet",
+        "district": "দিরাই",
+        "name": "Dirai Flood Shelter 8",
+        "name_bn": "Dirai বন্যা শেল্টার ৮",
+        "capacity": 850,
+        "type": "flood",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.3622,
+          24.65779
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-009",
+        "division": "sylhet",
+        "district": "দিরাই",
+        "name": "Dirai Flood Shelter 9",
+        "name_bn": "Dirai বন্যা শেল্টার ৯",
+        "capacity": 960,
+        "type": "flood",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.3637,
+          24.6448
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-010",
+        "division": "sylhet",
+        "district": "দিরাই",
+        "name": "Dirai Flood Shelter 10",
+        "name_bn": "Dirai বন্যা শেল্টার ১০",
+        "capacity": 370,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.1893,
+          25.1167
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-011",
+        "division": "sylhet",
+        "district": "তাহিরপুর",
+        "name": "Tahirpur Flood Shelter 11",
+        "name_bn": "Tahirpur বন্যা শেল্টার ১১",
+        "capacity": 480,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.1788,
+          25.12449
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-012",
+        "division": "sylhet",
+        "district": "তাহিরপুর",
+        "name": "Tahirpur Flood Shelter 12",
+        "name_bn": "Tahirpur বন্যা শেল্টার ১২",
+        "capacity": 590,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.1803,
+          25.1115
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-013",
+        "division": "sylhet",
+        "district": "তাহিরপুর",
+        "name": "Tahirpur Flood Shelter 13",
+        "name_bn": "Tahirpur বন্যা শেল্টার ১৩",
+        "capacity": 700,
+        "type": "flood",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.056,
+          25.0333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-014",
+        "division": "sylhet",
+        "district": "ধর্মপাশা",
+        "name": "Dharampasha Flood Shelter 14",
+        "name_bn": "Dharampasha বন্যা শেল্টার ১৪",
+        "capacity": 810,
+        "type": "flood",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.041,
+          25.0333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-015",
+        "division": "sylhet",
+        "district": "ধর্মপাশা",
+        "name": "Dharampasha Flood Shelter 15",
+        "name_bn": "Dharampasha বন্যা শেল্টার ১৫",
+        "capacity": 920,
+        "type": "flood",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.056,
+          24.8333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-016",
+        "division": "sylhet",
+        "district": "জামালগঞ্জ",
+        "name": "Jamalganj Flood Shelter 16",
+        "name_bn": "Jamalganj বন্যা শেল্টার ১৬",
+        "capacity": 330,
+        "type": "flood",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.041,
+          24.8333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-017",
+        "division": "sylhet",
+        "district": "জামালগঞ্জ",
+        "name": "Jamalganj Flood Shelter 17",
+        "name_bn": "Jamalganj বন্যা শেল্টার ১৭",
+        "capacity": 440,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.6727,
+          25.0333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-018",
+        "division": "sylhet",
+        "district": "ছাতক",
+        "name": "Chhatak Flood Shelter 18",
+        "name_bn": "Chhatak বন্যা শেল্টার ১৮",
+        "capacity": 550,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.6577,
+          25.0333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-019",
+        "division": "sylhet",
+        "district": "ছাতক",
+        "name": "Chhatak Flood Shelter 19",
+        "name_bn": "Chhatak বন্যা শেল্টার ১৯",
+        "capacity": 660,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.7893,
+          24.4833
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-020",
+        "division": "sylhet",
+        "district": "মৌলভীবাজার",
+        "name": "Moulvibazar Shelter 20",
+        "name_bn": "Moulvibazar শেল্টার ২০",
+        "capacity": 410,
+        "type": "multi",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.7788,
+          24.49109
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-021",
+        "division": "sylhet",
+        "district": "মৌলভীবাজার",
+        "name": "Moulvibazar Shelter 21",
+        "name_bn": "Moulvibazar শেল্টার ২১",
+        "capacity": 540,
+        "type": "multi",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.7803,
+          24.4781
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-022",
+        "division": "sylhet",
+        "district": "মৌলভীবাজার",
+        "name": "Moulvibazar Shelter 22",
+        "name_bn": "Moulvibazar শেল্টার ২২",
+        "capacity": 670,
+        "type": "multi",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.7393,
+          24.3067
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-023",
+        "division": "sylhet",
+        "district": "শ্রীমঙ্গল",
+        "name": "Sreemangal Shelter 23",
+        "name_bn": "Sreemangal শেল্টার ২৩",
+        "capacity": 800,
+        "type": "multi",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.7243,
+          24.3067
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-024",
+        "division": "sylhet",
+        "district": "শ্রীমঙ্গল",
+        "name": "Sreemangal Shelter 24",
+        "name_bn": "Sreemangal শেল্টার ২৪",
+        "capacity": 930,
+        "type": "multi",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.4227,
+          24.3783
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-025",
+        "division": "sylhet",
+        "district": "হবিগঞ্জ",
+        "name": "Habiganj Flood Shelter 25",
+        "name_bn": "Habiganj বন্যা শেল্টার ২৫",
+        "capacity": 620,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.4122,
+          24.38609
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-026",
+        "division": "sylhet",
+        "district": "হবিগঞ্জ",
+        "name": "Habiganj Flood Shelter 26",
+        "name_bn": "Habiganj বন্যা শেল্টার ২৬",
+        "capacity": 730,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.4137,
+          24.3731
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-027",
+        "division": "sylhet",
+        "district": "হবিগঞ্জ",
+        "name": "Habiganj Flood Shelter 27",
+        "name_bn": "Habiganj বন্যা শেল্টার ২৭",
+        "capacity": 840,
+        "type": "flood",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.9227,
+          24.5167
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-028",
+        "division": "sylhet",
+        "district": "বিয়ানিবাজার",
+        "name": "Beanibazar Flood Shelter 28",
+        "name_bn": "Beanibazar বন্যা শেল্টার ২৮",
+        "capacity": 950,
+        "type": "flood",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          91.9077,
+          24.5167
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-029",
+        "division": "sylhet",
+        "district": "বিয়ানিবাজার",
+        "name": "Beanibazar Flood Shelter 29",
+        "name_bn": "Beanibazar বন্যা শেল্টার ২৯",
+        "capacity": 360,
+        "type": "flood",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1227,
+          24.8667
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-030",
+        "division": "sylhet",
+        "district": "কানাইঘাট",
+        "name": "Kanaighat Flood Shelter 30",
+        "name_bn": "Kanaighat বন্যা শেল্টার ৩০",
+        "capacity": 470,
+        "type": "flood",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          92.1077,
+          24.8667
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-sylhet-031",
+        "division": "sylhet",
+        "district": "কানাইঘাট",
+        "name": "Kanaighat Flood Shelter 31",
+        "name_bn": "Kanaighat বন্যা শেল্টার ৩১",
+        "capacity": 580,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.4185,
+          23.8103
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-001",
+        "division": "dhaka",
+        "district": "ঢাকা",
+        "name": "Dhaka Emergency Shelter 1",
+        "name_bn": "Dhaka জরুরি শেল্টার ১",
+        "capacity": 650,
+        "type": "earthquake",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.4125,
+          23.8193
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-002",
+        "division": "dhaka",
+        "district": "ঢাকা",
+        "name": "Dhaka Emergency Shelter 2",
+        "name_bn": "Dhaka জরুরি শেল্টার ২",
+        "capacity": 800,
+        "type": "earthquake",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.4065,
+          23.8103
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-003",
+        "division": "dhaka",
+        "district": "ঢাকা",
+        "name": "Dhaka Emergency Shelter 3",
+        "name_bn": "Dhaka জরুরি শেল্টার ৩",
+        "capacity": 950,
+        "type": "earthquake",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.4125,
+          23.8013
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-004",
+        "division": "dhaka",
+        "district": "ঢাকা",
+        "name": "Dhaka Emergency Shelter 4",
+        "name_bn": "Dhaka জরুরি শেল্টার ৪",
+        "capacity": 1100,
+        "type": "earthquake",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.5043,
+          23.6238
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-005",
+        "division": "dhaka",
+        "district": "নারায়ণগঞ্জ",
+        "name": "Narayanganj Flood Shelter 5",
+        "name_bn": "Narayanganj বন্যা শেল্টার ৫",
+        "capacity": 430,
+        "type": "flood",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.4938,
+          23.63159
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-006",
+        "division": "dhaka",
+        "district": "নারায়ণগঞ্জ",
+        "name": "Narayanganj Flood Shelter 6",
+        "name_bn": "Narayanganj বন্যা শেল্টার ৬",
+        "capacity": 540,
+        "type": "flood",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.4953,
+          23.6186
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-007",
+        "division": "dhaka",
+        "district": "নারায়ণগঞ্জ",
+        "name": "Narayanganj Flood Shelter 7",
+        "name_bn": "Narayanganj বন্যা শেল্টার ৭",
+        "capacity": 650,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.0559,
+          23.8644
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-008",
+        "division": "dhaka",
+        "district": "মানিকগঞ্জ",
+        "name": "Manikganj Flood Shelter 8",
+        "name_bn": "Manikganj বন্যা শেল্টার ৮",
+        "capacity": 760,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.0409,
+          23.8644
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-009",
+        "division": "dhaka",
+        "district": "মানিকগঞ্জ",
+        "name": "Manikganj Flood Shelter 9",
+        "name_bn": "Manikganj বন্যা শেল্টার ৯",
+        "capacity": 870,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.5393,
+          23.5333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-010",
+        "division": "dhaka",
+        "district": "মুন্সিগঞ্জ",
+        "name": "Munshiganj Flood Shelter 10",
+        "name_bn": "Munshiganj বন্যা শেল্টার ১০",
+        "capacity": 980,
+        "type": "flood",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.5243,
+          23.5333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-011",
+        "division": "dhaka",
+        "district": "মুন্সিগঞ্জ",
+        "name": "Munshiganj Flood Shelter 11",
+        "name_bn": "Munshiganj বন্যা শেল্টার ১১",
+        "capacity": 390,
+        "type": "flood",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.8393,
+          23.6
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-012",
+        "division": "dhaka",
+        "district": "ফরিদপুর",
+        "name": "Faridpur Shelter 12",
+        "name_bn": "Faridpur শেল্টার ১২",
+        "capacity": 400,
+        "type": "multi",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.8288,
+          23.60779
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-013",
+        "division": "dhaka",
+        "district": "ফরিদপুর",
+        "name": "Faridpur Shelter 13",
+        "name_bn": "Faridpur শেল্টার ১৩",
+        "capacity": 530,
+        "type": "multi",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.8303,
+          23.5948
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-014",
+        "division": "dhaka",
+        "district": "ফরিদপুর",
+        "name": "Faridpur Shelter 14",
+        "name_bn": "Faridpur শেল্টার ১৪",
+        "capacity": 660,
+        "type": "multi",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.656,
+          23.75
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-015",
+        "division": "dhaka",
+        "district": "রাজবাড়ী",
+        "name": "Rajbari Flood Shelter 15",
+        "name_bn": "Rajbari বন্যা শেল্টার ১৫",
+        "capacity": 830,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.641,
+          23.75
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-016",
+        "division": "dhaka",
+        "district": "রাজবাড়ী",
+        "name": "Rajbari Flood Shelter 16",
+        "name_bn": "Rajbari বন্যা শেল্টার ১৬",
+        "capacity": 940,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.8227,
+          22.9667
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-017",
+        "division": "dhaka",
+        "district": "গোপালগঞ্জ",
+        "name": "Gopalganj Cyclone Shelter 17",
+        "name_bn": "Gopalganj সাইক্লোন শেল্টার ১৭",
+        "capacity": 1700,
+        "type": "cyclone",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.8077,
+          22.9667
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-018",
+        "division": "dhaka",
+        "district": "গোপালগঞ্জ",
+        "name": "Gopalganj Cyclone Shelter 18",
+        "name_bn": "Gopalganj সাইক্লোন শেল্টার ১৮",
+        "capacity": 1880,
+        "type": "cyclone",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.206,
+          23.1667
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-019",
+        "division": "dhaka",
+        "district": "মাদারীপুর",
+        "name": "Madaripur Shelter 19",
+        "name_bn": "Madaripur শেল্টার ১৯",
+        "capacity": 710,
+        "type": "multi",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.191,
+          23.1667
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-020",
+        "division": "dhaka",
+        "district": "মাদারীপুর",
+        "name": "Madaripur Shelter 20",
+        "name_bn": "Madaripur শেল্টার ২০",
+        "capacity": 840,
+        "type": "multi",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.356,
+          23.25
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-021",
+        "division": "dhaka",
+        "district": "শরীয়তপুর",
+        "name": "Shariatpur Flood Shelter 21",
+        "name_bn": "Shariatpur বন্যা শেল্টার ২১",
+        "capacity": 790,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.341,
+          23.25
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-022",
+        "division": "dhaka",
+        "district": "শরীয়তপুর",
+        "name": "Shariatpur Flood Shelter 22",
+        "name_bn": "Shariatpur বন্যা শেল্টার ২২",
+        "capacity": 900,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.7893,
+          24.4333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-023",
+        "division": "dhaka",
+        "district": "কিশোরগঞ্জ",
+        "name": "Kishoreganj Flood Shelter 23",
+        "name_bn": "Kishoreganj বন্যা শেল্টার ২৩",
+        "capacity": 310,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.7788,
+          24.44109
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-024",
+        "division": "dhaka",
+        "district": "কিশোরগঞ্জ",
+        "name": "Kishoreganj Flood Shelter 24",
+        "name_bn": "Kishoreganj বন্যা শেল্টার ২৪",
+        "capacity": 420,
+        "type": "flood",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.7803,
+          24.4281
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-025",
+        "division": "dhaka",
+        "district": "কিশোরগঞ্জ",
+        "name": "Kishoreganj Flood Shelter 25",
+        "name_bn": "Kishoreganj বন্যা শেল্টার ২৫",
+        "capacity": 530,
+        "type": "flood",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.7393,
+          24.8667
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-026",
+        "division": "dhaka",
+        "district": "নেত্রকোণা",
+        "name": "Netrokona Flood Shelter 26",
+        "name_bn": "Netrokona বন্যা শেল্টার ২৬",
+        "capacity": 640,
+        "type": "flood",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.7243,
+          24.8667
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-027",
+        "division": "dhaka",
+        "district": "নেত্রকোণা",
+        "name": "Netrokona Flood Shelter 27",
+        "name_bn": "Netrokona বন্যা শেল্টার ২৭",
+        "capacity": 750,
+        "type": "flood",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.9227,
+          24.25
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-028",
+        "division": "dhaka",
+        "district": "টাঙ্গাইল",
+        "name": "Tangail Flood Shelter 28",
+        "name_bn": "Tangail বন্যা শেল্টার ২৮",
+        "capacity": 860,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.9077,
+          24.25
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-029",
+        "division": "dhaka",
+        "district": "টাঙ্গাইল",
+        "name": "Tangail Flood Shelter 29",
+        "name_bn": "Tangail বন্যা শেল্টার ২৯",
+        "capacity": 970,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.4227,
+          24.0
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-030",
+        "division": "dhaka",
+        "district": "গাজীপুর",
+        "name": "Gazipur Shelter 30",
+        "name_bn": "Gazipur শেল্টার ৩০",
+        "capacity": 940,
+        "type": "multi",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.4077,
+          24.0
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-dhaka-031",
+        "division": "dhaka",
+        "district": "গাজীপুর",
+        "name": "Gazipur Shelter 31",
+        "name_bn": "Gazipur শেল্টার ৩১",
+        "capacity": 470,
+        "type": "multi",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.6301,
+          24.3636
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-001",
+        "division": "rajshahi",
+        "district": "রাজশাহী",
+        "name": "Rajshahi Flood Shelter 1",
+        "name_bn": "Rajshahi বন্যা শেল্টার ১",
+        "capacity": 600,
+        "type": "flood",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.6196,
+          24.37139
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-002",
+        "division": "rajshahi",
+        "district": "রাজশাহী",
+        "name": "Rajshahi Flood Shelter 2",
+        "name_bn": "Rajshahi বন্যা শেল্টার ২",
+        "capacity": 710,
+        "type": "flood",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.6211,
+          24.3584
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-003",
+        "division": "rajshahi",
+        "district": "রাজশাহী",
+        "name": "Rajshahi Flood Shelter 3",
+        "name_bn": "Rajshahi বন্যা শেল্টার ৩",
+        "capacity": 820,
+        "type": "flood",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.2432,
+          24.006
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-004",
+        "division": "rajshahi",
+        "district": "পাবনা",
+        "name": "Pabna Flood Shelter 4",
+        "name_bn": "Pabna বন্যা শেল্টার ৪",
+        "capacity": 930,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.2327,
+          24.01379
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-005",
+        "division": "rajshahi",
+        "district": "পাবনা",
+        "name": "Pabna Flood Shelter 5",
+        "name_bn": "Pabna বন্যা শেল্টার ৫",
+        "capacity": 340,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.2342,
+          24.0008
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-006",
+        "division": "rajshahi",
+        "district": "পাবনা",
+        "name": "Pabna Flood Shelter 6",
+        "name_bn": "Pabna বন্যা শেল্টার ৬",
+        "capacity": 450,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.706,
+          24.3733
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-007",
+        "division": "rajshahi",
+        "district": "সিরাজগঞ্জ",
+        "name": "Sirajganj Flood Shelter 7",
+        "name_bn": "Sirajganj বন্যা শেল্টার ৭",
+        "capacity": 560,
+        "type": "flood",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.7,
+          24.3823
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-008",
+        "division": "rajshahi",
+        "district": "সিরাজগঞ্জ",
+        "name": "Sirajganj Flood Shelter 8",
+        "name_bn": "Sirajganj বন্যা শেল্টার ৮",
+        "capacity": 670,
+        "type": "flood",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.694,
+          24.3733
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-009",
+        "division": "rajshahi",
+        "district": "সিরাজগঞ্জ",
+        "name": "Sirajganj Flood Shelter 9",
+        "name_bn": "Sirajganj বন্যা শেল্টার ৯",
+        "capacity": 780,
+        "type": "flood",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.7,
+          24.3643
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-010",
+        "division": "rajshahi",
+        "district": "সিরাজগঞ্জ",
+        "name": "Sirajganj Flood Shelter 10",
+        "name_bn": "Sirajganj বন্যা শেল্টার ১০",
+        "capacity": 890,
+        "type": "flood",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.3771,
+          24.846
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-011",
+        "division": "rajshahi",
+        "district": "বগুড়া",
+        "name": "Bogura Flood Shelter 11",
+        "name_bn": "Bogura বন্যা শেল্টার ১১",
+        "capacity": 300,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.3666,
+          24.85379
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-012",
+        "division": "rajshahi",
+        "district": "বগুড়া",
+        "name": "Bogura Flood Shelter 12",
+        "name_bn": "Bogura বন্যা শেল্টার ১২",
+        "capacity": 410,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.3681,
+          24.8408
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-013",
+        "division": "rajshahi",
+        "district": "বগুড়া",
+        "name": "Bogura Flood Shelter 13",
+        "name_bn": "Bogura বন্যা শেল্টার ১৩",
+        "capacity": 520,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.066,
+          24.42
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-014",
+        "division": "rajshahi",
+        "district": "নাটোর",
+        "name": "Natore Shelter 14",
+        "name_bn": "Natore শেল্টার ১৪",
+        "capacity": 490,
+        "type": "multi",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.051,
+          24.42
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-015",
+        "division": "rajshahi",
+        "district": "নাটোর",
+        "name": "Natore Shelter 15",
+        "name_bn": "Natore শেল্টার ১৫",
+        "capacity": 620,
+        "type": "multi",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.281,
+          24.5969
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-016",
+        "division": "rajshahi",
+        "district": "চাঁপাইনবাবগঞ্জ",
+        "name": "Chapainawabganj Shelter 16",
+        "name_bn": "Chapainawabganj শেল্টার ১৬",
+        "capacity": 750,
+        "type": "multi",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.266,
+          24.5969
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-017",
+        "division": "rajshahi",
+        "district": "চাঁপাইনবাবগঞ্জ",
+        "name": "Chapainawabganj Shelter 17",
+        "name_bn": "Chapainawabganj শেল্টার ১৭",
+        "capacity": 880,
+        "type": "multi",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.9526,
+          24.7936
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-018",
+        "division": "rajshahi",
+        "district": "নওগাঁ",
+        "name": "Naogaon Shelter 18",
+        "name_bn": "Naogaon শেল্টার ১৮",
+        "capacity": 410,
+        "type": "multi",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.9376,
+          24.7936
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-019",
+        "division": "rajshahi",
+        "district": "নওগাঁ",
+        "name": "Naogaon Shelter 19",
+        "name_bn": "Naogaon শেল্টার ১৯",
+        "capacity": 540,
+        "type": "multi",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.0277,
+          25.0967
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-020",
+        "division": "rajshahi",
+        "district": "জয়পুরহাট",
+        "name": "Joypurhat Shelter 20",
+        "name_bn": "Joypurhat শেল্টার ২০",
+        "capacity": 670,
+        "type": "multi",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.0127,
+          25.0967
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-021",
+        "division": "rajshahi",
+        "district": "জয়পুরহাট",
+        "name": "Joypurhat Shelter 21",
+        "name_bn": "Joypurhat শেল্টার ২১",
+        "capacity": 800,
+        "type": "multi",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.5727,
+          24.8833
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-022",
+        "division": "rajshahi",
+        "district": "সারিয়াকান্দি",
+        "name": "Sariakandi Flood Shelter 22",
+        "name_bn": "Sariakandi বন্যা শেল্টার ২২",
+        "capacity": 810,
+        "type": "flood",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.5577,
+          24.8833
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-023",
+        "division": "rajshahi",
+        "district": "সারিয়াকান্দি",
+        "name": "Sariakandi Flood Shelter 23",
+        "name_bn": "Sariakandi বন্যা শেল্টার ২৩",
+        "capacity": 920,
+        "type": "flood",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.656,
+          24.6333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-024",
+        "division": "rajshahi",
+        "district": "কাজীপুর",
+        "name": "Kazipur Flood Shelter 24",
+        "name_bn": "Kazipur বন্যা শেল্টার ২৪",
+        "capacity": 330,
+        "type": "flood",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.641,
+          24.6333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rajshahi-025",
+        "division": "rajshahi",
+        "district": "কাজীপুর",
+        "name": "Kazipur Flood Shelter 25",
+        "name_bn": "Kazipur বন্যা শেল্টার ২৫",
+        "capacity": 440,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.2812,
+          25.7439
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rangpur-001",
+        "division": "rangpur",
+        "district": "রংপুর",
+        "name": "Rangpur Flood Shelter 1",
+        "name_bn": "Rangpur বন্যা শেল্টার ১",
+        "capacity": 550,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.2707,
+          25.75169
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rangpur-002",
+        "division": "rangpur",
+        "district": "রংপুর",
+        "name": "Rangpur Flood Shelter 2",
+        "name_bn": "Rangpur বন্যা শেল্টার ২",
+        "capacity": 660,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.2722,
+          25.7387
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rangpur-003",
+        "division": "rangpur",
+        "district": "রংপুর",
+        "name": "Rangpur Flood Shelter 3",
+        "name_bn": "Rangpur বন্যা শেল্টার ৩",
+        "capacity": 770,
+        "type": "flood",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.6399,
+          25.6217
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rangpur-004",
+        "division": "rangpur",
+        "district": "দিনাজপুর",
+        "name": "Dinajpur Shelter 4",
+        "name_bn": "Dinajpur শেল্টার ৪",
+        "capacity": 640,
+        "type": "multi",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.6249,
+          25.6217
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rangpur-005",
+        "division": "rangpur",
+        "district": "দিনাজপুর",
+        "name": "Dinajpur Shelter 5",
+        "name_bn": "Dinajpur শেল্টার ৫",
+        "capacity": 770,
+        "type": "multi",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.6607,
+          25.805
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rangpur-006",
+        "division": "rangpur",
+        "district": "কুড়িগ্রাম",
+        "name": "Kurigram Flood Shelter 6",
+        "name_bn": "Kurigram বন্যা শেল্টার ৬",
+        "capacity": 400,
+        "type": "flood",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.6547,
+          25.814
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rangpur-007",
+        "division": "rangpur",
+        "district": "কুড়িগ্রাম",
+        "name": "Kurigram Flood Shelter 7",
+        "name_bn": "Kurigram বন্যা শেল্টার ৭",
+        "capacity": 510,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.6487,
+          25.805
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rangpur-008",
+        "division": "rangpur",
+        "district": "কুড়িগ্রাম",
+        "name": "Kurigram Flood Shelter 8",
+        "name_bn": "Kurigram বন্যা শেল্টার ৮",
+        "capacity": 620,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.6547,
+          25.796
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rangpur-009",
+        "division": "rangpur",
+        "district": "কুড়িগ্রাম",
+        "name": "Kurigram Flood Shelter 9",
+        "name_bn": "Kurigram বন্যা শেল্টার ৯",
+        "capacity": 730,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.2907,
+          25.9923
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rangpur-010",
+        "division": "rangpur",
+        "district": "লালমনিরহাট",
+        "name": "Lalmonirhat Flood Shelter 10",
+        "name_bn": "Lalmonirhat বন্যা শেল্টার ১০",
+        "capacity": 840,
+        "type": "flood",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.2757,
+          25.9923
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rangpur-011",
+        "division": "rangpur",
+        "district": "লালমনিরহাট",
+        "name": "Lalmonirhat Flood Shelter 11",
+        "name_bn": "Lalmonirhat বন্যা শেল্টার ১১",
+        "capacity": 950,
+        "type": "flood",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.8623,
+          25.9315
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rangpur-012",
+        "division": "rangpur",
+        "district": "নীলফামারী",
+        "name": "Nilphamari Flood Shelter 12",
+        "name_bn": "Nilphamari বন্যা শেল্টার ১২",
+        "capacity": 360,
+        "type": "flood",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.8473,
+          25.9315
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rangpur-013",
+        "division": "rangpur",
+        "district": "নীলফামারী",
+        "name": "Nilphamari Flood Shelter 13",
+        "name_bn": "Nilphamari বন্যা শেল্টার ১৩",
+        "capacity": 470,
+        "type": "flood",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.5592,
+          26.3354
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rangpur-014",
+        "division": "rangpur",
+        "district": "পঞ্চগড়",
+        "name": "Panchagarh Shelter 14",
+        "name_bn": "Panchagarh শেল্টার ১৪",
+        "capacity": 740,
+        "type": "multi",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.5442,
+          26.3354
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rangpur-015",
+        "division": "rangpur",
+        "district": "পঞ্চগড়",
+        "name": "Panchagarh Shelter 15",
+        "name_bn": "Panchagarh শেল্টার ১৫",
+        "capacity": 870,
+        "type": "multi",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4727,
+          26.0333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rangpur-016",
+        "division": "rangpur",
+        "district": "ঠাকুরগাঁও",
+        "name": "Thakurgaon Shelter 16",
+        "name_bn": "Thakurgaon শেল্টার ১৬",
+        "capacity": 400,
+        "type": "multi",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4577,
+          26.0333
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rangpur-017",
+        "division": "rangpur",
+        "district": "ঠাকুরগাঁও",
+        "name": "Thakurgaon Shelter 17",
+        "name_bn": "Thakurgaon শেল্টার ১৭",
+        "capacity": 530,
+        "type": "multi",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.5496,
+          25.329
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rangpur-018",
+        "division": "rangpur",
+        "district": "গাইবান্ধা",
+        "name": "Gaibandha Flood Shelter 18",
+        "name_bn": "Gaibandha বন্যা শেল্টার ১৮",
+        "capacity": 320,
+        "type": "flood",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.5391,
+          25.33679
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rangpur-019",
+        "division": "rangpur",
+        "district": "গাইবান্ধা",
+        "name": "Gaibandha Flood Shelter 19",
+        "name_bn": "Gaibandha বন্যা শেল্টার ১৯",
+        "capacity": 430,
+        "type": "flood",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.5406,
+          25.3238
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-rangpur-020",
+        "division": "rangpur",
+        "district": "গাইবান্ধা",
+        "name": "Gaibandha Flood Shelter 20",
+        "name_bn": "Gaibandha বন্যা শেল্টার ২০",
+        "capacity": 540,
+        "type": "flood",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.4263,
+          24.7471
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-mymensingh-001",
+        "division": "mymensingh",
+        "district": "ময়মনসিংহ",
+        "name": "Mymensingh Flood Shelter 1",
+        "name_bn": "Mymensingh বন্যা শেল্টার ১",
+        "capacity": 650,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.4158,
+          24.75489
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-mymensingh-002",
+        "division": "mymensingh",
+        "district": "ময়মনসিংহ",
+        "name": "Mymensingh Flood Shelter 2",
+        "name_bn": "Mymensingh বন্যা শেল্টার ২",
+        "capacity": 760,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.4173,
+          24.7419
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-mymensingh-003",
+        "division": "mymensingh",
+        "district": "ময়মনসিংহ",
+        "name": "Mymensingh Flood Shelter 3",
+        "name_bn": "Mymensingh বন্যা শেল্টার ৩",
+        "capacity": 870,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.956,
+          24.9167
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-mymensingh-004",
+        "division": "mymensingh",
+        "district": "জামালপুর",
+        "name": "Jamalpur Flood Shelter 4",
+        "name_bn": "Jamalpur বন্যা শেল্টার ৪",
+        "capacity": 980,
+        "type": "flood",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          89.941,
+          24.9167
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-mymensingh-005",
+        "division": "mymensingh",
+        "district": "জামালপুর",
+        "name": "Jamalpur Flood Shelter 5",
+        "name_bn": "Jamalpur বন্যা শেল্টার ৫",
+        "capacity": 390,
+        "type": "flood",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.0227,
+          25.0167
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-mymensingh-006",
+        "division": "mymensingh",
+        "district": "শেরপুর",
+        "name": "Sherpur Flood Shelter 6",
+        "name_bn": "Sherpur বন্যা শেল্টার ৬",
+        "capacity": 500,
+        "type": "flood",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.0077,
+          25.0167
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-mymensingh-007",
+        "division": "mymensingh",
+        "district": "শেরপুর",
+        "name": "Sherpur Flood Shelter 7",
+        "name_bn": "Sherpur বন্যা শেল্টার ৭",
+        "capacity": 610,
+        "type": "flood",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.3727,
+          24.95
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-mymensingh-008",
+        "division": "mymensingh",
+        "district": "ফুলপুর",
+        "name": "Phulpur Flood Shelter 8",
+        "name_bn": "Phulpur বন্যা শেল্টার ৮",
+        "capacity": 720,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.3577,
+          24.95
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-mymensingh-009",
+        "division": "mymensingh",
+        "district": "ফুলপুর",
+        "name": "Phulpur Flood Shelter 9",
+        "name_bn": "Phulpur বন্যা শেল্টার ৯",
+        "capacity": 830,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.2727,
+          24.75
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-mymensingh-010",
+        "division": "mymensingh",
+        "district": "মুক্তাগাছা",
+        "name": "Muktagachha Flood Shelter 10",
+        "name_bn": "Muktagachha বন্যা শেল্টার ১০",
+        "capacity": 940,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.5893,
+          24.7667
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-mymensingh-011",
+        "division": "mymensingh",
+        "district": "গৌরীপুর",
+        "name": "Gouripur Flood Shelter 11",
+        "name_bn": "Gouripur বন্যা শেল্টার ১১",
+        "capacity": 350,
+        "type": "flood",
+        "source": "UNDP_BD"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.5743,
+          24.7667
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-mymensingh-012",
+        "division": "mymensingh",
+        "district": "গৌরীপুর",
+        "name": "Gouripur Flood Shelter 12",
+        "name_bn": "Gouripur বন্যা শেল্টার ১২",
+        "capacity": 460,
+        "type": "flood",
+        "source": "BRAC"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.3893,
+          24.5667
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-mymensingh-013",
+        "division": "mymensingh",
+        "district": "ত্রিশাল",
+        "name": "Trishal Flood Shelter 13",
+        "name_bn": "Trishal বন্যা শেল্টার ১৩",
+        "capacity": 570,
+        "type": "flood",
+        "source": "DMB"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.3743,
+          24.5667
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-mymensingh-014",
+        "division": "mymensingh",
+        "district": "ত্রিশাল",
+        "name": "Trishal Flood Shelter 14",
+        "name_bn": "Trishal বন্যা শেল্টার ১৪",
+        "capacity": 680,
+        "type": "flood",
+        "source": "OSM"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.5893,
+          24.6833
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-mymensingh-015",
+        "division": "mymensingh",
+        "district": "ঈশ্বরগঞ্জ",
+        "name": "Ishwarganj Flood Shelter 15",
+        "name_bn": "Ishwarganj বন্যা শেল্টার ১৫",
+        "capacity": 790,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.656,
+          24.5833
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-mymensingh-016",
+        "division": "mymensingh",
+        "district": "নান্দাইল",
+        "name": "Nandail Flood Shelter 16",
+        "name_bn": "Nandail বন্যা শেল্টার ১৬",
+        "capacity": 900,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.356,
+          25.1667
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-mymensingh-017",
+        "division": "mymensingh",
+        "district": "হালুয়াঘাট",
+        "name": "Haluaghat Flood Shelter 17",
+        "name_bn": "Haluaghat বন্যা শেল্টার ১৭",
+        "capacity": 310,
+        "type": "flood",
+        "source": "MoDMR"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          90.456,
+          25.25
+        ]
+      },
+      "properties": {
+        "id": "bd-shelter-mymensingh-018",
+        "division": "mymensingh",
+        "district": "ধোবাউড়া",
+        "name": "Dhobaura Flood Shelter 18",
+        "name_bn": "Dhobaura বন্যা শেল্টার ১৮",
+        "capacity": 420,
+        "type": "flood",
+        "source": "UNDP_BD"
+      }
+    }
   ]
 }
