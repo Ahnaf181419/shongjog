@@ -151,9 +151,65 @@ void main() {
       throwsA(isA<CloudAiUnavailableException>()),
     );
     // 4 keys on the primary model + one 2s burst retry + one fallback-model
-    // attempt. Bounded — the point is it terminates rather than spinning.
-    expect(calls, lessThanOrEqualTo(6));
+    // attempt + one last-resort Gemma attempt. Bounded — the point is that it
+    // terminates rather than spinning. Rotation is NOT re-run per model: the
+    // ring is walked once, on the primary, and the two later models inherit
+    // whichever key it ended on. That is what keeps this 7 and not 12.
+    expect(calls, lessThanOrEqualTo(7));
     expect(calls, greaterThanOrEqualTo(4));
+  });
+
+  test('falls through to the last-resort Gemma model when both Gemini models '
+      'are gone, and strips its scratchpad before returning', () async {
+    final modelsTried = <String>[];
+    final client = MockClient((req) async {
+      final model = req.url.pathSegments.last.split(':').first;
+      modelsTried.add(model);
+      if (model != CloudAiService.lastResortModelId) {
+        return http.Response(quotaBody, 429);
+      }
+      // Shaped like a real Gemma response: English planning bullets, then
+      // the Bangla answer. Only the answer may reach the user.
+      return ok('*   User asks: what to do in a flood.\n'
+          '*   Language: Bangla.\n'
+          '\n'
+          'বন্যার সময় দ্রুত উঁচু ও নিরাপদ স্থানে আশ্রয় নিন।');
+    });
+
+    final svc = CloudAiService(
+      keys: ApiKeyRing(keys: ['k1', 'k2']),
+      httpClient: client,
+    );
+
+    final answer = await svc.generate('বন্যায় কী করব?');
+
+    expect(answer, 'বন্যার সময় দ্রুত উঁচু ও নিরাপদ স্থানে আশ্রয় নিন।');
+    expect(answer, isNot(contains('User asks')),
+        reason: 'Gemma reasoning must never reach a user mid-emergency.');
+    expect(modelsTried.last, CloudAiService.lastResortModelId);
+    expect(modelsTried, contains(CloudAiService.primaryModelId));
+    expect(modelsTried, contains(CloudAiService.fallbackModelId));
+  });
+
+  test('never sends thinkingConfig to the last-resort model — the API rejects '
+      'the entire request with a 400 if it does', () async {
+    final bodies = <String, String>{};
+    final client = MockClient((req) async {
+      final model = req.url.pathSegments.last.split(':').first;
+      bodies[model] = req.body;
+      if (model != CloudAiService.lastResortModelId) {
+        return http.Response(quotaBody, 429);
+      }
+      return ok('উঁচু স্থানে যান। নিরাপদে থাকুন। সাহায্যের জন্য ফোন করুন।');
+    });
+
+    await CloudAiService(
+      keys: ApiKeyRing(keys: ['k1']),
+      httpClient: client,
+    ).generate('প্রশ্ন');
+
+    expect(bodies[CloudAiService.lastResortModelId], isNot(contains('thinking')));
+    expect(bodies[CloudAiService.primaryModelId], contains('thinkingBudget'));
   });
 
   test('an empty ring fails fast rather than sending a blank credential',

@@ -11,8 +11,9 @@ import 'api_key_ring.dart';
 
 /// Cloud AI service with multi-model routing.
 ///
-/// Primary: Gemini 3.1 Flash Lite
-/// Fallback: Gemini 3.1 Flash Lite (preview channel)
+/// Primary:     Gemini 3.1 Flash Lite
+/// Fallback:    Gemini 3.1 Flash Lite (preview channel)
+/// Last resort: Gemma 4 26B-A4B (see [lastResortModelId])
 ///
 /// Bypasses the google_generative_ai SDK to send raw REST requests with
 /// `thinkingConfig.thinkingBudget: 0`, which suppresses chain-of-thought
@@ -26,8 +27,8 @@ import 'api_key_ring.dart';
 /// before falling through, so the fallback had been doing all the real work.
 /// The earlier pair — `gemini-2.5-flash` / `gemini-2.0-flash-lite` — is no
 /// longer usable either: the former 404s and the latter has a free-tier
-/// quota of zero. Both models below were verified live against the project's
-/// own key before being set here.
+/// quota of zero. All three models below were verified live against the
+/// project's own keys before being set here.
 ///
 /// This is only the *online* tier. The offline thesis rests on Gemma 4
 /// E2B/E4B running on-device via `modelManager`, which this file never
@@ -35,6 +36,25 @@ import 'api_key_ring.dart';
 class CloudAiService {
   static const String primaryModelId = 'gemini-3.1-flash-lite';
   static const String fallbackModelId = 'gemini-3.1-flash-lite-preview';
+
+  /// Tried only after *both* Gemini models are gone.
+  ///
+  /// This is the lighter of the two Gemma models the Gemini REST API serves
+  /// (26B total, ~4B active per token; the other is `gemma-4-31b-it`). It is
+  /// deliberately last, not because of its size but because of two measured
+  /// properties it shares with every hosted Gemma:
+  ///
+  /// 1. It rejects `thinkingConfig` with `400 INVALID_ARGUMENT`, so its
+  ///    planning scratchpad is generated as visible tokens and has to be
+  ///    salvaged after the fact by [stripGemmaReasoning] — which succeeds on
+  ///    roughly half of real responses and returns null on the rest.
+  /// 2. Generating that scratchpad costs 13–21s against ~2.5s for the Gemini
+  ///    models (hence [timeoutFor]).
+  ///
+  /// So it is worth strictly less than either model above it, and worth more
+  /// than the nothing that used to be here: before this, both Gemini models
+  /// failing meant a thrown [CloudAiUnavailableException] and no answer.
+  static const String lastResortModelId = 'gemma-4-26b-a4b-it';
 
   static const String _baseUrl =
       'https://generativelanguage.googleapis.com/v1beta';
@@ -128,7 +148,17 @@ class CloudAiService {
     }
 
     // 2. Auto-switch to fallback model, on whichever key we ended up holding.
-    return _generateOrThrow(fallbackModelId, contents, 'কোনো উত্তর পাওয়া যায়নি।');
+    try {
+      final text = await _generate(fallbackModelId, contents);
+      if (text != null) return text;
+      debugPrint('Fallback ($fallbackModelId) returned nothing usable');
+    } catch (e) {
+      debugPrint('Fallback ($fallbackModelId) failed: $e');
+    }
+
+    // 3. Both Gemini models are gone. Gemma is slow and only sometimes
+    //    salvageable, but the alternative at this point is no answer at all.
+    return _generateOrThrow(lastResortModelId, contents, 'কোনো উত্তর পাওয়া যায়নি।');
   }
 
   Future<String> generate(String prompt) async {
@@ -173,8 +203,27 @@ class CloudAiService {
   /// to the fallback. Gemini models do support it, and that is what keeps
   /// their chain-of-thought out of the visible answer.
   @visibleForTesting
-  static bool supportsThinkingConfig(String modelId) =>
-      !modelId.toLowerCase().startsWith('gemma');
+  static bool supportsThinkingConfig(String modelId) => !_isGemma(modelId);
+
+  static bool _isGemma(String modelId) =>
+      modelId.toLowerCase().startsWith('gemma');
+
+  /// Per-model request budget.
+  ///
+  /// Gemma is not merely a slower model — because it cannot be told to skip
+  /// its chain-of-thought (see [supportsThinkingConfig]), it *generates* the
+  /// whole planning scratchpad as visible tokens before it reaches the
+  /// answer. Measured live: 13–21s, against ~2.5s for `gemini-3.1-flash-lite`
+  /// on the same prompt. The shared 10s budget would therefore have timed out
+  /// [lastResortModelId] on essentially every call, making it dead code that
+  /// merely added 10s to an already-failing request.
+  ///
+  /// The long budget is affordable only because this model is last: nothing
+  /// reaches it until both Gemini models have already failed.
+  @visibleForTesting
+  static Duration timeoutFor(String modelId) => _isGemma(modelId)
+      ? const Duration(seconds: 35)
+      : const Duration(seconds: 10);
 
   /// A scratchpad bullet: `*   text` or `    *   text`.
   static final _reasoningBullet = RegExp(r'^\s*\*\s{2,}\S');
@@ -266,7 +315,7 @@ class CloudAiService {
           'x-goog-api-key': _keys.activeKey,
           'Content-Type': 'application/json',
         }, body: body)
-        .timeout(const Duration(seconds: 10));
+        .timeout(timeoutFor(modelId));
 
     if (response.statusCode >= 400) {
       throw Exception('HTTP ${response.statusCode}: ${response.body}');
@@ -303,7 +352,7 @@ class CloudAiService {
       final text = await _generate(modelId, contents);
       return text ?? fallback;
     } catch (e) {
-      debugPrint('Fallback ($modelId) also failed: $e');
+      debugPrint('Last-resort model ($modelId) also failed: $e');
       throw CloudAiUnavailableException();
     }
   }
