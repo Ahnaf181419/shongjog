@@ -32,6 +32,7 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
   bool _loading = false;
   DamageErrorCode? _errorCode;
   String? _errorDetail;
+  String _diagnostics = '';
 
   final _keyStore = ApiKeyStore();
 
@@ -45,13 +46,23 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
     // Checking *before* picking saves the user from taking a photo only
     // to be told they're offline or have no API key.
     if (!connectivityProvider.isOnline) {
-      setState(() => _errorCode = DamageErrorCode.internetRequired);
+      final diag = await _captureDiagnostics();
+      if (!mounted) return;
+      setState(() {
+        _errorCode = DamageErrorCode.internetRequired;
+        _diagnostics = diag;
+      });
       return;
     }
     final key = await _tryGetApiKey();
     if (!mounted) return;
     if (key == null || key.isEmpty) {
-      setState(() => _errorCode = DamageErrorCode.apiKeyRequired);
+      final diag = await _captureDiagnostics();
+      if (!mounted) return;
+      setState(() {
+        _errorCode = DamageErrorCode.apiKeyRequired;
+        _diagnostics = diag;
+      });
       return;
     }
 
@@ -86,10 +97,12 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
     try {
       x = await _picker.pickImage(source: source);
     } catch (e) {
+      final diag = await _captureDiagnostics();
       if (!mounted) return;
       setState(() {
         _errorCode = DamageErrorCode.photoFailed;
-        _errorDetail = e.toString();
+        _errorDetail = _briefError(e);
+        _diagnostics = diag;
       });
       return;
     }
@@ -139,13 +152,40 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
         _loading = false;
       });
     } catch (e) {
+      final diag = await _captureDiagnostics();
       if (!mounted) return;
       setState(() {
         _loading = false;
         _errorCode = DamageErrorCode.analyzeFailed;
-        _errorDetail = e.toString();
+        _errorDetail = _briefError(e);
+        _diagnostics = diag;
       });
     }
+  }
+
+  /// Trim an exception for display.
+  ///
+  /// The request body carries the whole photo as base64, and a thrown
+  /// exception embeds it — so `e.toString()` was rendering tens of thousands
+  /// of characters of image data over the entire screen, burying the one line
+  /// that actually said what went wrong.
+  static String _briefError(Object e) {
+    final s = e.toString();
+    if (s.length <= 240) return s;
+    return '${s.substring(0, 240)}…';
+  }
+
+  /// One line naming every precondition, captured when a failure occurs.
+  /// Kept ASCII and short so it survives a screenshot.
+  Future<String> _captureDiagnostics() async {
+    String key;
+    try {
+      final k = await _keyStore.getKey();
+      key = (k == null || k.isEmpty) ? 'none' : 'len=${k.length}';
+    } catch (e) {
+      key = 'read-failed';
+    }
+    return 'online=${connectivityProvider.isOnline}  key=$key';
   }
 
   Future<String?> _tryGetApiKey() async {
@@ -165,8 +205,17 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
           'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent');
       final req = await client.postUrl(uri);
       req.headers.set('x-goog-api-key', apiKey);
-      req.headers.set('Content-Type', 'application/json');
-      req.write(jsonEncode(body));
+      req.headers.set('Content-Type', 'application/json; charset=utf-8');
+      // add(utf8.encode(...)), never write(String).
+      //
+      // HttpClientRequest.write encodes with the request's `encoding`, which
+      // defaults to LATIN-1. The prompt is Bangla, latin1 cannot represent a
+      // single Bangla codepoint, and the call throws
+      //   Invalid argument (string): Contains invalid characters
+      // *before anything is sent*. So the damage scanner never reached the
+      // network at all — the failure looked like an API error but no request
+      // was ever made.
+      req.add(utf8.encode(jsonEncode(body)));
       final res = await req.close();
       final responseBody = await res.transform(utf8.decoder).join();
       if (res.statusCode >= 400) {
@@ -235,6 +284,7 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
         l10n: l10n,
         code: _errorCode!,
         detail: _errorDetail,
+        diagnostics: _diagnostics,
         onRetry: () {
           setState(() {
             _errorCode = null;
@@ -418,11 +468,22 @@ class _ErrorView extends StatelessWidget {
   final DamageErrorCode code;
   final String? detail;
   final VoidCallback onRetry;
+
+  /// Precondition snapshot taken when the failure happened.
+  ///
+  /// Four unrelated faults land on this screen — offline, no cached key, the
+  /// picker failing, the API call failing — and they need opposite actions.
+  /// Reporting "the scanner doesn't work" without this is unactionable, and
+  /// nobody debugging on a phone has logcat attached. Showing the state
+  /// inline means one screenshot names the cause.
+  final String diagnostics;
+
   const _ErrorView({
     required this.l10n,
     required this.code,
     this.detail,
     required this.onRetry,
+    this.diagnostics = '',
   });
 
   @override
@@ -441,9 +502,28 @@ class _ErrorView extends StatelessWidget {
           Icon(Icons.error_outline_rounded, size: 64,
               color: Theme.of(context).colorScheme.error),
           const SizedBox(height: 16),
-          Text(message,
+          // Selectable so the text can be copied out of a real device rather
+          // than retyped from a photo of a screen.
+          SelectableText(message,
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 14, height: 1.5)),
+          if (diagnostics.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: ShongjogTheme.statusChip(context),
+              child: SelectableText(
+                diagnostics,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.4,
+                  fontFamily: 'monospace',
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: onRetry,
