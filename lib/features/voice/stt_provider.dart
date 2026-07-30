@@ -37,6 +37,42 @@ abstract class SttProvider {
   /// Stop the current listening session.
   Future<void> stop();
 
+  /// Why the last [listen] returned null, in engine terms.
+  ///
+  /// A null transcript has several very different causes — no speech
+  /// recognised, the requested language is not installed, no network on an
+  /// OEM build that needs it, the recogniser is missing entirely — and they
+  /// need different things from the user. Without this the UI could only say
+  /// "try again", which is unhelpful when trying again cannot possibly work.
+  ///
+  /// Null when the last session succeeded or none has run.
+  SttFailure? get lastFailure;
+
+  /// Locale ids the engine can actually recognise, populated by [init].
+  /// Empty when the engine could not be queried.
+  List<String> get availableLocales;
+
   /// Release resources.
   void dispose();
+}
+
+/// Why a listen session produced nothing.
+enum SttFailure {
+  /// The engine reported no recognisable speech. Retrying may work.
+  noMatch,
+
+  /// The requested language pack is not installed on this device.
+  languageUnavailable,
+
+  /// The engine needs a network connection it does not have.
+  networkRequired,
+
+  /// The microphone permission was refused.
+  permissionDenied,
+
+  /// No speech recogniser is reachable at all.
+  engineUnavailable,
+
+  /// Something else — see the engine's own message in the log.
+  unknown,
 }

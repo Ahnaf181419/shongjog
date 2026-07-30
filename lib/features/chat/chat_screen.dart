@@ -20,6 +20,7 @@ import '../cloud_ai/cloud_ai_service.dart';
 import '../emergency/emergency_sheet.dart';
 import '../shelter/shelter_model.dart';
 import '../shelter/shelter_repository.dart';
+import '../voice/stt_provider.dart';
 import '../voice/stt_service.dart';
 import '../voice/tts_service.dart';
 import 'chat_input.dart';
@@ -484,10 +485,30 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() => _listening = false);
     if (transcript != null && transcript.trim().isNotEmpty) {
       _onSubmit(transcript.trim());
-    } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).chatTryAgain)));
+      return;
     }
+    // A null transcript has several causes that need different things from
+    // the user. "Try again" was shown for all of them, including the ones
+    // where trying again cannot possibly work — a missing Bangla voice pack
+    // fails identically every time, forever.
+    debugPrint(_stt.diagnostics);
+    final l10n = AppLocalizations.of(context);
+    final String message;
+    if (!_stt.hasLanguage('bn') && _stt.availableLocales.isNotEmpty) {
+      message = l10n.chatSttNoBangla;
+    } else {
+      message = switch (_stt.lastFailure) {
+        SttFailure.languageUnavailable => l10n.chatSttNoBangla,
+        SttFailure.networkRequired => l10n.chatSttNetwork,
+        SttFailure.permissionDenied => l10n.chatMicPermission,
+        SttFailure.engineUnavailable => l10n.chatSttUnavailable,
+        SttFailure.noMatch => l10n.chatSttNoSpeech,
+        _ => l10n.chatTryAgain,
+      };
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), duration: const Duration(seconds: 6)),
+    );
   }
 
   @override
@@ -681,7 +702,7 @@ class _ChatScreenState extends State<ChatScreen> {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: ShongjogTheme.ocean.withValues(alpha: 0.1),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -689,7 +710,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 size: 36,
                 color: _listening
                     ? ShongjogTheme.alert
-                    : ShongjogTheme.ocean,
+                    : Theme.of(context).colorScheme.primary,
               ),
             ),
             const SizedBox(height: 20),

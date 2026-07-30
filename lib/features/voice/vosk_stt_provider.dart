@@ -26,6 +26,12 @@ class VoskSttProvider implements SttProvider {
   @override
   bool get isInitialized => false;
 
+  @override
+  SttFailure? get lastFailure => SttFailure.engineUnavailable;
+
+  @override
+  List<String> get availableLocales => const [];
+
   /// Check if the Vosk model is bundled in assets.
   /// Returns false until the plugin compiles and the model is added.
   static Future<bool> isModelBundled() async {

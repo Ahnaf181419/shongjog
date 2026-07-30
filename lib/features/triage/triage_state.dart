@@ -52,12 +52,15 @@ class TriageState {
   Duration get elapsedDuration => DateTime.now().difference(startedAt);
 
   /// Wall-clock elapsed in Bangla h:mm:ss format with Bengali numerals.
+  /// Minutes and seconds are zero-padded so the string width is stable
+  /// as it ticks — prevents layout shift in the app-bar and recap chips.
   String elapsedBn() {
     final d = elapsedDuration;
     final h = d.inHours;
     final m = d.inMinutes.remainder(60);
     final s = d.inSeconds.remainder(60);
-    return '${_bn(h)}:${_bn(m)}:${_bn(s)}';
+    String p(int n) => _bn(n).padLeft(2, '০');
+    return '${_bn(h)}:${p(m)}:${p(s)}';
   }
 
   /// One-line human-readable summary of the answer trail + final route.

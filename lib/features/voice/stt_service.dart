@@ -26,6 +26,32 @@ class SttService {
   /// Whether the active provider works fully offline.
   bool get isOfflineCapable => _provider?.isOffline ?? false;
 
+  /// Why the last [listen] produced nothing. See [SttFailure].
+  SttFailure? get lastFailure => _provider?.lastFailure;
+
+  /// Locale ids the active engine can recognise. Empty before [init].
+  List<String> get availableLocales => _provider?.availableLocales ?? const [];
+
+  /// Whether any variant of [languageCode] (e.g. 'bn') is installed.
+  ///
+  /// False means the engine cannot recognise that language at all, no matter
+  /// how clearly the user speaks — a state the UI has to explain rather than
+  /// let the user keep retrying into.
+  bool hasLanguage(String languageCode) {
+    final lang = languageCode.toLowerCase();
+    return availableLocales.any(
+        (a) => a.replaceAll('-', '_').toLowerCase().split('_').first == lang);
+  }
+
+  /// One-line diagnostic for the Settings screen and bug reports.
+  String get diagnostics {
+    final p = _provider;
+    if (p == null) return 'STT: not initialised';
+    return 'STT: ${p.name}, ready=${p.isInitialized}, '
+        'locales=${p.availableLocales.length}, bangla=${hasLanguage('bn')}, '
+        'lastFailure=${p.lastFailure?.name ?? 'none'}';
+  }
+
   /// Lazily select and initialize the best available provider.
   Future<SttProvider> _ensureProvider() async {
     if (_provider != null) return _provider!;
