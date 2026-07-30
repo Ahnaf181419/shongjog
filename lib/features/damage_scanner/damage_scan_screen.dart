@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../app/theme.dart';
 import '../../core/api_key_store.dart';
@@ -39,17 +40,63 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
       _errorCode = null;
       _errorDetail = null;
     });
-    try {
-      final x = await _picker.pickImage(source: source);
-      if (x != null && mounted) {
-        setState(() => _image = x);
-        await _analyze();
+
+    // ── Pre-flight: fail fast if the analysis can't possibly succeed.
+    // Checking *before* picking saves the user from taking a photo only
+    // to be told they're offline or have no API key.
+    if (!connectivityProvider.isOnline) {
+      setState(() => _errorCode = DamageErrorCode.internetRequired);
+      return;
+    }
+    final key = await _tryGetApiKey();
+    if (!mounted) return;
+    if (key == null || key.isEmpty) {
+      setState(() => _errorCode = DamageErrorCode.apiKeyRequired);
+      return;
+    }
+
+    // ── Camera permission (gallery needs none on Android 13+).
+    if (source == ImageSource.camera) {
+      final status = await Permission.camera.status;
+      if (status.isPermanentlyDenied) {
+        if (!mounted) return;
+        setState(() {
+          _errorCode = DamageErrorCode.photoFailed;
+          _errorDetail = 'Camera permission permanently denied. '
+              'Please enable it in Settings.';
+        });
+        return;
       }
+      if (!status.isGranted) {
+        final result = await Permission.camera.request();
+        if (!result.isGranted) {
+          if (!mounted) return;
+          setState(() {
+            _errorCode = DamageErrorCode.photoFailed;
+            _errorDetail = 'Camera permission denied.';
+          });
+          return;
+        }
+      }
+    }
+
+    // ── Pick the image (own try-catch so photo errors are not misreported
+    // as analysis errors).
+    XFile? x;
+    try {
+      x = await _picker.pickImage(source: source);
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _errorCode = DamageErrorCode.photoFailed;
         _errorDetail = e.toString();
       });
+      return;
+    }
+
+    if (x != null && mounted) {
+      setState(() => _image = x);
+      await _analyze();
     }
   }
 
@@ -206,7 +253,7 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
         children: [
           const SizedBox(height: 24),
           Icon(Icons.camera_alt_outlined,
-              size: 72, color: ShongjogTheme.ocean),
+              size: 72, color: Theme.of(context).colorScheme.primary),
           const SizedBox(height: 24),
           Text(
             l10n.damageIntroBody,
@@ -235,7 +282,7 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: ShongjogTheme.ocean.withValues(alpha: 0.06),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
@@ -291,7 +338,7 @@ class _ResultView extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: ShongjogTheme.ocean.withValues(alpha: 0.08),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
                   ),
                   child: Column(

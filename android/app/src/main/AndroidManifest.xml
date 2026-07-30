@@ -23,6 +23,10 @@
          with sound and heads-up display even when app is backgrounded. -->
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
+    <!-- CAMERA: AI Damage Scanner (Module D). Runtime-requested via
+         permission_handler before opening the camera. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
 
     <!-- Mesh Networking (Phase 4.7) -->
     <uses-permission android:name="android.permission.BLUETOOTH"/>
@@ -102,6 +106,36 @@
         </intent>
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE"/>
+        </intent>
+        <!--
+          Package visibility for the camera and file pickers.
+
+          image_picker fires MediaStore.ACTION_IMAGE_CAPTURE directly, with no
+          resolveActivity guard. On Android 11+ the intent does not resolve
+          unless the app declares it here, so startActivity throws and the AI
+          Damage Scanner reports a generic "could not take photo" — with the
+          CAMERA permission granted, which is what makes it so confusing.
+
+          VIDEO_CAPTURE and GET_CONTENT cover the mesh chat's media attach
+          path for the same reason.
+        -->
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE"/>
+        </intent>
+        <intent>
+            <action android:name="android.media.action.VIDEO_CAPTURE"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.GET_CONTENT"/>
+            <data android:mimeType="image/*"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.GET_CONTENT"/>
+            <data android:mimeType="video/*"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.PICK"/>
+            <data android:mimeType="image/*"/>
         </intent>
     </queries>
 </manifest>

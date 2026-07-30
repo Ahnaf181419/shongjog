@@ -263,6 +263,28 @@ else
     FAILED=1
   fi
 
+  # 8b. Same rule, different feature. image_picker fires
+  #     MediaStore.ACTION_IMAGE_CAPTURE with no resolveActivity guard, so
+  #     without the query the intent does not resolve and the AI Damage
+  #     Scanner fails with the CAMERA permission already granted. This class
+  #     of bug (an undeclared <queries> intent) has now broken three separate
+  #     features, hence a gate rather than a comment.
+  MISSING_QUERIES=""
+  for INTENT in 'android.media.action.IMAGE_CAPTURE' \
+                'android.media.action.VIDEO_CAPTURE' \
+                'android.intent.action.GET_CONTENT'; do
+    if [[ "$(grep -c "$INTENT" <<<"$MANIFEST_STRINGS" || true)" -eq 0 ]]; then
+      MISSING_QUERIES="$MISSING_QUERIES $INTENT"
+    fi
+  done
+  if [[ -z "$MISSING_QUERIES" ]]; then
+    echo "  ✓ Camera + file-picker queries declared"
+  else
+    echo "  ✗ <queries> is missing:$MISSING_QUERIES"
+    echo "    The damage scanner and mesh media attach will fail on Android 11+."
+    FAILED=1
+  fi
+
   # 9. The notification small icon is named ONLY from a Dart string, so the
   #    release resource shrinker cannot see it and happily strips it. Debug
   #    builds keep it, which makes this invisible until someone installs the

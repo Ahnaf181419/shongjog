@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
 import 'package:flutter_gemma_litertlm/flutter_gemma_litertlm.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
+import 'package:image_picker_android/image_picker_android.dart';
+import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 
 import 'app/app.dart';
 import 'core/admin_broadcast_service.dart';
@@ -39,6 +41,24 @@ Future<void> main() async {
     debugPrint('[ZoneError] $error\\n$stack');
     return true;
   };
+
+  // Opt every gallery pick into Android's system photo picker.
+  //
+  // image_picker defaults `useAndroidPhotoPicker` to FALSE, which sends
+  // gallery picks through `Intent.ACTION_GET_CONTENT`. On Android 11+ that
+  // intent does not resolve unless the app declares it under <queries>, and
+  // it drags in the legacy storage-permission model on older devices. The
+  // system photo picker needs no permission at all, shows the modern UI, and
+  // only hands back the one file the user chose.
+  //
+  // Set once here because ImagePickerPlatform.instance is a singleton — the
+  // damage scanner, mesh chat and profile screens all pick it up.
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+    final picker = ImagePickerPlatform.instance;
+    if (picker is ImagePickerAndroid) {
+      picker.useAndroidPhotoPicker = true;
+    }
+  }
 
   // flutter_gemma 1.x is modular and registers NO inference engine on its own,
   // so this must run before any getActiveModel() call or it throws "add the
