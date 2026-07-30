@@ -3,123 +3,119 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../app/main_shell.dart';
+import '../../app/theme.dart';
 import '../../l10n/app_localizations.dart';
 
 // ═══════════════════════════════════════════════════════════════════
-//  Shongjog Splash Screen
-//  Code-based animated splash — no external image assets.
-//  Shield (protection) + Heart (hope) + Pulse (rapid response).
+//  Shongjog Splash — "the mark on the waterline"
+//
+//  Bangladesh is a delta. The S in the mark reads as a river channel,
+//  and the disasters this app exists for arrive as water. So the
+//  composition puts the mark ON a horizon: a hairline that draws
+//  outward from the centre and fades to nothing where the mark sits,
+//  so it passes BEHIND the monogram rather than striking through it.
+//
+//  That horizon is the one bold element. Everything else — the fade,
+//  the 10px rise, the wordmark — is deliberately quiet. Premium here
+//  is restraint, not ornament.
+//
+//  Colour comes entirely from existing tokens. The monogram is tinted
+//  to `oceanBright` at paint time rather than shipping a second asset,
+//  so it can never drift from the launcher icon: same file, same shape.
+//  It previously drew the raw asset, whose S is navy #041128 — 1.29:1
+//  on this ground, i.e. invisible.
+//
+//  design.md §5.5 (easeOutCubic only, never bounce), §7.8, §2 (Bangla
+//  on the user surface).
 // ═══════════════════════════════════════════════════════════════════
 
-/// Brand colors used across the splash and icon.
-class SplashColors {
-  SplashColors._();
-
-  static const Color ocean = Color(0xFF0369A1);
-  static const Color deepBlue = Color(0xFF075985);
-  static const Color amber = Color(0xFFF59E0B);
-  static const Color white = Color(0xFFFFFFFF);
-}
-
-/// Animated splash screen — fully code-generated visuals.
+/// Animated splash — the app's first visual impression.
 ///
-/// Displays a shield-and-heart emblem with pulse rings, then an
-/// animated tagline. After ~2.5 s calls [onComplete] so the parent
-/// can navigate to the next screen.
+/// Calls [onComplete] at ~1.6 s so the parent can crossfade onward.
+///
+/// Honours [MediaQuery.disableAnimations]: with reduced motion the final
+/// composition is shown at rest and the screen moves on quickly.
 class SplashScreen extends StatefulWidget {
   final VoidCallback onComplete;
 
   const SplashScreen({super.key, required this.onComplete});
+
+  /// Total time on screen before [onComplete] fires.
+  ///
+  /// This is an emergency app; the splash is a cost paid on every single
+  /// launch, forever. 1.6 s is enough for the horizon to draw and settle
+  /// and not a frame more.
+  static const Duration duration = Duration(milliseconds: 1600);
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen>
-    with TickerProviderStateMixin {
-  // ── Controllers ──────────────────────────────────────────
-  late final AnimationController _shieldCtrl;
-  late final AnimationController _heartCtrl;
-  late final AnimationController _pulseCtrl;
-  late final AnimationController _textCtrl;
+    with SingleTickerProviderStateMixin {
+  /// One controller drives the whole sequence; each element reads its own
+  /// slice via [Interval]. Four controllers chained on `await Future.delayed`
+  /// drift against each other and are harder to reason about than one
+  /// timeline with named windows.
+  late final AnimationController _ctrl;
 
-  // ── Animations ───────────────────────────────────────────
-  late final Animation<double> _shieldScale;
-  late final Animation<double> _heartScale;
-  late final Animation<double> _heartOpacity;
-  late final Animation<double> _pulseExpansion;
-  late final Animation<double> _pulseOpacity;
-  late final Animation<double> _textSlide;
-  late final Animation<double> _textOpacity;
+  late final Animation<double> _markOpacity;
+  late final Animation<double> _markRise;
+  late final Animation<double> _horizonExtent;
+  late final Animation<double> _wordmarkOpacity;
+  late final Animation<double> _wordmarkRise;
+  late final Animation<double> _taglineOpacity;
 
   Timer? _navTimer;
+  bool _started = false;
+
+  static const _ease = Curves.easeOutCubic;
+
+  Animation<double> _slice(
+    double begin,
+    double end, {
+    double from = 0,
+    double to = 1,
+  }) {
+    return Tween<double>(begin: from, end: to).animate(
+      CurvedAnimation(
+        parent: _ctrl,
+        curve: Interval(begin, end, curve: _ease),
+      ),
+    );
+  }
 
   @override
   void initState() {
     super.initState();
+    _ctrl = AnimationController(vsync: this, duration: SplashScreen.duration);
 
-    // Shield: elastic scale-in over 600ms.
-    _shieldCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-    _shieldScale = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _shieldCtrl, curve: Curves.elasticOut),
-    );
-
-    // Heart: scale + fade over 500ms, starts at 300ms.
-    _heartCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
-    _heartScale = Tween<double>(begin: 0.5, end: 1.0).animate(
-      CurvedAnimation(parent: _heartCtrl, curve: Curves.easeOutBack),
-    );
-    _heartOpacity = CurvedAnimation(parent: _heartCtrl, curve: Curves.easeIn);
-
-    // Pulse rings: expand + fade over 1200ms, starts at 600ms.
-    _pulseCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
-    _pulseExpansion = Tween<double>(begin: 0.8, end: 2.5).animate(
-      CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeOut),
-    );
-    _pulseOpacity = Tween<double>(begin: 0.6, end: 0.0).animate(
-      CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeOut),
-    );
-
-    // Text: slide-up + fade over 600ms, starts at 1000ms.
-    _textCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-    _textSlide = Tween<double>(begin: 30.0, end: 0.0).animate(
-      CurvedAnimation(parent: _textCtrl, curve: Curves.easeOutCubic),
-    );
-    _textOpacity = CurvedAnimation(parent: _textCtrl, curve: Curves.easeIn);
-
-    _runSequence();
+    // Windows are fractions of the 1600 ms timeline.
+    //   mark      0    – 500 ms
+    //   horizon   340  – 900 ms
+    //   wordmark  600  – 1150 ms
+    //   tagline   860  – 1300 ms
+    _markOpacity = _slice(0.00, 0.31);
+    _markRise = _slice(0.00, 0.31, from: 12, to: 0);
+    _horizonExtent = _slice(0.21, 0.56);
+    _wordmarkOpacity = _slice(0.37, 0.72);
+    _wordmarkRise = _slice(0.37, 0.72, from: 10, to: 0);
+    _taglineOpacity = _slice(0.54, 0.81);
   }
 
-  Future<void> _runSequence() async {
-    // 0ms — shield appears
-    _shieldCtrl.forward();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_started) return;
+    _started = true;
 
-    await Future.delayed(const Duration(milliseconds: 300));
-    if (!mounted) return;
-    _heartCtrl.forward();
-
-    await Future.delayed(const Duration(milliseconds: 300));
-    if (!mounted) return;
-    _pulseCtrl.forward();
-
-    await Future.delayed(const Duration(milliseconds: 400));
-    if (!mounted) return;
-    _textCtrl.forward();
-
-    // Navigate after 2.5s total.
-    _navTimer = Timer(const Duration(milliseconds: 1500), _done);
+    if (MediaQuery.of(context).disableAnimations) {
+      _ctrl.value = 1.0;
+      _navTimer = Timer(const Duration(milliseconds: 300), _done);
+      return;
+    }
+    _ctrl.forward();
+    _navTimer = Timer(SplashScreen.duration, _done);
   }
 
   void _done() {
@@ -128,268 +124,178 @@ class _SplashScreenState extends State<SplashScreen>
       widget.onComplete();
     } catch (e) {
       debugPrint('[SplashScreen] onComplete failed: $e');
-      // Fallback: navigate to MainShell using our own Navigator context.
-      // This bypasses _StartupGate's onboarding check, but is better than
-      // the app freezing on the splash screen permanently.
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const MainShell()),
-      );
+      Navigator.of(context).pushReplacement(_fadeRoute(const MainShell()));
     }
   }
+
+  /// Fade, never a hard swap.
+  static PageRoute<T> _fadeRoute<T>(Widget page) => PageRouteBuilder<T>(
+    pageBuilder: (_, _, _) => page,
+    transitionsBuilder: (_, animation, _, child) =>
+        FadeTransition(opacity: animation, child: child),
+    transitionDuration: const Duration(milliseconds: 400),
+  );
 
   @override
   void dispose() {
     _navTimer?.cancel();
-    _shieldCtrl.dispose();
-    _heartCtrl.dispose();
-    _pulseCtrl.dispose();
-    _textCtrl.dispose();
+    _ctrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              SplashColors.ocean,
-              SplashColors.deepBlue,
-            ],
+      // Single-theme by design: the cold-boot window on Android is dark
+      // regardless of system preference, so a light splash would flash.
+      backgroundColor: ShongjogTheme.scaffoldDark,
+      // SizedBox.expand, not a bare DecoratedBox: DecoratedBox sizes itself to
+      // its child, so without this the whole composition shrink-wraps to the
+      // width of the widest text and sits off-centre in the left of the screen.
+      body: SizedBox.expand(
+        child: DecoratedBox(
+          decoration: const BoxDecoration(
+            gradient: RadialGradient(
+              center: Alignment(0, -0.15),
+              radius: 0.95,
+              colors: [
+                ShongjogTheme.surfaceDimDark, // #172033 — a breath of lift
+                ShongjogTheme.scaffoldDark, // #0F172A — settles to the base
+              ],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(flex: 3),
-
-              // ── Shield + Heart emblem with pulse rings ──
-              SizedBox(
-                width: 200,
-                height: 200,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // Pulse rings
-                    AnimatedBuilder(
-                      animation: _pulseCtrl,
-                      builder: (_, _) => CustomPaint(
-                        size: const Size(200, 200),
-                        painter: _PulsePainter(
-                          expansion: _pulseExpansion.value,
-                          opacity: _pulseOpacity.value,
-                        ),
-                      ),
-                    ),
-                    // Shield
-                    ScaleTransition(
-                      scale: _shieldScale,
-                      child: SizedBox(
-                        width: 140,
-                        height: 160,
-                        child: CustomPaint(
-                          painter: const _ShieldPainter(),
-                        ),
-                      ),
-                    ),
-                    // Heart
-                    ScaleTransition(
-                      scale: _heartScale,
-                      child: FadeTransition(
-                        opacity: _heartOpacity,
-                        child: const Icon(
-                          Icons.favorite_rounded,
-                          size: 44,
-                          color: SplashColors.amber,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+          child: SafeArea(
+            child: AnimatedBuilder(
+              animation: _ctrl,
+              builder: (context, _) => Column(
+                children: [
+                  // Optical centring: the mark sits slightly above true centre
+                  // so the wordmark below balances it rather than hanging.
+                  const Spacer(flex: 5),
+                  _buildMarkOnHorizon(),
+                  const SizedBox(height: 34),
+                  _buildWordmark(l10n),
+                  const SizedBox(height: 10),
+                  _buildTagline(l10n),
+                  const Spacer(flex: 6),
+                ],
               ),
-
-              const SizedBox(height: 28),
-
-              // ── App name ──
-              AnimatedBuilder(
-                animation: _textCtrl,
-                builder: (_, _) => Opacity(
-                  opacity: _textOpacity.value,
-                  child: Transform.translate(
-                    offset: Offset(0, _textSlide.value),
-                    child: const Text(
-                      'Shongjog',
-                      style: TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.w700,
-                        color: SplashColors.white,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              // ── Tagline ──
-              AnimatedBuilder(
-                animation: _textCtrl,
-                builder: (_, _) => Opacity(
-                  opacity: _textOpacity.value,
-                  child: Transform.translate(
-                    offset: Offset(0, _textSlide.value),
-                    child: Text(
-                      AppLocalizations.of(context).splashTagline1,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0xCCFFFFFF),
-                        letterSpacing: 0.8,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              const Spacer(flex: 3),
-
-              // ── Bottom tagline ──
-              Padding(
-                padding: const EdgeInsets.only(bottom: 32),
-                child: AnimatedBuilder(
-                  animation: _textCtrl,
-                  builder: (_, _) => Opacity(
-                    opacity: _textOpacity.value * 0.5,
-                    child: Text(
-                      AppLocalizations.of(context).splashTagline2,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.white,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
-}
 
-// ═══════════════════════════════════════════════════════════════════
-//  CustomPainter — Shield outline
-// ═══════════════════════════════════════════════════════════════════
-
-class _ShieldPainter extends CustomPainter {
-  const _ShieldPainter();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = SplashColors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 4.0
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-
-    final path = Path();
-    final w = size.width;
-    final h = size.height;
-
-    // Shield: rounded top, tapered bottom with point.
-    path.moveTo(w * 0.5, h * 0.02);
-    path.cubicTo(w * 0.85, h * 0.02, w * 0.98, h * 0.15, w * 0.98, h * 0.35);
-    path.cubicTo(w * 0.98, h * 0.60, w * 0.75, h * 0.80, w * 0.5, h * 0.98);
-    path.cubicTo(w * 0.25, h * 0.80, w * 0.02, h * 0.60, w * 0.02, h * 0.35);
-    path.cubicTo(w * 0.02, h * 0.15, w * 0.15, h * 0.02, w * 0.5, h * 0.02);
-    path.close();
-
-    canvas.drawPath(path, paint);
-
-    // Inner glow line (slightly smaller, semi-transparent).
-    final glowPaint = Paint()
-      ..color = SplashColors.white.withValues(alpha: 0.15)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
-
-    final innerPath = Path();
-    final s = 0.08; // inset fraction
-    innerPath.moveTo(w * 0.5, h * (0.02 + s));
-    innerPath.cubicTo(
-      w * 0.85, h * (0.02 + s),
-      w * 0.98, h * (0.15 + s),
-      w * 0.98, h * (0.35 + s),
+  /// The signature: the monogram straddling a horizon that fades out
+  /// behind it.
+  Widget _buildMarkOnHorizon() {
+    return SizedBox(
+      height: 132,
+      // Full width: the horizon has to run past the mark to read as a
+      // horizon at all. Constrained to the mark's own 132px it was just an
+      // underline.
+      width: double.infinity,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // The horizon draws outward from the centre. Its gradient is
+          // transparent across the middle third, so the line never crosses the
+          // monogram — it reads as receding behind it, not striking it out —
+          // and fades to nothing at both screen edges rather than stopping.
+          Positioned.fill(
+            child: Center(
+              child: FractionallySizedBox(
+                widthFactor: _horizonExtent.value,
+                child: Container(
+                  height: 1,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        ShongjogTheme.oceanBright.withValues(alpha: 0),
+                        ShongjogTheme.oceanBright.withValues(alpha: 0.50),
+                        ShongjogTheme.oceanBright.withValues(alpha: 0),
+                        ShongjogTheme.oceanBright.withValues(alpha: 0),
+                        ShongjogTheme.oceanBright.withValues(alpha: 0.50),
+                        ShongjogTheme.oceanBright.withValues(alpha: 0),
+                      ],
+                      // The clear band (0.38–0.62) is sized to clear the
+                      // 132px mark on a 360dp screen with margin either side.
+                      stops: const [0.0, 0.22, 0.38, 0.62, 0.78, 1.0],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Opacity(
+            opacity: _markOpacity.value,
+            child: Transform.translate(
+              offset: Offset(0, _markRise.value),
+              // srcIn keeps the asset's alpha and replaces its colour, so the
+              // splash and the launcher icon are guaranteed to be the same
+              // shape — one file, tinted per surface.
+              child: ColorFiltered(
+                colorFilter: const ColorFilter.mode(
+                  ShongjogTheme.oceanBright,
+                  BlendMode.srcIn,
+                ),
+                child: Image.asset(
+                  'assets/icon_foreground.png',
+                  width: 132,
+                  height: 132,
+                  // The asset is a launcher foreground: the glyph occupies
+                  // 78% of the canvas with transparent padding around it, so
+                  // it is drawn slightly oversized to compensate.
+                  filterQuality: FilterQuality.high,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
-    innerPath.cubicTo(
-      w * 0.98, h * 0.60,
-      w * 0.75, h * 0.80,
-      w * 0.5, h * 0.98,
-    );
-    innerPath.cubicTo(
-      w * 0.25, h * 0.80,
-      w * 0.02, h * 0.60,
-      w * 0.02, h * (0.35 + s),
-    );
-    innerPath.cubicTo(
-      w * 0.02, h * (0.15 + s),
-      w * (0.15 + s), h * (0.02 + s),
-      w * 0.5, h * (0.02 + s),
-    );
-    innerPath.close();
-
-    canvas.drawPath(innerPath, glowPaint);
   }
 
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-// ═══════════════════════════════════════════════════════════════════
-//  CustomPainter — Pulse rings
-// ═══════════════════════════════════════════════════════════════════
-
-class _PulsePainter extends CustomPainter {
-  final double expansion;
-  final double opacity;
-
-  const _PulsePainter({required this.expansion, required this.opacity});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final baseRadius = size.width * 0.22;
-
-    for (int i = 0; i < 2; i++) {
-      final delay = i * 0.15;
-      final t = (expansion - 0.8).clamp(0.0, 1.7);
-      final radius = baseRadius * (1.0 + t * (1.0 + delay));
-      final alpha = (opacity * (1.0 - delay)).clamp(0.0, 1.0);
-
-      if (alpha <= 0) continue;
-
-      final paint = Paint()
-        ..color = SplashColors.white.withValues(alpha: alpha)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.0;
-
-      canvas.drawCircle(center, radius, paint);
-    }
+  Widget _buildWordmark(AppLocalizations l10n) {
+    return Opacity(
+      opacity: _wordmarkOpacity.value,
+      child: Transform.translate(
+        offset: Offset(0, _wordmarkRise.value),
+        child: Text(
+          l10n.splashTitle,
+          style: const TextStyle(
+            fontFamily: ShongjogTheme.fontFamily,
+            fontFamilyFallback: ShongjogTheme.fontFallback,
+            fontSize: 38,
+            fontWeight: FontWeight.w600,
+            height: 1.1,
+            // Bangla conjuncts already carry a lot of horizontal detail;
+            // extra tracking pulls the matras away from their base glyph.
+            letterSpacing: 0,
+            color: ShongjogTheme.inkDark,
+          ),
+        ),
+      ),
+    );
   }
 
-  @override
-  bool shouldRepaint(covariant _PulsePainter old) =>
-      old.expansion != expansion || old.opacity != opacity;
+  Widget _buildTagline(AppLocalizations l10n) {
+    return Opacity(
+      opacity: _taglineOpacity.value,
+      child: Text(
+        l10n.splashTagline2,
+        style: const TextStyle(
+          fontFamily: ShongjogTheme.fontFamily,
+          fontFamilyFallback: ShongjogTheme.fontFallback,
+          fontSize: 15,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0.6,
+          color: ShongjogTheme.inkSecondaryDark,
+        ),
+      ),
+    );
+  }
 }
-
-

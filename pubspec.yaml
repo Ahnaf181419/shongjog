@@ -66,6 +66,12 @@ dependencies:
 
   # Profile photo picker
   image_picker: ^1.0.0
+  # Direct dependency purely to reach `useAndroidPhotoPicker`, which is not
+  # exposed through the federated `image_picker` facade. See main.dart.
+  image_picker_android: ^0.8.12
+  # Referenced directly for the `ImagePickerPlatform.instance` type check in
+  # main.dart, so it is declared rather than relied on transitively.
+  image_picker_platform_interface: ^2.10.0
   flutter_displaymode: ^0.7.0
   gal: ^2.3.2
 
@@ -86,6 +92,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.4.0
   fake_cloud_firestore: ^3.1.0
   firebase_auth_mocks: ^0.14.1
 
@@ -98,6 +105,7 @@ flutter:
     - assets/sound/chime.wav
     - assets/sound/knock.wav
     - assets/emergency/
+    - assets/icon_foreground.png
   fonts:
     - family: AnekBangla
       fonts:
@@ -129,3 +137,25 @@ flutter_launcher_icons:
   adaptive_icon_foreground: "assets/icon_foreground.png"
   web:
     generate: true
+
+# Native splash screen generation. Run `dart run flutter_native_splash:create`
+# after changing any of the values below.
+#
+# Cold-boot is always dark (design.md §7.8): the native splash uses #0F172A
+# (slate-900) on ALL platforms regardless of system theme, matching the
+# Flutter SplashScreen background so there is no white flash or hard cut.
+flutter_native_splash:
+  color: "#0F172A"
+  color_dark: "#0F172A"
+  image: assets/icon_foreground.png
+  image_dark: assets/icon_foreground.png
+  android_12:
+    image: assets/icon_foreground.png
+    image_dark: assets/icon_foreground.png
+    color: "#0F172A"
+    color_dark: "#0F172A"
+    icon_background_color: "#0F172A"
+    icon_background_color_dark: "#0F172A"
+  android: true
+  ios: true
+  web: true

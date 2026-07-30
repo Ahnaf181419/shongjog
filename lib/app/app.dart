@@ -79,15 +79,7 @@ class ShongjogApp extends StatelessWidget {
               child: child ?? const SizedBox.shrink(),
             );
           },
-          home: Builder(
-            builder: (navContext) => SplashScreen(
-              onComplete: () {
-                Navigator.of(navContext).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const _StartupGate()),
-                );
-              },
-            ),
-          ),
+          home: const _SplashBoot(),
           routes: {
             AppRoutes.settings: (_) => const SettingsScreen(),
             AppRoutes.emergencyContacts: (_) =>
@@ -139,16 +131,69 @@ class ShongjogApp extends StatelessWidget {
   }
 }
 
+/// Hosts the [SplashScreen] and pre-loads the onboarding check in
+/// parallel with the breathing animation. When the splash calls
+/// [SplashScreen.onComplete], this widget awaits the already-running
+/// future and crossfades to [_StartupGate] — no intermediate loading
+/// screen (design.md §7.8).
+class _SplashBoot extends StatefulWidget {
+  const _SplashBoot();
+
+  @override
+  State<_SplashBoot> createState() => _SplashBootState();
+}
+
+class _SplashBootState extends State<_SplashBoot> {
+  late final Future<bool> _onboardingFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _onboardingFuture = _checkOnboarding();
+  }
+
+  static Future<bool> _checkOnboarding() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('pref_has_onboarded') ?? false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SplashScreen(
+      onComplete: () async {
+        final navigator = Navigator.of(context);
+        final hasOnboarded = await _onboardingFuture;
+        if (!mounted) return;
+        navigator.pushReplacement(
+          PageRouteBuilder(
+            pageBuilder: (_, _, _) =>
+                _StartupGate(hasOnboarded: hasOnboarded),
+            transitionsBuilder: (_, animation, _, child) =>
+                FadeTransition(opacity: animation, child: child),
+            transitionDuration: const Duration(milliseconds: 400),
+          ),
+        );
+      },
+    );
+  }
+}
+
 /// Decides whether to show onboarding (first run) or the main shell.
+///
+/// Receives the pre-computed onboarding status from [_SplashBoot] so
+/// there is no loading state — the screen builds directly to either
+/// [OnboardingScreen] or [MainShell].
 class _StartupGate extends StatefulWidget {
-  const _StartupGate();
+  const _StartupGate({required this.hasOnboarded});
+
+  final bool hasOnboarded;
 
   @override
   State<_StartupGate> createState() => _StartupGateState();
 }
 
 class _StartupGateState extends State<_StartupGate> {
-  bool? _hasOnboarded;
+  late bool _hasOnboarded = widget.hasOnboarded;
   bool _meshStarted = false;
   static final _lifecycleObserver = _MeshLifecycleObserver();
 
@@ -156,7 +201,6 @@ class _StartupGateState extends State<_StartupGate> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(_lifecycleObserver);
-    _checkOnboarding();
   }
 
   @override
@@ -165,40 +209,9 @@ class _StartupGateState extends State<_StartupGate> {
     super.dispose();
   }
 
-  Future<void> _checkOnboarding() async {
-    final prefs = await SharedPreferences.getInstance();
-    final done = prefs.getBool('pref_has_onboarded') ?? false;
-    if (mounted) setState(() => _hasOnboarded = done);
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (_hasOnboarded == null) {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.shield_rounded,
-                  size: 72, color: Theme.of(context).colorScheme.primary),
-              const SizedBox(height: 16),
-              Text(
-                AppLocalizations.of(context).splashTitle,
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w700,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              const SizedBox(height: 32),
-              const CircularProgressIndicator(),
-            ],
-          ),
-        ),
-      );
-    }
-
-    if (!_hasOnboarded!) {
+    if (!_hasOnboarded) {
       return OnboardingScreen(
         onComplete: () => setState(() => _hasOnboarded = true),
       );
