@@ -50,11 +50,11 @@ class ShelterRouteInfoCard extends StatelessWidget {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: ShongjogTheme.ocean.withValues(alpha: 0.1),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.shield_rounded,
-                      color: ShongjogTheme.ocean, size: 20),
+                  child: Icon(Icons.shield_rounded,
+                      color: Theme.of(context).colorScheme.primary, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -91,20 +91,20 @@ class ShelterRouteInfoCard extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: ShongjogTheme.ocean.withValues(alpha: 0.08),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.route_rounded,
-                        color: ShongjogTheme.ocean, size: 18),
+                    Icon(Icons.route_rounded,
+                        color: Theme.of(context).colorScheme.primary, size: 18),
                     const SizedBox(width: 8),
                     Text(
                       '${(distanceKm?.toStringAsFixed(1) ?? '—')} ${l10n.shelterKm}',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: ShongjogTheme.ocean),
+                          color: Theme.of(context).colorScheme.primary),
                     ),
                   ],
                 ),

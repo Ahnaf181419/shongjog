@@ -655,11 +655,20 @@ class _QuickChip extends StatelessWidget {
             children: [
               Icon(icon, size: 16, color: cs.primary),
               const SizedBox(width: 6),
-              Text(label,
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: cs.onSurface)),
+              // Flexible, not a bare Text: a Wrap hands each child the full
+              // row width as its maximum, and `mainAxisSize.min` then sizes
+              // this Row to its content — so a label longer than the screen
+              // overflows instead of wrapping. Bangla sets wider than the
+              // English these chips were sized against, and "প্রচারণা
+              // পর্যালোচনা (৩)" already overflowed by 72px at 320dp.
+              Flexible(
+                child: Text(label,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: cs.onSurface)),
+              ),
               if (badgeCount > 0) ...[
                 const SizedBox(width: 6),
                 Container(

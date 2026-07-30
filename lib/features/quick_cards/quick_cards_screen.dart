@@ -68,7 +68,7 @@ class _QuickCardsScreenState extends State<QuickCardsScreen> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
-                  borderSide: BorderSide(color: ShongjogTheme.ocean, width: 2),
+                  borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
                 ),
                 suffixIcon: _query.isNotEmpty
                     ? IconButton(

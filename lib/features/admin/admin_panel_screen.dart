@@ -120,13 +120,16 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                     children: [
                       Icon(Icons.verified_user_rounded, size: 14, color: cs.primary),
                       const SizedBox(width: 6),
-                      Text(
-                        l10n.adminPanelTitle.toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.2,
-                          color: cs.primary,
+                      Flexible(
+                        child: Text(
+                          l10n.adminPanelTitle.toUpperCase(),
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.2,
+                            color: cs.primary,
+                          ),
                         ),
                       ),
                     ],
@@ -198,36 +201,63 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                   // accent color throughout (the locked brand hue) —
                   // these are routine navigation, not status; color is
                   // reserved for the danger entry above, not spent here.
-                  GridView.count(
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 1.4,
-                    children: [
-                      _AdminTile(
-                        title: l10n.adminDashboardTitle,
-                        icon: Icons.dashboard_rounded,
-                        route: AppRoutes.adminDashboard,
-                      ),
-                      _AdminTile(
-                        title: l10n.adminTabUsers,
-                        icon: Icons.people_rounded,
-                        route: AppRoutes.adminUsers,
-                      ),
-                      _AdminTile(
-                        title: l10n.adminTabCampaigns,
-                        icon: Icons.campaign_rounded,
-                        route: AppRoutes.adminCampaigns,
-                        badgeCount: pendingCount,
-                      ),
-                      _AdminTile(
-                        title: l10n.adminTabBroadcast,
-                        icon: Icons.podcasts_rounded,
-                        route: AppRoutes.adminBroadcast,
-                      ),
-                    ],
+                  // Two IntrinsicHeight rows rather than a GridView.
+                  //
+                  // GridView.count needs a childAspectRatio, and that pins
+                  // tile HEIGHT to tile WIDTH — so a tile can never grow to
+                  // fit its own content. As soon as a Bangla title wrapped to
+                  // a second line (a narrow phone, or the user's OS text
+                  // scale) the tiles overflowed by up to 186px, and in a
+                  // release build that clips silently rather than striping.
+                  //
+                  // IntrinsicHeight costs an extra layout pass over four
+                  // cheap tiles, and buys tiles that size to their content
+                  // while both halves of a row stay equal height.
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: _AdminTile(
+                            title: l10n.adminDashboardTitle,
+                            icon: Icons.dashboard_rounded,
+                            route: AppRoutes.adminDashboard,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _AdminTile(
+                            title: l10n.adminTabUsers,
+                            icon: Icons.people_rounded,
+                            route: AppRoutes.adminUsers,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: _AdminTile(
+                            title: l10n.adminTabCampaigns,
+                            icon: Icons.campaign_rounded,
+                            route: AppRoutes.adminCampaigns,
+                            badgeCount: pendingCount,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _AdminTile(
+                            title: l10n.adminTabBroadcast,
+                            icon: Icons.podcasts_rounded,
+                            route: AppRoutes.adminBroadcast,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -393,6 +423,7 @@ class _AdminTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
     final isLight = cs.brightness == Brightness.light;
     return Container(
@@ -434,6 +465,11 @@ class _AdminTile extends StatelessWidget {
                     const SizedBox(height: 12),
                     Text(
                       title,
+                      // Two lines is enough for every current label even at
+                      // the 1.5x ceiling; past that, ellipsis beats a tile
+                      // that keeps growing and pushes the grid off-screen.
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -446,11 +482,14 @@ class _AdminTile extends StatelessWidget {
                         Icon(Icons.arrow_forward_rounded,
                             size: 14, color: cs.onSurfaceVariant),
                         const SizedBox(width: 4),
-                        Text(
-                          'বিস্তারিত',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: cs.onSurfaceVariant,
+                        Flexible(
+                          child: Text(
+                            l10n.adminTileOpen,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: cs.onSurfaceVariant,
+                            ),
                           ),
                         ),
                       ],

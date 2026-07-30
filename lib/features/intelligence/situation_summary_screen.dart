@@ -60,7 +60,7 @@ class _SituationSummaryScreenState extends State<SituationSummaryScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.summarize_outlined,
-                size: 72, color: ShongjogTheme.ocean),
+                size: 72, color: Theme.of(context).colorScheme.primary),
             const SizedBox(height: 16),
             Text(
               '${_reports.length} টি সাম্প্রতিক প্রতিবেদনের ভিত্তিতে পরিস্থিতির সারাংশ তৈরি করুন।',
@@ -95,18 +95,18 @@ class _ResultView extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: ShongjogTheme.ocean.withValues(alpha: 0.08),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
             ),
             child: Row(
               children: [
                 Icon(Icons.auto_awesome_rounded,
-                    color: ShongjogTheme.ocean, size: 20),
+                    color: Theme.of(context).colorScheme.primary, size: 20),
                 const SizedBox(width: 8),
                 Text('AI সারাংশ',
                     style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: ShongjogTheme.ocean)),
+                        color: Theme.of(context).colorScheme.primary)),
               ],
             ),
           ),

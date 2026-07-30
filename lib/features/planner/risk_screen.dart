@@ -257,7 +257,7 @@ class _ResultView extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: ShongjogTheme.ocean.withValues(alpha: 0.08),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
             ),
             child: Text(result.summary,

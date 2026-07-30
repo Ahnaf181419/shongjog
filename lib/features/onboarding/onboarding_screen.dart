@@ -143,13 +143,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: ShongjogTheme.ocean.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.shield_rounded,
               size: 56,
-              color: ShongjogTheme.ocean,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           const SizedBox(height: 32),
@@ -183,8 +183,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.person_outline_rounded,
-              size: 64, color: ShongjogTheme.ocean),
+          Icon(Icons.person_outline_rounded,
+              size: 64, color: Theme.of(context).colorScheme.primary),
           const SizedBox(height: 24),
           Text(
             AppLocalizations.of(context).onboardingYourName,
@@ -225,8 +225,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.admin_panel_settings_outlined,
-              size: 64, color: ShongjogTheme.ocean),
+          Icon(Icons.admin_panel_settings_outlined,
+              size: 64, color: Theme.of(context).colorScheme.primary),
           const SizedBox(height: 24),
           Text(
             AppLocalizations.of(context).onboardingPermRequired,
@@ -270,8 +270,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.downloading_rounded,
-              size: 64, color: ShongjogTheme.ocean),
+          Icon(Icons.downloading_rounded,
+              size: 64, color: Theme.of(context).colorScheme.primary),
           const SizedBox(height: 24),
           Text(
             AppLocalizations.of(context).onboardingModelTitle,

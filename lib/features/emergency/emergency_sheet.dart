@@ -97,11 +97,14 @@ class _EmergencySheetState extends State<EmergencySheet> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Was oceanBright — the DARK-mode step — which measured
+                    // 2.14:1 on the light sheet. cs.primary resolves per mode.
                     Icon(Icons.message_outlined,
-                        color: ShongjogTheme.oceanBright),
+                        color: Theme.of(context).colorScheme.primary),
                     const SizedBox(width: 8),
                     Text(l10n.emergencySendSos,
-                        style: TextStyle(color: ShongjogTheme.oceanBright)),
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary)),
                   ],
                 ),
               ),
