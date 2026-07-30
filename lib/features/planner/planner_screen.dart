@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../l10n/app_localizations.dart';
 import 'family_profile.dart';
+import 'form_widgets.dart';
 import 'planner_service.dart';
 
 /// AI Family Disaster Planner screen (Module A in docs/AI-FIRST-FEATURES.md).
@@ -109,15 +110,15 @@ class _PlannerScreenState extends State<PlannerScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _SectionLabel(l10n.plannerFamilyInfo),
-          _StepperRow(
+          SectionLabel(l10n.plannerFamilyInfo),
+          StepperRow(
               label: l10n.plannerTotalMembers, controller: _familySizeCtrl, max: 20),
-          _StepperRow(
+          StepperRow(
               label: l10n.plannerChildren, controller: _childrenCtrl, max: 15),
-          _StepperRow(
+          StepperRow(
               label: l10n.plannerElderly, controller: _elderlyCtrl, max: 15),
           const SizedBox(height: 16),
-          _SectionLabel(l10n.plannerHomeType),
+          SectionLabel(l10n.plannerHomeType),
           Wrap(
             spacing: 8,
             children: HomeType.values
@@ -131,10 +132,10 @@ class _PlannerScreenState extends State<PlannerScreen> {
           ),
           if (_homeType == HomeType.apartment) ...[
             const SizedBox(height: 12),
-            _StepperRow(label: l10n.plannerFloorNumber, controller: _floorCtrl, max: 30),
+            StepperRow(label: l10n.plannerFloorNumber, controller: _floorCtrl, max: 30),
           ],
           const SizedBox(height: 16),
-          _SectionLabel(l10n.plannerMedicalConditions),
+          SectionLabel(l10n.plannerMedicalConditions),
           TextField(
             controller: _medicalCtrl,
             decoration: InputDecoration(
@@ -143,16 +144,16 @@ class _PlannerScreenState extends State<PlannerScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          _SectionLabel(l10n.plannerOther),
-          _ToggleRow(
+          SectionLabel(l10n.plannerOther),
+          ToggleRow(
               label: l10n.plannerHasPets,
               value: _pets,
               onChanged: (v) => setState(() => _pets = v)),
-          _ToggleRow(
+          ToggleRow(
               label: l10n.plannerNearbyRiver,
               value: _river,
               onChanged: (v) => setState(() => _river = v)),
-          _ToggleRow(
+          ToggleRow(
               label: l10n.plannerNearCoast,
               value: _coast,
               onChanged: (v) => setState(() => _coast = v)),
@@ -189,18 +190,18 @@ class _ResultView extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: ShongjogTheme.ocean.withValues(alpha: 0.08),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),
             ),
             child: Row(
               children: [
                 Icon(Icons.auto_awesome_rounded,
-                    color: ShongjogTheme.ocean, size: 20),
+                    color: Theme.of(context).colorScheme.primary, size: 20),
                 const SizedBox(width: 8),
                 Text(l10n.plannerAiPlan,
                     style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: ShongjogTheme.ocean)),
+                        color: Theme.of(context).colorScheme.primary)),
               ],
             ),
           ),
@@ -228,101 +229,6 @@ class _ResultView extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-// ── Form helpers ─────────────────────────────────────────────────
-
-class _SectionLabel extends StatelessWidget {
-  final String text;
-  const _SectionLabel(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(text,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-    );
-  }
-}
-
-class _StepperRow extends StatelessWidget {
-  final String label;
-  final TextEditingController controller;
-  final int max;
-  const _StepperRow({
-    required this.label,
-    required this.controller,
-    required this.max,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Expanded(child: Text(label)),
-          IconButton(
-            icon: const Icon(Icons.remove_circle_outline_rounded),
-            onPressed: () {
-              final v = (int.tryParse(controller.text) ?? 0) - 1;
-              if (v >= 0) {
-                controller.text = '$v';
-              }
-            },
-          ),
-          SizedBox(
-            width: 40,
-            // TextEditingController is a ValueNotifier — setting
-            // controller.text above does fire notifyListeners(), but as
-            // a bare StatelessWidget nothing was listening for it, so the
-            // displayed digit never repainted even though the underlying
-            // value was updating correctly. ValueListenableBuilder is the
-            // listener that was missing.
-            child: ValueListenableBuilder<TextEditingValue>(
-              valueListenable: controller,
-              builder: (context, value, _) => Text(
-                value.text,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded),
-            onPressed: () {
-              final v = (int.tryParse(controller.text) ?? 0) + 1;
-              if (v <= max) {
-                controller.text = '$v';
-              }
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ToggleRow extends StatelessWidget {
-  final String label;
-  final bool value;
-  final ValueChanged<bool> onChanged;
-  const _ToggleRow({
-    required this.label,
-    required this.value,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SwitchListTile(
-      title: Text(label),
-      value: value,
-      onChanged: onChanged,
-      contentPadding: EdgeInsets.zero,
     );
   }
 }

@@ -162,6 +162,9 @@
   "chatQuickCards": "দ্রুত নির্দেশিকা কার্ড দেখুন",
   "chatVoiceInputDisabled": "সেটিংসে ভয়েস ইনপুট চালু করুন",
   "chatTryAgain": "আবার চেষ্টা করুন",
+  "chatSttNoBangla": "এই ফোনে বাংলা ভয়েস প্যাক নেই। Google অ্যাপ → সেটিংস → ভয়েস থেকে বাংলা যোগ করুন, অথবা টাইপ করে পাঠান।",
+  "chatSttNetwork": "ভয়েস শনাক্তকরণের জন্য ইন্টারনেট দরকার। টাইপ করে পাঠান।",
+  "chatSttNoSpeech": "কিছু শোনা যায়নি। আবার চেষ্টা করুন।",
   "chatSttUnavailable": "এই ফোনে ভয়েস শনাক্তকরণ নেই। টাইপ করে পাঠান।",
   "chatMicPermission": "মাইক্রোফোন অনুমতি নেই। সেটিংসে যেতে চাপুন।",
   "meshTitle": "অফলাইন যোগাযোগ",
@@ -278,6 +281,10 @@
   "shelterNoData": "কোনো আশ্রয়কেন্দ্রের তথ্য নেই",
   "shelterKm": "কিমি",
   "shelterSearchHint": "আশ্রয়কেন্দ্র খুঁজুন...",
+  "shelterSelectDistrict": "জেলা নির্বাচন করুন",
+  "shelterAllDistricts": "সব জেলা",
+  "shelterMyLocation": "আমার অবস্থান",
+  "shelterLocationUnavailable": "অবস্থান পাওয়া যায়নি। জিপিএস চালু করুন।",
   "shelterSearchEmpty": "কোনো আশ্রয়কেন্দ্র পাওয়া যায়নি",
   "shelterNearest3": "নিকটতম ৩টি",
   "chatReadAloud": "পড়ুন",
@@ -366,6 +373,7 @@
   "adminLogoutTitle": "লগআউট করবেন?",
   "adminLogoutBody": "আপনি কি অ্যাডমিন প্যানেল থেকে বের হতে চান?",
   "adminLogoutButton": "লগআউট",
+  "adminTileOpen": "বিস্তারিত",
   "adminPanelTitle": "অ্যাডমিন প্যানেল",
   "adminTabDashboard": "ড্যাশবোর্ড",
   "adminTabUsers": "ব্যবহারকারী",
@@ -737,13 +745,31 @@
   "riskTimeHoursAgo": "{count} ঘণ্টা আগে",
   "riskTimeDaysAgo": "{count} দিন আগে",
   "kitTitle": "AI জরুরি কিট",
-  "kitEmptyBody": "কিট তৈরি করতে প্রথমে পরিবারের তথ্য দিন।",
-  "kitGoToPlanner": "পরিকল্পনায় যান",
-  "kitGenerateForFamily": "{size} জনের পরিবারের জন্য কিট তৈরি করুন।",
   "kitGenerateButton": "কিট তৈরি করুন",
   "kitAiKit": "AI কিট",
   "kitRetry": "পুনরায়",
   "kitDone": "সম্পন্ন",
+  "kitEditFamily": "সম্পাদনা",
+  "kitMoreOptions": "আরও অপশন",
+  "kitSummaryMembers": "{size} জন",
+  "@kitSummaryMembers": {
+    "placeholders": {
+      "size": { "type": "int" }
+    }
+  },
+  "kitSummaryChildren": "{count} শিশু",
+  "@kitSummaryChildren": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "kitSummaryElderly": "{count} প্রবীণ",
+  "@kitSummaryElderly": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "kitFamilySizeHint": "আপনার পরিবারে কতজন আছেন?",
   "familyHomeTypeTinShed": "টিনের ঘর",
   "familyHomeTypePucca": "পাকা বাড়ি",
   "familyHomeTypeFlat": "ফ্ল্যাট",

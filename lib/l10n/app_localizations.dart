@@ -1070,6 +1070,24 @@ abstract class AppLocalizations {
   /// **'আবার চেষ্টা করুন'**
   String get chatTryAgain;
 
+  /// No description provided for @chatSttNoBangla.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই ফোনে বাংলা ভয়েস প্যাক নেই। Google অ্যাপ → সেটিংস → ভয়েস থেকে বাংলা যোগ করুন, অথবা টাইপ করে পাঠান।'**
+  String get chatSttNoBangla;
+
+  /// No description provided for @chatSttNetwork.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভয়েস শনাক্তকরণের জন্য ইন্টারনেট দরকার। টাইপ করে পাঠান।'**
+  String get chatSttNetwork;
+
+  /// No description provided for @chatSttNoSpeech.
+  ///
+  /// In bn, this message translates to:
+  /// **'কিছু শোনা যায়নি। আবার চেষ্টা করুন।'**
+  String get chatSttNoSpeech;
+
   /// No description provided for @chatSttUnavailable.
   ///
   /// In bn, this message translates to:
@@ -1658,6 +1676,30 @@ abstract class AppLocalizations {
   /// **'আশ্রয়কেন্দ্র খুঁজুন...'**
   String get shelterSearchHint;
 
+  /// No description provided for @shelterSelectDistrict.
+  ///
+  /// In bn, this message translates to:
+  /// **'জেলা নির্বাচন করুন'**
+  String get shelterSelectDistrict;
+
+  /// No description provided for @shelterAllDistricts.
+  ///
+  /// In bn, this message translates to:
+  /// **'সব জেলা'**
+  String get shelterAllDistricts;
+
+  /// No description provided for @shelterMyLocation.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমার অবস্থান'**
+  String get shelterMyLocation;
+
+  /// No description provided for @shelterLocationUnavailable.
+  ///
+  /// In bn, this message translates to:
+  /// **'অবস্থান পাওয়া যায়নি। জিপিএস চালু করুন।'**
+  String get shelterLocationUnavailable;
+
   /// No description provided for @shelterSearchEmpty.
   ///
   /// In bn, this message translates to:
@@ -2095,6 +2137,12 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'লগআউট'**
   String get adminLogoutButton;
+
+  /// No description provided for @adminTileOpen.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিস্তারিত'**
+  String get adminTileOpen;
 
   /// No description provided for @adminPanelTitle.
   ///
@@ -4274,24 +4322,6 @@ abstract class AppLocalizations {
   /// **'AI জরুরি কিট'**
   String get kitTitle;
 
-  /// No description provided for @kitEmptyBody.
-  ///
-  /// In bn, this message translates to:
-  /// **'কিট তৈরি করতে প্রথমে পরিবারের তথ্য দিন।'**
-  String get kitEmptyBody;
-
-  /// No description provided for @kitGoToPlanner.
-  ///
-  /// In bn, this message translates to:
-  /// **'পরিকল্পনায় যান'**
-  String get kitGoToPlanner;
-
-  /// No description provided for @kitGenerateForFamily.
-  ///
-  /// In bn, this message translates to:
-  /// **'{size} জনের পরিবারের জন্য কিট তৈরি করুন।'**
-  String kitGenerateForFamily(int size);
-
   /// No description provided for @kitGenerateButton.
   ///
   /// In bn, this message translates to:
@@ -4315,6 +4345,42 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'সম্পন্ন'**
   String get kitDone;
+
+  /// No description provided for @kitEditFamily.
+  ///
+  /// In bn, this message translates to:
+  /// **'সম্পাদনা'**
+  String get kitEditFamily;
+
+  /// No description provided for @kitMoreOptions.
+  ///
+  /// In bn, this message translates to:
+  /// **'আরও অপশন'**
+  String get kitMoreOptions;
+
+  /// No description provided for @kitSummaryMembers.
+  ///
+  /// In bn, this message translates to:
+  /// **'{size} জন'**
+  String kitSummaryMembers(int size);
+
+  /// No description provided for @kitSummaryChildren.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count} শিশু'**
+  String kitSummaryChildren(int count);
+
+  /// No description provided for @kitSummaryElderly.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count} প্রবীণ'**
+  String kitSummaryElderly(int count);
+
+  /// No description provided for @kitFamilySizeHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার পরিবারে কতজন আছেন?'**
+  String get kitFamilySizeHint;
 
   /// No description provided for @familyHomeTypeTinShed.
   ///

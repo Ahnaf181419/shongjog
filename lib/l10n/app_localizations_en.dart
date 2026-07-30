@@ -522,6 +522,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatTryAgain => 'Try again';
 
   @override
+  String get chatSttNoBangla =>
+      'Bangla voice input is not installed on this phone. Add Bangla in Google app → Settings → Voice, or type your message.';
+
+  @override
+  String get chatSttNetwork =>
+      'Voice recognition needs an internet connection. Type your message instead.';
+
+  @override
+  String get chatSttNoSpeech => 'Nothing was heard. Please try again.';
+
+  @override
   String get chatSttUnavailable =>
       'Speech recognition is not available on this phone. Type your message instead.';
 
@@ -831,6 +842,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shelterSearchHint => 'Search shelters...';
 
   @override
+  String get shelterSelectDistrict => 'Select district';
+
+  @override
+  String get shelterAllDistricts => 'All districts';
+
+  @override
+  String get shelterMyLocation => 'My location';
+
+  @override
+  String get shelterLocationUnavailable => 'Location unavailable. Enable GPS.';
+
+  @override
   String get shelterSearchEmpty => 'No shelter found';
 
   @override
@@ -1057,6 +1080,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminLogoutButton => 'Log out';
+
+  @override
+  String get adminTileOpen => 'Open';
 
   @override
   String get adminPanelTitle => 'Admin Panel';
@@ -2199,18 +2225,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get kitTitle => 'AI Emergency Kit';
 
   @override
-  String get kitEmptyBody =>
-      'First fill in family information to create a kit.';
-
-  @override
-  String get kitGoToPlanner => 'Go to Planner';
-
-  @override
-  String kitGenerateForFamily(int size) {
-    return 'Create a kit for a family of $size.';
-  }
-
-  @override
   String get kitGenerateButton => 'Generate Kit';
 
   @override
@@ -2221,6 +2235,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kitDone => 'Done';
+
+  @override
+  String get kitEditFamily => 'Edit';
+
+  @override
+  String get kitMoreOptions => 'More options';
+
+  @override
+  String kitSummaryMembers(int size) {
+    return '$size members';
+  }
+
+  @override
+  String kitSummaryChildren(int count) {
+    return '$count children';
+  }
+
+  @override
+  String kitSummaryElderly(int count) {
+    return '$count elderly';
+  }
+
+  @override
+  String get kitFamilySizeHint => 'How many people are in your family?';
 
   @override
   String get familyHomeTypeTinShed => 'Tin shed house';

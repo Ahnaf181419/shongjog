@@ -162,6 +162,9 @@
   "chatQuickCards": "View quick guidance cards",
   "chatVoiceInputDisabled": "Enable voice input in Settings",
   "chatTryAgain": "Try again",
+  "chatSttNoBangla": "Bangla voice input is not installed on this phone. Add Bangla in Google app → Settings → Voice, or type your message.",
+  "chatSttNetwork": "Voice recognition needs an internet connection. Type your message instead.",
+  "chatSttNoSpeech": "Nothing was heard. Please try again.",
   "chatSttUnavailable": "Speech recognition is not available on this phone. Type your message instead.",
   "chatMicPermission": "Microphone permission denied. Tap to open Settings.",
   "meshTitle": "Offline Communication",
@@ -260,6 +263,10 @@
   "shelterNoData": "No shelter information",
   "shelterKm": "km",
   "shelterSearchHint": "Search shelters...",
+  "shelterSelectDistrict": "Select district",
+  "shelterAllDistricts": "All districts",
+  "shelterMyLocation": "My location",
+  "shelterLocationUnavailable": "Location unavailable. Enable GPS.",
   "shelterSearchEmpty": "No shelter found",
   "shelterNearest3": "Nearest 3",
   "chatReadAloud": "Read",
@@ -333,6 +340,7 @@
   "adminLogoutTitle": "Log out?",
   "adminLogoutBody": "Do you want to leave the admin panel?",
   "adminLogoutButton": "Log out",
+  "adminTileOpen": "Open",
   "adminPanelTitle": "Admin Panel",
   "adminTabDashboard": "Dashboard",
   "adminTabUsers": "Users",
@@ -763,18 +771,31 @@
     }
   },
   "kitTitle": "AI Emergency Kit",
-  "kitEmptyBody": "First fill in family information to create a kit.",
-  "kitGoToPlanner": "Go to Planner",
-  "kitGenerateForFamily": "Create a kit for a family of {size}.",
-  "@kitGenerateForFamily": {
-    "placeholders": {
-      "size": { "type": "int" }
-    }
-  },
   "kitGenerateButton": "Generate Kit",
   "kitAiKit": "AI Kit",
   "kitRetry": "Retry",
   "kitDone": "Done",
+  "kitEditFamily": "Edit",
+  "kitMoreOptions": "More options",
+  "kitSummaryMembers": "{size} members",
+  "@kitSummaryMembers": {
+    "placeholders": {
+      "size": { "type": "int" }
+    }
+  },
+  "kitSummaryChildren": "{count} children",
+  "@kitSummaryChildren": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "kitSummaryElderly": "{count} elderly",
+  "@kitSummaryElderly": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "kitFamilySizeHint": "How many people are in your family?",
   "familyHomeTypeTinShed": "Tin shed house",
   "familyHomeTypePucca": "Pucca house",
   "familyHomeTypeFlat": "Flat",

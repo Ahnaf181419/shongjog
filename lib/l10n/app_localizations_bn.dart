@@ -522,6 +522,17 @@ class AppLocalizationsBn extends AppLocalizations {
   String get chatTryAgain => 'আবার চেষ্টা করুন';
 
   @override
+  String get chatSttNoBangla =>
+      'এই ফোনে বাংলা ভয়েস প্যাক নেই। Google অ্যাপ → সেটিংস → ভয়েস থেকে বাংলা যোগ করুন, অথবা টাইপ করে পাঠান।';
+
+  @override
+  String get chatSttNetwork =>
+      'ভয়েস শনাক্তকরণের জন্য ইন্টারনেট দরকার। টাইপ করে পাঠান।';
+
+  @override
+  String get chatSttNoSpeech => 'কিছু শোনা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
   String get chatSttUnavailable =>
       'এই ফোনে ভয়েস শনাক্তকরণ নেই। টাইপ করে পাঠান।';
 
@@ -830,6 +841,19 @@ class AppLocalizationsBn extends AppLocalizations {
   String get shelterSearchHint => 'আশ্রয়কেন্দ্র খুঁজুন...';
 
   @override
+  String get shelterSelectDistrict => 'জেলা নির্বাচন করুন';
+
+  @override
+  String get shelterAllDistricts => 'সব জেলা';
+
+  @override
+  String get shelterMyLocation => 'আমার অবস্থান';
+
+  @override
+  String get shelterLocationUnavailable =>
+      'অবস্থান পাওয়া যায়নি। জিপিএস চালু করুন।';
+
+  @override
   String get shelterSearchEmpty => 'কোনো আশ্রয়কেন্দ্র পাওয়া যায়নি';
 
   @override
@@ -1058,6 +1082,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get adminLogoutButton => 'লগআউট';
+
+  @override
+  String get adminTileOpen => 'বিস্তারিত';
 
   @override
   String get adminPanelTitle => 'অ্যাডমিন প্যানেল';
@@ -2202,17 +2229,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get kitTitle => 'AI জরুরি কিট';
 
   @override
-  String get kitEmptyBody => 'কিট তৈরি করতে প্রথমে পরিবারের তথ্য দিন।';
-
-  @override
-  String get kitGoToPlanner => 'পরিকল্পনায় যান';
-
-  @override
-  String kitGenerateForFamily(int size) {
-    return '$size জনের পরিবারের জন্য কিট তৈরি করুন।';
-  }
-
-  @override
   String get kitGenerateButton => 'কিট তৈরি করুন';
 
   @override
@@ -2223,6 +2239,30 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get kitDone => 'সম্পন্ন';
+
+  @override
+  String get kitEditFamily => 'সম্পাদনা';
+
+  @override
+  String get kitMoreOptions => 'আরও অপশন';
+
+  @override
+  String kitSummaryMembers(int size) {
+    return '$size জন';
+  }
+
+  @override
+  String kitSummaryChildren(int count) {
+    return '$count শিশু';
+  }
+
+  @override
+  String kitSummaryElderly(int count) {
+    return '$count প্রবীণ';
+  }
+
+  @override
+  String get kitFamilySizeHint => 'আপনার পরিবারে কতজন আছেন?';
 
   @override
   String get familyHomeTypeTinShed => 'টিনের ঘর';
