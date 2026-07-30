@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
 
-import '../../../app/theme.dart';
 import '../../../core/connectivity_provider.dart';
 import '../nearest_shelter.dart';
 import '../nominatim_service.dart';
@@ -55,6 +54,10 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
   /// Active division filter (`all` = no filter). Mirrors the chip-row
   /// in DirectoryScreen so the two features stay visually consistent.
   String _division = 'all';
+
+  /// Active district filter (null = all districts within the selected
+  /// division). Reset to null whenever the division changes.
+  String? _district;
 
   // Semantic search state.
   Timer? _debounce;
@@ -180,6 +183,9 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
         // shelter's division key must match. Shelters without a
         // division (legacy/sample records) only show under 'all'.
         if (_division != 'all' && s.division != _division) return false;
+        // District facet: null passes everything; otherwise the
+        // shelter's district must match exactly.
+        if (_district != null && s.district != _district) return false;
         if (query.isEmpty) return true;
         return s.name.toLowerCase().contains(query) ||
             s.nameBn.contains(query) ||
@@ -192,6 +198,21 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
   /// When false (legacy sample data), the chip row is hidden entirely.
   bool get _hasDivisions =>
       widget.ranked.any((r) => r.shelter.division != null);
+
+  /// Sorted unique district names present in the data for the currently
+  /// selected division. Empty when the division is 'all' or no records
+  /// carry a district.
+  List<String> get _districtsForDivision {
+    if (_division == 'all') return const [];
+    final set = <String>{};
+    for (final r in widget.ranked) {
+      if (r.shelter.division == _division && r.shelter.district != null) {
+        set.add(r.shelter.district!);
+      }
+    }
+    final list = set.toList()..sort();
+    return list;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -236,12 +257,50 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
                             selected: _division == entry.key,
                             onSelected: (sel) {
                               if (!sel) return;
-                              setState(() => _division = entry.key);
+                              setState(() {
+                                _division = entry.key;
+                                _district = null; // reset on division change
+                              });
                               _refresh();
                             },
                           ),
                         ),
                     ],
+                  ),
+                ),
+              ),
+            // District facet — cascading from the selected division.
+            // Appears only when a division is picked and the data has
+            // district-tagged records for it.
+            if (_division != 'all' && _districtsForDivision.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 4),
+                    border: const OutlineInputBorder(),
+                    labelText: l10n.shelterSelectDistrict,
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String?>(
+                      value: _district,
+                      isExpanded: true,
+                      items: [
+                        DropdownMenuItem<String?>(
+                          value: null,
+                          child: Text(l10n.shelterAllDistricts),
+                        ),
+                        for (final d in _districtsForDivision)
+                          DropdownMenuItem<String?>(
+                              value: d, child: Text(d)),
+                      ],
+                      onChanged: (v) {
+                        setState(() => _district = v);
+                        _refresh();
+                      },
+                    ),
                   ),
                 ),
               ),
@@ -282,11 +341,11 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: ShongjogTheme.ocean.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.shield_rounded,
-                color: ShongjogTheme.ocean, size: 22),
+            child: Icon(Icons.shield_rounded,
+                color: Theme.of(context).colorScheme.primary, size: 22),
           ),
           title: Text(bnName,
               style: const TextStyle(fontWeight: FontWeight.w500)),
@@ -357,10 +416,10 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: ShongjogTheme.ocean.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: ShongjogTheme.ocean, size: 22),
+            child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 22),
           ),
           title: Text(label,
               maxLines: 2,

@@ -142,14 +142,11 @@ class ShelterMapViewModel extends ChangeNotifier {
   }
 
   /// Hook the screen calls once on mount. Loads shelters, resolves GPS,
-  /// reads initial connectivity, then notifies. Safe to call once.
+  /// then notifies. Safe to call once.
   ///
-  /// GPS resolution uses a fallback accuracy chain: first
-  /// [LocationAccuracy.high] (15s budget); on [TimeoutException] retry
-  /// [LocationAccuracy.medium] (8s). A degraded fix is strictly better
-  /// than none on a cold-start GPS (indoors, first boot). Every branch
-  /// logs via `debugPrint` so a real-device failure is diagnosable in
-  /// logcat — the previous `catch (_)` swallowed everything silently.
+  /// GPS resolution delegates to [acquireUserPosition], which the
+  /// locate-me button can re-invoke on demand to retry after a cold-start
+  /// timeout or a late permission grant.
   Future<void> init() async {
     try {
       shelters = await _repository.loadAll();
@@ -161,6 +158,20 @@ class ShelterMapViewModel extends ChangeNotifier {
     // while GPS resolves in the background.
     notifyListeners();
 
+    await acquireUserPosition();
+  }
+
+  /// Acquire (or re-acquire) the user's GPS position. Returns `true` when
+  /// a position is available after the call, `false` otherwise. Safe to
+  /// call repeatedly — the locate-me button uses this to retry after a
+  /// cold-start timeout or a permission grant.
+  ///
+  /// Every failure branch sets a structured [gpsFailureReason] (so the
+  /// screen can show an actionable banner) and logs via `debugPrint`
+  /// (so a real-device failure is diagnosable in logcat). Clears any
+  /// stale failure before retrying so a successful retry removes the
+  /// banner.
+  Future<bool> acquireUserPosition() async {
     // 1. OS-level location services must be ON before any permission
     //    prompt or position fetch can succeed.
     try {
@@ -168,8 +179,9 @@ class ShelterMapViewModel extends ChangeNotifier {
       if (!serviceEnabled) {
         debugPrint('[ShelterMapVM] location services disabled (OS level)');
         gpsFailure = GpsFailureReason.serviceDisabled;
-        notifyListeners();
-        return;
+        userPosition = null;
+        if (!_disposed) notifyListeners();
+        return false;
       }
     } catch (e) {
       // Don't hard-fail on the check itself — proceed to permission flow
@@ -187,17 +199,22 @@ class ShelterMapViewModel extends ChangeNotifier {
           permission == LocationPermission.deniedForever) {
         debugPrint('[ShelterMapVM] permission denied: $permission');
         gpsFailure = GpsFailureReason.permissionDenied;
-        notifyListeners();
-        return;
+        userPosition = null;
+        if (!_disposed) notifyListeners();
+        return false;
       }
     } catch (e) {
       debugPrint('[ShelterMapVM] permission flow threw: $e');
       gpsFailure = GpsFailureReason.unknown;
-      notifyListeners();
-      return;
+      userPosition = null;
+      if (!_disposed) notifyListeners();
+      return false;
     }
 
-    // 3. Resolve position with a fallback accuracy chain.
+    // 3. Resolve position with a fallback accuracy chain. Clear any
+    //    stale failure optimistically so a successful retry hides the
+    //    banner.
+    gpsFailure = null;
     try {
       userPosition = await _resolvePosition(
         accuracy: LocationAccuracy.high,
@@ -214,13 +231,16 @@ class ShelterMapViewModel extends ChangeNotifier {
       } catch (e) {
         debugPrint('[ShelterMapVM] medium-accuracy fallback failed: $e');
         gpsFailure = GpsFailureReason.timeout;
+        userPosition = null;
       }
     } catch (e) {
       debugPrint('[ShelterMapVM] position resolve failed: $e');
       gpsFailure = GpsFailureReason.unknown;
+      userPosition = null;
     }
 
-    notifyListeners();
+    if (!_disposed) notifyListeners();
+    return userPosition != null;
   }
 
   /// Called by the screen on each connectivity change to keep the VM in
@@ -293,20 +313,25 @@ class ShelterMapViewModel extends ChangeNotifier {
 
   /// Toggle the full-screen search overlay. When opening, computes
   /// [rankedShelters] once. When closing, no-op.
+  ///
+  /// Shelters are ranked from the user's GPS position when available;
+  /// otherwise we fall back to a Bangladesh centre (Dhaka) so the panel
+  /// is still usable — and division/district chips still render — even
+  /// without a location fix.
   void toggleSearchPanel() {
     if (showSearchPanel) {
       showSearchPanel = false;
       notifyListeners();
       return;
     }
-    if (userPosition != null) {
-      rankedShelters = nearestShelters(
-        lat: userPosition!.latitude,
-        lon: userPosition!.longitude,
-        all: shelters,
-        k: shelters.length,
-      );
-    }
+    final lat = userPosition?.latitude ?? ShelterConstants.fallbackLat;
+    final lon = userPosition?.longitude ?? ShelterConstants.fallbackLon;
+    rankedShelters = nearestShelters(
+      lat: lat,
+      lon: lon,
+      all: shelters,
+      k: shelters.length,
+    );
     showSearchPanel = true;
     notifyListeners();
   }

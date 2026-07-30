@@ -60,6 +60,10 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
   StreamSubscription<bool>? _connSub;
   double _currentZoom = 11.0;
 
+  /// True while the locate-me button is re-acquiring GPS. Drives the
+  /// in-button spinner so the user gets feedback on a cold-start retry.
+  bool _locating = false;
+
   @override
   void initState() {
     super.initState();
@@ -257,6 +261,43 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
 
   bool _showMap = true;
 
+  /// Centre + zoom the map onto the user's current GPS fix. No-op when
+  /// there is no fix yet (callers gate on `userPosition != null`).
+  void _zoomToUser() {
+    final pos = _vm.userPosition;
+    if (pos == null) return;
+    _mapController.move(
+      LatLng(pos.latitude, pos.longitude),
+      ShelterConstants.zoomWithUser,
+    );
+    setState(() => _currentZoom = ShelterConstants.zoomWithUser);
+  }
+
+  /// Locate-me handler — Google-Maps style. When a fix is already
+  /// available, zooms instantly. When not, re-acquires GPS (spinner on
+  /// the button) and zooms on success, or shows a snackbar on failure.
+  Future<void> _locateMe() async {
+    if (_vm.userPosition != null) {
+      _zoomToUser();
+      return;
+    }
+    setState(() => _locating = true);
+    final ok = await _vm.acquireUserPosition();
+    if (!mounted) return;
+    setState(() => _locating = false);
+    if (ok) {
+      _zoomToUser();
+    } else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).shelterLocationUnavailable),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
   Widget _buildMap(List<Shelter> shelters, List<RankedShelter>? ranked) {
     final l10n = AppLocalizations.of(context);
     return Stack(
@@ -290,7 +331,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                 polylines: [
                   Polyline(
                     points: _vm.routePoints,
-                color: ShongjogTheme.ocean,
+                color: Theme.of(context).colorScheme.primary,
                 strokeWidth: ShelterConstants.routeStrokeWidth,
               ),
                 ],
@@ -368,6 +409,26 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                   setState(() => _currentZoom = newZoom);
                   _mapController.move(_mapController.camera.center, newZoom);
                 },
+              ),
+              const SizedBox(height: 12),
+              // ── Locate me ──
+              _MapZoomButton(
+                icon: Icons.my_location_rounded,
+                tooltip: l10n.shelterMyLocation,
+                onTap: _locateMe,
+                child: _locating
+                    ? Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                      )
+                    : null,
               ),
             ],
           ),
@@ -598,10 +659,15 @@ class _MapZoomButton extends StatelessWidget {
   final String tooltip;
   final VoidCallback onTap;
 
+  /// Optional widget shown in place of [icon] (e.g. a loading spinner
+  /// for the locate-me button while GPS re-acquires).
+  final Widget? child;
+
   const _MapZoomButton({
     required this.icon,
     required this.tooltip,
     required this.onTap,
+    this.child,
   });
 
   @override
@@ -619,7 +685,7 @@ class _MapZoomButton extends StatelessWidget {
           child: SizedBox(
             width: 44,
             height: 44,
-            child: Icon(icon, color: cs.onSurface, size: 24),
+            child: child ?? Icon(icon, color: cs.onSurface, size: 24),
           ),
         ),
       ),

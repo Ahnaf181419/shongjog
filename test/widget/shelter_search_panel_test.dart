@@ -25,7 +25,8 @@ const _shelters = [
   ),
 ];
 
-/// Shelters carrying the new `division` field, used by the chip-row test.
+/// Shelters carrying the new `division` + `district` fields, used by the
+/// chip-row and district-dropdown tests.
 const _sheltersWithDivisions = [
   Shelter(
     name: 'Khulna Cyclone Shelter 1',
@@ -34,6 +35,18 @@ const _sheltersWithDivisions = [
     lon: 89.55,
     capacity: 1200,
     division: 'khulna',
+    district: 'খুলনা',
+    type: 'cyclone',
+    source: 'MoDMR',
+  ),
+  Shelter(
+    name: 'Satkhira Cyclone Shelter 1',
+    nameBn: 'সাতক্ষীরা সাইক্লোন শেল্টার ১',
+    lat: 22.72,
+    lon: 89.07,
+    capacity: 800,
+    division: 'khulna',
+    district: 'সাতক্ষীরা',
     type: 'cyclone',
     source: 'MoDMR',
   ),
@@ -44,6 +57,7 @@ const _sheltersWithDivisions = [
     lon: 90.40,
     capacity: 800,
     division: 'barishal',
+    district: 'বরিশাল',
     type: 'cyclone',
     source: 'MoDMR',
   ),
@@ -259,24 +273,64 @@ void main() {
         ),
       ));
 
-      // Both shelters visible initially.
+      // All three shelters visible initially.
       expect(find.text('খুলনা সাইক্লোন শেল্টার ১'), findsOneWidget);
+      expect(find.text('সাতক্ষীরা সাইক্লোন শেল্টার ১'), findsOneWidget);
       expect(find.text('বরিশাল সাইক্লোন শেল্টার ১'), findsOneWidget);
 
-      // Tap the Khulna chip — target the FilterChip itself, not its Text
-      // label, since the label is not directly hit-testable.
+      // Tap the Khulna chip — target the FilterChip itself.
       await tester.tap(find.widgetWithText(FilterChip, 'খুলনা'));
       await tester.pump();
 
+      // Both Khulna shelters remain; Barisal is filtered out.
       expect(find.text('খুলনা সাইক্লোন শেল্টার ১'), findsOneWidget);
+      expect(find.text('সাতক্ষীরা সাইক্লোন শেল্টার ১'), findsOneWidget);
       expect(find.text('বরিশাল সাইক্লোন শেল্টার ১'), findsNothing,
           reason: 'Barisal filtered out by the Khulna chip');
 
-      // Tapping "All" (সব) restores both.
+      // Tapping "All" (সব) restores all three.
       await tester.tap(find.widgetWithText(FilterChip, 'সব'));
       await tester.pump();
       expect(find.text('খুলনা সাইক্লোন শেল্টার ১'), findsOneWidget);
+      expect(find.text('সাতক্ষীরা সাইক্লোন শেল্টার ১'), findsOneWidget);
       expect(find.text('বরিশাল সাইক্লোন শেল্টার ১'), findsOneWidget);
+    });
+
+    testWidgets('district dropdown narrows within the selected division',
+        (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        locale: const Locale('bn'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: ShelterSearchPanel(
+            ranked: _buildRankedWithDivisions(),
+            onSelect: (_) {},
+            onClose: () {},
+          ),
+        ),
+      ));
+
+      // Select the Khulna division first — both Khulna-district and
+      // Satkhira-district shelters show.
+      await tester.tap(find.widgetWithText(FilterChip, 'খুলনা'));
+      await tester.pump();
+      expect(find.text('খুলনা সাইক্লোন শেল্টার ১'), findsOneWidget);
+      expect(find.text('সাতক্ষীরা সাইক্লোন শেল্টার ১'), findsOneWidget);
+
+      // The district dropdown is now visible.
+      expect(find.byType(DropdownButton<String?>), findsOneWidget);
+
+      // Open the dropdown and pick সাতক্ষীরা.
+      await tester.tap(find.byType(DropdownButton<String?>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('সাতক্ষীরা').last);
+      await tester.pumpAndSettle();
+
+      // Only the Satkhira shelter remains.
+      expect(find.text('সাতক্ষীরা সাইক্লোন শেল্টার ১'), findsOneWidget);
+      expect(find.text('খুলনা সাইক্লোন শেল্টার ১'), findsNothing,
+          reason: 'Khulna-district filtered out by Satkhira selection');
     });
   });
 }

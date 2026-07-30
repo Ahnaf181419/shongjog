@@ -26,6 +26,12 @@ class ShelterConstants {
   static const double zoomWithUser = 11;
   static const double zoomWithoutUser = 8;
 
+  // ─── Fallback centre (Dhaka) ─────────────────────────────────────
+  // Used to rank + centre the map when no GPS fix is available, so the
+  // shelter list and search panel remain usable without location.
+  static const double fallbackLat = 23.8;
+  static const double fallbackLon = 90.4;
+
   // ─── Network / GPS timeouts (matched by `OsrmRouteService`) ─────
   // First attempt uses `LocationAccuracy.high` with [gpsTimeout] (15s).
   // On timeout we retry with `LocationAccuracy.medium` and the shorter

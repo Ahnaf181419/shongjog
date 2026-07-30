@@ -152,6 +152,72 @@ void main() {
       },
     );
 
+    test('acquireUserPosition() returns true and sets position on success',
+        () async {
+      final vm = ShelterMapViewModel(
+        repository: _FakeRepo([sampleA]),
+        resolvePosition: resolveGeoStub,
+        routeService: _FakeRouteService(),
+        checkPermission: () async => LocationPermission.always,
+        isLocationServiceEnabled: () async => true,
+      );
+      addTearDown(vm.dispose);
+
+      final ok = await vm.acquireUserPosition();
+
+      expect(ok, true);
+      expect(vm.userPosition, equals(userPos));
+      expect(vm.gpsFailure, isNull);
+    });
+
+    test('acquireUserPosition() returns false on service disabled',
+        () async {
+      final vm = ShelterMapViewModel(
+        repository: _FakeRepo([sampleA]),
+        resolvePosition: resolveGeoStub,
+        routeService: _FakeRouteService(),
+        checkPermission: () async => LocationPermission.always,
+        isLocationServiceEnabled: () async => false,
+      );
+      addTearDown(vm.dispose);
+
+      final ok = await vm.acquireUserPosition();
+
+      expect(ok, false);
+      expect(vm.gpsFailure, GpsFailureReason.serviceDisabled);
+      expect(vm.userPosition, isNull);
+    });
+
+    test(
+      'acquireUserPosition() retry clears a stale failure and recovers',
+      () async {
+        // Mirrors the locate-me button: first call fails (services off),
+        // user enables location services, taps again, retry succeeds.
+        var serviceOn = false;
+        final vm = ShelterMapViewModel(
+          repository: _FakeRepo([sampleA]),
+          resolvePosition: resolveGeoStub,
+          routeService: _FakeRouteService(),
+          checkPermission: () async => LocationPermission.always,
+          isLocationServiceEnabled: () async => serviceOn,
+        );
+        addTearDown(vm.dispose);
+
+        final firstOk = await vm.acquireUserPosition();
+        expect(firstOk, false);
+        expect(vm.gpsFailure, GpsFailureReason.serviceDisabled);
+
+        // User turns on location services, then taps locate-me again.
+        serviceOn = true;
+        final secondOk = await vm.acquireUserPosition();
+
+        expect(secondOk, true);
+        expect(vm.userPosition, equals(userPos));
+        expect(vm.gpsFailure, isNull,
+            reason: 'successful retry must clear the stale failure');
+      },
+    );
+
     test('fetchRoute happy path online — sets route + clears loading', () async {
       final route = OsrmRoute(
         points: const [LatLng(22.0, 89.0), LatLng(23.0, 90.0)],
