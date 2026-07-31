@@ -9,19 +9,61 @@ work completed during a build phase or significant milestone.
 
 ---
 
-## [Unreleased] — Final hardening (pre-demo)
+## [Unreleased] — Docs, license & submission assets
 
 ### Added
 
-- `docs/spike-results.md` — Live-record template for Phase 0 spikes and Phase 5 timing
-- `docs/PRE-DEMO.md` — Operational checklist for demo-day readiness
-- `docs/POST-HACKATHON.md` — Long-term roadmap, partner plan, red lines
-- `CHANGELOG.md` — this file
-- `CONTRIBUTING.md` — onboarding doc for future maintainers
+- **`LICENSE`** — MIT license file added (README §License updated).
+- **`docs/kaggle-writeup.md`** — full hackathon submission writeup (title, subtitle, Gemma 4 integration, 13 endpoints, mesh voice calls, privacy).
+- **`docs/kaggle-thumbnail.png`** — 560×280 submission thumbnail (সংযোগ + SHONGJOG, Gemma badge).
+- **`docs/screenshots/`** — 28 app screenshots added to the README as a gallery grid.
+- **Splash screen** — dark-theme breathing splash + streamlined startup gate (`feat(splash)`).
+- **Inline family form** + shared form widgets for the AI kit generator (`feat(kit)`).
+- **Shelter locate-me** button, district filter, Dhaka default fallback (`feat(shelter)`).
+
+### Fixed
+
+- **Scanner** — camera permission flow, pre-flight checks, Android photo picker (`fix(scanner)`).
+- **Voice STT** — locale resolution, failure classification, partial-transcript surfacing (`fix(voice)`).
+- **Theme** — hardcoded ocean colors replaced with theme-aware `colorScheme.primary` (`fix(ui)`).
 
 ### Changed
 
-- All `docs/*.md` synced to current code state (test count, status, file structure)
+- **Bangla spelling corrected** to `সংযোগ` across active docs (`CONTRIBUTING.md`, `design.md`, `kaggle-writeup.md`).
+- **`CONTRIBUTING.md`** — test count (878), bilingual red-line, Firestore key-delivery pointer, corrected file paths.
+- **`docs/README.md`** — rebuilt index to reflect current flat `docs/` structure.
+- **`PROJECT-STATUS.md`** + **`architecture.md`** — refreshed stale metrics (tests, corpus, shelters, cards, model size) and added source-of-truth banners to the README / kaggle-writeup.
+
+---
+
+## [0.8.0] — 2026-07-31 — v3: AI modules, live endpoints, mesh voice, bilingual
+
+### Added — AI (7 modules, 6 on-device)
+
+- **AI Family Disaster Planner**, **Emergency Kit Generator**, **Risk Assessment**, **Situation Summary**, **Shelter Brief**, **Safety Re-Ranking** — all Gemma 4 on-device, each with a deterministic fallback.
+- **AI Damage Scanner** — photo → damage type + severity via Gemini vision (online).
+- **TIER 1–4 generation chain** — on-device Gemma first (even online), then cloud, then corpus, then "call 999".
+
+### Added — Online intelligence (13 endpoints, 11 key-less)
+
+- GDACS, NASA EONET, USGS, Open-Meteo (weather + marine + air quality), OSRM routing, Nominatim + Overpass search, OSM tiles, Hugging Face model delivery. All fail soft.
+
+### Added — Mesh & communications
+
+- **Full-duplex voice calls** over Nearby Connections / Wi-Fi Direct (custom `AudioTrackPlugin`, 8 kHz PCM).
+- **GMS-free Wi-Fi Direct transport** (`flutter_p2p_connection`) behind one `MeshTransport` interface.
+- Multi-hop SOS relay (LRU dedup, 5-hop cap, 1h TTL), "I'm safe" beacon, media/voice-note payloads.
+
+### Added — Platform
+
+- **Bilingual locale** — Bangla-first with full English (834 EN / 888 BN strings), Bangla numerals + punctuation.
+- **Coordinator panel** — Firestore-backed live safe/danger counts, danger list, campaigns, broadcasts.
+- **Gemma 4 E4B** auto-selection on high-RAM devices; `.litertlm` runtime via `flutter_gemma_litertlm`.
+- **Firestore-delivered cloud key** — no key compiled into the APK; revocable without a release.
+
+### Tests
+
+- **878 pass, 1 skipped** across 100 files (up from 91). Coverage now includes WCAG contrast, 1.5× text scaling, mesh path-traversal, Firestore ACLs, tier-fallback chain.
 
 ---
 
@@ -155,8 +197,8 @@ work completed during a build phase or significant milestone.
 
 ## Older phases — pre-hackathon prep
 
-- `docs/prd.md`, `docs/architecture.md`, `docs/design.md`, `docs/corpus.md`,
-  `docs/team.md` — all written during 1-2 day planning sprint.
+- `docs/prd.md`, `docs/architecture.md`, `docs/design.md`, `docs/guides/corpus.md` —
+  all written during 1-2 day planning sprint.
 - Git pitches, model selection notes, initial corpus draft.
 
 ---

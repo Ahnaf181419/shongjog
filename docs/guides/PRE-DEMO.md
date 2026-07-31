@@ -2,9 +2,9 @@
 
 > **Internal team-facing document.** Everything needed to take the app from "code complete"
 > to "demo-ready on stage, tonight or tomorrow morning." This document is the *operational*
-> checklist that complements the *narrative* demo script in `docs/demo.md`.
+> checklist that complements the *narrative* demo script in `docs/guides/demo.md`.
 
-Companion docs: `docs/demo.md` (live script), `docs/spike-results.md` (measurements),
+Companion docs: `docs/guides/demo.md` (live script),
 `docs/architecture.md` (technical reference).
 
 ---
@@ -18,7 +18,7 @@ Companion docs: `docs/demo.md` (live script), `docs/spike-results.md` (measureme
 ```bash
 flutter pub get
 flutter analyze                        # must report "No issues found"
-flutter test                           # must show 246 pass, 1 skip
+flutter test                           # must show 878 pass, 1 skip
 ```
 
 ### Build verification
@@ -87,8 +87,8 @@ git tag hackathon-final vX.Y.Z         # tag the demo build
 After installing the APK, verify the model file is present and recognized by the app:
 
 ```bash
-adb shell run-as com.shongjog sh -c 'ls -lh files/gemma4_e2b_int4.task'
-# Should show ≥ 1,500,000,000 bytes
+adb shell run-as com.shongjog sh -c 'ls -lh files/gemma-4-E2B-it.litertlm'
+# Should show ≥ 2,588,147,712 bytes
 ```
 
 In-app verification:
@@ -117,8 +117,7 @@ In-app verification:
 
 ### Airplane-mode end-to-end rehearsal
 
-Run all 5 demo scenarios from `docs/demo.md` twice through. Record timings in
-`docs/spike-results.md` § Phase 5.
+Run all 5 demo scenarios from `docs/guides/demo.md` twice through. Record timings locally.
 
 **Verification:**
 
@@ -150,7 +149,7 @@ Record the 5-scenario flow trimmed to 60 seconds. Add Bangla subtitles. Save as
 
 All backup devices must have:
 - [ ] Same APK build (commit hash matches)
-- [ ] Same `gemma-4-e2b-int4.task` sha256
+- [ ] Same `gemma-4-E2B-it.litertlm` sha256
 - [ ] Same shared_preferences defaults cleared
 
 ### Projector / screen-mirror setup
@@ -220,8 +219,8 @@ This sets expectations and creates the reveal moment in the script.
 ### Post-demo hygiene (within 30 minutes)
 
 - [ ] Save `adb shell screenrecord` capture to `docs/demo-live-$(date).mp4`
-- [ ] Capture all spike timing data into `docs/spike-results.md`
-- [ ] Note any judge questions into `docs/spike-results.md` §Post-Demo Findings
+- [ ] Capture all spike timing data in a local log
+- [ ] Note any judge questions for the writeup
 - [ ] Tag the submission commit: `git tag hackathon-final v1.0.0`
 - [ ] Commit any post-demo cleanups
 
@@ -251,7 +250,7 @@ shongjog-submission/
 ├── README.md
 ├── docs/                       # all project docs
 ├── apk/Shongjog-v1.0.0-release.apk
-├── models/gemma-4-e2b-int4.task.sha256.txt  # pointer to download
+├── models/gemma-4-E2B-it.litertlm.sha256.txt  # pointer to download
 ├── demo/demo-fallback.mp4      # 60s airplane-mode recording
 ├── demo/demo-live.mp4          # screen recording of actual demo
 └── LICENSE                      # Apache 2.0 (or team choice)
@@ -270,5 +269,3 @@ A judge should be able to inspect the docs, install the APK, point to the model 
 - Which features got the most "wow"? (Keep these.)
 - Which features got "is this actually safe?" (Strengthen corpus / disclaimers.)
 - Onboard a BDRCS or MoDMR contact if possible — that's the corpus-review path.
-
-Use `docs/POST-HACKATHON.md` for the longer-term roadmap.

@@ -42,7 +42,7 @@ budget.
 - **Say:** "Before the AI even loads, the app is already useful — verified emergency
   cards."
 - **Tap:** cards tab in bottom nav (or the cards icon in AppBar on chat).
-- **Expect:** list of 8 cards renders instantly. Tap "ORS তৈরি" — expands with numbered
+- **Expect:** list of 25 cards renders instantly. Tap "ORS তৈরি" — expands with numbered
   Bangla steps.
 - **Why it matters:** proves the safety net. Even if the model failed, the app works.
 
@@ -85,7 +85,7 @@ budget.
 
 ## 3. Pre-Demo Checklist (run the night before)
 
-- [ ] Model `.task` file pre-loaded on device; verified by launching the app once and
+- [ ] Model `.litertlm` file pre-loaded on device; verified by launching the app once and
   getting an answer.
 - [ ] Vosk Bangla model bundled; mic tested with all 5 demo queries.
 - [ ] `flutter_tts` `bn-BD` confirmed working through the phone speaker (not just
@@ -198,6 +198,6 @@ Judges trust teams that name their limits. Bring these up if asked, or in the cl
 
 - [ ] Save the `screenrecord` capture from the live demo to `docs/demo-live.mp4` (even if
   it went well — it's evidence).
-- [ ] Append actual timings and any flakiness to `docs/spike-results.md` §Phase 5.
+- [ ] Append actual timings and any flakiness to a local log.
 - [ ] Note any judge questions that stumped us — feed into the writeup.
 - [ ] Commit everything; tag the submission commit.

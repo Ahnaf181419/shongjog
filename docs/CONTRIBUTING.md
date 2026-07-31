@@ -23,7 +23,7 @@ contributors are very welcome — please read this carefully before opening a PR
 
 ## Project context
 
-Shongjog (`শঙ্গ্যোগ`) is a Flutter app that delivers Bangladesh disaster-preparedness
+Shongjog (`সংযোগ`) is a Flutter app that delivers Bangladesh disaster-preparedness
 guidance fully **offline**. It's designed for the moment when mobile data is down, the
 grid is failing, and people need step-by-step emergency guidance in Bangla. The core
 thesis is "it works when the internet doesn't."
@@ -37,7 +37,7 @@ technical shape and `docs/design.md` for visual / interaction conventions.
   explicitly gated behind "online-only, no offline fallback = bug."
 - **No medical advice that isn't traceable to a vetted source.** Everything in the
   knowledge base is paraphrased from WHO / BDRCS / MoDMR / CDC / IFRC — see
-  `docs/corpus.md` §5.
+  `docs/guides/corpus.md` §5.
 - **User privacy is hard-line.** Voice, GPS, photos, chat content never leave the
   device. No analytics that ships any user content. No crash reporters that include
   query text.
@@ -61,8 +61,8 @@ assets/
 └── vosk/               ← Offline STT model (when ready)
 tools/                  ← Python: build_kb.py, verify_kb.py, corpus.json, .venv/
 test/
-├── unit/               ← 9 files: pure-Dart correctness
-├── widget/             ← 7 files: in-app UI behavior
+├── unit/               ← pure-Dart correctness
+├── widget/             ← in-app UI behavior
 └── integration_test/   ← Needs device (full app start → home → AI chat)
 ```
 
@@ -100,7 +100,7 @@ flutter pub get
 
 # Verify clean state (no model / network needed)
 flutter analyze                # → "No issues found!"
-flutter test                   # → 91 pass, 1 skip
+flutter test                   # → 878 pass, 1 skip
 ```
 
 ### 3. (Optional) Rebuild the KB from source
@@ -142,6 +142,12 @@ The Cloud AI fallback (Gemini 2.5-flash → 2.0-flash-lite) is gated behind a
 (keyword retrieval → on-device Gemma → corpus text). **The demo-submission APK
 must be built WITHOUT a key** — it keeps the "zero network calls in the core loop"
 claim airtight and avoids shipping a billable credential inside a public APK.
+
+> **Published APK key delivery:** the release build ships with **no key compiled in**
+> and fetches one at launch from a client-unwritable Firestore document
+> (`config/cloud_ai`), revocable by editing one field with no new release. See the
+> README §Configuration for the full mechanism. The `.env` flow below is for
+> **local development only**.
 
 To build **with** the key (for online development / testing only):
 
@@ -322,7 +328,7 @@ If you're adding or changing Bangla copy in the app:
 6. **Have a native reviewer sign off before shipping.** Even small phrasing changes
    can change the medical interpretation.
 
-For Bangla content in the corpus, see `docs/corpus.md` §4 (authoring checklist).
+For Bangla content in the corpus, see `docs/guides/corpus.md` §4 (authoring checklist).
 
 ---
 
@@ -342,10 +348,11 @@ These are red lines for any contributor. If your PR violates one, it will be clo
    device-local. Crash logs may be sent but must redact query text.
 
 5. **Ship medical content from a non-whitelisted source.** WHO / BDRCS / MoDMR / BMD
-   / CDC / IFRC only. See `docs/corpus.md` §5.
+   / CDC / IFRC only. See `docs/guides/corpus.md` §5.
 
-6. **Add an English-language path through the user UI.** The user surface is Bangla.
-   English is for engineering docs and code comments only.
+6. **Make English the default language.** The app is Bangla-first; English is an opt-in
+   toggle backed by a complete locale. New screens must ship both locales — never
+   English-only or hard-coded English copy in the user surface.
 
 7. **Branch the model path.** All model access goes through `modelManager`. Don't
    create a second `FlutterGemma.instance.initialize(...)`.
@@ -359,7 +366,7 @@ These are red lines for any contributor. If your PR violates one, it will be clo
 ## Where to ask
 
 - **Open a GitHub issue** with the `question` label.
-- **Or email Ahnaf** (lead) — see `docs/team.md` for contact.
+- **Or email Ahnaf** (lead) — contact via [GitHub](https://github.com/Ahnaf181419).
 - **Or join the BDRCS integration channel** if you're a partner reviewer.
 
 We respond within 48h on weekdays. Urgent demo-day questions get faster turnaround;

@@ -7,9 +7,8 @@
 > emergency companion powered by Gemma 4 — **it works when the internet doesn't.**
 
 This PRD supersedes `docs/plan.md` (the original hackathon pitch). The pitch content
-has been folded into the sections below. The companion task-by-task build plan lives in
-`docs/implementation-plan.md`; technical detail in `docs/architecture.md`; UX in
-`docs/design.md`; coordination in `docs/team.md`; corpus policy in `docs/corpus.md`.
+has been folded into the sections below. Technical detail in `docs/architecture.md`; UX in
+`docs/design.md`; corpus policy in `docs/guides/corpus.md`.
 
 ---
 
@@ -76,7 +75,7 @@ integration rather than an API call:
 - **Offline is only possible because the model is open and local.** No cloud model can do
   this. The entire product thesis depends on Gemma 4 running on the device.
 - **Gemma 4 E2B is purpose-built for this.** ~5.1B total / 2.3B active parameters,
-  ~1.5GB one-time download, runs in under ~2GB RAM at 4-bit — practical on real (not
+  ~2.47GB one-time download, runs in under ~2GB RAM at 4-bit — practical on real (not
   just flagship) phones. Supports native function calling, a 128K context window, and
   native audio/vision input.
 - **The whole Gemma family does the work, on-device:**
@@ -94,7 +93,7 @@ integration rather than an API call:
 
 A 2B on-device model must **never** freelance medical advice. Shongjog grounds every
 answer using **Retrieval-Augmented Generation** over a curated, on-device knowledge base
-(see `docs/corpus.md` for the full authoring policy):
+(see `docs/guides/corpus.md` for the full authoring policy):
 
 - A corpus of ~23 short, verified guidance chunks, each written in simple Bangla and
   tagged with its source (WHO, Bangladesh Red Crescent Society, CDC, national disaster
@@ -187,7 +186,7 @@ answer using **Retrieval-Augmented Generation** over a curated, on-device knowle
 - [ ] Nearest shelter returns a plausible result for current GPS.
 - [ ] 999 dial and SOS SMS work end-to-end.
 - [ ] 60-second fallback video exists and is playable on the demo device.
-- [ ] `docs/spike-results.md` records all spike verdicts and Phase 5 timings.
+- [ ] All spike verdicts and Phase 5 timings are recorded.
 
 ---
 
@@ -196,7 +195,7 @@ answer using **Retrieval-Augmented Generation** over a curated, on-device knowle
 | Constraint | Value | Implication |
 |---|---|---|
 | Timeline | ~7 working days | Aggressive but feasible; Phase 0 spike gates everything |
-| Model size | ~1.5GB | Must be pre-loaded onto the demo device; never rely on venue WiFi |
+| Model size | ~2.47GB | Must be pre-loaded onto the demo device; never rely on venue WiFi |
 | Target ABI | `arm64-v8a` only | `.litertlm` will not run on x86 emulators; test on real arm64 hardware from hour zero |
 | Runtime RAM | under ~2GB | E2B 4-bit, thinking off, GPU backend, `maxTokens` ~512 |
 | Network at runtime | none | Core loop must work in airplane mode; dial/SMS use the cellular voice channel |
@@ -223,7 +222,7 @@ These are the product-level decisions; technical rationale lives in
   regions we cover.
 - **Actions:** `url_launcher` for `tel:` dial and `sms:` SOS (cellular voice channel).
 - **Knowledge base delivery:** build-time embedded (`assets/kb/`); no first-run network
-  step. Build pipeline in `tools/build_kb.py` (see `docs/corpus.md`).
+  step. Build pipeline in `tools/build_kb.py` (see `docs/guides/corpus.md`).
 - **Architecture:** feature-first, light repository/service seams (no full clean-arch —
   the app is small and the timeline is short).
 - **Corpus:** ~23 Bangla chunks curated from WHO / MoDMR / BDRCS / CDC public sources;
@@ -248,7 +247,7 @@ What we test, and why:
 - **Widget-test quick cards screen** (`test/widget/quick_cards_screen_test.dart`) — cards
   render with no model dependency, so this is the always-green safety net.
 - **Manual E2E in airplane mode** — the only way to truly validate the offline claim;
-  timed and recorded in `docs/spike-results.md` (Phase 5). Five scenarios, run multiple
+  timed and recorded (Phase 5). Five scenarios, run multiple
   times on the real demo device.
 
 We do **not** write unit tests around `flutter_gemma`, `vosk`, or `flutter_tts` — those
@@ -261,14 +260,14 @@ are third-party runtime surfaces best validated by the Phase 0 spike and the Pha
 | Risk | Mitigation |
 |---|---|
 | Model won't load / OOM on demo phone | E2B 4-bit, thinking off, GPU backend, small `maxTokens`; fallback to Gemma 3 1B; final fallback = pre-recorded demo |
-| 1.5GB download over venue WiFi | Pre-load the model onto the demo device beforehand — the #1 avoidable failure |
+| ~2.47GB download over venue WiFi | Pre-load the model onto the demo device beforehand — the #1 avoidable failure |
 | Offline STT unreliable on some devices | Vosk-Bangla for command-style input; typed input always available as fallback |
 | Emulator can't run `.litertlm` | Test on a real arm64 device from hour zero (Phase 0 spike A) |
 | Model hallucinating medical advice | RAG grounding + static quick cards + triage-not-diagnose guardrails + low-confidence canned response |
 | `flutter_gemma` package maturity | Phase 0 spike A is the gate; pivot to Gemma 3 1B if red |
 | Vosk Bangla WER too high | Phase 0 spike B is the gate; hybrid (Vosk commands + typed fallback) if red |
 | Shelter GeoJSON sparse | Phase 0 spike C; fall back to OSM-overpass data, mark Bangladesh-wide coverage |
-| Async coordination drift (3-person team) | Three hard integration checkpoints IC-1/IC-2/IC-3; see `docs/team.md` |
+| Async coordination drift (3-person team) | Three hard integration checkpoints IC-1/IC-2/IC-3 |
 
 ---
 
@@ -326,9 +325,7 @@ potential to prevent harm.
 - The original hackathon pitch content that previously lived in `docs/plan.md` has been
   merged into §1–§4 and §13–§15 above. `docs/plan.md` is deleted once this PRD is
   committed.
-- Detailed build tasks: `docs/implementation-plan.md`.
 - Technical architecture: `docs/architecture.md`.
 - UX/UI design: `docs/design.md`.
-- Team division: `docs/team.md`.
-- Corpus policy: `docs/corpus.md`.
-- Demo runbook: `docs/demo.md`.
+- Corpus policy: `docs/guides/corpus.md`.
+- Demo runbook: `docs/guides/demo.md`.

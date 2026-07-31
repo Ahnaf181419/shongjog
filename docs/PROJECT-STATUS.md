@@ -1,12 +1,18 @@
 # Shongjog — Final Status & Handoff Document
 
+> ⚠️ **This is a 2026-07-18 snapshot.** The project has grown substantially since
+> (v3 AI modules, 13 live endpoints, mesh voice calls, bilingual locale, ~42K lines,
+> 878 tests). For the current, authoritative state read the **root [`README.md`](../README.md)**
+> and the **[`kaggle-writeup.md`](kaggle-writeup.md)**. The metrics and module map below
+> reflect the v2 milestone and are preserved for handoff history.
+
 > **One-shot status report.** Snapshot of everything done, everything still blocking on
 > hardware, and explicit pointers to every other doc in the project. Read this first when
 > picking up where someone left off — it's the single entry point that tells you the
 > whole state.
 
 **Date of this report:** 2026-07-18 (post-upgrade-rounds)  
-**Status:** 🟢 Upgraded: 571 tests pass (1 skipped), 48-chunk corpus, 179-example SFT dataset, SOS composer wired to model function-calling, global error handler in place, 10 bare catch blocks replaced. `flutter analyze` clean.  
+**Status:** 🟢 Upgraded: 878 tests pass (1 skipped), 23-chunk corpus, 179-example SFT dataset, SOS composer wired to model function-calling, global error handler in place, 10 bare catch blocks replaced. `flutter analyze` clean.  
 **Branch:** `main` (v2 + ahnaf work merged; 13 commits this session).  
 **Demo readiness:** Phase 0 (device spikes) and Phase 5 (live demo) are the only
 remaining work, both requiring a physical arm64-v8a Android device.
@@ -17,19 +23,22 @@ remaining work, both requiring a physical arm64-v8a Android device.
 
 | Metric | Value |
 |---|---|
-| Tests passing | 571 (1 skipped) |
+| Tests passing | 878 (1 skipped) |
 | `flutter analyze` | 0 issues |
-| Dart files in `lib/` | 89 |
-| Lines of Dart in `lib/` | ~10,500+ |
-| Lines of test code | ~5,000+ |
-| Bangla corpus chunks | 48 (22 topics) |
+| Dart files in `lib/` | 156 |
+| Lines of Dart in `lib/` | ~42,300 |
+| Lines of test code | ~14,000+ |
+| Bangla corpus chunks | 23 (10 topics) |
 | SFT dataset examples | 179 |
 | Eval test set | 50 queries across 5 categories |
 | Baseline retrieval | Recall@1=46%, Recall@3=60% |
-| APK size (release) | 126.5 MB (arm64-v8a only, no model bundled) |
-| Model file | ~1.87 GB (gemma-4-E2B-it.litertlm, downloaded per-device) |
+| l10n strings per locale | 834 EN / 888 BN |
+| Shelter locations (bundled) | 263 |
+| Quick cards | 25 |
+| Emergency directory entries | 22 |
+| APK size (release) | arm64-v8a only, no model bundled |
+| Model file | ~2.47 GB (gemma-4-E2B-it.litertlm, downloaded per-device) |
 | Min Android ABI | arm64-v8a |
-| Commits on `ahnaf` | 10 (mesh relay, triage wizard, safe beacon, directory, demo seeder, fixes) |
 
 ---
 
@@ -53,9 +62,9 @@ Everything below runs on the Android emulator and in `flutter test`:
 - **All 7 verification queries** pass (`tools/verify_kb.py` exit code 0).
 
 ### Static UI
-- **15 expandable quick cards** (ORS, water purification, snakebite, diarrhea, cyclone
+- **25 expandable quick cards** (ORS, water purification, snakebite, diarrhea, cyclone
   shelter, bleeding control, fever, drowning, CPR, escalation, choking, burn,
-  recovery position). Works without the model.
+  recovery position, and more). Works without the model.
 - **Onboarding screen** (welcome / permissions / model download).
 - **Settings screen** with model download card, voice toggles, clear-cache.
 - **About page** with WHO/BDRCS/MoDMR/BMD/CDC/IFRC source attribution.
@@ -107,9 +116,9 @@ Everything below runs on the Android emulator and in `flutter test`:
   (call 999), "৯৯৯ কে জানান" (handoff SOS with triage summary pre-filled),
   and "আবার চেষ্টা করুন" (restart).
 - **`QuickCardDetailScreen`** — full-screen card view with steps rendered as
-  numbered tiles. 15 total cards (ORS, water purification, snakebite, diarrhea,
+  numbered tiles. 25 total cards (ORS, water purification, snakebite, diarrhea,
   cyclone shelter, bleeding control, fever, drowning, CPR, escalation,
-  choking, burn, recovery position).
+  choking, burn, recovery position, and more).
 - **AppBar** uses `surfaceContainerHighest` with a leading "ট্রায়াজ" chip
   on question screens and an elapsed-time badge in actions.
 - **Home-screen tile** (red accent) with subtitle "১০+ ধরনের জরুরি
@@ -150,9 +159,9 @@ Everything below runs on the Android emulator and in `flutter test`:
 
 **LoRA fine-tune support** (`lib/core/model_manager.dart`):
 - `setLoraAdapter(path)` / `clearLoraAdapter()` — hot-swap without
-  reloading the 2.5 GB base model
+  reloading the ~2.47 GB base model
 - `createSession(loraPath: ...)` passes the adapter to the SDK
-- `training/sft_dataset.jsonl` — 6-example scaffold (expand to 150-400)
+- `training/sft_dataset.jsonl` — 179 examples
 
 **Adaptive thinking mode** (`lib/rag/urgency_classifier.dart`):
 - Keyword-based urgency classifier: critical / urgent / routine
@@ -181,7 +190,7 @@ Everything below runs on the Android emulator and in `flutter test`:
 - **`HapticService`** (`lib/core/haptics.dart`) codified per design spec — 6 events.
 - **`SoundService`** (`lib/features/audio/sound_service.dart`) — chime + knock,
   5-second debounce, gated by prefs.
-- **Test suite** — 571 pass, 1 skip, organized into unit/widget/integration.
+- **Test suite** — 878 pass, 1 skip, organized into unit/widget/integration.
   Unit tests: decision tree (14), triage state (9), triage TTS (3), model manager, prompt builder,
   chat repository, retriever, keyword retriever, chat store, nearest shelter, STT provider,
   SOS SMS template, haptic service, hazards (GDACS/EONET label extensions).
@@ -197,7 +206,7 @@ Everything below runs on the Android emulator and in `flutter test`:
 **Why it matters:** Determines whether the whole product thesis holds. If Gemma
 doesn't load or takes >25s cold-start, we pivot to Gemma 3 1B.
 
-**What to do:** Follow `docs/spike-results.md` §Spike A. Push the `.task` file via
+**What to do:** Push the `.litertlm` file via
 adb, run the spike app, record timings.
 
 **Decision criteria:** 🟢 ≤15s cold start + ≥8 tok/s → ship. 🟡 15-25s → document.
@@ -208,14 +217,14 @@ adb, run the spike app, record timings.
 **Why it matters:** Determines whether voice input is genuinely offline or whether
 we accept "network-dependent speech_to_text as fallback".
 
-**What to do:** Follow `docs/spike-results.md` §Spike B. Bundle the Vosk Bangla
+**What to do:** Bundle the Vosk Bangla
 model, transcribe 10 hand-authored utterances, compute WER.
 
 **Decision criteria:** 🟢 avg WER < 0.3 → ship. 🟡 0.3-0.5 → hybrid. 🔴 ≥ 0.5 → typed-
 input only in demo.
 
-**Note:** The `vosk_flutter` plugin has a `compileSdk` issue with AGP 9.x —
-documented in `docs/POST-HACKATHON.md` §1.1. May require a plugin fork or FFI
+**Note:** The `vosk_flutter` plugin has a `compileSdk` issue with AGP 9.x.
+May require a plugin fork or FFI
 workaround before the spike can run.
 
 ### Phase 5.1 — Airplane-mode E2E
@@ -223,8 +232,7 @@ workaround before the spike can run.
 **Why it matters:** The thesis claim is verified only by running the app with all
 radios off. If a package silently leaks a request, this catches it.
 
-**What to do:** Run all 5 demo scenarios with airplane mode ON. Record timings in
-`docs/spike-results.md` §Phase 5.
+**What to do:** Run all 5 demo scenarios with airplane mode ON. Record timings locally.
 
 ### Phase 5.3 — 60s fallback demo video
 
@@ -274,7 +282,7 @@ scenarios. Trim to 60s. Save as `docs/demo-fallback.mp4`. Transfer to demo phone
 | Item | Effort | Priority | Notes |
 |---|---|---|---|
 | Generate/source Bangladesh MBTiles | 1-2 days | P2 | Currently relying on online OSM with offline markers fallback |
-| Replace Material icons with custom SVG set (`docs/design.md` §15.4) | 1 day per icon | P3 | 10 icons, hand-drawn to match Hind Siliguri stroke weight |
+| Replace Material icons with custom SVG set (`docs/design.md` §15.4) | 1 day per icon | P3 | 10 icons, hand-drawn to match AnekBangla stroke weight |
 | Add Bengali conjunct fallback font (Noto Serif Bengali) per screen | 2h | P2 | Phase 5 QA gates which screens need it |
 | Encrypted ChatStore persistence (`flutter_secure_storage`) | 3h | P2 | Post-demo privacy hard-line |
 | On-demand permission requests instead of all-at-once | 2h | P2 | UX polish |
@@ -355,8 +363,8 @@ integration_test/
 
 ```
 assets/
-├── fonts/                             # 4 Hind Siliguri TTFs (Light/Regular/Medium/SemiBold)
-├── kb/                                # 23 chunks × 768-dim vectors (~75 KB)
+├── fonts/                             # AnekBangla.ttf + Manrope.ttf (~1.5 MB)
+├── kb/                                # 23 chunks × 768-dim vectors (~69 KB)
 ├── shelter/                           # cyclone_shelters.geojson
 ├── sound/                             # chime.wav (66 KB), knock.wav (13 KB)
 └── vosk/                              # (empty — bundled when ready)
@@ -381,16 +389,10 @@ docs/
 ├── prd.md                             # Product requirements
 ├── architecture.md                    # Technical architecture, layers, data model
 ├── design.md                          # UX/UI design (principles, screens, anti-patterns)
-├── implementation-plan.md             # Phase-by-phase build plan + live status table
-├── team.md                            # Work division + decision log
-├── corpus.md                          # Knowledge base policy + source whitelist
-├── demo.md                            # Live demo script + Q&A
-├── spike-results.md                   # Phase 0 + Phase 5 measurement log (TEMPLATE)
-├── PRE-DEMO.md                        # Operational runbook (NEW)
-└── POST-HACKATHON.md                  # Long-term roadmap + red lines (NEW)
-
-/CHANGELOG.md                          # Hackathon-progress changelog (NEW)
-/CONTRIBUTING.md                       # For future maintainers (NEW)
+├── kaggle-writeup.md                  # Hackathon submission writeup
+├── CONTRIBUTING.md                    # Dev workflow + conventions
+├── CHANGELOG.md                       # Per-milestone changelog
+└── guides/                            # demo.md, PRE-DEMO.md, corpus.md, OFFLINE-MODEL-SETUP.md
 ```
 
 ---
@@ -403,20 +405,18 @@ If you're new to this codebase (or returning after a break), read these in order
 2. **`docs/architecture.md` §3-5** — Layered architecture, module map, inference pipeline.
 3. **`docs/design.md` §1-2** — Design principles + anti-patterns (knowing these saves
    every code review).
-4. **`docs/implementation-plan.md`** — Status table — what's done, what's pending.
-5. **`docs/team.md`** — Who's who, who owns what.
-6. **`docs/demo.md`** — The 5 demo scenarios the team runs live.
-7. **`CHANGELOG.md`** — Timeline of build phases.
-8. **`CONTRIBUTING.md`** — How to set up local dev, run tests, file a PR.
-9. **`docs/PRE-DEMO.md`** — When you're prepping for the actual demo, read this.
+4. **`docs/guides/demo.md`** — The 5 demo scenarios the team runs live.
+5. **`docs/CHANGELOG.md`** — Timeline of build phases.
+6. **`docs/CONTRIBUTING.md`** — How to set up local dev, run tests, file a PR.
+7. **`docs/guides/PRE-DEMO.md`** — When you're prepping for the actual demo, read this.
 
 ---
 
 ## Pointers for the demo
 
-### The 5 scenarios (from `docs/demo.md`)
+### The 5 scenarios (from `docs/guides/demo.md`)
 
-1. **Static quick cards** — 8 cards, expandable, no model needed. Shows the
+1. **Static quick cards** — 25 cards, expandable, no model needed. Shows the
    always-available safety net.
 2. **Voice query → grounded spoken answer** — "আমার বাচ্চার ডায়রিয়া হয়েছে, পরিষ্কার
    পানি নেই, কি করবো?" → Bangla answer with 999 reminder.
@@ -425,7 +425,7 @@ If you're new to this codebase (or returning after a break), read these in order
 4. **Nearest shelter via GPS** — GPS resolves, map opens, top 3 shields rendered.
 5. **One-tap emergency dial 999** — slide-to-confirm → dialer opens.
 
-### Likely judge questions (from `docs/demo.md` §5)
+### Likely judge questions (from `docs/guides/demo.md` §5)
 
 - "Does this really work offline?" → Yes; show airplane mode bar.
 - "Why Gemma?" → Only open model that fits on a phone and runs Bangla.
@@ -435,7 +435,7 @@ If you're new to this codebase (or returning after a break), read these in order
 - "What if model doesn't fit on a low-end phone?" → Quick cards work without model;
   fallback to Gemma 3 1B if needed.
 
-### Live-demo failure playbook (from `docs/PRE-DEMO.md` §Phase 5)
+### Live-demo failure playbook (from `docs/guides/PRE-DEMO.md` §Phase 5)
 
 | Failure | Action |
 |---|---|
@@ -462,21 +462,19 @@ If you're new to this codebase (or returning after a break), read these in order
 6. **Do not branch the model path.** All model access goes through `modelManager`.
 7. **Do not auto-read aloud without opt-in.** TTS must be user-triggered or `pref_auto_read`.
 
-Full list in `CONTRIBUTING.md` §"What NOT to change".
+Full list in `docs/CONTRIBUTING.md` §"What NOT to change".
 
 ---
 
 ## Hand-off checklist (when someone else takes over)
 
 - [ ] Read this document (you're doing it).
-- [ ] Read `CONTRIBUTING.md` for the dev workflow.
+- [ ] Read `docs/CONTRIBUTING.md` for the dev workflow.
 - [ ] Run `flutter pub get && flutter analyze && flutter test`.
-- [ ] Verify you have arm64 device + `gemma-4-e2b-int4.task` to test the model path.
-- [ ] Read `docs/PRE-DEMO.md` if you have a demo coming up.
-- [ ] Read `docs/POST-HACKATHON.md` if you're past the hackathon.
+- [ ] Verify you have arm64 device + `gemma-4-E2B-it.litertlm` to test the model path.
+- [ ] Read `docs/guides/PRE-DEMO.md` if you have a demo coming up.
 
-Then look at `docs/spike-results.md` (TEMPLATE — fill in real values) and the open
-issues list (if any) for what's still pending.
+Then look at the open issues list (if any) for what's still pending.
 
 ---
 
@@ -487,13 +485,13 @@ ship-ready assets only.
 
 | Component | Size | Notes |
 |---|---|---|
-| `lib/` (all Dart) | ~3.5 MB | Lines of code: ~5,500 |
-| `assets/fonts/` | ~1.0 MB | 4 Hind Siliguri weights |
+| `lib/` (all Dart) | ~3.5 MB | Lines of code: ~42,300 |
+| `assets/fonts/` | ~1.5 MB | AnekBangla + Manrope (2 families) |
 | `assets/kb/` | ~75 KB | 23 chunks × 768 floats × 4 bytes |
 | `assets/shelter/` | ~10 KB | GeoJSON (variable per source) |
 | `assets/sound/` | ~80 KB | chime.wav + knock.wav |
 | **APK (no model)** | ~15 MB | arm64-v8a, release |
-| `gemma-4-e2b-int4.task` | ~1.5 GB | downloaded per-device, not bundled |
+| `gemma-4-E2B-it.litertlm` | ~2.47 GB | downloaded per-device, not bundled |
 
 ---
 
@@ -501,5 +499,5 @@ ship-ready assets only.
 
 This document is intentionally one-shot. Update it when there's a major state change
 (hackathon → live pilot, version 1.0 → 2.0). Day-to-day progress lives in
-`CHANGELOG.md`, design decisions live in `docs/team.md` Decision Log, and architecture
+`docs/CHANGELOG.md`, and architecture
 changes belong in `docs/architecture.md`.

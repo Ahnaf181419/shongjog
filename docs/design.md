@@ -11,8 +11,7 @@ cannot read well, may be wet, may be shaking, and may have one hand free — and
 when hit precisely, is what makes the app feel premium.**
 
 Companion docs: product scope in `docs/prd.md`; technical architecture in
-`docs/architecture.md`; build tasks in `docs/implementation-plan.md`; team division in
-`docs/team.md`.
+`docs/architecture.md`.
 
 ---
 
@@ -63,9 +62,9 @@ element.
 - **Lottie / canned illustration libraries.** No praying-hands animations, no heart
   bursts, no generic medical illustrations. Custom marks only, drawn to match the brand
   stroke weight.
-- **Identical card-icon grids.** The 6 quick cards are NOT six identical tiles with
+- **Identical card-icon grids.** The 25 quick cards are NOT identical tiles with
   icon + title + body. Each card has a distinct shape: different leading glyph, different
-  severity tint hint, different internal layout. Six cards look six different ways.
+  severity tint hint, different internal layout. No two cards look the same.
 - **Fake-precise numbers.** "৯৯৯ কল উত্তরের সময়: ৪৫ সেকেন্ড" is a lie. Write "৯৯৯" and
   stop. Numbers in user UI are either real (from the corpus / device) or absent.
 - **Skeuomorphic hardware.** No phone illustration that looks like a phone. No pill
@@ -113,7 +112,7 @@ Derived from `docs/prd.md` §1. Used to ground every design decision.
 
 ### Flow 1 — First launch → model ready (premium first-load sequence)
 1. App opens. Splash renders: darkBody background, white "স" glyph breathing once (1.2s),
-   "শঙ্গ্যোগ" in Display 28sp below.
+   "সংযোগ" in Display 28sp below.
 2. Fade to chat screen. Empty state: 3 suggestion pills (ORS / shelter / snakebite).
 3. Model loads in background. AppBar subtitle shows "মডেল প্রস্তুত হচ্ছে... (৪৫%)".
 4. On completion: subtitle updates to "AI প্রস্তুত". Mic button becomes active.
@@ -232,14 +231,12 @@ strictly emergency-only and never decorative.
 **Never use pure `#000000` or pure `#FFFFFF`.** Pure black kills depth on dark; pure
 white is sterile and harsh on stressed eyes. Always the off-black / off-white tokens.
 
-### 5.2 Type scale (Hind Siliguri, single family)
+### 5.2 Type scale (AnekBangla + Manrope)
 
 ```
-Family: Hind Siliguri (Google Fonts, OFL license)
-  Light     300    captions (rare use)
-  Regular   400    body default
-  Medium    500    primary CTAs, body-large
-  Semibold  600    AppBar title, card titles, display
+Primary:  AnekBangla (variable font, Bangla + Latin glyphs)
+Fallback: Manrope (Latin diagnostics, version strings, About screen)
+Weights via variable axis: 300 / 400 / 500 / 600
 ```
 
 | Role | Size | Weight | Line height | Letter spacing | Use |
@@ -256,11 +253,11 @@ both demand larger type.
 **Bangla rendering notes:**
 - Line height 1.5 on body (Bangla ascenders/descenders need more vertical space than
   Latin; Material's default 1.4 clips conjuncts).
-- Hind Siliguri has contemporary Bangla feel and good weight range. Conjuncts
+- AnekBangla has a contemporary Bangla feel and wide weight range. Conjuncts
   (যুক্তাক্ষর like ক্ষ, জ্ঞ, ণ্ড) render cleanly in most cuts; if Phase 5 reveals
   clipping on any screen, that screen overrides to Noto Serif Bengali (see §12 Bangla
   conjunct fallback).
-- Bangla numerals (০-৯) are slightly heavier than Latin in Hind Siliguri. Accept the
+- Bangla numerals (০-৯) are slightly heavier than Latin in AnekBangla. Accept the
   imbalance; do not mix scripts within a single phrase. Phase 5 QA verifies "৯৯৯" renders
   identically across mic label, card list, and footer chip.
 - Numbers in user-facing copy: Bangla numerals (০-৯). Western digits only in internal
@@ -272,7 +269,7 @@ both demand larger type.
   vertical detail than Latin at the same size, so small type costs more here. The single
   exemption is the NavigationBar label (Material specs 12sp for nav chrome).
 
-**Font fallback chain:** Hind Siliguri → Noto Sans Bengali → system Bengali →
+**Font fallback chain:** AnekBangla → Noto Sans Bengali → system Bengali →
 Devanagari (last resort, degraded).
 
 ### 5.3 Spacing scale
@@ -362,8 +359,8 @@ how exposed their home is.
 | Tap target | Minimum 48×48dp; mic button 64×64dp |
 | Contrast | AAA on all primary text in BOTH light and dark mode; `alertRed`/`alertRed+` only for large elements |
 | Dark mode | `paperWhite`/`darkBody` contrast verified at 16:1; no pure black, no pure white |
-| Bangla rendering | Test every screen with real Bangla (including যুক্তাক্ষর); ship Hind Siliguri; per-screen override to Noto Serif Bengali if clipping found |
-| Font fallback | Hind Siliguri → Noto Sans Bengali → system Bengali → Devanagari (degraded) |
+| Bangla rendering | Test every screen with real Bangla (including যুক্তাক্ষর); ship AnekBangla; per-screen override to Noto Serif Bengali if clipping found |
+| Font fallback | AnekBangla → Noto Sans Bengali → system Bengali → Devanagari (degraded) |
 | Screen reader | `Semantics(label: ...)` on every icon button; chat bubbles read with the bank below |
 | No critical timeouts | The user is never timed out of an action; only performance budgets exist in code |
 | Color-only signaling | Never encode meaning in color alone — pair red with an icon (phone, shield, warning); pair offline-status with a texture (breathing dot) |
@@ -422,12 +419,12 @@ rest. This is the premium-second-look detail. The rest of the screen follows the
 ### 7.2 Quick cards screen
 - **Trigger:** cards tab on bottom-nav (index 2). Full route, not bottom-sheet — primary
   destination for low-literacy users (Sumi persona).
-- **Body:** `ListView.separated` of 8 `Card`s, each an `ExpansionTile` with a custom
+- **Body:** `ListView.separated` of 25 `Card`s, each an `ExpansionTile` with a custom
   leading glyph (filled Material icons, Ocean-tinted for informational cards: ORS,
   water, shelter, drowning — Alert-tinted for emergency cards: snakebite, diarrhea,
   bleeding, fever), Bangla title, and numbered steps inside. 12dp between cards
   (compact density).
-- **Eight cards, four emergency / four informational.** Colors are derived from the
+- **25 cards spanning emergency and informational topics.** Colors are derived from the
   token system (`ocean` for informational, `alert` for emergency). No hardcoded hex.
 - **Numbered Bangla steps:** `১. পানি ফুটিয়ে ঠাণ্ডা করুন। ২. এক চা চামচ চিনি যোগ করুন।`
   Bangla numerals, danda (।) as terminator. Step text 16sp w500 line-height 1.4.
@@ -478,7 +475,7 @@ slide-to-confirm widget proves too costly in Phase 1.2. Default ship target is 7
   taps. The one interaction in the app that demands physical intention.
 
 ### 7.6 Emergency hub screen (Maruf's — navigation landing)
-- **AppBar:** "শঙ্গ্যোগ" in Display 28sp. Right action: about/sources icon.
+- **AppBar:** "সংযোগ" in Display 28sp. Right action: about/sources icon.
 - **Body:** `ListView` with 16dp padding. Three 96dp-tall tiles, full-bleed `calmTeal`,
   12dp between. Each tile: 40dp white custom glyph at left, Bangla title (Body large 20sp
   Medium, white) + Bangla subtitle (Body 14sp Regular, 90% white), chevron-right at right.
@@ -493,7 +490,7 @@ slide-to-confirm widget proves too costly in Phase 1.2. Default ship target is 7
 ### 7.7 About / sources page (Sehab's — static attribution)
 - **AppBar:** "তথ্যসূত্র". Back arrow present.
 - **Body:** `ListView`, 24dp padding (airy density). Top: 200dp header in `sand` (light) /
-  `elevated` (dark) with brand mark "শঙ্গ্যোগ" in Display 28sp `calmTeal` + one-line
+  `elevated` (dark) with brand mark "সংযোগ" in Display 28sp `calmTeal` + one-line
   tagline in Body 17sp.
 - **Sources list:** 5 source cards, each a 1px-border surface (`calmTeal` at 30% opacity
   border) with a `verified` custom glyph in `calmTeal` leading, English name (Title 22sp
@@ -506,12 +503,12 @@ slide-to-confirm widget proves too costly in Phase 1.2. Default ship target is 7
 
 ### 7.8 App icon + splash
 - **App icon:** flat `calmTeal` rounded square (matches AppBar color), centered white
-  "স" glyph (Hind Siliguri Semibold, custom-kerned). No text on the icon other than the
+  "স" glyph (AnekBangla Semibold, custom-kerned). No text on the icon other than the
   glyph. The "স" suggests "সংযোগ" (connection) and stands alone as a mark. PNG variants:
   48×48, 72×72, 96×96, 144×144, 192×192. Adaptive icon foreground = white "স" on
   transparent; background = `calmTeal`.
 - **Splash:** `darkBody` background (cold-boot is always dark-themed on Android regardless
-  of system pref), centered white "স" glyph (96dp) + "শঙ্গ্যোগ" in Display 28sp below.
+  of system pref), centered white "স" glyph (96dp) + "সংযোগ" in Display 28sp below.
   1.2s fade-in. The "স" breathes once (scale 1.0 → 1.05 → 1.0, 1.2s `easeOutCubic`) then
   fades to the chat screen.
 - **Moment:** the breathing "স" — the app's first and last visual impression. Quiet,
@@ -545,11 +542,12 @@ reference table.
 
 ## 9. Bangla Typography Notes
 
-- **Font:** Hind Siliguri (Google Fonts, OFL). Single family, 4 weights (300/400/500/600).
-  Bundled in `assets/fonts/` (4 `.ttf` files, ~600KB total).
+- **Font:** AnekBangla (Google Fonts, OFL) — variable font, primary for both Bangla and
+  Latin. Fallback: Manrope for Latin-only UI (diagnostics, version strings). Bundled in
+  `assets/fonts/` (2 `.ttf` files, ~1.5 MB total).
 - **Line height:** Bangla needs slightly more vertical space than Latin — `height: 1.5`
   on body text, not Material's default 1.4.
-- **Conjuncts (যুক্তাক্ষর):** Hind Siliguri handles most cleanly. If Phase 5 reveals
+- **Conjuncts (যুক্তাক্ষর):** AnekBangla handles most cleanly. If Phase 5 reveals
   clipping on a specific screen, that screen overrides to Noto Serif Bengali (per §12
   Bangla conjunct fallback rule).
 - **Numerals:** use Bangla numerals (০-৯) in ALL user-facing copy (যেমন "৯৯৯", "৩-৬ ধাপ",
@@ -880,7 +878,7 @@ ringer is silent.
 
 ### 15.4 Custom icon set (10 icons)
 
-Drawn to match Hind Siliguri's stroke weight (medium). Exported as SVG → rendered via
+Drawn to match AnekBangla's stroke weight (medium). Exported as SVG → rendered via
 `flutter_svg`. Stored in `assets/icons/`. Maruf draws these in Phase 1.2 or Phase 3
 (alongside quick cards). Each icon is a single-color glyph (white on teal, or teal on
 light surface) — no multi-color icons, no gradients.
@@ -913,7 +911,7 @@ assets/brand/
   icon_fg.svg          # white "স" glyph on transparent (adaptive icon foreground)
   icon_bg.svg          # calmTeal solid (adaptive icon background)
   splash_mark.svg      # white "স" at 96dp for splash
-  splash_brand.svg     # "শঙ্গ্যোগ" in Display 28sp Hind Siliguri Semibold
+  splash_brand.svg     # "সংযোগ" in Display 28sp AnekBangla Semibold
 
 android/app/src/main/res/
   mipmap-mdpi/ic_launcher.png      # 48x48
@@ -932,29 +930,18 @@ Asset tool or `flutter_launcher_icons` package (added in Phase 1.1 scaffolding).
 ```yaml
 flutter:
   fonts:
-    - family: HindSiliguri
+    - family: AnekBangla
       fonts:
-        - asset: assets/fonts/HindSiliguri-Light.ttf
-          weight: 300
-        - asset: assets/fonts/HindSiliguri-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/HindSiliguri-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/HindSiliguri-SemiBold.ttf
-          weight: 600
-    # Per-screen fallback (see §12 Bangla conjunct rule):
-    - family: NotoSerifBengali
+        - asset: assets/fonts/AnekBangla.ttf
+    - family: Manrope
       fonts:
-        - asset: assets/fonts/NotoSerifBengali-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/NotoSerifBengali-SemiBold.ttf
-          weight: 600
+        - asset: assets/fonts/Manrope.ttf
 ```
 
 ```dart
-// lib/core/theme.dart
-static const String fontFamily = 'HindSiliguri';
-static const String fontFamilyFallback = 'NotoSerifBengali';
+// lib/app/theme.dart
+static const String fontFamily = 'AnekBangla';
+static const List<String> fontFallback = ['Manrope'];
 
 static ThemeData lightTheme = ThemeData(
   fontFamily: fontFamily,
@@ -1000,6 +987,5 @@ This doc is the single source of truth for UI. When a decision changes:
 1. Update the relevant section above.
 2. If the change affects implementation, update §15 (implementation handoff) — §15 wins
    for code purposes.
-3. Note the change in `docs/team.md` §9 (decision log).
-4. Do not let code drift from this doc. If code differs, either fix the code or update
+3. Do not let code drift from this doc. If code differs, either fix the code or update
    the doc — never both in limbo.

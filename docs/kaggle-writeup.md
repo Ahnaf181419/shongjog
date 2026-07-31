@@ -29,7 +29,7 @@ Only a model running **on the device** can answer here. That is why Shongjog is 
 
 ## What We Built
 
-**Shongjog** (সঙ্গযোগ, "connection") is a Flutter app with **Gemma 4 running fully on-device**. Ask an emergency question in Bangla — by voice or text — and the app:
+**Shongjog** (সংযোগ, "connection") is a Flutter app with **Gemma 4 running fully on-device**. Ask an emergency question in Bangla — by voice or text — and the app:
 
 1. **Understands** it (Bangla speech-to-text, typed fallback).
 2. **Retrieves** verified guidance from an on-device knowledge base (RAG).
@@ -47,7 +47,7 @@ Shongjog is not "an offline app." It is engineered to stay useful across every n
 |---|---|---|
 | **Online** | Gemma 4 on-device **+ 13 live endpoints** | Everything below, plus live hazard feeds, weather and marine surge, turn-by-turn routing, map/POI search, Gemini vision damage scanning, and cross-device coordinator sync |
 | **No internet, phones nearby** | Gemma 4 on-device **+ Bluetooth / Wi-Fi Direct mesh** | Everything below, plus text, images, video, voice notes and **full-duplex voice calls** to nearby phones, and multi-hop SOS relay outward |
-| **Fully isolated** | **Gemma 4 on-device alone** | Grounded Bangla Q&A, all seven AI modules, triage wizard, 25 quick cards, shelter map with cached tiles, offline directory, SOS SMS |
+| **Fully isolated** | **Gemma 4 on-device alone** | Grounded Bangla Q&A, six of seven AI modules, triage wizard, 25 quick cards, shelter map with cached tiles, offline directory, SOS SMS |
 
 The bottom row is the guarantee. Everything above it is upside.
 
@@ -117,7 +117,7 @@ The API key is **never compiled into the APK** — the build ships with no key a
 - **Bangla speech-to-text** with locale resolution, behind a provider interface for future on-device engines.
 - **Clear failure messages** — the app says *why* input failed, never a generic "try again."
 - **Bangla TTS** reads every answer aloud. Auto-read is opt-in.
-- **Bangla-first with a full English locale** (762 strings) behind a language toggle: Bangla numerals (০-৯), Bangla punctuation (।), Bangla typography throughout.
+- **Bangla-first with a full English locale** (834 strings) behind a language toggle: Bangla numerals (০-৯), Bangla punctuation (।), Bangla typography throughout.
 
 ### Shelter Map & Routing
 - `flutter_map` with bundled GeoJSON — no Google Maps dependency.
@@ -246,7 +246,7 @@ TIER 3  Verified corpus chunk  ──►  TIER 4  "call 999"
 
 Disaster software has to work unattended, offline, on a phone nobody can debug. We verify rather than assume.
 
-- **873 automated tests across 100 files** — unit, widget, integration — covering contrast ratios, 1.5× text scaling, Bangla numeral conversion, STT locale resolution, layout under stress, and security properties.
+- **878 automated tests across 100 files** — unit, widget, integration — covering contrast ratios, 1.5× text scaling, Bangla numeral conversion, STT locale resolution, layout under stress, and security properties.
 - **A 10-gate release script that inspects the shipped APK**, not just the build: LiteRT-LM libs present, arm64-only, R8 stripped cleanly, notification icon survived resource shrinking, Android 11 package-visibility `<queries>` declared for speech, TTS, camera and pickers, and **no API key inside `libapp.so`.**
 - **Every regression becomes a gate**, so a fix stays fixed.
 - **Security-audited data model:** writes are bound to the caller's authenticated identity, sensitive coordinator data is role-restricted, documents are type- and size-validated, and malformed input is isolated per-record.

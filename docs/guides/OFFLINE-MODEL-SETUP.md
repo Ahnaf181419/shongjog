@@ -432,4 +432,3 @@ help without changing the model:
 | `android/app/proguard-rules.pro` | R8 keeps (dormant unless MediaPipe is added) |
 | `scripts/build_release.sh` / `.ps1` | Verified release build |
 | `test/unit/device_capability_test.dart` | Enforces `.litertlm` URLs + exact sizes |
-| `AGENTS.md` §"Hard constraints" | The short version of every ⚠️ above |

@@ -1,5 +1,12 @@
 # Shongjog — Architecture
 
+> ⚠️ **Partial snapshot.** This document covers the v2 layered architecture, which still
+> holds (pure-Dart `core/`, `rag/`, `knowledge/`; adapter `features/`). For features added
+> since — v3 AI modules, 13 live endpoints, mesh voice calls, the TIER 1–4 generation chain,
+> and the full module map — read the **root [`README.md`](../README.md)** §Architecture and
+> **[`kaggle-writeup.md`](kaggle-writeup.md)**. Counts below have been refreshed; narrative
+> sections may still describe the v2 milestone.
+
 > **Internal team-facing document.** Technical architecture, module boundaries, data
 > flow, build pipeline, constraints, and failure modes.
 
@@ -8,8 +15,8 @@ inward) adapted to Flutter — not full DDD, but enough seam to keep the on-devi
 RAG, and UI swappable during the spike and after. The build pipeline (Python → embedded
 assets) is treated as a first-class component because it determines the corpus's shape.
 
-Companion docs: product scope in `docs/prd.md`; build tasks in
-`docs/implementation-plan.md`; corpus policy in `docs/corpus.md`; UX in `docs/design.md`.
+Companion docs: product scope in `docs/prd.md`; corpus policy in
+`docs/guides/corpus.md`; UX in `docs/design.md`.
 
 ---
 
@@ -49,15 +56,15 @@ which frequently survives when mobile data is down.
 | Layer | Choice | Rationale |
 |---|---|---|
 | Framework | Flutter 3.x, Dart 3.12+ | Single codebase, strong typing, mature widget toolkit; Android-first, iOS-capable |
-| Generation model | Gemma 4 E2B (4-bit, thinking off, GPU) | Smallest Gemma 4 that still grounds well in Bangla; fits ~2GB RAM |
-| On-device runtime | `flutter_gemma` (LiteRT-LM) | Only mature Flutter binding for Gemma on Android arm64; validated by Phase 0 spike A |
-| Retrieval / embeddings | `KeywordRetriever` (primary); `BruteForceRetriever` over mpnet 768-dim vectors (secondary) | Offline-first: keyword scoring with cosine hybrid. `flutter_gemma` embedder API (EmbeddingGemma 300M) bypassed in 0.5.0 — see §6 |
+| Generation model | Gemma 4 E2B / E4B (4-bit, LiteRT-LM) | Smallest Gemma 4 that still grounds well in Bangla; E4B auto-selected on high-RAM devices |
+| On-device runtime | `flutter_gemma_litertlm` (LiteRT-LM) | Mature Flutter binding for Gemma 4 on Android arm64; `.litertlm` only |
+| Retrieval / embeddings | `KeywordRetriever` (primary); `BruteForceRetriever` over mpnet 768-dim vectors (secondary) | Offline-first: keyword scoring with cosine hybrid. `flutter_gemma` embedder API (EmbeddingGemma 300M) unavailable in 1.x — see §6 |
 | Voice in | Vosk + bundled `vosk-model-small-bn-*` | True offline; Google STT (`speech_to_text`) needs network on many Androids — unacceptable for the offline thesis |
 | Voice out | `flutter_tts` (`bn-BD`, `bn-IN` fallback) | Built into the platform; no extra download |
 | Location | `geolocator` | Standard, well-maintained |
 | Maps | `flutter_map` + bundled MBTiles | No Google Maps dependency; renders offline tiles we ship |
 | Actions | `url_launcher` (`tel:`, `sms:`) | Uses the cellular voice channel that survives data outages |
-| Model management | `background_downloader`, `path_provider`, `shared_preferences` | 1.5GB one-time download; resume on failure; persist local path |
+| Model management | `background_downloader`, `path_provider`, `shared_preferences` | ~2.47 GB one-time download; resume on failure; persist local path |
 | Retrieval index | brute-force cosine (no HNSW) | N≈23 vectors; brute force is faster and simpler than a real ANN index |
 | Build pipeline | Python 3 + `sentence-transformers` | `paraphrase-multilingual-mpnet-base-v2` via HF; runs on a dev laptop, ships vectors as a binary asset. EmbeddingGemma (on-device) deferred — see §6 |
 
@@ -137,7 +144,7 @@ lib/
 │   │   ├── cached_tile_provider.dart  ConnectivityHelper for offline tiles
 │   │   └── nearest_shelter.dart   Domain: haversine ranking (pure)
 │   ├── quick_cards/
-│   │   ├── cards_data.dart        Domain: 8 static Bangla cards (pure)
+│   │   ├── cards_data.dart        Domain: 25 static Bangla cards (pure)
 │   │   └── quick_cards_screen.dart Presentation
 │   ├── emergency/
 │   │   ├── emergency_actions.dart Adapter: url_launcher dial + SOS SMS
@@ -265,7 +272,7 @@ Flutter bundle (rootBundle.load) at runtime
 **Embedder choice:** `paraphrase-multilingual-mpnet-base-v2` is used for build-time
 embedding (handles Bangla well, mature model, 768-dim). The on-device runtime embedder
 (EmbeddingGemma 300M via `flutter_gemma`) is bypassed in favor of `KeywordRetriever`
-(see §5) because `flutter_gemma 0.5.0` has no embedder API. When `flutter_gemma` ships an
+(see §5) because `flutter_gemma 1.x` has no embedder API. When `flutter_gemma` ships an
 embedder API, `KeywordRetriever` and `BruteForceRetriever` (already implemented) both
 remain usable.
 
@@ -275,7 +282,7 @@ disaster is the worst time to discover the KB failed to download.
 
 **Verification:** `tools/verify_kb.py` runs 7 hand-authored Bangla queries through the
 embedded index and asserts the top-1 topic matches expectations. Any `BAD` line blocks
-the build. See `docs/corpus.md` §Review Process.
+the build. See `docs/guides/corpus.md` §Review Process.
 
 ---
 
@@ -359,7 +366,7 @@ class RankedShelter {
 Coordinates are `[lon, lat]` per the GeoJSON spec — the loader maps them to
 `Shelter(lat: coords[1], lon: coords[0])`.
 
-**Current shelter count:**25 (across Bangladesh: coastal, major cities, northern districts)
+**Current shelter count:** 263 (across Bangladesh: coastal, major cities, northern districts)
 
 ---
 
@@ -368,8 +375,9 @@ Coordinates are `[lon, lat]` per the GeoJSON spec — the loader maps them to
 | Constraint | Value | Where enforced |
 |---|---|---|
 | Android ABI | `arm64-v8a` only | `android/app/build.gradle.kts` → `ndk { abiFilters += "arm64-v8a" }` |
-| Model file | ~1.5GB, `.task` format | shipped pre-loaded on demo device; downloaded via `background_downloader` for real users |
-| Runtime RAM | under ~2GB | 4-bit quantization + thinking off + `maxTokens` 512 |
+| Model file | ~2.47 GB, `.litertlm` format | downloaded per-device via `background_downloader`; E4B auto-selected on high-RAM devices |
+| Runtime RAM | under ~2GB | 4-bit quantization + thinking off + `maxTokens` 1024 (reply cap 256) |
+| STT | `speech_to_text` (active, locale-resolved) | offline `vosk` path blocked on AGP 9.x — see §13 |
 | Vosk model | `vosk-model-small-bn-*`, ~50MB | bundled in `assets/vosk/` |
 | KB assets | `corpus.json` (~30KB) + `vectors.bin` (~75KB) | bundled in `assets/kb/` |
 | Shelter data | `cyclone_shelters.geojson` (variable, target < 1MB) | bundled in `assets/shelter/` |
@@ -383,7 +391,7 @@ Coordinates are `[lon, lat]` per the GeoJSON spec — the loader maps them to
 | Failure | Detection | Fallback |
 |---|---|---|
 | Model won't load / OOM | `ModelManager.initialize()` throws | Gemma 3 1B; if that also fails, hide the chat affordance and rely on static quick cards |
-| 1.5GB download fails on venue WiFi | download progress stalls | Pre-load before the event; final fallback = prerecorded 60s video |
+| ~2.47 GB download fails on venue WiFi | download progress stalls | Pre-load before the event; final fallback = prerecorded 60s video |
 | Low retrieval confidence | `topK` returns empty (all scores < 0.35) | Return canned Bangla response: "আমার কাছে এই তথ্য নেই, অনুগ্রহ করে স্বাস্থ্যকর্মী বা ৯৯৯ এ যোগাযোগ করুন" |
 | Vosk STT produces garbage | WER > 0.5 on the 10 spike utterances | Hybrid mode: Vosk for short command-style phrases, typed input for freeform; final fallback = typed input only |
 | GPS unavailable | `geolocator` permission denied or timeout | Show shelter map centered on Bangladesh default (23.8, 90.4); disable "nearest" sort |
@@ -414,7 +422,7 @@ flow.
 ## 11. Observability
 
 On a hackathon timeline we don't ship a real telemetry pipeline, but we do instrument
-key timings to a local log file (`docs/spike-results.md` for the spike; an in-app debug
+key timings to a local log file and an in-app debug
 overlay for Phase 5). Specifically:
 
 - `ModelManager.initialize()` cold-start duration.
@@ -445,7 +453,7 @@ answer?").
 ## 13. Open Questions (resolved during execution)
 
 1. Does `flutter_gemma`'s embedder API expose EmbeddingGemma 300M cleanly, or do we need
-   a separate model file path? **Resolved:** `flutter_gemma 0.5.0` has no embedder API.
+   a separate model file path? **Resolved:** `flutter_gemma 1.x` has no embedder API.
    We're using `KeywordRetriever` (offline BM25-lite) as the primary path. mpnet is used
    for build-time vectors only.
 2. Does Vosk's small Bangla model handle our 10 spike utterances at acceptable WER?
