@@ -123,6 +123,9 @@ google-services.json
 GoogleService-Info.plist
 *.tmp
 *.bak
+# Release APKs — published via GitHub Releases, not committed to git
+Shongjog-*.apk
+*.apk
 !pubspec.lock
 
 # ─── Team-local AI tooling (per-developer, not project code) ─
