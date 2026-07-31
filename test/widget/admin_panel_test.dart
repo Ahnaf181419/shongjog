@@ -83,7 +83,7 @@ void main() {
       await tester.enterText(
           find.widgetWithText(TextFormField, 'ব্যবহারকারীর নাম'), 'admin');
       await tester.enterText(
-          find.widgetWithText(TextFormField, 'পাসওয়ার্ড'), 'admin123');
+          find.widgetWithText(TextFormField, 'পাসওয়ার্ড'), 'ADMINEKHONGHUMAY123');
       await tester.tap(find.text('প্রবেশ করুন'));
       await tester.pumpAndSettle();
 

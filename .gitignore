@@ -129,3 +129,5 @@ GoogleService-Info.plist
 .agents/
 .vercel
 .env*
+lib/secrets/admin_secrets.dart
+

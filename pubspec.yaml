@@ -48,6 +48,7 @@ dependencies:
 
   # Utilities
   collection: ^1.18.0
+  crypto: ^3.0.0
   vector_math: ^2.1.4
   audioplayers: ^6.8.1
   video_player: ^2.9.0

@@ -1,9 +1,13 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../core/firebase_auth_service.dart';
+import '../../secrets/admin_secrets.dart';
 
 class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({super.key});
@@ -34,8 +38,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
     final user = _usernameController.text.trim();
     final pass = _passwordController.text;
+    final passHash = sha256.convert(utf8.encode(pass)).toString();
 
-    if (user == 'admin' && pass == 'admin123') {
+    if (user == 'admin' && passHash == adminPasswordHash) {
       // Claim the admin role on this device's Firestore user doc so the
       // Firestore security rules let it read/write campaigns and
       // broadcasts. Never throws (see FirebaseAuthService.claimAdminRole)
