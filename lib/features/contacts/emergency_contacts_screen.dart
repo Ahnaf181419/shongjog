@@ -7,6 +7,7 @@ import '../emergency/emergency_actions.dart';
 import '../emergency/emergency_sheet.dart';
 import 'contact_model.dart';
 import 'contacts_repository.dart';
+import '../../core/bangla_numerals.dart';
 
 /// Emergency contacts screen.
 ///
@@ -197,13 +198,7 @@ class _ContactRow extends StatelessWidget {
     this.onDelete,
   });
 
-  String get _phoneBn => contact.phone.split('').map((d) {
-        const m = {
-          '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
-          '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯',
-        };
-        return m[d] ?? d;
-      }).join();
+  String get _phoneBn => toBanglaDigits(contact.phone);
 
   @override
   Widget build(BuildContext context) {

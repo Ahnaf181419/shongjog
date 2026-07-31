@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
+import '../../core/firebase_auth_service.dart';
 
 enum CampaignType {
   foodDonation,
@@ -205,12 +206,26 @@ class CampaignRequestService extends ChangeNotifier {
   /// live and in sync with what other devices submitted or an admin
   /// approved elsewhere. Best-effort — a failure here (offline, no
   /// Firebase project reachable) leaves the app on local-only data.
+  /// Subscribe to the slice of the collection this device is allowed to read.
+  ///
+  /// A campaign request carries the submitter's name, phone and coordinates.
+  /// Every device used to stream the *whole* collection, so any signed-in
+  /// (anonymous) install could enumerate that for every pending request.
+  /// `firestore.rules` now restricts the unfiltered read to admins, and a
+  /// Firestore query is rejected outright unless the rules can prove every
+  /// document it could return is readable — so a non-admin device must ask
+  /// only for approved campaigns, which is all it ever displays (the map
+  /// markers in `shelter_map_screen.dart`).
   void _subscribeFirestore() {
+    _firestoreSub?.cancel();
     try {
-      _firestoreSub = _firestore
-          .collection(_collection)
-          .snapshots()
-          .listen(_mergeFirestoreSnapshot, onError: (e) {
+      final Query<Map<String, dynamic>> query =
+          firebaseAuthService.isAdminDevice
+              ? _firestore.collection(_collection)
+              : _firestore.collection(_collection).where('status',
+                  isEqualTo: CampaignStatus.approved.index);
+      _firestoreSub = query.snapshots().listen(_mergeFirestoreSnapshot,
+          onError: (e) {
         debugPrint('CampaignRequestService Firestore stream failed: $e');
       });
     } catch (e) {
@@ -218,9 +233,35 @@ class CampaignRequestService extends ChangeNotifier {
     }
   }
 
+  /// Re-subscribe after this device gains or loses the admin role, so the
+  /// panel starts seeing pending requests the moment an admin signs in —
+  /// and stops seeing them on sign-out.
+  void refreshSubscription() {
+    if (!_initialized) return;
+    _subscribeFirestore();
+  }
+
   void _mergeFirestoreSnapshot(QuerySnapshot<Map<String, dynamic>> snap) {
     for (final doc in snap.docs) {
-      final incoming = CampaignRequest.fromJson(doc.data());
+      // Per-doc try/catch, NOT one around the loop.
+      //
+      // `fromJson` indexes `CampaignType.values[...]` and
+      // `CampaignStatus.values[...]` with a raw int from the document, so a
+      // single doc carrying `type: 99` throws RangeError. This runs inside a
+      // stream listener, so before this guard one such document — writable by
+      // any signed-in device, and undeletable because the rules deny delete
+      // to every client — permanently broke the campaign list on EVERY
+      // install, recoverable only by hand-editing Firestore in the console.
+      // The rules now range-check these fields; this is the second line of
+      // defence, and it also covers docs written before that rule landed.
+      final CampaignRequest incoming;
+      try {
+        incoming = CampaignRequest.fromJson(doc.data());
+      } catch (e) {
+        debugPrint('CampaignRequestService: skipping malformed doc '
+            '${doc.id}: $e');
+        continue;
+      }
       final index = _requests.indexWhere((r) => r.id == incoming.id);
       if (index == -1) {
         _requests.add(incoming);
@@ -242,7 +283,7 @@ class CampaignRequestService extends ChangeNotifier {
       await _firestore
           .collection(_collection)
           .doc(request.id)
-          .set(request.toJson());
+          .set(withOwnerUid(request.toJson()));
     } catch (e) {
       debugPrint('CampaignRequestService: Firestore submit failed: $e');
     }

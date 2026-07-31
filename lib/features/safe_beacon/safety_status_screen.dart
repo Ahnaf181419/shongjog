@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,6 +12,7 @@ import '../mesh_comm/mesh_service.dart';
 import 'safety_status_service.dart';
 import 'sms_queue.dart';
 import '../../app/theme.dart';
+import '../../core/firebase_auth_service.dart';
 
 /// "I'm Safe" / "I'm in Danger" status screen.
 ///
@@ -57,8 +60,7 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
     return (
       name: prefs.getString('user_name') ?? 'একজন ব্যবহারকারী',
       phone: prefs.getString('user_phone') ?? '',
-      userId: prefs.getString('user_id') ??
-          'u-${DateTime.now().millisecondsSinceEpoch}',
+      userId: await stableUserId(prefs),
     );
   }
 
@@ -103,7 +105,12 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
       // 1. Record locally + broadcast over mesh.
       safetyStatusService.setMyReport(report);
       meshService.ensureRelayEngine();
-      meshService.sendMessage('SAFE:${report.toJson()}', echoSelf: false);
+      // jsonEncode, NOT '${report.toJson()}'. Interpolating the map calls
+      // Map.toString(), which emits `{id: safe-1, …}` — not JSON — so every
+      // receiver's jsonDecode threw and mesh safety relay silently did
+      // nothing. See SafetyStatusService.ingestJson.
+      meshService.sendMessage('SAFE:${jsonEncode(report.toJson())}',
+          echoSelf: false);
 
       // 2. Queue SMS to contacts.
       await _queueSms(_safeMessage(p.name, p.phone, null, null));
@@ -162,7 +169,9 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
       // 3. Record locally + broadcast over mesh.
       safetyStatusService.setMyReport(report);
       meshService.ensureRelayEngine();
-      meshService.sendMessage('DANGER:${report.toJson()}', echoSelf: false);
+      // jsonEncode — see the note on the SAFE: send above.
+      meshService.sendMessage('DANGER:${jsonEncode(report.toJson())}',
+          echoSelf: false);
 
       // 4. Queue SMS to contacts (with GPS link).
       await _queueSms(

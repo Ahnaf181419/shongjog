@@ -1,5 +1,7 @@
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shongjog/core/firebase_auth_service.dart';
 import 'package:shongjog/features/safe_beacon/safety_status_service.dart';
 
 void main() {
@@ -248,6 +250,14 @@ void main() {
             ).toJson(),
           );
 
+      // The aggregate feed is ADMIN-ONLY now — every document in it is a
+      // name, a phone number and live GPS for someone in danger, so a
+      // non-admin device neither needs nor receives it (firestore.rules
+      // enforces the same restriction server-side).
+      SharedPreferences.setMockInitialValues(
+          {FirebaseAuthService.prefIsAdminDevice: true});
+      await firebaseAuthService.loadAdminFlag();
+
       final fsSvc = SafetyStatusService(firestore: fakeFs);
       fsSvc.initialize();
       await Future<void>.delayed(Duration.zero);
@@ -255,6 +265,36 @@ void main() {
       expect(fsSvc.totalUsers, 1);
       expect(fsSvc.dangerCount, 1);
       expect(fsSvc.all.first.userId, 'stranger');
+    });
+
+    test('a NON-admin device never receives the danger feed', () async {
+      final fakeFs = FakeFirebaseFirestore();
+      await fakeFs.collection('safety_reports').doc('remote-1').set(
+            SafetyReport(
+              id: 'remote-1',
+              userId: 'stranger',
+              userName: 'অচেনা',
+              userPhone: '01700000000',
+              status: SafetyReport.dangerStatus,
+              dangerType: DangerType.flood,
+              lat: 23.81,
+              lon: 90.41,
+              timestamp: DateTime(2026, 7, 25, 9),
+            ).toJson(),
+          );
+
+      SharedPreferences.setMockInitialValues(
+          {FirebaseAuthService.prefIsAdminDevice: false});
+      await firebaseAuthService.loadAdminFlag();
+
+      final fsSvc = SafetyStatusService(firestore: fakeFs);
+      fsSvc.initialize();
+      await Future<void>.delayed(Duration.zero);
+
+      // No subscription at all — the phone number and coordinates above
+      // never reach a device that has no business holding them.
+      expect(fsSvc.totalUsers, 0);
+      expect(fsSvc.all, isEmpty);
     });
 
     test(

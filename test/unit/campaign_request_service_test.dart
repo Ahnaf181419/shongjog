@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shongjog/core/firebase_auth_service.dart';
 import 'package:shongjog/features/admin/campaign_request.dart';
 
 CampaignRequest _req(String id, {CampaignStatus status = CampaignStatus.pending}) {
@@ -82,11 +84,63 @@ void main() {
             _req('remote-1').toJson(),
           );
 
+      // A campaign carries the submitter's phone and coordinates, so the
+      // unfiltered read is admin-only; a non-admin device subscribes to
+      // approved campaigns alone (all it renders — the map markers).
+      SharedPreferences.setMockInitialValues(
+          {FirebaseAuthService.prefIsAdminDevice: true});
+      await firebaseAuthService.loadAdminFlag();
+
       final svc = CampaignRequestService(firestore: fakeFs);
       await svc.initialize();
       await Future<void>.delayed(Duration.zero);
 
       expect(svc.requests.any((r) => r.id == 'remote-1'), isTrue);
+    });
+
+    test('a non-admin device sees approved campaigns but not pending ones',
+        () async {
+      final fakeFs = FakeFirebaseFirestore();
+      await fakeFs.collection('campaigns').doc('pending-1').set(
+          _req('pending-1').toJson());
+      await fakeFs.collection('campaigns').doc('approved-1').set(
+          _req('approved-1', status: CampaignStatus.approved).toJson());
+
+      SharedPreferences.setMockInitialValues(
+          {FirebaseAuthService.prefIsAdminDevice: false});
+      await firebaseAuthService.loadAdminFlag();
+
+      final svc = CampaignRequestService(firestore: fakeFs);
+      await svc.initialize();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(svc.requests.any((r) => r.id == 'approved-1'), isTrue);
+      expect(svc.requests.any((r) => r.id == 'pending-1'), isFalse);
+    });
+
+    test('one malformed document cannot poison the whole batch', () async {
+      // `fromJson` indexes CampaignType.values[...] with a raw int, so
+      // `type: 99` threw RangeError inside the stream listener and broke the
+      // campaign list on every install — with delete denied to all clients,
+      // making it unrecoverable in-app.
+      final fakeFs = FakeFirebaseFirestore();
+      await fakeFs.collection('campaigns').doc('poison').set({
+        ..._req('poison', status: CampaignStatus.approved).toJson(),
+        'type': 99,
+      });
+      await fakeFs.collection('campaigns').doc('good').set(
+          _req('good', status: CampaignStatus.approved).toJson());
+
+      SharedPreferences.setMockInitialValues(
+          {FirebaseAuthService.prefIsAdminDevice: false});
+      await firebaseAuthService.loadAdminFlag();
+
+      final svc = CampaignRequestService(firestore: fakeFs);
+      await svc.initialize();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(svc.requests.any((r) => r.id == 'good'), isTrue);
+      expect(svc.requests.any((r) => r.id == 'poison'), isFalse);
     });
 
     test(

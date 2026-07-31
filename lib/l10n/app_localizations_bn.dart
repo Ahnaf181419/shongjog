@@ -153,6 +153,13 @@ class AppLocalizationsBn extends AppLocalizations {
   String get prepTipsDesc => 'চ্যাট ইতিহাস অনুযায়ী হোম স্ক্রিনে পরামর্শ কার্ড';
 
   @override
+  String get meshAutoSaveMedia => 'মেশ মিডিয়া গ্যালারিতে সেভ করুন';
+
+  @override
+  String get meshAutoSaveMediaDesc =>
+      'কাছের ব্যবহারকারীদের পাঠানো ছবি ও ভিডিও স্বয়ংক্রিয়ভাবে গ্যালারিতে জমা হবে';
+
+  @override
   String get sectionEmergency => 'জরুরি';
 
   @override
@@ -326,6 +333,82 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get todaysTip => 'আজকের পরামর্শ';
+
+  @override
+  String get homeTip1 =>
+      'বন্যা মৌসুমে পানি অন্তত ১ মিনিট ফুটিয়ে পান। পানিবাহিত রোগ প্রতিরোধে ORS মজুত রাখুন।';
+
+  @override
+  String get homeTip2 =>
+      'ঝড় আসার আগে জানালা-দরজা বন্ধ করুন। ভাঙা কাচের ক্ষতি থেকে বাঁচতে মোটা কাপড় দিয়ে ঢাকুন।';
+
+  @override
+  String get homeTip3 =>
+      'ভূমিকম্পে টেবিলের নিচে ঢুকুন, দেয়াল থেকে দূরে সরে যান। লিফট ব্যবহার করবেন না।';
+
+  @override
+  String get homeTip4 =>
+      'অগ্নিকাণ্ডে ধোঁয়া থেকে বাঁচতে মাটি পর্যন্ত নিচু হয়ে যান। ধোঁয়া সবসময় উপরে ওঠে।';
+
+  @override
+  String get homeTip5 =>
+      'গ্রীষ্মে প্রতি ৩০ মিনিটে পানি পান করুন। হিটস্ট্রোক থেকে বাঁচতে হালকা রঙের কাপড় পরুন।';
+
+  @override
+  String get homeTip6 =>
+      'ডায়রিয়ায় ORS ঘরে তৈরি করুন: ১ লিটার ফুটিয়ে ঠান্ডা করা পানিতে ১ চা চামচ চিনি + আধা চা চামচ লবণ মেশান।';
+
+  @override
+  String get homeTip7 =>
+      'সাপে কামড়ালে কামড়ানো জায়গাটি হৃদপিণ্ডের নিচে রাখুন। কাঁচি বা ছুরি দিয়ে কাটবেন না।';
+
+  @override
+  String get homeTip8 =>
+      'বন্যায় পানিতে নামার আগে বৈদ্যুতিক সরঞ্জামের সংযোগ বিচ্ছিন্ন করুন। গ্যাস সিলিন্ডার ও লাইটার দূরে সরিয়ে রাখুন।';
+
+  @override
+  String get homeTip9 =>
+      'মাঠে বা খোলা জায়গায় ভূমিকম্প অনুভব করলে খোলা জায়গাতেই থাকুন, গাছ বা বিদ্যুতের খুঁটির পাশে যাবেন না।';
+
+  @override
+  String get homeTip10 =>
+      'ঘরের ভেতরে আগুন লাগলে সারিবদ্ধভাবে শান্তভাবে বাইরে যান। ধোঁয়া বেশি হলে ভেজা কাপড় মুখে চেপে ধরুন।';
+
+  @override
+  String get homeTip11 =>
+      'গরমে শিশুদের দ্রুত পানিশূন্যতা হতে পারে। সবার আগে তাদের পানি খাইয়ে ছায়ায় বসান।';
+
+  @override
+  String get homeTip12 =>
+      'তীব্র ঝড়ে বাড়ির বাইরে থাকলে নিচু জায়গায় মাটিতে শুয়ে পড়ুন। গাছের পাশে দাঁড়াবেন না।';
+
+  @override
+  String get homeTip13 =>
+      'প্রতি পরিবারে অন্তত ৩ দিনের খাবার পানি ও শুকনো খাবার মজুত রাখুন। পরিষ্কারের জন্য আলাদা পানি রাখুন।';
+
+  @override
+  String get homeTip14 =>
+      'বাড়িতে প্রাথমিক চিকিৎসা বাক্স রাখুন: ব্যান্ডেজ, অ্যান্টিসেপটিক, প্যারাসিটামল, ORS প্যাকেট।';
+
+  @override
+  String get homeTip15 =>
+      'বন্যার পর পুকুরের পানি সরাসরি ব্যবহার করবেন না। ফুটিয়ে বা ক্লোরিন ট্যাবলেট দিয়ে বিশুদ্ধ করুন।';
+
+  @override
+  String get homeTip16 =>
+      'ভূমিকম্পের পর ভবনের ক্ষতিগ্রস্ত অংশ পরীক্ষা না করে ভেতরে ঢুকবেন না।';
+
+  @override
+  String get homeTip17 =>
+      'জ্বর হলে শরীর ভেজা কাপড় দিয়ে মুছে দিন এবং প্রচুর পানি পান করুন। ৪০° সেলসিয়াসের বেশি হলে হাসপাতালে যান।';
+
+  @override
+  String get homeTip18 =>
+      'সামুদ্রিক ঝড়ের সময় সমুদ্র থেকে দূরে থাকুন। ঢেউ অস্বাভাবিক মনে হলে তাৎক্ষণিক উঁচু জায়গায় যান।';
+
+  @override
+  String get homeTip19 =>
+      'বিদ্যুতের বিপদে হাত ভেজা অবস্থায় সুইচে হাত দেবেন না। রাবারের জুতা পরে থাকুন।';
 
   @override
   String get offlineMessage => 'অফলাইন মেসেজ';
@@ -2327,4 +2410,36 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get cardAiButton => 'এআই-তে জিজ্ঞাসা করুন';
+
+  @override
+  String get situationTitle => 'AI পরিস্থিতি সারাংশ';
+
+  @override
+  String situationIntro(String count) {
+    return '$count টি সাম্প্রতিক প্রতিবেদনের ভিত্তিতে পরিস্থিতির সারাংশ তৈরি করুন।';
+  }
+
+  @override
+  String get situationGenerate => 'সারাংশ তৈরি করুন';
+
+  @override
+  String get situationResultHeading => 'AI সারাংশ';
+
+  @override
+  String get situationRetry => 'পুনরায়';
+
+  @override
+  String get situationDone => 'সম্পন্ন';
+
+  @override
+  String get modelInfoParamsE2b => '২ বিলিয়ন';
+
+  @override
+  String get modelInfoParamsE4b => '৪ বিলিয়ন';
+
+  @override
+  String get modelInfoRamE2b => '~২.৫ GB';
+
+  @override
+  String get modelInfoRamE4b => '~৫ GB';
 }

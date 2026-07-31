@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../core/firebase_auth_service.dart';
 
 /// The type of danger a user is reporting.
 enum DangerType {
@@ -193,13 +194,38 @@ class SafetyStatusService extends ChangeNotifier {
   void initialize() {
     if (_initialized) return;
     _initialized = true;
+    _subscribeFirestore();
+  }
+
+  /// Subscribe to the aggregate feed — **admins only**.
+  ///
+  /// Every one of these documents carries a real name, a phone number and
+  /// live GPS coordinates for someone who has just declared themselves in
+  /// danger. Every device used to stream the whole collection, so any
+  /// anonymous install could enumerate exactly that. Nothing outside the
+  /// admin screens reads the aggregate (`all`, `dangerReports`, the counts —
+  /// all admin-only consumers), so a non-admin device has no reason to hold
+  /// this data at all. `firestore.rules` enforces the same restriction
+  /// server-side; this just avoids issuing a query that would be rejected.
+  void _subscribeFirestore() {
+    _firestoreSub?.cancel();
+    _firestoreSub = null;
+    if (!firebaseAuthService.isAdminDevice) return;
     try {
       _firestoreSub = _firestore
           .collection(_collection)
           .snapshots()
           .listen((snap) {
         for (final doc in snap.docs) {
-          ingest(SafetyReport.fromJson(doc.data()));
+          // Per-doc guard: `fromJson` casts `lat`/`lon`/`hopCount` without
+          // checking types, so one malformed document would otherwise throw
+          // inside the listener and drop the whole batch.
+          try {
+            ingest(SafetyReport.fromJson(doc.data()));
+          } catch (e) {
+            debugPrint('SafetyStatusService: skipping malformed doc '
+                '${doc.id}: $e');
+          }
         }
       }, onError: (e) {
         debugPrint('SafetyStatusService Firestore stream failed: $e');
@@ -207,6 +233,12 @@ class SafetyStatusService extends ChangeNotifier {
     } catch (e) {
       debugPrint('SafetyStatusService Firestore subscribe failed: $e');
     }
+  }
+
+  /// Re-evaluate the subscription after this device gains or loses admin.
+  void refreshSubscription() {
+    if (!_initialized) return;
+    _subscribeFirestore();
   }
 
   /// Record the current user's own report.
@@ -219,8 +251,12 @@ class SafetyStatusService extends ChangeNotifier {
     // onto .set(...) would never even run — the throw happens before
     // .set() is reached.
     try {
-      _firestore.collection(_collection).doc(r.id).set(r.toJson()).catchError(
-          (e) => debugPrint('SafetyStatusService: Firestore submit failed: $e'));
+      _firestore
+          .collection(_collection)
+          .doc(r.id)
+          .set(withOwnerUid(r.toJson()))
+          .catchError((e) =>
+              debugPrint('SafetyStatusService: Firestore submit failed: $e'));
     } catch (e) {
       debugPrint('SafetyStatusService: Firestore submit failed: $e');
     }
@@ -237,12 +273,32 @@ class SafetyStatusService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Accept a decoded JSON map from the mesh listener.
+  /// Accept a JSON payload carried over the mesh (`SAFE:`/`DANGER:` prefix
+  /// already stripped by [MeshService]).
+  ///
+  /// **This path was dead until now.** The sender interpolated the report as
+  /// `'SAFE:${report.toJson()}'`, and `toJson()` returns a `Map` — string
+  /// interpolation therefore called `Map.toString()`, producing
+  /// `{id: safe-1, userId: u-2, …}`, which is not JSON. Every inbound report
+  /// threw inside `jsonDecode` and was swallowed by the catch below, so mesh
+  /// safety relay silently never worked. The sender now sends real JSON (see
+  /// `safety_status_screen.dart`).
+  ///
+  /// [Uri.decodeComponent] is applied only when the payload actually looks
+  /// percent-encoded; running it unconditionally threw `FormatException` on
+  /// any report whose free-text note contained a bare `%`.
   void ingestJson(String raw) {
     try {
-      final decoded = Uri.decodeComponent(raw);
+      var text = raw.trim();
+      if (!text.startsWith('{') && text.contains('%')) {
+        try {
+          text = Uri.decodeComponent(text);
+        } catch (_) {
+          // Not percent-encoded after all — parse what we were given.
+        }
+      }
       ingest(SafetyReport.fromJson(
-          jsonDecode(decoded) as Map<String, dynamic>));
+          jsonDecode(text) as Map<String, dynamic>));
     } catch (e) {
       debugPrint('[SafetyStatus] failed to ingest: $e');
     }

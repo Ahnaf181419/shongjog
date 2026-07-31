@@ -171,7 +171,10 @@ class CloudAiService {
   /// Rotating is only worth it for the former. A 500, a timeout, or a
   /// model-level 404 hits every key identically, so trying the next three
   /// just spends them for nothing and adds latency to an emergency answer.
-  @visibleForTesting
+  ///
+  /// Public (not `@visibleForTesting`) because the damage scanner walks the
+  /// same key ring against the same API and must make the same rotate-or-stop
+  /// decision — two copies of this predicate would drift.
   static bool isKeyFatal(Object e) {
     final s = e.toString().toUpperCase();
     // Daily/per-project quota spent.

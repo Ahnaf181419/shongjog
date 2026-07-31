@@ -258,10 +258,24 @@ class _MeshLifecycleObserver extends WidgetsBindingObserver {
         Nearby().stopDiscovery();
       } catch (e) { debugPrint("[Catch] app: $e"); }
     } else if (state == AppLifecycleState.resumed) {
-      // App coming to foreground — restart discovery and advertising.
-      if (meshService.isRunning) {
+      // App coming to foreground — resume the scan, but NOT underneath a
+      // live connection.
+      //
+      // `resumed` is not rare: it fires for a pulled-down notification
+      // shade, a dismissed permission dialog, the screen waking, or any app
+      // that briefly took focus. This handler used to restart discovery AND
+      // advertising on every one of those, and on `P2P_CLUSTER` both tear
+      // down radio state that an established link is sitting on — so a mesh
+      // chat dropped every time a notification arrived.
+      //
+      // Advertising is deliberately not restarted at all: `paused` above
+      // only stops *discovery*, so advertising was never interrupted and
+      // bouncing it is pure harm. Discovery resumes only when there is no
+      // link to protect; while peers are connected there is nothing to
+      // hunt for, and the radar screen's refresh button stays available for
+      // an explicit user-initiated rescan.
+      if (meshService.isRunning && !meshService.hasLiveLink) {
         meshService.restartDiscovery();
-        meshService.restartAdvertising();
       }
     }
   }

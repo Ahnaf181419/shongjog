@@ -9,17 +9,9 @@ import 'decision_tree.dart';
 import 'triage_state.dart';
 import 'triage_tts.dart';
 import '../../app/theme.dart';
+import '../../core/bangla_numerals.dart';
 
 /// Convert Latin digits to Bengali numerals for UI strings.
-/// AGENTS.md: Bangla numerals (০-৯) in user-facing strings.
-String _bn(int n) {
-  const map = {
-    '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
-    '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯',
-  };
-  return n.toString().split('').map((c) => map[c] ?? c).join();
-}
-
 /// Full-screen, no-typing triage wizard. Two giant buttons (হ্যাঁ /
 /// না) walk the user through a fixed yes/no decision tree. Each
 /// terminal node maps to a [TriageRoute] which surfaces a "go to
@@ -185,8 +177,8 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
           const SizedBox(height: 32),
           Text(
             AppLocalizations.of(context).triageQuestion(
-              _bn(_answers.length + 1),
-              _bn(TriageTree.questions.length),
+              banglaNumber(_answers.length + 1),
+              banglaNumber(TriageTree.questions.length),
             ),
             style: TextStyle(
               fontSize: 14,
@@ -550,7 +542,7 @@ class _InlineSteps extends StatelessWidget {
                   SizedBox(
                     width: 18,
                     child: Text(
-                      '${_bn(entry.key + 1)}.',
+                      '${banglaNumber(entry.key + 1)}.',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,

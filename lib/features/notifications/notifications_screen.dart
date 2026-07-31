@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../core/admin_broadcast_service.dart';
 import '../../l10n/app_localizations.dart';
+import '../../core/bangla_numerals.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -35,8 +36,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   String _formatTimestamp(BuildContext context, DateTime ts) {
-    const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-    String bn(int n) => n.toString().split('').map((d) => bnDigits[int.parse(d)]).join();
+    String bn(int n) => banglaNumber(n);
     final now = DateTime.now();
     final diff = now.difference(ts);
     final l10n = AppLocalizations.of(context);

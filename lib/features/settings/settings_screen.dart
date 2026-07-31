@@ -15,10 +15,12 @@ import '../../l10n/app_localizations.dart';
 import '../admin/map_picker_screen.dart';
 import '../audio/sound_service.dart';
 import '../chat/chat_store.dart';
+import '../mesh_comm/mesh_service.dart';
 import '../profile/profile_screen.dart';
 import 'model_picker_section.dart';
 import '../../core/admin_broadcast_service.dart';
 import '../../features/admin/campaign_request.dart';
+import '../../core/firebase_auth_service.dart';
 
 /// Settings screen.
 ///
@@ -37,6 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _voiceInput = true;
   bool _soundEnabled = true;
   bool _showInsights = true;
+  bool _meshAutoSaveMedia = false;
   String? _kbVersion;
   UserProfileData _profile = UserProfileData.empty;
 
@@ -56,6 +59,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _voiceInput = prefs.getBool('pref_voice_input') ?? true;
         _soundEnabled = prefs.getBool('pref_sound_enabled') ?? true;
         _showInsights = prefs.getBool('pref_show_insights') ?? true;
+        _meshAutoSaveMedia =
+            prefs.getBool(MeshService.prefAutoSaveMeshMedia) ?? false;
         _kbVersion = prefs.getString('kb_version') ?? 'v1.0';
         _profile = profile;
       });
@@ -122,6 +127,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
               setState(() => _showInsights = v);
               final prefs = await SharedPreferences.getInstance();
               await prefs.setBool('pref_show_insights', v);
+            },
+          ),
+          // Default OFF, deliberately. Mesh media arrives from whoever is in
+          // range and accepted a connection — copying it into the user's
+          // camera roll unprompted (which is what the receiver used to do)
+          // hands any nearby peer a write into personal storage. Off unless
+          // the user asks for it.
+          SwitchListTile(
+            secondary: const Icon(Icons.save_alt_rounded),
+            title: Text(AppLocalizations.of(context).meshAutoSaveMedia),
+            subtitle: Text(AppLocalizations.of(context).meshAutoSaveMediaDesc),
+            value: _meshAutoSaveMedia,
+            onChanged: (v) async {
+              setState(() => _meshAutoSaveMedia = v);
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setBool(MeshService.prefAutoSaveMeshMedia, v);
             },
           ),
           const _Divider(),
@@ -465,7 +486,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 final request = CampaignRequest(
                   id: DateTime.now().microsecondsSinceEpoch.toString(),
-                  userId: 'local_user',
+                  // The auth uid, not a constant. `firestore.rules` requires
+                  // `userId == request.auth.uid` on create — binding the
+                  // document to its submitter is what stops a device filing
+                  // requests in someone else's name. 'local_user' was the
+                  // same string on every install.
+                  userId: firebaseAuthService.uid ?? 'local_user',
                   userName: AppLocalizations.of(context).settingsDefaultUsername,
                   userPhone: '',
                   type: selectedType,
@@ -849,7 +875,9 @@ class _ModelInfoTile extends StatelessWidget {
           _infoRow(
             context,
             AppLocalizations.of(context).modelInfoParams,
-            isE2b ? '২ বিলিয়ন' : '৪ বিলিয়ন',
+            isE2b
+                ? AppLocalizations.of(context).modelInfoParamsE2b
+                : AppLocalizations.of(context).modelInfoParamsE4b,
           ),
           _infoRow(
             context,
@@ -859,7 +887,9 @@ class _ModelInfoTile extends StatelessWidget {
           _infoRow(
             context,
             AppLocalizations.of(context).modelInfoRam,
-            isE2b ? '~২.৫ GB' : '~৫ GB',
+            isE2b
+                ? AppLocalizations.of(context).modelInfoRamE2b
+                : AppLocalizations.of(context).modelInfoRamE4b,
           ),
           const SizedBox(height: 6),
           Text(

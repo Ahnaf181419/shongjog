@@ -122,7 +122,14 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
     // Kick off a fresh scan immediately on (re-)entry so the peer list
     // populates without waiting for the first periodic tick.
     // The app-wide discovery timer in MeshService handles ongoing scans.
-    meshService.restartDiscovery();
+    //
+    // Skipped while a link is live: re-entering this screen mid-conversation
+    // would otherwise bounce the radio the connection is riding on, and the
+    // peer you are already talking to is by definition already found. The
+    // refresh button in the app bar remains for an explicit rescan.
+    if (!meshService.hasLiveLink) {
+      meshService.restartDiscovery();
+    }
   }
 
   @override

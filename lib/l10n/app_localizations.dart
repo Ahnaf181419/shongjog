@@ -380,6 +380,18 @@ abstract class AppLocalizations {
   /// **'চ্যাট ইতিহাস অনুযায়ী হোম স্ক্রিনে পরামর্শ কার্ড'**
   String get prepTipsDesc;
 
+  /// Mesh media auto-save consent toggle
+  ///
+  /// In bn, this message translates to:
+  /// **'মেশ মিডিয়া গ্যালারিতে সেভ করুন'**
+  String get meshAutoSaveMedia;
+
+  /// Mesh media auto-save consent toggle
+  ///
+  /// In bn, this message translates to:
+  /// **'কাছের ব্যবহারকারীদের পাঠানো ছবি ও ভিডিও স্বয়ংক্রিয়ভাবে গ্যালারিতে জমা হবে'**
+  String get meshAutoSaveMediaDesc;
+
   /// No description provided for @sectionEmergency.
   ///
   /// In bn, this message translates to:
@@ -721,6 +733,120 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'আজকের পরামর্শ'**
   String get todaysTip;
+
+  /// Rotating home-screen preparedness tip #1
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্যা মৌসুমে পানি অন্তত ১ মিনিট ফুটিয়ে পান। পানিবাহিত রোগ প্রতিরোধে ORS মজুত রাখুন।'**
+  String get homeTip1;
+
+  /// Rotating home-screen preparedness tip #2
+  ///
+  /// In bn, this message translates to:
+  /// **'ঝড় আসার আগে জানালা-দরজা বন্ধ করুন। ভাঙা কাচের ক্ষতি থেকে বাঁচতে মোটা কাপড় দিয়ে ঢাকুন।'**
+  String get homeTip2;
+
+  /// Rotating home-screen preparedness tip #3
+  ///
+  /// In bn, this message translates to:
+  /// **'ভূমিকম্পে টেবিলের নিচে ঢুকুন, দেয়াল থেকে দূরে সরে যান। লিফট ব্যবহার করবেন না।'**
+  String get homeTip3;
+
+  /// Rotating home-screen preparedness tip #4
+  ///
+  /// In bn, this message translates to:
+  /// **'অগ্নিকাণ্ডে ধোঁয়া থেকে বাঁচতে মাটি পর্যন্ত নিচু হয়ে যান। ধোঁয়া সবসময় উপরে ওঠে।'**
+  String get homeTip4;
+
+  /// Rotating home-screen preparedness tip #5
+  ///
+  /// In bn, this message translates to:
+  /// **'গ্রীষ্মে প্রতি ৩০ মিনিটে পানি পান করুন। হিটস্ট্রোক থেকে বাঁচতে হালকা রঙের কাপড় পরুন।'**
+  String get homeTip5;
+
+  /// Rotating home-screen preparedness tip #6
+  ///
+  /// In bn, this message translates to:
+  /// **'ডায়রিয়ায় ORS ঘরে তৈরি করুন: ১ লিটার ফুটিয়ে ঠান্ডা করা পানিতে ১ চা চামচ চিনি + আধা চা চামচ লবণ মেশান।'**
+  String get homeTip6;
+
+  /// Rotating home-screen preparedness tip #7
+  ///
+  /// In bn, this message translates to:
+  /// **'সাপে কামড়ালে কামড়ানো জায়গাটি হৃদপিণ্ডের নিচে রাখুন। কাঁচি বা ছুরি দিয়ে কাটবেন না।'**
+  String get homeTip7;
+
+  /// Rotating home-screen preparedness tip #8
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্যায় পানিতে নামার আগে বৈদ্যুতিক সরঞ্জামের সংযোগ বিচ্ছিন্ন করুন। গ্যাস সিলিন্ডার ও লাইটার দূরে সরিয়ে রাখুন।'**
+  String get homeTip8;
+
+  /// Rotating home-screen preparedness tip #9
+  ///
+  /// In bn, this message translates to:
+  /// **'মাঠে বা খোলা জায়গায় ভূমিকম্প অনুভব করলে খোলা জায়গাতেই থাকুন, গাছ বা বিদ্যুতের খুঁটির পাশে যাবেন না।'**
+  String get homeTip9;
+
+  /// Rotating home-screen preparedness tip #10
+  ///
+  /// In bn, this message translates to:
+  /// **'ঘরের ভেতরে আগুন লাগলে সারিবদ্ধভাবে শান্তভাবে বাইরে যান। ধোঁয়া বেশি হলে ভেজা কাপড় মুখে চেপে ধরুন।'**
+  String get homeTip10;
+
+  /// Rotating home-screen preparedness tip #11
+  ///
+  /// In bn, this message translates to:
+  /// **'গরমে শিশুদের দ্রুত পানিশূন্যতা হতে পারে। সবার আগে তাদের পানি খাইয়ে ছায়ায় বসান।'**
+  String get homeTip11;
+
+  /// Rotating home-screen preparedness tip #12
+  ///
+  /// In bn, this message translates to:
+  /// **'তীব্র ঝড়ে বাড়ির বাইরে থাকলে নিচু জায়গায় মাটিতে শুয়ে পড়ুন। গাছের পাশে দাঁড়াবেন না।'**
+  String get homeTip12;
+
+  /// Rotating home-screen preparedness tip #13
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রতি পরিবারে অন্তত ৩ দিনের খাবার পানি ও শুকনো খাবার মজুত রাখুন। পরিষ্কারের জন্য আলাদা পানি রাখুন।'**
+  String get homeTip13;
+
+  /// Rotating home-screen preparedness tip #14
+  ///
+  /// In bn, this message translates to:
+  /// **'বাড়িতে প্রাথমিক চিকিৎসা বাক্স রাখুন: ব্যান্ডেজ, অ্যান্টিসেপটিক, প্যারাসিটামল, ORS প্যাকেট।'**
+  String get homeTip14;
+
+  /// Rotating home-screen preparedness tip #15
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্যার পর পুকুরের পানি সরাসরি ব্যবহার করবেন না। ফুটিয়ে বা ক্লোরিন ট্যাবলেট দিয়ে বিশুদ্ধ করুন।'**
+  String get homeTip15;
+
+  /// Rotating home-screen preparedness tip #16
+  ///
+  /// In bn, this message translates to:
+  /// **'ভূমিকম্পের পর ভবনের ক্ষতিগ্রস্ত অংশ পরীক্ষা না করে ভেতরে ঢুকবেন না।'**
+  String get homeTip16;
+
+  /// Rotating home-screen preparedness tip #17
+  ///
+  /// In bn, this message translates to:
+  /// **'জ্বর হলে শরীর ভেজা কাপড় দিয়ে মুছে দিন এবং প্রচুর পানি পান করুন। ৪০° সেলসিয়াসের বেশি হলে হাসপাতালে যান।'**
+  String get homeTip17;
+
+  /// Rotating home-screen preparedness tip #18
+  ///
+  /// In bn, this message translates to:
+  /// **'সামুদ্রিক ঝড়ের সময় সমুদ্র থেকে দূরে থাকুন। ঢেউ অস্বাভাবিক মনে হলে তাৎক্ষণিক উঁচু জায়গায় যান।'**
+  String get homeTip18;
+
+  /// Rotating home-screen preparedness tip #19
+  ///
+  /// In bn, this message translates to:
+  /// **'বিদ্যুতের বিপদে হাত ভেজা অবস্থায় সুইচে হাত দেবেন না। রাবারের জুতা পরে থাকুন।'**
+  String get homeTip19;
 
   /// No description provided for @offlineMessage.
   ///
@@ -4495,6 +4621,66 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'এআই-তে জিজ্ঞাসা করুন'**
   String get cardAiButton;
+
+  /// No description provided for @situationTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'AI পরিস্থিতি সারাংশ'**
+  String get situationTitle;
+
+  /// Intro line on the AI situation summary screen
+  ///
+  /// In bn, this message translates to:
+  /// **'{count} টি সাম্প্রতিক প্রতিবেদনের ভিত্তিতে পরিস্থিতির সারাংশ তৈরি করুন।'**
+  String situationIntro(String count);
+
+  /// No description provided for @situationGenerate.
+  ///
+  /// In bn, this message translates to:
+  /// **'সারাংশ তৈরি করুন'**
+  String get situationGenerate;
+
+  /// No description provided for @situationResultHeading.
+  ///
+  /// In bn, this message translates to:
+  /// **'AI সারাংশ'**
+  String get situationResultHeading;
+
+  /// No description provided for @situationRetry.
+  ///
+  /// In bn, this message translates to:
+  /// **'পুনরায়'**
+  String get situationRetry;
+
+  /// No description provided for @situationDone.
+  ///
+  /// In bn, this message translates to:
+  /// **'সম্পন্ন'**
+  String get situationDone;
+
+  /// No description provided for @modelInfoParamsE2b.
+  ///
+  /// In bn, this message translates to:
+  /// **'২ বিলিয়ন'**
+  String get modelInfoParamsE2b;
+
+  /// No description provided for @modelInfoParamsE4b.
+  ///
+  /// In bn, this message translates to:
+  /// **'৪ বিলিয়ন'**
+  String get modelInfoParamsE4b;
+
+  /// No description provided for @modelInfoRamE2b.
+  ///
+  /// In bn, this message translates to:
+  /// **'~২.৫ GB'**
+  String get modelInfoRamE2b;
+
+  /// No description provided for @modelInfoRamE4b.
+  ///
+  /// In bn, this message translates to:
+  /// **'~৫ GB'**
+  String get modelInfoRamE4b;
 }
 
 class _AppLocalizationsDelegate

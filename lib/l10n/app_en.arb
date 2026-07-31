@@ -47,6 +47,8 @@
   "soundHintDesc": "A chime when AI answer is ready",
   "prepTips": "Preparation Tips",
   "prepTipsDesc": "Tip cards on the home screen based on chat history",
+  "meshAutoSaveMedia": "Save mesh media to gallery",
+  "meshAutoSaveMediaDesc": "Photos and videos sent by nearby users are copied to your gallery automatically",
   "sectionEmergency": "Emergency",
   "emergencyContacts": "Emergency Contacts",
   "emergencyContactsDesc": "National numbers and your personal contacts",
@@ -104,6 +106,25 @@
   "triageWizard": "Triage Wizard",
   "firstAid": "First Aid",
   "todaysTip": "Today's Tip",
+  "homeTip1": "During flood season, boil drinking water for at least 1 minute. Keep ORS in stock to prevent waterborne illness.",
+  "homeTip2": "Close windows and doors before a storm arrives. Cover them with thick cloth to guard against flying glass.",
+  "homeTip3": "In an earthquake, get under a table and move away from walls. Never use the lift.",
+  "homeTip4": "In a fire, stay low to the ground to keep below the smoke. Smoke always rises.",
+  "homeTip5": "In summer heat, drink water every 30 minutes. Wear light-coloured clothing to avoid heatstroke.",
+  "homeTip6": "Make ORS at home for diarrhoea: mix 1 teaspoon sugar and half a teaspoon salt into 1 litre of boiled, cooled water.",
+  "homeTip7": "For a snakebite, keep the bitten area below heart level. Never cut it with a knife or scissors.",
+  "homeTip8": "Before entering floodwater, disconnect electrical equipment. Move gas cylinders and lighters well away.",
+  "homeTip9": "If an earthquake catches you outdoors, stay in the open — keep clear of trees and electricity poles.",
+  "homeTip10": "If a fire starts indoors, leave calmly in single file. If there is heavy smoke, hold a wet cloth over your face.",
+  "homeTip11": "Children dehydrate quickly in heat. Give them water first and sit them in the shade.",
+  "homeTip12": "Caught outside in a severe storm, lie flat on low ground. Do not stand beside trees.",
+  "homeTip13": "Keep at least 3 days of drinking water and dry food per household. Store separate water for washing.",
+  "homeTip14": "Keep a first-aid kit at home: bandages, antiseptic, paracetamol, ORS sachets.",
+  "homeTip15": "After a flood, never use pond water directly. Purify it by boiling or with chlorine tablets.",
+  "homeTip16": "After an earthquake, do not go inside until the damaged parts of the building have been checked.",
+  "homeTip17": "For fever, sponge the body with a wet cloth and drink plenty of water. Above 40°C, go to hospital.",
+  "homeTip18": "During a sea storm, stay away from the coast. If the waves look abnormal, move to high ground at once.",
+  "homeTip19": "In an electrical emergency, never touch a switch with wet hands. Keep rubber shoes on.",
   "offlineMessage": "Offline Message",
   "offlineMessageDesc": "Talk to nearby people via Wi-Fi",
   "modelDownloadProgress": "Model Download {progress}",
@@ -541,27 +562,49 @@
   "triageSummarySos": "Triage: {route}\nTime: {time}\nQuestions: {count} (Yes {yes} / No {no})",
   "@triageSummarySos": {
     "placeholders": {
-      "route": { "type": "String" },
-      "time": { "type": "String" },
-      "count": { "type": "int" },
-      "yes": { "type": "int" },
-      "no": { "type": "int" }
+      "route": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "yes": {
+        "type": "int"
+      },
+      "no": {
+        "type": "int"
+      }
     }
   },
   "triageShareableSos": "Triage: {route}\nTime: {time}\nQuestions: {count} (Yes {yes} / No {no})",
   "@triageShareableSos": {
     "placeholders": {
-      "route": { "type": "String" },
-      "time": { "type": "String" },
-      "count": { "type": "int" },
-      "yes": { "type": "int" },
-      "no": { "type": "int" }
+      "route": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "yes": {
+        "type": "int"
+      },
+      "no": {
+        "type": "int"
+      }
     }
   },
   "modelRamLabel": "Your RAM: {ram}",
   "@modelRamLabel": {
     "placeholders": {
-      "ram": { "type": "String" }
+      "ram": {
+        "type": "String"
+      }
     }
   },
   "modelRamLow": "4GB or less",
@@ -573,7 +616,9 @@
   "modelStorageUsed": "Downloaded: {size}",
   "@modelStorageUsed": {
     "placeholders": {
-      "size": { "type": "String" }
+      "size": {
+        "type": "String"
+      }
     }
   },
   "modelBadgeExpected": "Expected",
@@ -587,15 +632,21 @@
   "modelDownloadStarted": "{label} download started — running in background.",
   "@modelDownloadStarted": {
     "placeholders": {
-      "label": { "type": "String" }
+      "label": {
+        "type": "String"
+      }
     }
   },
   "modelDeleteTitle": "Delete model?",
   "modelDeleteBody": "{label} ({size}) will be deleted.",
   "@modelDeleteBody": {
     "placeholders": {
-      "label": { "type": "String" },
-      "size": { "type": "String" }
+      "label": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
     }
   },
   "modelCancel": "Cancel",
@@ -615,7 +666,9 @@
   "hazardsShowMore": "Show {count} more",
   "@hazardsShowMore": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "shelterAiRiskAssessment": "AI Risk Assessment",
@@ -676,7 +729,9 @@
   "damagePhotoError": "Could not take photo: {error}",
   "@damagePhotoError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "damageInternetRequired": "Internet is required for damage scanning.",
@@ -684,7 +739,9 @@
   "damageAnalyzeError": "Could not analyze: {error}",
   "@damageAnalyzeError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "damageAiAnalyzing": "AI is analyzing photo...",
@@ -755,19 +812,25 @@
   "riskTimeMinutesAgo": "{count} minutes ago",
   "@riskTimeMinutesAgo": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "riskTimeHoursAgo": "{count} hours ago",
   "@riskTimeHoursAgo": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "riskTimeDaysAgo": "{count} days ago",
   "@riskTimeDaysAgo": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "kitTitle": "AI Emergency Kit",
@@ -780,19 +843,25 @@
   "kitSummaryMembers": "{size} members",
   "@kitSummaryMembers": {
     "placeholders": {
-      "size": { "type": "int" }
+      "size": {
+        "type": "int"
+      }
     }
   },
   "kitSummaryChildren": "{count} children",
   "@kitSummaryChildren": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "kitSummaryElderly": "{count} elderly",
   "@kitSummaryElderly": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "kitFamilySizeHint": "How many people are in your family?",
@@ -804,19 +873,25 @@
   "adminTimeMinutesAgo": "{count} minutes ago",
   "@adminTimeMinutesAgo": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "adminTimeHoursAgo": "{count} hours ago",
   "@adminTimeHoursAgo": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "adminTimeDaysAgo": "{count} days ago",
   "@adminTimeDaysAgo": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "adminWriteMessage": "Write a message...",
@@ -829,5 +904,15 @@
   "chatNoAnswer": "I don't have an answer for this question. Call 999 for help.",
   "cloudAiNoAnswer": "No answer found.",
   "settingsDefaultUsername": "User",
-  "cardAiButton": "Ask AI"
+  "cardAiButton": "Ask AI",
+  "situationTitle": "AI Situation Summary",
+  "situationIntro": "Generate a situation summary from {count} recent reports.",
+  "situationGenerate": "Generate summary",
+  "situationResultHeading": "AI Summary",
+  "situationRetry": "Again",
+  "situationDone": "Done",
+  "modelInfoParamsE2b": "2 billion",
+  "modelInfoParamsE4b": "4 billion",
+  "modelInfoRamE2b": "~2.5 GB",
+  "modelInfoRamE4b": "~5 GB"
 }

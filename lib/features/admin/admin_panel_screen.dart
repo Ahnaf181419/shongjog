@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../core/device_registry_service.dart';
+import '../../core/firebase_auth_service.dart';
 import '../../features/mesh_comm/mesh_service.dart';
 import '../../features/admin/campaign_request.dart';
 import '../safe_beacon/safety_status_service.dart';
@@ -43,6 +46,17 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
   }
 
   void _logout() {
+    // Actually give up the role, don't just navigate away from it. Logging
+    // out used to leave `role: 'admin'` on this device's users/{uid} doc
+    // permanently, so the phone kept the ability to create broadcasts and
+    // approve campaigns for the life of the install — including for whoever
+    // picked it up next. Fire-and-forget: releaseAdminRole never throws, and
+    // Firestore queues the write if this device is offline.
+    unawaited(firebaseAuthService.releaseAdminRole().then((_) {
+      // Narrow the live queries back down as soon as the role is gone.
+      campaignRequestService.refreshSubscription();
+      safetyStatusService.refreshSubscription();
+    }));
     Navigator.of(context).pop();
   }
 

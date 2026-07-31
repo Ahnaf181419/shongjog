@@ -16,6 +16,17 @@
 // production version would need a server-side check (e.g. a Cloud Function
 // gated on an invite code) before setting role: 'admin'.
 //
+// KNOW WHAT THAT UNLOCKS before shipping this anywhere real. The PIN itself
+// is a literal in the APK, recoverable with one `strings` run, and admin
+// grants `broadcasts` create — which lib/main.dart wires straight into
+// LocalNotificationService. So the gate above is all that stands between an
+// attacker and a tray notification on every install, during exactly the
+// emergency when people are most likely to act on one. It is a
+// misinformation channel, not merely a settings panel. The rules below are
+// tightened as far as they can be without a server: they no longer let a
+// signed-in device forge or rewrite other people's data, but they cannot
+// stop a device from claiming the role in the first place.
+//
 // Manually paste this into the Firebase console: Firestore Database → Rules.
 rules_version = '2';
 service cloud.firestore {
@@ -28,6 +39,48 @@ service cloud.firestore {
     function isAdmin() {
       return isSignedIn() &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Does the document being written claim THIS caller as its owner?
+    //
+    // Note this checks `ownerUid`, never `userId`. `userId` is a local id
+    // the app reads from SharedPreferences; it travels over the mesh, it is
+    // freely chosen, and it has no relationship to Firebase auth — a rule
+    // that trusted it would authorize nothing. `ownerUid` is stamped on at
+    // the Firestore write site by `withOwnerUid()` in
+    // lib/core/firebase_auth_service.dart and is the only ownership signal
+    // these rules can verify.
+    function ownsIncoming() {
+      return isSignedIn() && request.resource.data.ownerUid == request.auth.uid;
+    }
+
+    function ownsExisting() {
+      return isSignedIn() && resource.data.ownerUid == request.auth.uid;
+    }
+
+    // The APP dedupes on `userId`, not on `ownerUid` — SafetyStatusService
+    // keys its map by it, and the admin dashboard's safe/danger counts come
+    // straight out of that map. So binding only `ownerUid` secured the
+    // document while leaving the number that actually gets read forgeable:
+    // an attacker could file a report they legitimately own, set `userId` to
+    // a victim, and overwrite that person's "danger" with "safe". Both ids
+    // must therefore be the caller.
+    function claimsOwnIdentity() {
+      return request.resource.data.userId == request.auth.uid;
+    }
+
+    // Free-text a client controls. Unbounded strings are a cost DoS when
+    // anonymous auth hands out unlimited identities for free.
+    function sane(field, max) {
+      return !(field in request.resource.data) ||
+             (request.resource.data[field] is string &&
+              request.resource.data[field].size() <= max);
+    }
+
+    function inRange(field, lo, hi) {
+      return request.resource.data[field] is int &&
+             request.resource.data[field] >= lo &&
+             request.resource.data[field] <= hi;
     }
 
     // Shared cloud-AI credential, delivered to installed apps instead of
@@ -56,12 +109,43 @@ service cloud.firestore {
       allow write: if isSignedIn() && request.auth.uid == uid;
     }
 
-    // Any signed-in device may submit a campaign request; only an admin
-    // device may update one (approve/reject/notes).
+    // A campaign request carries the submitter's name, PHONE NUMBER and
+    // coordinates. Reading the whole collection is therefore admin-only; a
+    // normal device may only read APPROVED campaigns, which is all it ever
+    // renders (the relief-camp markers on the shelter map). Firestore
+    // rejects a query it cannot prove is fully readable, so the client asks
+    // for `where('status', == approved)` — see
+    // CampaignRequestService._subscribeFirestore.
+    //
+    // On create: `status` is pinned to pending and the admin-only review
+    // fields must be absent. Without that, `create` had no field validation
+    // at all, so a device could submit a request already marked approved
+    // with adminNotes filled in — walking straight past the approval flow
+    // that `update: if isAdmin()` exists to enforce.
+    //
+    // `type` and `status` are range-checked because the client indexes
+    // `CampaignType.values[...]` with them: an out-of-range int threw
+    // RangeError inside a stream listener and broke the campaign list on
+    // every install, with `delete: if false` making the poisoned document
+    // unremovable by any client.
     match /campaigns/{id} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn();
-      allow update: if isAdmin();
+      allow read: if isAdmin() ||
+                     (isSignedIn() && resource.data.status == 1);
+      allow create: if ownsIncoming() && claimsOwnIdentity()
+                    && inRange('type', 0, 5)
+                    && request.resource.data.status == 0
+                    && !('adminNotes' in request.resource.data)
+                    && !('reviewedAt' in request.resource.data)
+                    && request.resource.data.latitude is number
+                    && request.resource.data.longitude is number
+                    && sane('userName', 120)
+                    && sane('userPhone', 32)
+                    && sane('address', 300)
+                    && sane('landmark', 200)
+                    && sane('description', 2000);
+      allow update: if isAdmin()
+                    && inRange('status', 0, 2)
+                    && sane('adminNotes', 2000);
       allow delete: if false;
     }
 
@@ -73,13 +157,35 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // Any signed-in device may report its own safety status; everyone
-    // reads the aggregate feed (the admin danger-list dashboard, and
-    // mesh-relay merge logic, both need this).
+    // The most sensitive collection in the app: every document is a real
+    // name, a phone number and live GPS for someone who has just declared
+    // themselves in danger. Read is ADMIN-ONLY. It used to be open to any
+    // signed-in device, which made that set enumerable by anyone who could
+    // install the APK — and nothing outside the admin screens ever reads it
+    // (see SafetyStatusService._subscribeFirestore).
+    //
+    // `update` used to be `if isSignedIn()`, which let any anonymous device
+    // rewrite ANY report — flipping every "danger" to "safe" was a two-line
+    // script against exactly the data an admin uses to decide who gets
+    // rescued. Nothing in the app ever updates a report: each submission
+    // gets a fresh unique id (`safe-<microseconds>`), so every legitimate
+    // write is a create. Update is therefore admin-only, for triage — with
+    // no owner clause, which an earlier revision of this file granted while
+    // its own comment claimed otherwise.
+    //
+    // Create requires BOTH ids to be the caller. `ownerUid` alone was not
+    // enough: the app dedupes on `userId` (see claimsOwnIdentity above), so
+    // binding only the former left the forgery fully open through a document
+    // the attacker legitimately owned.
     match /safety_reports/{id} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn();
-      allow update: if isSignedIn();
+      allow read: if isAdmin();
+      allow create: if ownsIncoming() && claimsOwnIdentity()
+                    && request.resource.data.status in ['safe', 'danger']
+                    && sane('userName', 120)
+                    && sane('userPhone', 32)
+                    && sane('note', 1000)
+                    && sane('dangerType', 40);
+      allow update: if isAdmin();
       allow delete: if false;
     }
   }

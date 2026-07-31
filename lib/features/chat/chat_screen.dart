@@ -205,7 +205,40 @@ class _ChatScreenState extends State<ChatScreen> {
       debugPrint('KB load error: $e');
     }
 
-    CloudAiService? cloudAi;
+    if (!mounted) return;
+
+    // ── Make the chat usable HERE, not at the end of this method. ──────
+    //
+    // `_onSubmit` bails while `_repo` is null, so the input box was dead
+    // until every remaining await below had finished — and two of them are
+    // slow for reasons that have nothing to do with chat: `ApiKeyStore`
+    // reads go through Android Keystore crypto, and `_stt.init()` binds to
+    // the platform speech-recognition service over IPC, which can take
+    // seconds on a cold start.
+    //
+    // Everything the offline path actually needs is ready now: the corpus
+    // (measured at ~10ms cold, <1ms warm) and the on-device model. Cloud and
+    // STT are enhancements that attach themselves below as they arrive.
+    ShelterRepository().loadAll().then((list) {
+      _shelterCache = list;
+    }).catchError((_) {});
+
+    setState(() {
+      _messages.addAll(restored);
+      _repo = ChatRepository(
+        kb: kb ?? _emptyKb(),
+        model: modelManager,
+        cloudAi: null, // attached below, once the key ring resolves
+        shelterProvider: _shelterProvider,
+        userLocationProvider: _resolveUserLocation,
+      );
+    });
+    _drainPendingPrompt();
+
+    // ── Cloud tier: attach when the key ring is available. ─────────────
+    // Only ever *upgrades* the repository — a query that starts before this
+    // lands keeps its own reference and simply falls through device →
+    // corpus, exactly as it would with no key at all.
     try {
       // Runtime keys first (secure storage, populated from Firestore by
       // RemoteKeyService), then the compile-time define as a last resort.
@@ -217,8 +250,8 @@ class _ChatScreenState extends State<ChatScreen> {
         const compiled = String.fromEnvironment('GEMINI_API_KEY');
         if (compiled.isNotEmpty) keys = [compiled];
       }
-      if (keys.isNotEmpty) {
-        cloudAi = CloudAiService(
+      if (keys.isNotEmpty && mounted) {
+        final cloudAi = CloudAiService(
           keys: ApiKeyRing(
             keys: keys,
             // Resume on the key that last worked — a fresh start would spend
@@ -228,45 +261,37 @@ class _ChatScreenState extends State<ChatScreen> {
             onIndexChanged: keyStore.saveActiveIndex,
           ),
         );
+        if (mounted) {
+          setState(() {
+            _repo = ChatRepository(
+              kb: kb ?? _emptyKb(),
+              model: modelManager,
+              cloudAi: cloudAi,
+              shelterProvider: _shelterProvider,
+              userLocationProvider: _resolveUserLocation,
+            );
+          });
+        }
       }
     } catch (e) {
       debugPrint('CloudAI init error: $e');
     }
 
+    // ── Voice input: the slowest step, and needed last. ────────────────
+    // Binding the platform recogniser gates only the mic button, so it runs
+    // after the chat is already typeable.
     try {
-      _sttReady = await _stt.init();
+      final ready = await _stt.init();
+      if (mounted) setState(() => _sttReady = ready);
     } catch (e) {
       debugPrint('STT init error: $e');
-      _sttReady = false;
+      if (mounted) setState(() => _sttReady = false);
     }
 
-    if (mounted) {
-      // Preload the shelter cache so the first shelter query doesn't
-      // return empty (the lazy-load-in-provider pattern returned [] on
-      // the very first call, meaning the first "nearest shelter?" query
-      // fell through to RAG). Loading here means the data is ready by
-      // the time the user types.
-      ShelterRepository().loadAll().then((list) {
-        _shelterCache = list;
-      }).catchError((_) {});
-
-      setState(() {
-        _messages.addAll(restored);
-        _repo = ChatRepository(
-          kb: kb ?? _emptyKb(),
-          model: modelManager,
-          cloudAi: cloudAi,
-          shelterProvider: _shelterProvider,
-          userLocationProvider: _resolveUserLocation,
-        );
-      });
-
-      // Drain any prompt that was queued either before or during
-      // bootstrap. _drainPendingPrompt is a no-op when _repo is null
-      // (shouldn't happen at this point, but safe), and when _busy
-      // is true (the prompt stays in the notifier for later).
-      _drainPendingPrompt();
-    }
+    // Drain again: a prompt may have been queued while the cloud tier and
+    // the recogniser were still attaching. The earlier drain, right after
+    // the repository was created, is the one that matters for cold start.
+    if (mounted) _drainPendingPrompt();
   }
 
   KnowledgeBase _emptyKb() {

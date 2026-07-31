@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
 import 'situation_summary_service.dart';
+import '../../l10n/app_localizations.dart';
+import '../../core/bangla_numerals.dart';
 
 /// AI Situation Summary screen (Module E in docs/AI-FIRST-FEATURES.md).
 ///
@@ -40,7 +42,7 @@ class _SituationSummaryScreenState extends State<SituationSummaryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('AI পরিস্থিতি সারাংশ')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).situationTitle)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _summary != null
@@ -63,7 +65,8 @@ class _SituationSummaryScreenState extends State<SituationSummaryScreen> {
                 size: 72, color: Theme.of(context).colorScheme.primary),
             const SizedBox(height: 16),
             Text(
-              '${_reports.length} টি সাম্প্রতিক প্রতিবেদনের ভিত্তিতে পরিস্থিতির সারাংশ তৈরি করুন।',
+              AppLocalizations.of(context)
+                  .situationIntro(banglaNumber(_reports.length)),
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 16, height: 1.5),
             ),
@@ -71,7 +74,7 @@ class _SituationSummaryScreenState extends State<SituationSummaryScreen> {
             FilledButton.icon(
               onPressed: _generate,
               icon: const Icon(Icons.auto_awesome_rounded),
-              label: const Text('সারাংশ তৈরি করুন'),
+              label: Text(AppLocalizations.of(context).situationGenerate),
             ),
           ],
         ),
@@ -103,7 +106,7 @@ class _ResultView extends StatelessWidget {
                 Icon(Icons.auto_awesome_rounded,
                     color: Theme.of(context).colorScheme.primary, size: 20),
                 const SizedBox(width: 8),
-                Text('AI সারাংশ',
+                Text(AppLocalizations.of(context).situationResultHeading,
                     style: TextStyle(
                         fontWeight: FontWeight.w600,
                         color: Theme.of(context).colorScheme.primary)),
@@ -119,7 +122,7 @@ class _ResultView extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: onReset,
                   icon: const Icon(Icons.refresh_rounded),
-                  label: const Text('পুনরায়'),
+                  label: Text(AppLocalizations.of(context).situationRetry),
                 ),
               ),
               const SizedBox(width: 12),
@@ -127,7 +130,7 @@ class _ResultView extends StatelessWidget {
                 child: FilledButton.icon(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.check_rounded),
-                  label: const Text('সম্পন্ন'),
+                  label: Text(AppLocalizations.of(context).situationDone),
                 ),
               ),
             ],

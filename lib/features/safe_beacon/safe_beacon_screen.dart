@@ -9,17 +9,9 @@ import '../emergency/emergency_actions.dart';
 import '../mesh_comm/mesh_service.dart';
 import 'safe_beacon_payload.dart';
 import 'sms_queue.dart';
+import '../../core/bangla_numerals.dart';
 
 /// Convert Latin digits to Bengali numerals for UI strings.
-/// AGENTS.md: Bangla numerals (০-৯) in user-facing strings.
-String _bn(int n) {
-  const map = {
-    '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
-    '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯',
-  };
-  return n.toString().split('').map((c) => map[c] ?? c).join();
-}
-
 /// "I'm safe" beacon — one giant Bangla button.
 ///
 /// On tap:
@@ -164,10 +156,10 @@ class _SafeBeaconScreenState extends State<SafeBeaconScreen> {
           SnackBar(
             content: Text(
               phones.isEmpty
-                  ? AppLocalizations.of(context).beaconSentPending(_bn(_queue.pending))
+                  ? AppLocalizations.of(context).beaconSentPending(banglaNumber(_queue.pending))
                   : sent > 0
-                      ? AppLocalizations.of(context).smsSent(_bn(sent))
-                      : AppLocalizations.of(context).willNotifyOnReconnect(_bn(phones.length)),
+                      ? AppLocalizations.of(context).smsSent(banglaNumber(sent))
+                      : AppLocalizations.of(context).willNotifyOnReconnect(banglaNumber(phones.length)),
             ),
             duration: const Duration(seconds: 3),
           ),
@@ -236,14 +228,14 @@ class _SafeBeaconScreenState extends State<SafeBeaconScreen> {
               const SizedBox(height: 24),
               if (_lastSentCount > 0)
                 Text(
-                  AppLocalizations.of(context).lastSent(_bn(_lastSentCount)),
+                  AppLocalizations.of(context).lastSent(banglaNumber(_lastSentCount)),
                   style: TextStyle(color: cs.onSurfaceVariant),
                 ),
               if (_queue.pending > 0)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
-                    AppLocalizations.of(context).pendingWait(_bn(_queue.pending)),
+                    AppLocalizations.of(context).pendingWait(banglaNumber(_queue.pending)),
                     style: TextStyle(color: cs.onSurfaceVariant),
                   ),
                 ),

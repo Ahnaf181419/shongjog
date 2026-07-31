@@ -3,6 +3,7 @@ import '../../l10n/app_localizations.dart';
 
 import '../../app/theme.dart';
 import 'cards_data.dart';
+import '../../core/bangla_numerals.dart';
 
 /// Full-screen view of a single [QuickCard]. Pushed from the triage
 /// wizard's "View Card" CTA so the wizard's terminal screen can stay
@@ -104,7 +105,7 @@ class _StepTile extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                _bn(index),
+                banglaNumber(index),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -128,8 +129,4 @@ class _StepTile extends StatelessWidget {
     );
   }
 
-  static String _bn(int n) {
-    const digits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-    return n.toString().split('').map((d) => digits[int.parse(d)]).join();
-  }
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' show PlatformDispatcher;
 
 import 'package:firebase_core/firebase_core.dart';
@@ -89,6 +90,10 @@ Future<void> main() async {
   try {
     await Firebase.initializeApp();
     await firebaseAuthService.ensureSignedIn();
+    // Before any service subscribes: the admin flag decides WHICH Firestore
+    // query they issue, and a non-admin device must not send one the rules
+    // will reject wholesale.
+    await firebaseAuthService.loadAdminFlag();
   } catch (e) {
     debugPrint('Firebase init failed: $e');
   }
@@ -140,6 +145,32 @@ Future<void> main() async {
   } catch (e) {
     debugPrint('Model auto-select failed: $e');
   }
+  // Warm the engine in the background, so the FIRST AI tap doesn't pay for it.
+  //
+  // `autoSelectBestModel()` only flips state to `ready` when the weights are
+  // on disk — it never loads them, so `isReady` returns true while `_model`
+  // is still null. The full `getActiveModel()` load (2.5 GB mmap + tensor
+  // allocation, documented at 3–10s and guarded by a 60s ceiling) was
+  // therefore paid by whichever AI tool the user happened to open first, on
+  // top of that tool's own generation time — and because the state already
+  // said "ready", the UI had no way to show that a model load was even
+  // happening. It just looked like the tool was slow.
+  //
+  // Deliberately NOT awaited: this must not delay the first frame. Errors
+  // are swallowed because a failed warm-up costs nothing — `generate()` calls
+  // `initialize()` itself and will simply retry the load on demand, exactly
+  // as it did before.
+  unawaited(Future(() async {
+    try {
+      if (await modelManager.isAnyOnDisk()) {
+        final sw = Stopwatch()..start();
+        await modelManager.initialize();
+        debugPrint('[warmup] model ready in ${sw.elapsedMilliseconds}ms');
+      }
+    } catch (e) {
+      debugPrint('[warmup] deferred model load failed (non-fatal): $e');
+    }
+  }));
   // Deliberately NOT `dart:io`'s Platform.isAndroid. That compiles fine for
   // web but throws `Unsupported operation: Platform._operatingSystem` at
   // runtime — and because this check sits outside the try/catch below, the

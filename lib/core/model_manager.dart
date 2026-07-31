@@ -89,6 +89,23 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
   /// repetition loops almost always start from a low-prob tail pick.
   static const double kTopP = 0.95;
 
+  /// Hard ceiling on a single on-device generation.
+  ///
+  /// [initialize] was already capped at 60s, but generation itself was not,
+  /// so a stalled native engine left the chat spinner turning forever — and
+  /// there is no cancel button, so "the model wedged" and "the model is
+  /// thinking" looked identical and neither ever resolved. In an emergency
+  /// app that is the worst failure mode available: the user waits on an
+  /// answer that is never coming instead of falling through to the corpus
+  /// (which is instant) or calling 999.
+  ///
+  /// 90s is deliberately generous — a healthy E4B run on a low-end phone
+  /// can take 30–40s at [kMaxOutputTokens], and timing out a working answer
+  /// would be its own bug. This bounds the pathological case, it does not
+  /// tune the normal one. On expiry [ChatRepository] catches the
+  /// [TimeoutException] and degrades to cloud, then corpus.
+  static const Duration kGenerationTimeout = Duration(seconds: 90);
+
   /// Files written by the pre-1.x MediaPipe build. They are `.task`/`.bin`
   /// artifacts the LiteRT-LM engine cannot read (and the E2B one was a
   /// web/WASM build that never worked on Android), so they are dead weight —
@@ -537,14 +554,57 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
       // always returns the full response. Repetition loops are trimmed
       // post-hoc by ChatRepository.truncateAtTurnMarker + the safe
       // repetition trim below — neither of which can return empty.
-      final raw = await session.getResponse();
+      final raw = await session.getResponse().timeout(
+            kGenerationTimeout,
+            onTimeout: () => throw TimeoutException(
+                'on-device generation exceeded ${kGenerationTimeout.inSeconds}s'),
+          );
       return _safeTrimRepetition(raw);
+    } on TimeoutException {
+      // The native engine is still mid-inference and cannot be trusted to
+      // close promptly — see [_closeQuietly]. Drop our handle so the NEXT
+      // query re-initializes a fresh engine rather than queueing behind a
+      // wedged one, which is what turns a single stall into "every question
+      // spins forever from now on".
+      unawaited(_closeQuietly(session));
+      // Both, not just `_model`. `initialize()` memoizes `_initFuture`, so
+      // clearing the handle alone would send the next caller straight back
+      // to the already-completed future holding the same wedged engine.
+      _model = null;
+      _initFuture = null;
+      rethrow;
     } finally {
       // Native sessions hold a KV cache; leaking them exhausts memory after a
-      // handful of questions on a low-RAM phone.
-      await session.close();
+      // handful of questions on a low-RAM phone. Bounded, because a close()
+      // that blocks would re-introduce the exact hang the timeout above
+      // exists to prevent.
+      await _closeQuietly(session);
     }
   }
+
+  /// Close [session] without ever letting cleanup become the new hang.
+  ///
+  /// `close()` on a session whose native inference is still running can block
+  /// until that inference finishes — so awaiting it unbounded in a `finally`
+  /// would silently convert [kGenerationTimeout] back into an indefinite
+  /// wait, with the user watching the same spinner either way. A leaked
+  /// session is a bounded memory cost; a wedged UI is not.
+  ///
+  /// Safe to call twice: the timeout path fires it early (unawaited) and the
+  /// `finally` fires it again, and a double close is a no-op.
+  Future<void> _closeQuietly(dynamic session) async {
+    if (_closedSessions.contains(identityHashCode(session))) return;
+    _closedSessions.add(identityHashCode(session));
+    try {
+      await session.close().timeout(const Duration(seconds: 5));
+    } catch (e) {
+      debugPrint('[ModelManager] session close failed or timed out: $e');
+    } finally {
+      _closedSessions.remove(identityHashCode(session));
+    }
+  }
+
+  final Set<int> _closedSessions = {};
 
   /// Trim trailing repetition loops from [raw] WITHOUT ever returning
   /// empty. If the trim would produce an empty string, return the raw
@@ -594,7 +654,7 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
     );
     try {
       await session.addQueryChunk(Message.text(text: prompt, isUser: true));
-      await session.getResponse();
+      await session.getResponse().timeout(kGenerationTimeout);
       // Read the raw SDK JSON to extract the tool call arguments.
       if (session is RawSdkResponseSession) {
         return session.lastRawResponse;

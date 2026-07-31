@@ -4,6 +4,8 @@ import 'package:shongjog/l10n/app_localizations.dart';
 import '../../app/router.dart';
 import '../../app/theme.dart';
 import '../../core/firebase_auth_service.dart';
+import '../safe_beacon/safety_status_service.dart';
+import 'campaign_request.dart';
 
 class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({super.key});
@@ -41,6 +43,11 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       // broadcasts. Never throws (see FirebaseAuthService.claimAdminRole)
       // — login proceeds locally even if this device is offline right now.
       await firebaseAuthService.claimAdminRole();
+      // Now that this device holds the role, re-issue the Firestore queries
+      // as an admin: the panel needs pending campaigns and the safety feed,
+      // neither of which a non-admin subscription returns.
+      campaignRequestService.refreshSubscription();
+      safetyStatusService.refreshSubscription();
       if (!mounted) return;
       // Navigate to Admin Panel and remove Login screen from history
       Navigator.pushReplacementNamed(context, AppRoutes.adminPanel);

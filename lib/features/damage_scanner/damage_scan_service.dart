@@ -197,6 +197,15 @@ class DamageScanService {
       'generationConfig': {
         'temperature': 0.2,
         'maxOutputTokens': 1024,
+        // Same suppression the chat tier uses. Without it the model spends
+        // seconds of latency (and output budget) on chain-of-thought before
+        // it starts emitting the JSON — for a classification task where the
+        // answer is five short fields and the reasoning is never shown.
+        'thinkingConfig': {'thinkingBudget': 0},
+        // Ask for JSON rather than hoping for it. `_extractJson` still
+        // salvages a fenced or prose-wrapped object, but that is a fallback
+        // now, not the primary contract.
+        'responseMimeType': 'application/json',
       },
     };
   }

@@ -154,6 +154,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tip cards on the home screen based on chat history';
 
   @override
+  String get meshAutoSaveMedia => 'Save mesh media to gallery';
+
+  @override
+  String get meshAutoSaveMediaDesc =>
+      'Photos and videos sent by nearby users are copied to your gallery automatically';
+
+  @override
   String get sectionEmergency => 'Emergency';
 
   @override
@@ -328,6 +335,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todaysTip => 'Today\'s Tip';
+
+  @override
+  String get homeTip1 =>
+      'During flood season, boil drinking water for at least 1 minute. Keep ORS in stock to prevent waterborne illness.';
+
+  @override
+  String get homeTip2 =>
+      'Close windows and doors before a storm arrives. Cover them with thick cloth to guard against flying glass.';
+
+  @override
+  String get homeTip3 =>
+      'In an earthquake, get under a table and move away from walls. Never use the lift.';
+
+  @override
+  String get homeTip4 =>
+      'In a fire, stay low to the ground to keep below the smoke. Smoke always rises.';
+
+  @override
+  String get homeTip5 =>
+      'In summer heat, drink water every 30 minutes. Wear light-coloured clothing to avoid heatstroke.';
+
+  @override
+  String get homeTip6 =>
+      'Make ORS at home for diarrhoea: mix 1 teaspoon sugar and half a teaspoon salt into 1 litre of boiled, cooled water.';
+
+  @override
+  String get homeTip7 =>
+      'For a snakebite, keep the bitten area below heart level. Never cut it with a knife or scissors.';
+
+  @override
+  String get homeTip8 =>
+      'Before entering floodwater, disconnect electrical equipment. Move gas cylinders and lighters well away.';
+
+  @override
+  String get homeTip9 =>
+      'If an earthquake catches you outdoors, stay in the open — keep clear of trees and electricity poles.';
+
+  @override
+  String get homeTip10 =>
+      'If a fire starts indoors, leave calmly in single file. If there is heavy smoke, hold a wet cloth over your face.';
+
+  @override
+  String get homeTip11 =>
+      'Children dehydrate quickly in heat. Give them water first and sit them in the shade.';
+
+  @override
+  String get homeTip12 =>
+      'Caught outside in a severe storm, lie flat on low ground. Do not stand beside trees.';
+
+  @override
+  String get homeTip13 =>
+      'Keep at least 3 days of drinking water and dry food per household. Store separate water for washing.';
+
+  @override
+  String get homeTip14 =>
+      'Keep a first-aid kit at home: bandages, antiseptic, paracetamol, ORS sachets.';
+
+  @override
+  String get homeTip15 =>
+      'After a flood, never use pond water directly. Purify it by boiling or with chlorine tablets.';
+
+  @override
+  String get homeTip16 =>
+      'After an earthquake, do not go inside until the damaged parts of the building have been checked.';
+
+  @override
+  String get homeTip17 =>
+      'For fever, sponge the body with a wet cloth and drink plenty of water. Above 40°C, go to hospital.';
+
+  @override
+  String get homeTip18 =>
+      'During a sea storm, stay away from the coast. If the waves look abnormal, move to high ground at once.';
+
+  @override
+  String get homeTip19 =>
+      'In an electrical emergency, never touch a switch with wet hands. Keep rubber shoes on.';
 
   @override
   String get offlineMessage => 'Offline Message';
@@ -2324,4 +2407,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cardAiButton => 'Ask AI';
+
+  @override
+  String get situationTitle => 'AI Situation Summary';
+
+  @override
+  String situationIntro(String count) {
+    return 'Generate a situation summary from $count recent reports.';
+  }
+
+  @override
+  String get situationGenerate => 'Generate summary';
+
+  @override
+  String get situationResultHeading => 'AI Summary';
+
+  @override
+  String get situationRetry => 'Again';
+
+  @override
+  String get situationDone => 'Done';
+
+  @override
+  String get modelInfoParamsE2b => '2 billion';
+
+  @override
+  String get modelInfoParamsE4b => '4 billion';
+
+  @override
+  String get modelInfoRamE2b => '~2.5 GB';
+
+  @override
+  String get modelInfoRamE4b => '~5 GB';
 }

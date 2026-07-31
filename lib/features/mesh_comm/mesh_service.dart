@@ -270,16 +270,52 @@ class MeshService {
     );
   }
 
+  /// True while any peer is connected or mid-reconnect — i.e. while the
+  /// radio is carrying, or actively re-establishing, a real link.
+  ///
+  /// Every path that would restart discovery or advertising consults this
+  /// first; see [_startDiscoveryTimer] for why bouncing the radio under a
+  /// live link is what made mesh chat unstable.
+  bool get hasLiveLink =>
+      _peers.values.any((p) => p.status != PeerStatus.disconnected);
+
+  /// Seed the peer map so [hasLiveLink] can be exercised without radios.
+  @visibleForTesting
+  void debugSeedPeers(List<MeshPeer> peers) {
+    _peers
+      ..clear()
+      ..addEntries(peers.map((p) => MapEntry(p.endpointId, p)));
+  }
+
   /// Start the app-wide discovery refresh timer. Idempotent — cancels any
-  /// existing timer before creating a new one. Also restarts advertising
-  /// so the username is always visible to nearby peers.
+  /// existing timer before creating a new one.
+  ///
+  /// **The refresh only runs while there is nothing to protect.** This timer
+  /// exists to recover from a scan that has gone quiet without finding
+  /// anyone; it used to fire unconditionally, so every 15 seconds — *even
+  /// with peers connected* — it called `stopDiscovery()`/`startDiscovery()`
+  /// and `stopAdvertising()`/`startAdvertising()`.
+  ///
+  /// On `P2P_CLUSTER` those are not passive scans: the strategy negotiates a
+  /// Wi-Fi Direct / soft-AP group, and tearing advertising or discovery down
+  /// disturbs that negotiation underneath a live connection. The result was a
+  /// link that established fine and then destabilized on a 15-second
+  /// cadence — dropped peers, stalled payloads, chat that "connects but
+  /// isn't stable" — with the cause invisible because each individual
+  /// restart is best-effort and swallows its own errors.
+  ///
+  /// Once a peer is connected the app no longer needs to hunt for it, so the
+  /// refresh stands down and leaves the radio alone. Discovery and
+  /// advertising both remain *running* from [start] — this only stops the
+  /// periodic bounce. When the last peer drops, [hasLiveLink] goes false and
+  /// the refresh resumes on the next tick.
   void _startDiscoveryTimer() {
     _discoveryTimer?.cancel();
     _discoveryTimer = Timer.periodic(_discoveryInterval, (_) {
-      if (_running) {
-        restartDiscovery();
-        restartAdvertising();
-      }
+      if (!_running) return;
+      if (hasLiveLink) return;
+      restartDiscovery();
+      restartAdvertising();
     });
   }
 
@@ -493,6 +529,61 @@ class MeshService {
   /// extension matches what the sender recorded.
   final Map<int, String> _incomingFilenames = {};
 
+  /// File extensions a peer is allowed to induce, per message type.
+  ///
+  /// The extension is the ONLY thing taken from a peer-supplied filename
+  /// hint — see [safeExtensionFor] for why the name itself is discarded.
+  static const _allowedExtensions = <MessageType, Set<String>>{
+    MessageType.voice: {'m4a', 'aac', 'wav', 'mp3', 'ogg', 'opus', '3gp'},
+    MessageType.image: {'jpg', 'jpeg', 'png', 'webp', 'gif', 'heic'},
+    MessageType.video: {'mp4', 'mov', '3gp', 'mkv', 'webm'},
+  };
+
+  static const _defaultExtensions = <MessageType, String>{
+    MessageType.voice: 'm4a',
+    MessageType.image: 'jpg',
+    MessageType.video: 'mp4',
+  };
+
+  /// Pull a safe file extension out of a peer-supplied filename hint.
+  ///
+  /// **Why the peer's filename is never used as a filename.** The hint
+  /// arrives inside a bytes payload from another device
+  /// (`voice:<id>:<basename>`), so every byte of it is attacker-controlled.
+  /// It used to be concatenated straight onto the app documents directory:
+  ///
+  /// ```dart
+  /// final dest = '${dir.path}/$basename';   // basename came from the peer
+  /// ```
+  ///
+  /// That is the same directory [ModelManager] keeps its weights in, as
+  /// `model_<variant>.litertlm` — a name any reader of this repo knows. So a
+  /// connected peer could send a one-byte file hinted
+  /// `voice:1:model_e2b.litertlm` and destroy the 2.5 GB on-device model,
+  /// silently killing offline AI, which is the whole premise of this app. A
+  /// `../` in the hint escaped upward into `shared_prefs/` and `databases/`
+  /// as well.
+  ///
+  /// The hint's only legitimate purpose was ever to carry the extension, so
+  /// that is all we read from it — the receiver names the file itself. An
+  /// unrecognised or absent extension falls back to the default for [type]
+  /// rather than being honoured, so no peer input reaches the path at all.
+  @visibleForTesting
+  static String safeExtensionFor(String hint, MessageType type) {
+    final fallback = _defaultExtensions[type] ?? 'bin';
+    final allowed = _allowedExtensions[type];
+    if (allowed == null) return fallback;
+
+    // Take the text after the final dot of the final path segment, so
+    // `../../x.tar.gz` yields `gz` and `..` yields nothing.
+    final lastSegment = hint.split(RegExp(r'[/\\]')).last;
+    final dot = lastSegment.lastIndexOf('.');
+    if (dot < 0 || dot == lastSegment.length - 1) return fallback;
+
+    final ext = lastSegment.substring(dot + 1).toLowerCase();
+    return allowed.contains(ext) ? ext : fallback;
+  }
+
   void _onPayloadReceived(String endpointId, Payload payload) {
     if (payload.type == PayloadType.BYTES) {
       final bytes = payload.bytes;
@@ -576,9 +667,23 @@ class MeshService {
     }
   }
 
+  /// SharedPreferences key for "copy media a peer sends me into my gallery".
+  /// Default OFF — see the call site in [_materializeFile].
+  static const prefAutoSaveMeshMedia = 'pref_mesh_autosave_media';
+
+  Future<bool> _autoSaveMediaEnabled() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(prefAutoSaveMeshMedia) ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Materialize a received FILE payload from a `content://` URI into real
-  /// storage. For voice: app-private documents dir. For image/video: also
-  /// saved to the device gallery via `gal`.
+  /// storage — always the app-private documents dir, under a name this
+  /// device chooses. Images/videos are additionally copied to the gallery
+  /// only when the user has opted in.
   Future<_MaterializedFile?> _materializeFile(
       int payloadId, String sourceUri) async {
     try {
@@ -586,30 +691,41 @@ class MeshService {
       final hint = _incomingFilenames.remove(payloadId) ?? '';
 
       // hint format: "basename" (voice) or "basename|type" (media)
-      String basename;
+      String rawName;
       MessageType msgType;
       if (hint.contains('|')) {
         final parts = hint.split('|');
-        basename = parts[0];
+        rawName = parts[0];
         msgType = parts[1] == 'video' ? MessageType.video : MessageType.image;
       } else {
-        basename = hint.isNotEmpty ? hint : 'mesh_voice_$payloadId.m4a';
+        rawName = hint;
         msgType = MessageType.voice;
       }
 
-      final dest = '${dir.path}/$basename';
+      // The receiver names the file; only the extension is taken from the
+      // peer, and only from an allowlist. See [safeExtensionFor] — the peer's
+      // own basename used to land in this path verbatim, which let a
+      // connected device overwrite the on-device model weights.
+      final ext = safeExtensionFor(rawName, msgType);
+      final dest = '${dir.path}/mesh_${msgType.name}_$payloadId.$ext';
       await Nearby().copyFileAndDeleteOriginal(sourceUri, dest);
 
-      // Save images/videos to the device gallery automatically
+      // Copy images/videos into the device gallery — but only with standing
+      // consent. This writes a file a stranger in mesh range chose, under a
+      // name they influenced, into the user's camera roll; doing that
+      // unconditionally made every accepted peer able to drop media onto the
+      // device. Opt-in, default off (see SettingsScreen → mesh media).
       if (msgType == MessageType.image || msgType == MessageType.video) {
-        try {
-          if (msgType == MessageType.image) {
-            await Gal.putImage(dest);
-          } else {
-            await Gal.putVideo(dest);
+        if (await _autoSaveMediaEnabled()) {
+          try {
+            if (msgType == MessageType.image) {
+              await Gal.putImage(dest);
+            } else {
+              await Gal.putVideo(dest);
+            }
+          } catch (e) {
+            debugPrint('MeshService: gallery save failed (non-fatal): $e');
           }
-        } catch (e) {
-          debugPrint('MeshService: gallery save failed (non-fatal): $e');
         }
       }
 

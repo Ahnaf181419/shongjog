@@ -644,32 +644,30 @@ class _SafeBeaconTile extends StatelessWidget {
 class _TipCard extends StatelessWidget {
   const _TipCard();
 
-  static const _tips = [
-    'বন্যা মৌসুমে পানি অন্তত ১ মিনিট ফুটিয়ে পান। পানিবাহিত রোগ প্রতিরোধে ORS মজুত রাখুন।',
-    'ঝড় আসার আগে জানালা-দরজা বন্ধ করুন। ভাঙা কাচের ক্ষতি থেকে বাঁচতে মোটা কাপড় দিয়ে ঢাকুন।',
-    'ভূমিকম্পে টেবিলের নিচে ঢুকুন, দেয়াল থেকে দূরে সরে যান। লিফট ব্যবহার করবেন না।',
-    'অগ্নিকাণ্ডে ধোঁয়া থেকে বাঁচতে মাটি পর্যন্ত নিচু হয়ে যান। ধোঁয়া ঘুরি উপরে ওঠে।',
-    'গ্রীষ্মে প্রতি ৩০ মিনিটে পানি পান করুন। তাপঘূর্ণণ থেকে বাঁচতে হালকা রঙের কাপড় পরুন।',
-    'ডায়রিয়ায় ORS ঘরে তৈরি করুন: ১ লিটার ফুটিয়ে ঠান্ডা পানিতে ১ চা চামচ চিনি + আধা চা চামচ লবণ মিশান।',
-    'সাপে কামড়ালে কামড়ানো জায়গাটি হৃদয়ের নিচে রাখুন। কাঁচি বা ছুরি দিয়ে কাটবেন না।',
-    'বন্যায় পানিতে নামার আগে বৈদ্যুতিক সরঞ্জাম বিচ্ছিন্ন করুন। গ্যাস সিলিন্ডার ও লাইটার দূরে সরিয়ে রাখুন।',
-    'মাঠে বা খোলা জায়গায় ভূমিকম্প অনুভব হলে দাঁড়িয়ে থাকুন, গাছের পাশে যাবেন না।',
-    'ঘরের ভেতরে আগুন লাগলে তালিকাবদ্ধভাবে বাইরে যান। ধোঁয়া বেশি হলে ভেজা কাপড় মুখে রেখে যান।',
-    'গরমে শিশুদের হাটুড়ে গরম লাগতে পারে। সবার আগে তাদের পানি খাইয়ে ছায়ায় বসান।',
-    'তীব্র ঝড়ে বাড়ির বাইরে থাকলে নিচু জায়গায় মাটিতে শুয়ে পড়ুন। গাছের পাশে দাঁড়াবেন না।',
-    'প্রতি পরিবারে অন্তত ৩ দিনের খাবার পানি ও শুকনো খাদ্য মজুত রাখুন। ফ্লাশ করার জল আলাদায় রাখুন।',
-    'বাড়িতে প্রাথমিক চিকিৎসা বাক্স রাখুন: ব্যান্ডেজ, অ্যান্টিসেপটিক, প্যারাসিটামল, ORS প্যাকেট।',
-    'বন্যার পর পুকুরের পানি ব্যবহার করবেন না। ফুটিয়ে বা ক্লোরিন পাউডার দিয়ে শুদ্ধ করুন।',
-    'ভূমিকম্পের পর ভবনের ক্ষতিগ্রস্ত অংশ পরীক্ষা করার আগে ভেতরে ঢুকবেন না।',
-    'জ্বর হলে গায়ে ভেজা কাপড় দিন এবং প্রচুর পানি পান করুন। ৪০° সেলসিয়াস বেশি হলে হাসপাতালে যান।',
-    'সামুদ্রিক ঝড়ের সময় সমুদ্র থেকে দূরে থাকুন। ঢেউয়ের চেহারা স্বাভাবিক না হলে তাৎক্ষণিক উঁচু জায়গায় যান।',
-    'বিদ্যুৎ বিপদে হাত ভেজা অবস্থায় সুইচে স্পর্শ করবেন না। রাবারের জুতা পরে থাকুন।',
-  ];
+  /// The rotating tips, in the user's own language.
+  ///
+  /// These were a `static const` list of Bangla literals, rendered under a
+  /// *localized* "Today's tip" heading — so an English-locale user got an
+  /// English title above a Bangla paragraph, on the most-viewed card of the
+  /// most-viewed screen. Reading them from [AppLocalizations] is what makes
+  /// the card actually bilingual.
+  ///
+  /// Built per-call rather than cached: it is 19 string lookups against an
+  /// already-loaded table, once per build of one small card.
+  static List<String> _tipsFor(AppLocalizations l10n) => [
+        l10n.homeTip1, l10n.homeTip2, l10n.homeTip3, l10n.homeTip4,
+        l10n.homeTip5, l10n.homeTip6, l10n.homeTip7, l10n.homeTip8,
+        l10n.homeTip9, l10n.homeTip10, l10n.homeTip11, l10n.homeTip12,
+        l10n.homeTip13, l10n.homeTip14, l10n.homeTip15, l10n.homeTip16,
+        l10n.homeTip17, l10n.homeTip18, l10n.homeTip19,
+      ];
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final tipIndex = DateTime.now().day % _tips.length;
+    final l10n = AppLocalizations.of(context);
+    final tips = _tipsFor(l10n);
+    final tipIndex = DateTime.now().day % tips.length;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -698,7 +696,7 @@ class _TipCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppLocalizations.of(context).todaysTip,
+                  l10n.todaysTip,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -708,7 +706,7 @@ class _TipCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  _tips[tipIndex],
+                  tips[tipIndex],
                   style: TextStyle(
                     fontSize: ShongjogTheme.bodyFloor,
                     height: 1.5,

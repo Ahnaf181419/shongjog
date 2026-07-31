@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../app/theme.dart';
 import '../../core/api_key_store.dart';
 import '../../core/connectivity_provider.dart';
+import '../cloud_ai/cloud_ai_service.dart';
 import '../../l10n/app_localizations.dart';
 import 'damage_scan_service.dart';
 
@@ -95,7 +96,20 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
     // as analysis errors).
     XFile? x;
     try {
-      x = await _picker.pickImage(source: source);
+      // Downscale AT CAPTURE, before the bytes ever reach us.
+      //
+      // This used to be a bare pickImage(source: source). A current phone
+      // shoots ~4000x3000; base64 inflates that to a 5-11 MB request body,
+      // which over Bangladeshi mobile data mid-disaster is a 30s+ upload
+      // that frequently just times out. The model gains nothing from those
+      // pixels — damage classification is a coarse-grained judgement — so
+      // this is ~20x less to send for an identical answer.
+      x = await _picker.pickImage(
+        source: source,
+        maxWidth: 1280,
+        maxHeight: 1280,
+        imageQuality: 70,
+      );
     } catch (e) {
       final diag = await _captureDiagnostics();
       if (!mounted) return;
@@ -116,7 +130,7 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
   Future<void> _analyze() async {
     if (_image == null) return;
     final isOnline = connectivityProvider.isOnline;
-    final key = await _tryGetApiKey();
+    final keys = await _apiKeys();
     if (!mounted) return;
     if (!isOnline) {
       setState(() {
@@ -125,7 +139,7 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
       });
       return;
     }
-    if (key == null || key.isEmpty) {
+    if (keys.isEmpty) {
       setState(() {
         _errorCode = DamageErrorCode.apiKeyRequired;
         _errorDetail = null;
@@ -143,7 +157,26 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
     try {
       final bytes = await File(_image!.path).readAsBytes();
       final body = DamageScanService.buildRequestBody(bytes);
-      final response = await _sendVisionRequest(key, body);
+
+      // Walk the key ring on key-fatal failures only (quota spent, key
+      // blocked or revoked), exactly as CloudAiService does for chat. A
+      // timeout or a 5xx hits every key identically, so retrying those
+      // would just burn the ring and add minutes to an emergency answer.
+      dynamic response;
+      Object? lastError;
+      for (final key in keys) {
+        try {
+          response = await _sendVisionRequest(key, body);
+          lastError = null;
+          break;
+        } catch (e) {
+          lastError = e;
+          if (!CloudAiService.isKeyFatal(e)) break;
+          debugPrint('[DamageScan] key rejected, rotating: ${_briefError(e)}');
+        }
+      }
+      if (lastError != null) throw lastError;
+
       final raw = _extractText(response);
       final result = DamageScanResult.fromJsonString(raw ?? '');
       if (!mounted) return;
@@ -188,13 +221,34 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
     return 'online=${connectivityProvider.isOnline}  key=$key';
   }
 
-  Future<String?> _tryGetApiKey() async {
+  /// Every key this device holds, best first.
+  ///
+  /// This read only the single-key slot before, so when key #0 was
+  /// quota-exhausted the scanner was dead for the rest of the day while the
+  /// chat — which walks the whole ring — carried on working. Same credential
+  /// store, same ring, same rotation opportunity.
+  Future<List<String>> _apiKeys() async {
     try {
-          final store = await _keyStore.getKey();
-          if (store != null && store.isNotEmpty) return store;
-        } catch (_) {}
-        return const String.fromEnvironment('GEMINI_API_KEY', defaultValue: '');
-      }
+      final ring = await _keyStore.getKeys();
+      if (ring.isNotEmpty) return ring;
+    } catch (_) {}
+    const compiled =
+        String.fromEnvironment('GEMINI_API_KEY', defaultValue: '');
+    return compiled.isEmpty ? const [] : [compiled];
+  }
+
+  Future<String?> _tryGetApiKey() async {
+    final keys = await _apiKeys();
+    return keys.isEmpty ? null : keys.first;
+  }
+
+  /// Overall budget for one vision call, response included.
+  ///
+  /// `connectionTimeout` bounds only the TCP handshake — a server that
+  /// accepts the connection and then stalls held the spinner forever, with
+  /// no cancel affordance anywhere on the screen. Generous because the
+  /// request still carries an image, but finite.
+  static const _requestTimeout = Duration(seconds: 45);
 
   Future<dynamic> _sendVisionRequest(
       String apiKey, Map<String, dynamic> body) async {
@@ -216,8 +270,9 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
       // network at all — the failure looked like an API error but no request
       // was ever made.
       req.add(utf8.encode(jsonEncode(body)));
-      final res = await req.close();
-      final responseBody = await res.transform(utf8.decoder).join();
+      final res = await req.close().timeout(_requestTimeout);
+      final responseBody =
+          await res.transform(utf8.decoder).join().timeout(_requestTimeout);
       if (res.statusCode >= 400) {
         throw Exception('HTTP ${res.statusCode}: $responseBody');
       }
