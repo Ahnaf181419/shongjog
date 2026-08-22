@@ -26,6 +26,7 @@ migrate_working_dir/
 .cursor/
 .continue/
 .cody/
+.codex/
 .puku
 # ─── Flutter / Dart / Pub ───────────────────────────────────
 **/doc/api/
@@ -132,3 +133,7 @@ Shongjog-*.apk
 .agents/
 .vercel
 .env*
+
+# ─── Course study site (teaching material, hosted on Netlify) ──
+/site/
+/PRODUCT.md
