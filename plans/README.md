@@ -53,3 +53,17 @@ Status values: TODO | IN PROGRESS | DONE | BLOCKED (one-line reason) | REJECTED 
 - GitHub Actions CI for the site: cannot see gitignored `site/`; superseded by plan 002.
 - Forking `vosk_flutter` to bump compileSdk: blocked upstream, documented decision in
   `lib/features/voice/vosk_stt_provider.dart:5-15`. Leave as documented.
+
+## Post-program follow-ups (2026-08-23, session "implement and fix everything")
+
+- UNICEF sourcing DECIDED: whitelist amended (tools/README.md + docs/guides/corpus.md §5),
+  original citation restored, KB copy rebuilt, lessons synced. Commit `132d956`.
+- verify_kb 3-BAD: root-caused to Bangla mpnet embedding quality; keyword enrichment +
+  build-pipeline experiments could not close the snakebite/ORS gaps honestly (pipeline
+  change reverted). Enrichment kept for the live keyword lane (eval 46/62, snakebite
+  complete-miss fixed). Remains a documented open issue — fix is an embedder swap.
+- LESSON-SPEC quiz rule amended to the `"a"`-hash format; `site/assets/quiz_hash.py`
+  helper added (zip-excluded via predeploy.sh).
+- Tracked app changes committed (132d956, 67870a8, 1dcba12, 370f361); NOT pushed.
+- Lesson 0044's stale-KB callout corrected (run_eval never caught it); 0047's
+  report-identity claims scoped to the pre-keyword-pass moment.
