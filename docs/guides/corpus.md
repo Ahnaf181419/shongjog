@@ -118,6 +118,7 @@ approve it.
 | Bangladesh Red Crescent Society (BDRCS) | `BDRCS <guide name>, <year>` | bdrcs.org — public |
 | Bangladesh Ministry of Disaster Management (MoDMR) | `MoDMR <advisory>, <year>` | modmr.gov.bd — public |
 | Bangladesh Meteorological Department (BMD) | `BMD <warning type>, <year>` | bmd.gov.bd — public |
+| UNICEF | `UNICEF <guide name>, <year>` | unicef.org — public (added 2026-08-23 — canonical for child hygiene in emergencies) |
 | CDC (US Centers for Disease Control) | `CDC <topic>, <year>` | cdc.gov — public |
 | IFRC (International Federation of Red Cross) | `IFRC <guide>, <year>` | ifrc.org — public |
 

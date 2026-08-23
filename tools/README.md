@@ -30,6 +30,8 @@
 - BMD (bmd.gov.bd)
 - CDC (cdc.gov)
 - IFRC (ifrc.org)
+- UNICEF (unicef.org) — added 2026-08-23 after review: canonical authority for
+  child hygiene in emergencies; the `infant_hygiene` chunk is UNICEF-derived.
 
 ## Review Process
 
