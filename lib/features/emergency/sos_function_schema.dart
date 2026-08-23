@@ -55,7 +55,7 @@ and access notes. All fields are optional — fill what you can infer.
 ///
 /// Format is optimized for 999 operators: compact, scannable, Bangla.
 String buildSosSmsBody(Map<String, dynamic> fields) {
-  final buf = StringBuffer()..writeln('শঙ্গজগ SOS রিপোর্ট:');
+  final buf = StringBuffer()..writeln('সংযোগ SOS রিপোর্ট:');
   buf.writeln();
 
   if (fields['location'] != null) {
@@ -81,7 +81,7 @@ String buildSosSmsBody(Map<String, dynamic> fields) {
   }
 
   buf.writeln();
-  buf.write('— শঙ্গজগ অ্যাপ থেকে পাঠানো');
+  buf.write('— সংযোগ অ্যাপ থেকে পাঠানো');
 
   return buf.toString();
 }

@@ -47,7 +47,7 @@ void main() {
       expect(body, contains('আঘাত: পোড়া'));
       expect(body, contains('প্রয়োজন: অ্যাম্বুলেন্স'));
       expect(body, contains('প্রবেশপথ: প্রধান সড়ক বন্ধ'));
-      expect(body, contains('শঙ্গজগ'));
+      expect(body, contains('সংযোগ'));
     });
 
     test('omits empty/null fields', () {
@@ -68,7 +68,7 @@ void main() {
 
     test('handles completely empty map', () {
       final body = buildSosSmsBody({});
-      expect(body, contains('শঙ্গজগ SOS রিপোর্ট:'));
+      expect(body, contains('সংযোগ SOS রিপোর্ট:'));
     });
   });
 }

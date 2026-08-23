@@ -26,7 +26,7 @@ class SituationReport {
 String? buildSituationPrompt(List<SituationReport> reports) {
   if (reports.isEmpty) return null;
   final buf = StringBuffer();
-  buf.writeln('তুমি শঙ্গজগ। নিচের সাম্প্রতিক প্রতিবেদনগুলির ভিত্তিতে '
+  buf.writeln('তুমি সংযোগ। নিচের সাম্প্রতিক প্রতিবেদনগুলির ভিত্তিতে '
       'বর্তমান পরিস্থিতির একটি সংক্ষিপ্ত সারাংশ বাংলায় দাও।');
   buf.writeln();
   buf.writeln('• সবচেয়ে সাধারণ ঘটনা');
