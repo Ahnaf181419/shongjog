@@ -137,3 +137,6 @@ Shongjog-*.apk
 # ─── Course study site (teaching material, hosted on Netlify) ──
 /site/
 /PRODUCT.md
+
+/.impeccable/
+/shongjog-site-v2.zip
