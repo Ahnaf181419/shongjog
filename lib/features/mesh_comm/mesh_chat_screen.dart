@@ -124,6 +124,7 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
         content: Text(l10n.meshDeleteChatBody(_currentPeer.displayName)),
         actions: [
           TextButton(
+            style: ShongjogTheme.dialogAction(),
             onPressed: () => Navigator.pop(ctx),
             child: Text(l10n.cancel),
           ),
@@ -140,9 +141,11 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
                 );
               }
             },
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-              foregroundColor: Theme.of(context).colorScheme.onError,
+            style: ShongjogTheme.dialogAction().merge(
+              FilledButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error,
+                foregroundColor: Theme.of(context).colorScheme.onError,
+              ),
             ),
             child: Text(l10n.meshDeleteChatButton),
           ),

@@ -226,10 +226,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           content: Text(l10n.profileDeletePhotoBody),
                           actions: [
                             TextButton(
+                              style: ShongjogTheme.dialogAction(),
                               onPressed: () => Navigator.pop(ctx, false),
                               child: Text(l10n.cancel),
                             ),
                             FilledButton(
+                              style: ShongjogTheme.dialogAction(),
                               onPressed: () => Navigator.pop(ctx, true),
                               child: Text(l10n.delete),
                             ),

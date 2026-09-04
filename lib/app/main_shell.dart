@@ -14,6 +14,7 @@ import '../features/mesh_comm/mesh_call_screen.dart';
 import '../features/mesh_comm/mesh_call_service.dart';
 import '../features/mesh_comm/mesh_models.dart';
 import '../features/mesh_comm/mesh_service.dart';
+import 'theme.dart';
 
 /// Root app shell — a [NavigationBar] with 4 tabs. Tabs are lazily built
 /// on first selection and kept alive via [Offstage] to preserve state.
@@ -87,6 +88,7 @@ class _MainShellState extends State<MainShell> {
           ),
           actions: [
             TextButton(
+              style: ShongjogTheme.dialogAction(),
               onPressed: () {
                 meshService.rejectConnection(event.endpointId);
                 Navigator.pop(ctx);
@@ -94,6 +96,7 @@ class _MainShellState extends State<MainShell> {
               child: Text(l10n.meshReject),
             ),
             FilledButton(
+              style: ShongjogTheme.dialogAction(),
               onPressed: () {
                 meshService.acceptConnection(event.endpointId);
                 Navigator.pop(ctx);

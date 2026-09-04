@@ -565,8 +565,11 @@ than the emergency sheet. It stays inside the same visual system: same tokens, s
   size or shape; the admin login button had its own padding and a 12dp corner,
   which made the first control an admin ever touches unlike every other button
   in the app.
-- **Dialog actions use `ShongjogTheme.dialogAction()`.** `filledButtonTheme`
-  sizes with `Size.fromHeight(52)`, whose minimum *width* is infinity — correct
+- **Dialog actions use `ShongjogTheme.dialogAction()`** — everywhere in the app,
+  not only here; the rule is stated in this section because this is where it was
+  found, and it is pinned by `test/unit/dialog_action_style_test.dart`.
+
+  `filledButtonTheme` sizes with `Size.fromHeight(52)`, whose minimum *width* is infinity — correct
   for a full-bleed CTA, fatal inside an `AlertDialog`, where `OverflowBar`
   cannot fit an infinitely-wide child beside anything and stacks instead. Every
   confirm dialog rendered as a small 40dp "Cancel" on one line and a full-width

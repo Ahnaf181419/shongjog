@@ -215,6 +215,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     content: SelectableText(err),
                     actions: [
                       TextButton(
+                        style: ShongjogTheme.dialogAction(),
                         onPressed: () => Navigator.pop(ctx),
                         child: Text(AppLocalizations.of(context).close),
                       ),
@@ -259,10 +260,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         content: Text(AppLocalizations.of(context).clearCacheConfirmDesc),
         actions: [
           TextButton(
+            style: ShongjogTheme.dialogAction(),
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(AppLocalizations.of(context).cancel),
           ),
           FilledButton(
+            style: ShongjogTheme.dialogAction(),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(AppLocalizations.of(context).delete),
           ),
@@ -468,10 +471,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           actions: [
             TextButton(
+              style: ShongjogTheme.dialogAction(),
               onPressed: () => Navigator.pop(ctx),
               child: Text(AppLocalizations.of(context).cancel),
             ),
             FilledButton(
+              style: ShongjogTheme.dialogAction(),
               onPressed: () async {
                 if (!formKey.currentState!.validate()) return;
                 if (selectedLocation == null) {
@@ -536,6 +541,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         actions: [
           TextButton(
+            style: ShongjogTheme.dialogAction(),
             onPressed: () => Navigator.pop(ctx),
             child: Text(AppLocalizations.of(context).close),
           ),

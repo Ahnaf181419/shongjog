@@ -388,10 +388,12 @@ class _ModelCard extends StatelessWidget {
         ),
         actions: [
           TextButton(
+            style: ShongjogTheme.dialogAction(),
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(l10n.modelCancel),
           ),
           FilledButton(
+            style: ShongjogTheme.dialogAction(),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(l10n.modelDelete),
           ),
