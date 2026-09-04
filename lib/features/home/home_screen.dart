@@ -12,9 +12,7 @@ import '../../core/haptics.dart';
 import '../../core/model_manager.dart';
 import '../../main.dart';
 import '../profile/profile_screen.dart';
-import '../quick_cards/cards_data.dart';
 import '../weather/weather_card.dart';
-import 'air_quality_card.dart';
 import 'live_hazards_card.dart';
 import 'marine_card.dart';
 import '../../core/bangla_numerals.dart';
@@ -56,7 +54,7 @@ class HomeScreen extends StatelessWidget {
           _DownloadCompletionListener(),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
               children: [
                 _StatusStrip(),
                 const SizedBox(height: 10),
@@ -66,15 +64,13 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 const LiveHazardsCard(),
                 const SizedBox(height: 8),
-                const AirQualityCard(),
+                _OfflineMessageTile(),
                 const SizedBox(height: 8),
                 const MarineCard(),
                 const SizedBox(height: 8),
                 // ── 2 emergency tiles (cards / shelter). The 999 entry point
                 //   lives in the AppBar pill — always reachable while scrolling.
                 _EmergencyTriad(),
-                const SizedBox(height: 12),
-                _OfflineMessageTile(),
                 const SizedBox(height: 12),
                 _TipCard(),
               ],
@@ -472,34 +468,8 @@ class _EmergencyTriad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final countBn = banglaNumber(kQuickCards.length);
     return Column(
       children: [
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: _TriadTile(
-                  icon: Icons.style_rounded,
-                  titleBn: AppLocalizations.of(context).emergencyCards,
-                  subtitleBn: AppLocalizations.of(context).emergencyCardsCount(countBn),
-                  onTap: () => MainShellRoute.goTo(context, 3),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _TriadTile(
-                  icon: Icons.shield_rounded,
-                  titleBn: AppLocalizations.of(context).nearbyShelter,
-                  subtitleBn: AppLocalizations.of(context).shelterFromGps,
-                  onTap: () => MainShellRoute.goTo(context, 4),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
         IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -780,124 +750,116 @@ class _TriageTile extends StatelessWidget {
   }
 }
 
-class _TriadTile extends StatelessWidget {
-  final IconData icon;
-  final String titleBn;
-  final String subtitleBn;
-  final VoidCallback onTap;
-
-  const _TriadTile({
-    required this.icon,
-    required this.titleBn,
-    required this.subtitleBn,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(ShongjogTheme.radius),
-        child: Container(
-          decoration: ShongjogTheme.cardDecoration(context),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: ShongjogTheme.iconBadge(context),
-                child: Icon(icon, color: cs.primary, size: 22),
-              ),
-              const SizedBox(height: 14),
-              Text(
-                titleBn,
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                  color: cs.onSurface,
-                  height: 1.2,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitleBn,
-                style: TextStyle(
-                  fontSize: 14,
-                  height: 1.4,
-                  color: cs.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 // ════════════════════════════════════════════════════════════════
 //  Offline message tile — Bluetooth mesh P2P
 // ════════════════════════════════════════════════════════════════
 
-class _OfflineMessageTile extends StatelessWidget {
+class _OfflineMessageTile extends StatefulWidget {
+  @override
+  State<_OfflineMessageTile> createState() => _OfflineMessageTileState();
+}
+
+class _OfflineMessageTileState extends State<_OfflineMessageTile> with SingleTickerProviderStateMixin {
+  late final AnimationController _glowController;
+  late final Animation<double> _glowAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _glowController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+    _glowAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _glowController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () {
-          HapticService.lightTap();
-          pushNamedSafe(context, AppRoutes.meshRadar);
-        },
-        borderRadius: BorderRadius.circular(ShongjogTheme.radius),
-        child: Container(
-          decoration: ShongjogTheme.cardDecoration(context),
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: ShongjogTheme.iconBadge(context),
-                child: Icon(Icons.wifi_tethering_rounded,
-                    color: cs.primary, size: 22),
+    return AnimatedBuilder(
+      animation: _glowAnimation,
+      builder: (context, child) {
+        final baseDecoration = ShongjogTheme.cardDecoration(context);
+        return Container(
+          decoration: BoxDecoration(
+            color: baseDecoration.color,
+            borderRadius: BorderRadius.circular(ShongjogTheme.radius),
+            boxShadow: [
+              if (baseDecoration.boxShadow != null)
+                ...baseDecoration.boxShadow!,
+              BoxShadow(
+                color: cs.primary.withValues(alpha: 0.3 * _glowAnimation.value),
+                blurRadius: 16,
+                spreadRadius: 2,
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      AppLocalizations.of(context).offlineMessage,
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                        color: cs.onSurface,
-                        height: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      AppLocalizations.of(context).offlineMessageDesc,
-                      style: TextStyle(
-                        fontSize: 14,
-                        height: 1.4,
-                        color: cs.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(Icons.arrow_forward_rounded,
-                  color: cs.onSurfaceVariant, size: 22),
             ],
+            border: Border.all(
+              color: cs.primary.withValues(alpha: 0.2 + 0.4 * _glowAnimation.value),
+              width: 1.5,
+            ),
+          ),
+          child: child,
+        );
+      },
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            HapticService.lightTap();
+            pushNamedSafe(context, AppRoutes.meshRadar);
+          },
+          borderRadius: BorderRadius.circular(ShongjogTheme.radius),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: ShongjogTheme.iconBadge(context),
+                  child: Icon(Icons.wifi_tethering_rounded,
+                      color: cs.primary, size: 22),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context).offlineMessage,
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                          color: cs.onSurface,
+                          height: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        AppLocalizations.of(context).offlineMessageDesc,
+                        style: TextStyle(
+                          fontSize: 14,
+                          height: 1.4,
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.arrow_forward_rounded,
+                    color: cs.onSurfaceVariant, size: 22),
+              ],
+            ),
           ),
         ),
       ),
