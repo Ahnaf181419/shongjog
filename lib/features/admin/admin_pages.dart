@@ -622,6 +622,7 @@ class _BroadcastConfirmDialog extends StatelessWidget {
       ),
       actions: [
         TextButton(
+          style: ShongjogTheme.dialogAction(),
           onPressed: () => Navigator.pop(context, false),
           child: Text(l10n.cancel),
         ),
@@ -630,10 +631,13 @@ class _BroadcastConfirmDialog extends StatelessWidget {
         // emergency announcement. The confirm button is the same colour as
         // the thing it is about to set off.
         FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: ShongjogTheme.toneFill(context, SemanticTone.danger),
-            foregroundColor:
-                ShongjogTheme.onToneFill(context, SemanticTone.danger),
+          style: ShongjogTheme.dialogAction().merge(
+            FilledButton.styleFrom(
+              backgroundColor:
+                  ShongjogTheme.toneFill(context, SemanticTone.danger),
+              foregroundColor:
+                  ShongjogTheme.onToneFill(context, SemanticTone.danger),
+            ),
           ),
           onPressed: () => Navigator.pop(context, true),
           child: Text(l10n.adminBroadcastConfirmAction),

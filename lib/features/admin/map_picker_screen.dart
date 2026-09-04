@@ -452,9 +452,6 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                 onPressed: _confirm,
                 icon: const Icon(Icons.check_rounded),
                 label: Text(AppLocalizations.of(context).mapPickerConfirm),
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size.fromHeight(52),
-                ),
               ),
             ),
         ],

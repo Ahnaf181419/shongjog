@@ -411,10 +411,10 @@ class _AdminTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        width: 44,
-                        height: 44,
+                        width: 40,
+                        height: 40,
                         decoration: ShongjogTheme.iconBadge(context),
-                        child: Icon(icon, color: cs.primary, size: 24),
+                        child: Icon(icon, color: cs.primary, size: 20),
                       ),
                       const SizedBox(height: 12),
                       Text(

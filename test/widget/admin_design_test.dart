@@ -135,6 +135,79 @@ void main() {
     });
   });
 
+  group('Control sizing', () {
+    testWidgets('every button type is the same height', (tester) async {
+      await tester.pumpWidget(wrap(Scaffold(
+        body: Column(children: [
+          FilledButton(onPressed: () {}, child: const Text('filled')),
+          FilledButton.tonal(onPressed: () {}, child: const Text('tonal')),
+          TextButton(onPressed: () {}, child: const Text('text')),
+          OutlinedButton(onPressed: () {}, child: const Text('outlined')),
+        ]),
+      )));
+      await tester.pumpAndSettle();
+
+      // TextButton and OutlinedButton had no theme entry and kept Material's
+      // 40dp default next to a 52dp FilledButton — a visible mismatch
+      // wherever they were paired, and under the 48dp tap-target floor.
+      for (final label in ['filled', 'tonal', 'text', 'outlined']) {
+        final button = find
+            .ancestor(of: find.text(label), matching: find.byType(Material))
+            .first;
+        expect(tester.getSize(button).height, 52.0,
+            reason: '$label button should match the 52dp control height');
+      }
+    });
+
+    testWidgets('dialog actions sit on one row at equal height',
+        (tester) async {
+      await tester.pumpWidget(wrap(Scaffold(
+        body: Builder(
+          builder: (ctx) => TextButton(
+            onPressed: () => confirmAdminAction(ctx,
+                title: 'T', body: 'B', confirmLabel: 'go'),
+            child: const Text('open'),
+          ),
+        ),
+      )));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+
+      // filledButtonTheme uses Size.fromHeight(52), whose minimum WIDTH is
+      // infinity — OverflowBar cannot fit that beside anything, so it used to
+      // stack a 40dp Cancel above a full-width 52dp confirm.
+      Rect rectOf(String label) => tester.getRect(find
+          .ancestor(of: find.text(label), matching: find.byType(Material))
+          .first);
+      final cancel = rectOf('বাতিল');
+      final confirm = rectOf('go');
+      expect(cancel.top, confirm.top, reason: 'actions must share a row');
+      expect(cancel.height, 52.0);
+      expect(confirm.height, 52.0);
+    });
+
+    testWidgets('tonal buttons are not just filled buttons', (tester) async {
+      await tester.pumpWidget(wrap(Scaffold(
+        body: Column(children: [
+          FilledButton(onPressed: () {}, child: const Text('filled')),
+          FilledButton.tonal(onPressed: () {}, child: const Text('tonal')),
+        ]),
+      )));
+      await tester.pumpAndSettle();
+
+      Color? bgOf(String label) => tester
+          .widget<Material>(find
+              .ancestor(of: find.text(label), matching: find.byType(Material))
+              .first)
+          .color;
+      // secondaryContainer was unset and fell back to `secondary`, which this
+      // scheme points at the brand hue — so tonal rendered identically to
+      // filled and the middle emphasis level did not exist.
+      expect(bgOf('tonal'), isNot(bgOf('filled')));
+    });
+  });
+
   group('Shared primitives', () {
     testWidgets('AdminEmptyState tones its icon by meaning', (tester) async {
       await tester.pumpWidget(wrap(const Scaffold(

@@ -191,7 +191,7 @@ class DangerListEntry extends StatelessWidget {
                           BorderRadius.circular(ShongjogTheme.radiusSm),
                     ),
                     child:
-                        Icon(Icons.warning_rounded, color: cs.onError, size: 22),
+                        Icon(Icons.warning_rounded, color: cs.onError, size: 20),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -291,16 +291,19 @@ Future<bool> confirmAdminAction(
         content: Text(body, style: Theme.of(ctx).textTheme.bodyMedium),
         actions: [
           TextButton(
+            style: ShongjogTheme.dialogAction(),
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(l10n.cancel),
           ),
           FilledButton(
-            style: tone == SemanticTone.info
-                ? null
-                : FilledButton.styleFrom(
-                    backgroundColor: ShongjogTheme.toneFill(ctx, tone),
-                    foregroundColor: onTone,
-                  ),
+            style: ShongjogTheme.dialogAction().merge(
+              tone == SemanticTone.info
+                  ? null
+                  : FilledButton.styleFrom(
+                      backgroundColor: ShongjogTheme.toneFill(ctx, tone),
+                      foregroundColor: onTone,
+                    ),
+            ),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(confirmLabel),
           ),
@@ -339,7 +342,9 @@ class AdminStatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final badge = compact ? 32.0 : 36.0;
+    // Two sizes, both on the badge scale (32 compact / 40 standard); 36 was
+    // a third value used nowhere else in the section.
+    final badge = compact ? 32.0 : 40.0;
     // One node, not three — a screen reader should read "Mesh peers, 4",
     // not stop on an unlabelled icon and two loose strings.
     return Semantics(

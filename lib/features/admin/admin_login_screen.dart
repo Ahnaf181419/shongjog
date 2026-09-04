@@ -251,15 +251,12 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     onFieldSubmitted: (_) => _handleLogin(),
                   ),
                   const SizedBox(height: 24),
+                  // No local style. This button carried its own 16dp
+                  // padding and a 12dp radius, so the first control an admin
+                  // ever touches was a different height and a different
+                  // corner from every other button in the app.
                   FilledButton(
                     onPressed: _busy ? null : _handleLogin,
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(ShongjogTheme.radiusSm),
-                      ),
-                    ),
                     child: _busy
                         ? Row(
                             mainAxisAlignment: MainAxisAlignment.center,

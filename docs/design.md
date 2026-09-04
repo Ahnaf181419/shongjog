@@ -557,6 +557,32 @@ than the emergency sheet. It stays inside the same visual system: same tokens, s
   advertises and scans. An icon that teaches operators the wrong model of how the app
   reaches phones offline is a correctness bug, not a decoration choice.
 
+- **Controls are one size.** Every button is **52dp** tall with a 16dp radius.
+  `TextButton` and `OutlinedButton` had no theme entry at all, so they kept
+  Material's 40dp default while every `FilledButton` was 52dp — a visible
+  mismatch wherever the two were paired, and under the 48dp tap-target floor §6
+  sets. Both now have theme entries. Buttons carry **no local `styleFrom`** for
+  size or shape; the admin login button had its own padding and a 12dp corner,
+  which made the first control an admin ever touches unlike every other button
+  in the app.
+- **Dialog actions use `ShongjogTheme.dialogAction()`.** `filledButtonTheme`
+  sizes with `Size.fromHeight(52)`, whose minimum *width* is infinity — correct
+  for a full-bleed CTA, fatal inside an `AlertDialog`, where `OverflowBar`
+  cannot fit an infinitely-wide child beside anything and stacks instead. Every
+  confirm dialog rendered as a small 40dp "Cancel" on one line and a full-width
+  52dp confirm button on the next, reading as two unrelated controls rather than
+  a choice. The helper pins a finite minimum width so the pair shares a row.
+- **`FilledButton.tonal` is a real emphasis level again.** `secondaryContainer`
+  was never set on the `ColorScheme` and fell back to `secondary`, which this
+  scheme points at the brand hue — so every tonal button rendered identical to a
+  primary filled one. It now has its own tinted container (`tonalFill`) with
+  `infoInk` on top. Use it for the affirmative action in a pair, where a second
+  full-primary button would compete with the first.
+- **Icon badges use two sizes:** 32dp (compact, in a three-up stat row) and
+  40dp (everywhere else), plus 72dp for an empty state and 96dp for the login
+  hero. Icons sit at 20dp inside a 40dp badge and scale with it; 36dp and 44dp
+  badges, and 18/22/24dp icons inside them, were one-off values.
+
 **Consequence gate (the section's one hard rule).** An admin action that other people will
 feel asks first, through `confirmAdminAction`. That covers approving a campaign (a pin on
 every nearby user's map), rejecting one, and logging out (which releases the role).
