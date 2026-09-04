@@ -514,6 +514,78 @@ slide-to-confirm widget proves too costly in Phase 1.2. Default ship target is 7
 - **Moment:** the breathing "স" — the app's first and last visual impression. Quiet,
   alive, intentional.
 
+### 7.9 Admin panel (coordinator surface)
+
+The panel was the one significant surface with no spec here, and it drifted accordingly:
+14dp/8dp/6dp corners against a 12/16/20 shape lock, 10dp and 6dp gaps against the spacing
+scale, `fontSize: 14` (the *caption* size) standing in for body text on 29 lines, zero
+`Semantics` in six files, and its own hardcoded Bangla for relative time. This section is
+the rule those screens are now held to.
+
+**What the section is.** A coordinator surface, not a consumer one. The reader is a
+volunteer with a task, not a person in a crisis — so it is denser than chat and calmer
+than the emergency sheet. It stays inside the same visual system: same tokens, same
+`cardTheme`, same accent. It is Shongjog with a job to do, not a second app.
+
+- **Chrome:** every page uses `AdminScaffold` — the AppBar plus a localised, screen-reader
+  labelled back button in one place. The panel's entry page adds a 3dp `cs.primary` rule
+  under the AppBar; that rule is the *only* chrome difference from citizen Shongjog, and
+  it persists for as long as the operator holds the role.
+- **Type:** `Theme.of(context).textTheme` only. No inline `fontSize` in this section.
+  Screen header `titleLarge`, card title `titleMedium`, body `bodyMedium` (17sp),
+  metadata and stat labels `bodySmall` (14sp), eyebrows and chips `labelMedium`.
+- **Shape and spacing:** `ShongjogTheme.radiusSm/radius/radiusLg` and the 4/8/12/16/24/32
+  scale, no literals. Cards inherit `cardTheme`; a tile does not re-declare its own shape.
+- **Colour:** one accent (`cs.primary`) across all routine navigation. Status colour goes
+  through `SemanticTone`. Red is reserved for two things and nothing else — the danger
+  entry, and the broadcast confirmation (see below).
+- **Density lock:** 12dp between cards in a list, 16dp between sections, 24dp before a new
+  section heading.
+- **Numerals:** `numberForLocale(n, languageCode)`. An ARB placeholder that carries a
+  number is typed `String`, never `int` — `int` interpolates as Latin digits and puts
+  "12 মিনিট আগে" on a Bangla screen.
+- **Empty states:** one component, `AdminEmptyState`. Absence is toned: an empty danger
+  list is good news and takes `SemanticTone.success`; an empty device list is neutral.
+- **Stat cards:** one component, `AdminStatCard`. Each reads to a screen reader as a
+  single labelled node ("Mesh peers, 4"), not an unlabelled icon and two loose strings.
+- **Count badges:** a number appears **once** per screen. The pending-campaign count was
+  rendering three times on the entry page — AppBar, hero pill, tile badge — in three
+  different shapes. The hero pill is the at-a-glance status; the tile badge is wayfinding;
+  there is no third.
+- **Icons must match the mechanism.** The mesh stat is `Icons.hub_rounded`, never a
+  Bluetooth glyph: the transport is Wi-Fi Direct (`P2P_CLUSTER`), and Bluetooth only
+  advertises and scans. An icon that teaches operators the wrong model of how the app
+  reaches phones offline is a correctness bug, not a decoration choice.
+
+**Consequence gate (the section's one hard rule).** An admin action that other people will
+feel asks first, through `confirmAdminAction`. That covers approving a campaign (a pin on
+every nearby user's map), rejecting one, and logging out (which releases the role).
+
+Broadcast is the strongest case and gets its own treatment. `firestore.rules` states in
+its own header that admin grants `broadcasts` create, which wires into
+`LocalNotificationService` — making it "a misinformation channel, not merely a settings
+panel." It previously had less friction than deleting a contact: one tap, no confirmation,
+no sense of reach, no record. It now:
+
+1. renders the message inside a **preview shaped like the Android notification** it is
+   about to become — the real tray title, the real body. A plain "Are you sure?" only
+   tests whether the admin meant to press the button; a preview tests whether what they
+   wrote says what they meant;
+2. states the reach as a count of registered devices;
+3. shows a live character counter against a 280-character display limit — a counter, not a
+   hard `maxLength`, because silently swallowing a keystroke mid-sentence is worse than
+   showing the writer they have run long;
+4. keeps the last ten sent messages visible beneath the composer;
+5. confirms in **red** — the documented §12 accent-lock exception for this screen. The
+   channel's own tray title is `জরুরি ঘোষণা`, *emergency announcement*; the confirm
+   button is the same colour as the thing it sets off.
+
+**Not covered by the panel's own rules:** the admin PIN gate is client-asserted and
+non-cryptographic. Credentials are compared as SHA-256 digests so the working password is
+not a readable literal in `libapp.so`, and a deployment can override both at build time
+with `--dart-define`. That is obfuscation, not authentication — the real boundary is
+`firestore.rules`, and it is documented there.
+
 ---
 
 ## 8. Microinteractions

@@ -2363,19 +2363,70 @@ class AppLocalizationsBn extends AppLocalizations {
   String get adminTimeJustNow => 'এইমাত্র';
 
   @override
-  String adminTimeMinutesAgo(int count) {
+  String adminTimeMinutesAgo(String count) {
     return '$count মিনিট আগে';
   }
 
   @override
-  String adminTimeHoursAgo(int count) {
+  String adminTimeHoursAgo(String count) {
     return '$count ঘণ্টা আগে';
   }
 
   @override
-  String adminTimeDaysAgo(int count) {
+  String adminTimeDaysAgo(String count) {
     return '$count দিন আগে';
   }
+
+  @override
+  String get adminBroadcastConfirmTitle => 'সবার কাছে পাঠাবেন?';
+
+  @override
+  String adminBroadcastConfirmBody(String count) {
+    return '$countটি নিবন্ধিত ডিভাইসে এটি নোটিফিকেশন হিসেবে পৌঁছাবে। পাঠানো বার্তা আর ফেরানো যাবে না।';
+  }
+
+  @override
+  String get adminBroadcastConfirmAction => 'এখনই পাঠান';
+
+  @override
+  String adminBroadcastCounter(String used, String max) {
+    return '$used/$max';
+  }
+
+  @override
+  String get adminBroadcastRecent => 'সদ্য পাঠানো';
+
+  @override
+  String get adminBroadcastNoneSent => 'এখনো কিছু পাঠানো হয়নি।';
+
+  @override
+  String get adminReject => 'বাতিল করুন';
+
+  @override
+  String get adminRejected => 'বাতিল করা হয়েছে';
+
+  @override
+  String get adminConfirmApproveTitle => 'অনুরোধটি অনুমোদন করবেন?';
+
+  @override
+  String get adminConfirmApproveBody =>
+      'অনুমোদিত অনুরোধ আশপাশের ব্যবহারকারীদের ম্যাপে দেখা যাবে।';
+
+  @override
+  String get adminConfirmRejectTitle => 'অনুরোধটি বাতিল করবেন?';
+
+  @override
+  String get adminConfirmRejectBody =>
+      'অনুরোধটি তালিকায় থাকবে, বাতিল হিসেবে চিহ্নিত হয়ে।';
+
+  @override
+  String get adminPasswordShow => 'পাসওয়ার্ড দেখান';
+
+  @override
+  String get adminPasswordHide => 'পাসওয়ার্ড লুকান';
+
+  @override
+  String get adminSigningIn => 'সাইন ইন হচ্ছে…';
 
   @override
   String get adminWriteMessage => 'বার্তা লিখুন…';

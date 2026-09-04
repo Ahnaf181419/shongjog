@@ -884,6 +884,21 @@
   "adminTimeMinutesAgo": "{count} মিনিট আগে",
   "adminTimeHoursAgo": "{count} ঘণ্টা আগে",
   "adminTimeDaysAgo": "{count} দিন আগে",
+  "adminBroadcastConfirmTitle": "সবার কাছে পাঠাবেন?",
+  "adminBroadcastConfirmBody": "{count}টি নিবন্ধিত ডিভাইসে এটি নোটিফিকেশন হিসেবে পৌঁছাবে। পাঠানো বার্তা আর ফেরানো যাবে না।",
+  "adminBroadcastConfirmAction": "এখনই পাঠান",
+  "adminBroadcastCounter": "{used}/{max}",
+  "adminBroadcastRecent": "সদ্য পাঠানো",
+  "adminBroadcastNoneSent": "এখনো কিছু পাঠানো হয়নি।",
+  "adminReject": "বাতিল করুন",
+  "adminRejected": "বাতিল করা হয়েছে",
+  "adminConfirmApproveTitle": "অনুরোধটি অনুমোদন করবেন?",
+  "adminConfirmApproveBody": "অনুমোদিত অনুরোধ আশপাশের ব্যবহারকারীদের ম্যাপে দেখা যাবে।",
+  "adminConfirmRejectTitle": "অনুরোধটি বাতিল করবেন?",
+  "adminConfirmRejectBody": "অনুরোধটি তালিকায় থাকবে, বাতিল হিসেবে চিহ্নিত হয়ে।",
+  "adminPasswordShow": "পাসওয়ার্ড দেখান",
+  "adminPasswordHide": "পাসওয়ার্ড লুকান",
+  "adminSigningIn": "সাইন ইন হচ্ছে…",
   "adminWriteMessage": "বার্তা লিখুন…",
   "adminDetailsLink": "বিস্তারিত",
   "adminSystemSummary": "সিস্টেম সারসংক্ষেপ",
@@ -1015,21 +1030,38 @@
   "@adminTimeMinutesAgo": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
   "@adminTimeHoursAgo": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
   "@adminTimeDaysAgo": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
+      }
+    }
+  },
+  "@adminBroadcastConfirmBody": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@adminBroadcastCounter": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
       }
     }
   },

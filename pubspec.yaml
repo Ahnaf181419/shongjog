@@ -38,6 +38,10 @@ dependencies:
   latlong2: ^0.9.1
   http: ^1.2.0
 
+  # SHA-256 for the admin credential gate. Already in the tree as a
+  # transitive dependency; declared here because we import it directly.
+  crypto: ^3.0.6
+
   # Actions (tel: on the cellular voice channel, sms: via method channel)
   url_launcher: ^6.3.0
 

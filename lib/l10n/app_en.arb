@@ -874,7 +874,7 @@
   "@adminTimeMinutesAgo": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -882,7 +882,7 @@
   "@adminTimeHoursAgo": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -890,10 +890,42 @@
   "@adminTimeDaysAgo": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
+  "adminBroadcastConfirmTitle": "Send to everyone?",
+  "adminBroadcastConfirmBody": "{count} registered devices receive this as a notification. A sent message cannot be recalled.",
+  "@adminBroadcastConfirmBody": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "adminBroadcastConfirmAction": "Send now",
+  "adminBroadcastCounter": "{used}/{max}",
+  "@adminBroadcastCounter": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "adminBroadcastRecent": "Recently sent",
+  "adminBroadcastNoneSent": "Nothing sent yet.",
+  "adminReject": "Reject",
+  "adminRejected": "Rejected",
+  "adminConfirmApproveTitle": "Approve this request?",
+  "adminConfirmApproveBody": "Approved requests appear on the map for nearby users.",
+  "adminConfirmRejectTitle": "Reject this request?",
+  "adminConfirmRejectBody": "The request stays in the list, marked rejected.",
+  "adminPasswordShow": "Show password",
+  "adminPasswordHide": "Hide password",
+  "adminSigningIn": "Signing in\u2026",
   "adminWriteMessage": "Write a message...",
   "adminDetailsLink": "Details",
   "adminSystemSummary": "System Summary",

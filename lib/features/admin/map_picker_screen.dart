@@ -177,16 +177,15 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: cs.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius:
+                        BorderRadius.circular(ShongjogTheme.radiusSm),
                   ),
                   child: Text(
                     '${_selectedPoint!.latitude.toStringAsFixed(4)}, ${_selectedPoint!.longitude.toStringAsFixed(4)}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'monospace',
-                      color: cs.primary,
-                    ),
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          fontFamily: 'monospace',
+                          color: cs.primary,
+                        ),
                   ),
                 ),
               ),
@@ -277,7 +276,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                 Container(
                   decoration: BoxDecoration(
                     color: cs.surface.withValues(alpha: 0.97),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(ShongjogTheme.radius),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.12),
@@ -357,16 +356,17 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                             shortName,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 14),
+                            style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           subtitle: displayName != shortName
                               ? Text(
                                   displayName,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      color: cs.onSurfaceVariant),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(color: cs.onSurfaceVariant),
                                 )
                               : null,
                           onTap: () => _selectSearchResult(result),
@@ -427,15 +427,14 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                 child: Row(
                   children: [
                     Icon(Icons.touch_app_rounded, color: cs.primary, size: 20),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         AppLocalizations.of(context).mapPickerInstruction,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: cs.onSurface,
-                        ),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(color: cs.onSurface),
                       ),
                     ),
                   ],

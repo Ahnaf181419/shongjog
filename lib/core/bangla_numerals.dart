@@ -35,3 +35,16 @@ String toBanglaDigits(String input) {
 
 /// [n] as a Bangla numeral. Negative values keep their leading minus.
 String banglaNumber(int n) => toBanglaDigits(n.toString());
+
+/// [n] in the numeral system that [languageCode] reads.
+///
+/// The generated `AppLocalizations` methods interpolate an `int` placeholder
+/// with `'$n'`, which is always Latin digits — so a Bangla string built from
+/// an int placeholder renders "12 মিনিট আগে" rather than "১২ মিনিট আগে",
+/// against §5.2 ("Numbers in user-facing copy: Bangla numerals"). Call sites
+/// pass the numeral through here and the ARB placeholder is typed `String`.
+///
+/// Takes a language code rather than a `BuildContext` so this file stays
+/// Flutter-free, like the rest of `core/`.
+String numberForLocale(int n, String languageCode) =>
+    languageCode == 'bn' ? banglaNumber(n) : n.toString();

@@ -170,6 +170,15 @@ class CampaignRequestService extends ChangeNotifier {
   List<CampaignRequest> get approvedRequests =>
       _requests.where((r) => r.status == CampaignStatus.approved).toList();
 
+  /// Everything an admin has already decided on, approved or rejected.
+  ///
+  /// The admin list used to append [approvedRequests] alone, so a rejected
+  /// request vanished from the panel entirely the moment it was rejected —
+  /// no record that a decision had been made, and no way to see it had not
+  /// simply been missed.
+  List<CampaignRequest> get reviewedRequests =>
+      _requests.where((r) => r.status != CampaignStatus.pending).toList();
+
   int get pendingCount => pendingRequests.length;
 
   bool _initialized = false;

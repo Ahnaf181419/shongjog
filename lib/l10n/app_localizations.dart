@@ -4542,19 +4542,109 @@ abstract class AppLocalizations {
   ///
   /// In bn, this message translates to:
   /// **'{count} মিনিট আগে'**
-  String adminTimeMinutesAgo(int count);
+  String adminTimeMinutesAgo(String count);
 
   /// No description provided for @adminTimeHoursAgo.
   ///
   /// In bn, this message translates to:
   /// **'{count} ঘণ্টা আগে'**
-  String adminTimeHoursAgo(int count);
+  String adminTimeHoursAgo(String count);
 
   /// No description provided for @adminTimeDaysAgo.
   ///
   /// In bn, this message translates to:
   /// **'{count} দিন আগে'**
-  String adminTimeDaysAgo(int count);
+  String adminTimeDaysAgo(String count);
+
+  /// No description provided for @adminBroadcastConfirmTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'সবার কাছে পাঠাবেন?'**
+  String get adminBroadcastConfirmTitle;
+
+  /// No description provided for @adminBroadcastConfirmBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি নিবন্ধিত ডিভাইসে এটি নোটিফিকেশন হিসেবে পৌঁছাবে। পাঠানো বার্তা আর ফেরানো যাবে না।'**
+  String adminBroadcastConfirmBody(String count);
+
+  /// No description provided for @adminBroadcastConfirmAction.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনই পাঠান'**
+  String get adminBroadcastConfirmAction;
+
+  /// No description provided for @adminBroadcastCounter.
+  ///
+  /// In bn, this message translates to:
+  /// **'{used}/{max}'**
+  String adminBroadcastCounter(String used, String max);
+
+  /// No description provided for @adminBroadcastRecent.
+  ///
+  /// In bn, this message translates to:
+  /// **'সদ্য পাঠানো'**
+  String get adminBroadcastRecent;
+
+  /// No description provided for @adminBroadcastNoneSent.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনো কিছু পাঠানো হয়নি।'**
+  String get adminBroadcastNoneSent;
+
+  /// No description provided for @adminReject.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাতিল করুন'**
+  String get adminReject;
+
+  /// No description provided for @adminRejected.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাতিল করা হয়েছে'**
+  String get adminRejected;
+
+  /// No description provided for @adminConfirmApproveTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'অনুরোধটি অনুমোদন করবেন?'**
+  String get adminConfirmApproveTitle;
+
+  /// No description provided for @adminConfirmApproveBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'অনুমোদিত অনুরোধ আশপাশের ব্যবহারকারীদের ম্যাপে দেখা যাবে।'**
+  String get adminConfirmApproveBody;
+
+  /// No description provided for @adminConfirmRejectTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'অনুরোধটি বাতিল করবেন?'**
+  String get adminConfirmRejectTitle;
+
+  /// No description provided for @adminConfirmRejectBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'অনুরোধটি তালিকায় থাকবে, বাতিল হিসেবে চিহ্নিত হয়ে।'**
+  String get adminConfirmRejectBody;
+
+  /// No description provided for @adminPasswordShow.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাসওয়ার্ড দেখান'**
+  String get adminPasswordShow;
+
+  /// No description provided for @adminPasswordHide.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাসওয়ার্ড লুকান'**
+  String get adminPasswordHide;
+
+  /// No description provided for @adminSigningIn.
+  ///
+  /// In bn, this message translates to:
+  /// **'সাইন ইন হচ্ছে…'**
+  String get adminSigningIn;
 
   /// No description provided for @adminWriteMessage.
   ///

@@ -2359,19 +2359,70 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminTimeJustNow => 'Just now';
 
   @override
-  String adminTimeMinutesAgo(int count) {
+  String adminTimeMinutesAgo(String count) {
     return '$count minutes ago';
   }
 
   @override
-  String adminTimeHoursAgo(int count) {
+  String adminTimeHoursAgo(String count) {
     return '$count hours ago';
   }
 
   @override
-  String adminTimeDaysAgo(int count) {
+  String adminTimeDaysAgo(String count) {
     return '$count days ago';
   }
+
+  @override
+  String get adminBroadcastConfirmTitle => 'Send to everyone?';
+
+  @override
+  String adminBroadcastConfirmBody(String count) {
+    return '$count registered devices receive this as a notification. A sent message cannot be recalled.';
+  }
+
+  @override
+  String get adminBroadcastConfirmAction => 'Send now';
+
+  @override
+  String adminBroadcastCounter(String used, String max) {
+    return '$used/$max';
+  }
+
+  @override
+  String get adminBroadcastRecent => 'Recently sent';
+
+  @override
+  String get adminBroadcastNoneSent => 'Nothing sent yet.';
+
+  @override
+  String get adminReject => 'Reject';
+
+  @override
+  String get adminRejected => 'Rejected';
+
+  @override
+  String get adminConfirmApproveTitle => 'Approve this request?';
+
+  @override
+  String get adminConfirmApproveBody =>
+      'Approved requests appear on the map for nearby users.';
+
+  @override
+  String get adminConfirmRejectTitle => 'Reject this request?';
+
+  @override
+  String get adminConfirmRejectBody =>
+      'The request stays in the list, marked rejected.';
+
+  @override
+  String get adminPasswordShow => 'Show password';
+
+  @override
+  String get adminPasswordHide => 'Hide password';
+
+  @override
+  String get adminSigningIn => 'Signing in…';
 
   @override
   String get adminWriteMessage => 'Write a message...';
