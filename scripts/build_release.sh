@@ -103,6 +103,75 @@ if [[ "$PRE_FAILED" -ne 0 ]]; then
 fi
 echo
 
+# ── Strip dev-dependency plugins from the generated registrant ─────────
+# `flutter pub get` writes every plugin into
+# android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java,
+# dev dependencies included, while the Flutter Gradle plugin correctly keeps
+# dev-dependency AARs OFF the release compile classpath. The release build
+# therefore fails compiling a generated file that names a class it was never
+# given:
+#
+#   GeneratedPluginRegistrant.java:104: error: package
+#   dev.flutter.plugins.integration_test does not exist
+#
+# Debug and profile builds are fine (they get the AAR), so this is invisible
+# until someone builds the shippable APK — which is why it sat unnoticed
+# between the July release and this one.
+#
+# The registrant is generated and gitignored, so editing it here is not a
+# patch that can rot: pub get rewrites the file, and this rewrites it back on
+# every build. Keeping `integration_test` in dev_dependencies keeps
+# `flutter test integration_test/demo_flow_test.dart` working, which
+# docs/CONTRIBUTING.md documents.
+#
+# `.flutter-plugins-dependencies` already records which plugins are dev-only,
+# so the list is read from there rather than hardcoded — a second dev-only
+# plugin added later is handled without touching this script.
+REGISTRANT="$REPO_ROOT/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java"
+PLUGIN_DEPS="$REPO_ROOT/.flutter-plugins-dependencies"
+
+strip_dev_plugins() {
+  [[ -f "$REGISTRANT" && -f "$PLUGIN_DEPS" ]] || return 0
+
+  local dev_plugins
+  dev_plugins="$(python3 - "$PLUGIN_DEPS" <<'PYEOF'
+import json, sys
+with open(sys.argv[1]) as fh:
+    data = json.load(fh)
+for plugin in data.get("plugins", {}).get("android", []):
+    if plugin.get("dev_dependency"):
+        print(plugin["name"])
+PYEOF
+)"
+  [[ -n "$dev_plugins" ]] || return 0
+
+  while read -r name; do
+    [[ -n "$name" ]] || continue
+    # Each registration is a fixed 5-line try/catch naming the plugin in its
+    # Log.e line, so the block is matched on that name and deleted whole.
+    python3 - "$REGISTRANT" "$name" <<'PYEOF'
+import re, sys
+path, name = sys.argv[1], sys.argv[2]
+src = open(path, encoding="utf-8").read()
+block = re.compile(
+    r"[ \t]*try \{\n"
+    r"[^\n]*flutterEngine\.getPlugins\(\)\.add[^\n]*\n"
+    r"[ \t]*\} catch \(Exception e\) \{\n"
+    r"[^\n]*Error registering plugin " + re.escape(name) + r",[^\n]*\n"
+    r"[ \t]*\}\n"
+)
+out, n = block.subn("", src)
+if n:
+    open(path, "w", encoding="utf-8").write(out)
+print(f"  {'-' if n else '~'} {name}: {n} registration(s) removed")
+PYEOF
+  done <<<"$dev_plugins"
+}
+
+echo "==> Removing dev-dependency plugin registrations (release classpath)..."
+strip_dev_plugins
+echo
+
 # 3. Build (arm64-v8a only).
 BUILD_ARGS=(build apk --release --target-platform android-arm64)
 
@@ -290,11 +359,26 @@ else
   #    builds keep it, which makes this invisible until someone installs the
   #    release APK and no notification ever appears. res/raw/keep.xml is what
   #    holds it in; this gate proves the keep rule actually worked.
-  if command -v aapt2 >/dev/null 2>&1; then
+  # aapt2 ships inside the Android SDK build-tools rather than on PATH, so
+  # this gate silently skipped on every developer machine that had not put it
+  # there by hand — including the one that produced the shipping build.
+  AAPT2="$(command -v aapt2 || true)"
+  if [[ -z "$AAPT2" ]]; then
+    for SDK_ROOT in "${ANDROID_HOME:-}" "${ANDROID_SDK_ROOT:-}" "$HOME/Android/Sdk" \
+                    "$HOME/Library/Android/sdk" "/usr/lib/android-sdk"; do
+      [[ -n "$SDK_ROOT" && -d "$SDK_ROOT/build-tools" ]] || continue
+      # Highest build-tools version wins.
+      AAPT2="$(find "$SDK_ROOT/build-tools" -maxdepth 2 -name aapt2 -type f 2>/dev/null |
+               sort -V | tail -1)"
+      [[ -n "$AAPT2" ]] && break
+    done
+  fi
+
+  if [[ -n "$AAPT2" ]]; then
     # grep -c, never grep -q: with `set -o pipefail`, -q exits on the first
     # match and SIGPIPEs aapt2, which fails the whole pipeline and reports a
     # missing resource that is actually present. Same trap as check 7.
-    if [[ "$(aapt2 dump resources "$APK" 2>/dev/null |
+    if [[ "$("$AAPT2" dump resources "$APK" 2>/dev/null |
              grep -c 'drawable/ic_notification' || true)" -gt 0 ]]; then
       echo "  ✓ Notification icon survived resource shrinking"
     else
@@ -304,7 +388,8 @@ else
       FAILED=1
     fi
   else
-    echo "  ! aapt2 not on PATH — skipped the notification-icon check"
+    echo "  ! aapt2 not found on PATH or in the Android SDK build-tools —"
+    echo "    skipped the notification-icon check"
   fi
 fi
 
