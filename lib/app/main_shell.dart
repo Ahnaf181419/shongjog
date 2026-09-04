@@ -210,6 +210,98 @@ class _MainShellState extends State<MainShell> {
     ),
   ];
 
+  Widget _buildFloatingNavBar(BuildContext context) {
+    final dests = _destinations(context);
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return SafeArea(
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 24, left: 24, right: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E293B) : Colors.white,
+          borderRadius: BorderRadius.circular(40),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(dests.length, (i) {
+            final isSelected = _index == i;
+            final dest = dests[i];
+            return GestureDetector(
+              onTap: () {
+                try {
+                  HapticFeedback.lightImpact();
+                } catch (_) {}
+                _goToTab(i);
+              },
+              behavior: HitTestBehavior.opaque,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutCubic,
+                padding: EdgeInsets.symmetric(
+                  horizontal: isSelected ? 16 : 12,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected 
+                      ? cs.primary.withValues(alpha: 0.15) 
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (child, animation) {
+                        return ScaleTransition(scale: animation, child: child);
+                      },
+                      child: Icon(
+                        isSelected 
+                            ? (dest.selectedIcon as Icon).icon 
+                            : (dest.icon as Icon).icon,
+                        key: ValueKey<bool>(isSelected),
+                        color: isSelected 
+                            ? cs.primary 
+                            : cs.onSurface.withValues(alpha: 0.6),
+                        size: 24,
+                      ),
+                    ),
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutCubic,
+                      child: isSelected
+                          ? Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: Text(
+                                dest.label,
+                                style: TextStyle(
+                                  color: cs.primary,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -218,6 +310,7 @@ class _MainShellState extends State<MainShell> {
         if (!didPop) setState(() => _index = 0);
       },
       child: Scaffold(
+        extendBody: true,
         body: Stack(
           children: [
             for (int i = 0; i < 5; i++)
@@ -227,11 +320,7 @@ class _MainShellState extends State<MainShell> {
               ),
           ],
         ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: _index,
-          onDestinationSelected: _goToTab,
-          destinations: _destinations(context),
-        ),
+        bottomNavigationBar: _buildFloatingNavBar(context),
       ),
     );
   }
