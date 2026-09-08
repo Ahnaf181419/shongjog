@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
-import 'situation_summary_service.dart';
-import '../../l10n/app_localizations.dart';
 import '../../core/bangla_numerals.dart';
+import '../../l10n/app_localizations.dart';
+import '../chat/chat_store.dart';
+import '../safe_beacon/safety_status_service.dart';
+import 'situation_summary_service.dart';
 
 /// AI Situation Summary screen (Module E in docs/AI-FIRST-FEATURES.md).
 ///
-/// Aggregates a small static sample of recent reports and renders the
-/// AI-generated summary. In a fuller iteration this would feed from
+/// Aggregates reports from the live chat history + the safety status
+/// service. (Audit F4, 2026-09-08 — used to summarize 3 hardcoded
+/// sample queries, which made a demo look real but was fiction; this
+/// is now the real path. The samples are kept as an empty-state seed
+/// only, when there is genuinely nothing to summarize.)
+/// In a fuller iteration this would feed from
 /// the chat history store + the SOS dispatcher.
 class SituationSummaryScreen extends StatefulWidget {
   const SituationSummaryScreen({super.key});
@@ -21,17 +27,68 @@ class _SituationSummaryScreenState extends State<SituationSummaryScreen> {
   String? _summary;
   bool _loading = false;
 
-  // Sample reports (a richer build would pull from chat history + SOS
-  // log). The summary still works on a single report.
-  final List<SituationReport> _reports = [
-    SituationReport.now(query: 'নিকটস্থ সাইক্লোন শেল্টার', source: 'chat'),
-    SituationReport.now(query: 'বন্যার পানি কতদিন থাকবে?', source: 'chat'),
-    SituationReport.now(query: 'SOS: আটকা পড়েছি', source: 'sos'),
-  ];
+  /// Aggregate the live data sources into a single report list for the
+  /// summarizer. Empty in a fresh install; filled when there is chat
+  /// history or a safety report. Three placeholder reports are returned
+  /// only when the list would otherwise be empty, so a brand-new user
+  /// still sees a meaningful demo summary rather than a blank screen —
+  /// those samples are clearly marked [demo seed] in the prompt so the
+  /// model output stays grounded in real, not fictional, content.
+  Future<List<SituationReport>> _collectReports() async {
+    final out = <SituationReport>[];
+
+    // 1. Safety reports: my own + every report seen this session.
+    for (final r in safetyStatusService.all) {
+      out.add(SituationReport(
+        query: r.status == SafetyReport.dangerStatus
+            ? 'জরুরি: ${r.note.isNotEmpty ? r.note : r.userName}'
+            : 'নিরাপদ: ${r.userName}',
+        source: 'safety',
+        when: r.timestamp,
+      ));
+    }
+
+    // 2. Recent chat history (user queries only — model answers would
+    // just duplicate the user query).
+    try {
+      final messages = await ChatStore().load();
+      for (final m in messages.reversed.take(10)) {
+        if (m.isUser) {
+          out.add(SituationReport(
+            query: m.text,
+            source: 'chat',
+            when: DateTime.now(),
+          ));
+        }
+      }
+    } catch (_) {
+      // ChatStore failure (no FS, corrupt file, etc.) — keep the safety
+      // reports. Don't fail the whole summary for a chat-history glitch.
+    }
+
+    if (out.isNotEmpty) return out;
+
+    // Empty-state demo seed (audit F4) — only when nothing real exists.
+    return [
+      SituationReport.now(
+        query: 'ডেমো: নিকটস্থ সাইক্লোন শেল্টার',
+        source: 'demo seed',
+      ),
+      SituationReport.now(
+        query: 'ডেমো: বন্যার পানি কতদিন থাকবে?',
+        source: 'demo seed',
+      ),
+      SituationReport.now(
+        query: 'ডেমো: SOS — আটকা পড়েছি',
+        source: 'demo seed',
+      ),
+    ];
+  }
 
   Future<void> _generate() async {
     setState(() => _loading = true);
-    final s = await generateSituationSummary(_reports);
+    final reports = await _collectReports();
+    final s = await generateSituationSummary(reports);
     if (!mounted) return;
     setState(() {
       _summary = s;
@@ -54,6 +111,21 @@ class _SituationSummaryScreenState extends State<SituationSummaryScreen> {
     );
   }
 
+  FutureBuilder<int> _buildCountFuture() =>
+      FutureBuilder<int>(
+        future: _collectReports().then((r) => r.length),
+        builder: (ctx, snap) {
+          final n = snap.data;
+          if (n == null) return const SizedBox.shrink();
+          return Text(
+            AppLocalizations.of(context)
+                .situationIntro(banglaNumber(n)),
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 16, height: 1.5),
+          );
+        },
+      );
+
   Widget _buildIntro() {
     return Center(
       child: Padding(
@@ -64,12 +136,7 @@ class _SituationSummaryScreenState extends State<SituationSummaryScreen> {
             Icon(Icons.summarize_outlined,
                 size: 72, color: Theme.of(context).colorScheme.primary),
             const SizedBox(height: 16),
-            Text(
-              AppLocalizations.of(context)
-                  .situationIntro(banglaNumber(_reports.length)),
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16, height: 1.5),
-            ),
+            _buildCountFuture(),
             const SizedBox(height: 24),
             FilledButton.icon(
               onPressed: _generate,
