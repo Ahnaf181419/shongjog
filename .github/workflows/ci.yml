@@ -1,0 +1,47 @@
+# PR gate: analyze + full test suite (audit N2, 2026-09-08).
+#
+# Why this exists: PR #18 (tawhid) merged with the suite red — 2 failing
+# tests shipped to main because nothing ran `flutter test` on PRs. The
+# release build script has gates, but they only run when someone builds a
+# release locally. This workflow is the cheapest durable fix: every PR and
+# every push to a feature branch must pass analyze + the full suite, so a
+# red suite can never merge silently again.
+name: CI
+
+on:
+  pull_request:
+    branches: ['**']
+  push:
+    branches-ignore: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.0'
+          channel: stable
+          cache: true
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Analyze (must report no issues)
+        run: flutter analyze --no-pub
+
+      # l10n is generated into the tree (lib/l10n/app_localizations*.dart
+      # are committed), so no gen-l10n step is needed here. If that ever
+      # changes, add `flutter gen-l10n` before the test step.
+      - name: Test (full suite)
+        run: flutter test --reporter compact
