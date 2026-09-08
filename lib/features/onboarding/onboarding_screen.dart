@@ -71,12 +71,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _goToSettings() async {
+    // Capture Navigator BEFORE the await chain (audit F12, 2026-09-08).
+    // onComplete() pops the onboarding route, so using context after
+    // it returns would push the settings route onto the wrong
+    // navigator. The captured navigator is also what pushNamedSafe
+    // routes through, so this keeps the navigate-after-pop pattern
+    // honest.
+    final navigator = Navigator.of(context);
     await _saveName();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('pref_has_onboarded', true);
     if (!mounted) return;
     widget.onComplete();
-    pushNamedSafe(context, AppRoutes.settings);
+    // Use the captured navigator (not `context`'s navigator, which
+    // may be the one we just popped).
+    navigator.pushNamed(AppRoutes.settings);
   }
 
   @override
