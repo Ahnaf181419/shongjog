@@ -44,6 +44,11 @@ dependencies:
 
   # Actions (tel: on the cellular voice channel, sms: via method channel)
   url_launcher: ^6.3.0
+  # Referenced directly by test/widget/fake_url_launcher.dart (fakes the
+  # platform interface to assert tel: dial attempts without a real dialer),
+  # so it is declared rather than relied on transitively — same pattern as
+  # image_picker_platform_interface below.
+  url_launcher_platform_interface: ^2.3.0
 
   # Model management & state
   path_provider: ^2.1.0

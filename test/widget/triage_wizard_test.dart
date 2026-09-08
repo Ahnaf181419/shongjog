@@ -7,6 +7,7 @@ import 'package:shongjog/features/triage/triage_tts.dart';
 import 'package:shongjog/features/triage/triage_wizard_screen.dart';
 
 import 'fake_triage_tts.dart';
+import 'fake_url_launcher.dart';
 import 'test_app.dart';
 
 void main() {
@@ -282,6 +283,41 @@ void main() {
       (tester) async {
     await _driveToTerminal(tester, taps: const ['হ্যাঁ', 'হ্যাঁ', 'হ্যাঁ']);
     expect(find.text('৯৯৯ কে জানান'), findsOneWidget);
+  });
+
+  // ── Audit F1 (2026-09-08): the ৯৯৯ কল করুন button must actually dial ──
+  testWidgets(
+      'tapping ৯৯৯ কল করুন opens the system dialer at tel:999 (audit F1)',
+      (tester) async {
+    final launcher = installFakeUrlLauncher();
+    await _driveToTerminal(tester, taps: const ['হ্যাঁ', 'হ্যাঁ', 'হ্যাঁ']);
+    final callButton = find.text('৯৯৯ কল করুন');
+    expect(callButton, findsOneWidget);
+    await tester.scrollUntilVisible(callButton, 100);
+    await tester.pumpAndSettle();
+    await tester.tap(callButton, warnIfMissed: false);
+    await tester.pumpAndSettle();
+    // THE regression: this button used to show a snackbar that SAID it
+    // was dialing while dialing nothing. It must attempt tel:999.
+    expect(launcher.launchedUrls, contains('tel:999'));
+    // ...and it must NOT claim dialing in a snackbar it didn't do.
+    expect(find.text('৯৯৯ কল করুন — ফোন অ্যাপে ডায়াল করুন'), findsNothing);
+  });
+
+  testWidgets(
+      '৯৯৯ কল করুন shows a failure snackbar when no dialer can be launched',
+      (tester) async {
+    final launcher = installFakeUrlLauncher();
+    launcher.failCanLaunch = true;
+    await _driveToTerminal(tester, taps: const ['হ্যাঁ', 'হ্যাঁ', 'হ্যাঁ']);
+    final callButton = find.text('৯৯৯ কল করুন');
+    await tester.scrollUntilVisible(callButton, 100);
+    await tester.pumpAndSettle();
+    await tester.tap(callButton, warnIfMissed: false);
+    await tester.pumpAndSettle();
+    // Nothing launched; the user must be told the dial failed.
+    expect(launcher.launchedUrls, isEmpty);
+    expect(find.byType(SnackBar), findsOneWidget);
   });
 
   testWidgets('tapping ৯৯৯ কে জানান pushes SosComposerScreen with triage summary',
