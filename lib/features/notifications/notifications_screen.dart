@@ -13,7 +13,11 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  bool _hasMarkedRead = false;
+  // Static so the guard survives State recreation — initState runs
+  // every time the screen is pushed, but markAllAsRead on every open
+  // is wrong UX (audit F5, 2026-09-08). Mark all as read ONLY on the
+  // very first time the screen is opened in this process.
+  static bool _hasMarkedRead = false;
 
   @override
   void initState() {
@@ -80,6 +84,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 return _NotificationTile(
                   message: msg,
                   timestamp: _formatTimestamp(context, msg.timestamp),
+                  // Audit F5: tap to mark the tile as read. The
+                  // service persists + notifies; we don't mutate the
+                  // underlying AdminMessage directly.
+                  onTap: () => adminBroadcastService.markRead(msg.id),
                 );
               },
             ),
@@ -91,62 +99,72 @@ class _NotificationTile extends StatelessWidget {
   final AdminMessage message;
   final String timestamp;
 
+  /// Audit F5 (2026-09-08): tiles had no onTap — broadcasts were
+  /// read-only. Tap toggles isRead on the underlying AdminMessage so
+  /// the unread dot goes away when the user actually looks at it.
+  final VoidCallback? onTap;
+
   const _NotificationTile({
     required this.message,
     required this.timestamp,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      padding: const EdgeInsets.all(16),
-      decoration: message.isRead
-          ? ShongjogTheme.cardDecoration(context)
-          : BoxDecoration(
-              color: cs.primary.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(ShongjogTheme.radius),
-              border: Border.all(color: cs.primary.withValues(alpha: 0.2)),
-            ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (!message.isRead)
-            Container(
-              width: 8,
-              height: 8,
-              margin: const EdgeInsets.only(top: 6, right: 12),
-              decoration: BoxDecoration(
-                color: cs.primary,
-                shape: BoxShape.circle,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(ShongjogTheme.radius),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        padding: const EdgeInsets.all(16),
+        decoration: message.isRead
+            ? ShongjogTheme.cardDecoration(context)
+            : BoxDecoration(
+                color: cs.primary.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(ShongjogTheme.radius),
+                border: Border.all(color: cs.primary.withValues(alpha: 0.2)),
+              ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (!message.isRead)
+              Container(
+                width: 8,
+                height: 8,
+                margin: const EdgeInsets.only(top: 6, right: 12),
+                decoration: BoxDecoration(
+                  color: cs.primary,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    message.text,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: message.isRead ? FontWeight.w400 : FontWeight.w500,
+                      color: cs.onSurface,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    timestamp,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                ],
               ),
             ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  message.text,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: message.isRead ? FontWeight.w400 : FontWeight.w500,
-                    color: cs.onSurface,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  timestamp,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: cs.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

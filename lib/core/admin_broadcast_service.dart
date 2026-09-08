@@ -198,6 +198,18 @@ class AdminBroadcastService extends ChangeNotifier {
     }
   }
 
+  /// Mark a single message read (audit F5, 2026-09-08). Used by the
+  /// notifications screen when the user taps a specific tile — the
+  /// "mark all on open" path used to make per-tile taps meaningless.
+  Future<void> markRead(String id) async {
+    await initialize();
+    final i = _messages.indexWhere((m) => m.id == id);
+    if (i < 0 || _messages[i].isRead) return;
+    _messages[i].isRead = true;
+    await _save();
+    notifyListeners();
+  }
+
   Future<void> _save() async {
     try {
       final f = await _file();
