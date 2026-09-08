@@ -1149,6 +1149,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get sosAiSuccess => 'AI দিয়ে গঠন সম্পন্ন — যাচাই করুন।';
 
   @override
+  String get sosSentOk => 'SOS রিপোর্ট ৯৯৯ পাঠানো হয়েছে।';
+
+  @override
+  String get sosSendFailed => 'SOS পাঠানো যায়নি — এখনই ৯৯৯ কল করুন।';
+
+  @override
   String get hazardsAllAlerts => 'সকল সতর্কতা';
 
   @override

@@ -1147,6 +1147,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sosAiSuccess => 'AI generated — please review.';
 
   @override
+  String get sosSentOk => 'SOS report sent to 999.';
+
+  @override
+  String get sosSendFailed => 'SOS could not be sent — call 999 now.';
+
+  @override
   String get hazardsAllAlerts => 'All Alerts';
 
   @override

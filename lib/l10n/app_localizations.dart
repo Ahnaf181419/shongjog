@@ -2228,6 +2228,18 @@ abstract class AppLocalizations {
   /// **'AI দিয়ে গঠন সম্পন্ন — যাচাই করুন।'**
   String get sosAiSuccess;
 
+  /// No description provided for @sosSentOk.
+  ///
+  /// In bn, this message translates to:
+  /// **'SOS রিপোর্ট ৯৯৯ পাঠানো হয়েছে।'**
+  String get sosSentOk;
+
+  /// No description provided for @sosSendFailed.
+  ///
+  /// In bn, this message translates to:
+  /// **'SOS পাঠানো যায়নি — এখনই ৯৯৯ কল করুন।'**
+  String get sosSendFailed;
+
   /// No description provided for @hazardsAllAlerts.
   ///
   /// In bn, this message translates to:

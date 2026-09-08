@@ -355,6 +355,8 @@
   "sosModelNotReady": "Model not loaded — fill in manually.",
   "sosAiFailed": "AI generation failed — fill in manually.",
   "sosAiSuccess": "AI generated — please review.",
+  "sosSentOk": "SOS report sent to 999.",
+  "sosSendFailed": "SOS could not be sent — call 999 now.",
   "hazardsAllAlerts": "All Alerts",
   "quickCardsTitle": "Emergency Aid Cards",
   "quickCardsSearchHint": "Search: first aid, snakebite, flood...",

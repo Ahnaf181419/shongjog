@@ -463,6 +463,8 @@
   "sosModelNotReady": "মডেল লোড করা নেই — নিজে পূরণ করুন।",
   "sosAiFailed": "AI গঠন করতে পারেনি — নিজে পূরণ করুন।",
   "sosAiSuccess": "AI দিয়ে গঠন সম্পন্ন — যাচাই করুন।",
+  "sosSentOk": "SOS রিপোর্ট ৯৯৯ পাঠানো হয়েছে।",
+  "sosSendFailed": "SOS পাঠানো যায়নি — এখনই ৯৯৯ কল করুন।",
   "hazardsAllAlerts": "সকল সতর্কতা",
   "quickCardsTitle": "জরুরি সহায়তা কার্ড",
   "quickCardsSearchHint": "খুঁজুন: অরএস, সাপের কামড়, বন্যা...",
