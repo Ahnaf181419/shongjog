@@ -235,64 +235,75 @@ class _MainShellState extends State<MainShell> {
           children: List.generate(dests.length, (i) {
             final isSelected = _index == i;
             final dest = dests[i];
-            return GestureDetector(
+            // Audit F6 (2026-09-08): the custom GestureDetector pill had
+            // no Semantics label — TalkBack on the four unselected pills
+            // announced only "button" with no name. Using Semantics(onTap)
+            // here (rather than wrapping the GestureDetector) gives one
+            // shared labelled, tappable node instead of two stacked ones,
+            // and announces the selected state to screen readers.
+            return Semantics(
+              button: true,
+              selected: isSelected,
+              enabled: true,
+              label: dest.label,
               onTap: () {
                 try {
                   HapticFeedback.lightImpact();
                 } catch (_) {}
                 _goToTab(i);
               },
-              behavior: HitTestBehavior.opaque,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOutCubic,
-                padding: EdgeInsets.symmetric(
-                  horizontal: isSelected ? 16 : 12,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: isSelected 
-                      ? cs.primary.withValues(alpha: 0.15) 
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      transitionBuilder: (child, animation) {
-                        return ScaleTransition(scale: animation, child: child);
-                      },
-                      child: Icon(
-                        isSelected 
-                            ? (dest.selectedIcon as Icon).icon 
-                            : (dest.icon as Icon).icon,
-                        key: ValueKey<bool>(isSelected),
-                        color: isSelected 
-                            ? cs.primary 
-                            : cs.onSurface.withValues(alpha: 0.6),
-                        size: 24,
+              child: ExcludeSemantics(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isSelected ? 16 : 12,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? cs.primary.withValues(alpha: 0.15)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        transitionBuilder: (child, animation) {
+                          return ScaleTransition(scale: animation, child: child);
+                        },
+                        child: Icon(
+                          isSelected
+                              ? (dest.selectedIcon as Icon).icon
+                              : (dest.icon as Icon).icon,
+                          key: ValueKey<bool>(isSelected),
+                          color: isSelected
+                              ? cs.primary
+                              : cs.onSurface.withValues(alpha: 0.6),
+                          size: 24,
+                        ),
                       ),
-                    ),
-                    AnimatedSize(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOutCubic,
-                      child: isSelected
-                          ? Padding(
-                              padding: const EdgeInsets.only(left: 8),
-                              child: Text(
-                                dest.label,
-                                style: TextStyle(
-                                  color: cs.primary,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 14,
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOutCubic,
+                        child: isSelected
+                            ? Padding(
+                                padding: const EdgeInsets.only(left: 8),
+                                child: Text(
+                                  dest.label,
+                                  style: TextStyle(
+                                    color: cs.primary,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                  ),
                                 ),
-                              ),
-                            )
-                          : const SizedBox.shrink(),
-                    ),
-                  ],
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
