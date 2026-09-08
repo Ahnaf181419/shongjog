@@ -29,8 +29,8 @@ Companion docs: product scope in `docs/prd.md`; corpus policy in
 Speech-to-text (SttProvider: speech_to_text online, Vosk offline stub; typed input fallback)
         |
         v
-Query ──> KeywordRetriever (primary, offline) ──> top-3 verified emergency chunks
-         |   [if embedder API lands: EmbeddingGemma 300M → cosine search as secondary]
+Query ──> KeywordRetriever (fallback) ──> top-3 verified emergency chunks
+         |   [EmbeddingGemma 300M via flutter_gemma → EmbeddingRetriever (primary)]
          |                                         |
          |                      top-3 verified emergency chunks
          v                                         |
@@ -58,7 +58,7 @@ which frequently survives when mobile data is down.
 | Framework | Flutter 3.x, Dart 3.12+ | Single codebase, strong typing, mature widget toolkit; Android-first, iOS-capable |
 | Generation model | Gemma 4 E2B / E4B (4-bit, LiteRT-LM) | Smallest Gemma 4 that still grounds well in Bangla; E4B auto-selected on high-RAM devices |
 | On-device runtime | `flutter_gemma_litertlm` (LiteRT-LM) | Mature Flutter binding for Gemma 4 on Android arm64; `.litertlm` only |
-| Retrieval / embeddings | `KeywordRetriever` (primary); `BruteForceRetriever` over mpnet 768-dim vectors (secondary) | Offline-first: keyword scoring with cosine hybrid. `flutter_gemma` embedder API (EmbeddingGemma 300M) unavailable in 1.x — see §6 |
+| Retrieval / embeddings | `EmbeddingRetriever` (EmbeddingGemma 300M, primary when installed); `KeywordRetriever` (always-on fallback) | Offline-first. `flutter_gemma` 1.3.2 embedder API used via `lib/rag/embedding_retriever.dart`; bundled mpnet vectors in `assets/kb/vectors.bin` are NOT cosine-compatible with EmbeddingGemma queries, so the corpus is re-embedded on-device at first use and cached at `<docs>/kb_vectors_embeddinggemma.bin`. See §6 |
 | Voice in | Vosk + bundled `vosk-model-small-bn-*` | True offline; Google STT (`speech_to_text`) needs network on many Androids — unacceptable for the offline thesis |
 | Voice out | `flutter_tts` (`bn-BD`, `bn-IN` fallback) | Built into the platform; no extra download |
 | Location | `geolocator` | Standard, well-maintained |
@@ -66,7 +66,7 @@ which frequently survives when mobile data is down.
 | Actions | `url_launcher` (`tel:`, `sms:`) | Uses the cellular voice channel that survives data outages |
 | Model management | `background_downloader`, `path_provider`, `shared_preferences` | ~2.47 GB one-time download; resume on failure; persist local path |
 | Retrieval index | brute-force cosine (no HNSW) | N≈23 vectors; brute force is faster and simpler than a real ANN index |
-| Build pipeline | Python 3 + `sentence-transformers` | `paraphrase-multilingual-mpnet-base-v2` via HF; runs on a dev laptop, ships vectors as a binary asset. EmbeddingGemma (on-device) deferred — see §6 |
+| Build pipeline | Python 3 + `sentence-transformers` | `paraphrase-multilingual-mpnet-base-v2` via HF; runs on a dev laptop, ships vectors as a binary asset (used by the legacy `BruteForceRetriever`; the new `EmbeddingRetriever` re-embeds on-device). See §6 |
 
 ### Why not alternatives
 
@@ -187,8 +187,9 @@ lib/
 │   └── audio/
 │       └── sound_service.dart      Chime/knock sounds
 ├── rag/                      Retrieval core
-│   ├── embedder.dart         Adapter: EmbeddingGemma client (bypassed)
-│   ├── keyword_retriever.dart Domain: keyword scoring + cosine hybrid (pure, primary)
+│   ├── embedder.dart         Adapter: Embedder interface + EmbedderImpl over flutter_gemma's EmbeddingModel (EmbeddingGemma 300M)
+│   ├── embedding_retriever.dart Domain: corpus index (re-embed + cached cosine) for semantic retrieval
+│   ├── keyword_retriever.dart Domain: keyword scoring (pure, fallback)
 │   ├── retriever.dart        Domain: BruteForceRetriever (pure)
 │   ├── prompt_builder.dart   Domain: system + context assembly (pure)
 │   └── types.dart            Domain: Chunk, RetrievalHit
@@ -269,12 +270,7 @@ assets/kb/vectors.bin    (float32 [N, 768], row-major)
 Flutter bundle (rootBundle.load) at runtime
 ```
 
-**Embedder choice:** `paraphrase-multilingual-mpnet-base-v2` is used for build-time
-embedding (handles Bangla well, mature model, 768-dim). The on-device runtime embedder
-(EmbeddingGemma 300M via `flutter_gemma`) is bypassed in favor of `KeywordRetriever`
-(see §5) because `flutter_gemma 1.x` has no embedder API. When `flutter_gemma` ships an
-embedder API, `KeywordRetriever` and `BruteForceRetriever` (already implemented) both
-remain usable.
+**Embedder choice (updated):** `paraphrase-multilingual-mpnet-base-v2` continues to be used for build-time embedding (handles Bangla well, mature model, 768-dim) — those vectors are still shipped as `assets/kb/vectors.bin` for the legacy `BruteForceRetriever`. The **on-device runtime embedder (EmbeddingGemma 300M via `flutter_gemma` 1.3.2's new embedder API) is now active**: `lib/rag/embedding_retriever.dart` owns a corpus index built on-device with `TaskType.retrievalDocument` (prefix `title: none | text: `) and cached to `<docs>/kb_vectors_embeddinggemma.bin`. The cache reloads in ~1 ms on subsequent launches. When an embedder is installed, `ChatRepository._retrieve` runs semantic-first with `KeywordRetriever` as the always-on fallback. `EmbeddingGemma 300M` weights ship on demand via `lib/core/embedder_service.dart.install()` (HF token-gated repo).
 
 **Why build-time:** the corpus is small and authoritative; shipping it inside the APK
 guarantees the KB is present in airplane mode with no first-run network step. A real
@@ -453,9 +449,13 @@ answer?").
 ## 13. Open Questions (resolved during execution)
 
 1. Does `flutter_gemma`'s embedder API expose EmbeddingGemma 300M cleanly, or do we need
-   a separate model file path? **Resolved:** `flutter_gemma 1.x` has no embedder API.
-   We're using `KeywordRetriever` (offline BM25-lite) as the primary path. mpnet is used
-   for build-time vectors only.
+   a separate model file path? **Resolved (re-visited):** `flutter_gemma` 1.3.2 **does**
+   expose `EmbeddingInstallationBuilder` + `EmbeddingModel.generateEmbedding(text, taskType:)`
+   (with canonical EmbeddingGemma prefixes `task: search result | query: ` /
+   `title: none | text: `). The on-device adapter is in `lib/rag/embedder.dart`; the
+   corpus index lives in `lib/rag/embedding_retriever.dart`; install + status in
+   `lib/core/embedder_service.dart`. mpnet vectors in `assets/kb/vectors.bin` remain for
+   the legacy `BruteForceRetriever` only.
 2. Does Vosk's small Bangla model handle our 10 spike utterances at acceptable WER?
    **Resolved (blocked):** `vosk_flutter` plugin has a `compileSdk` incompatibility with
    AGP 9.x. The `VoskSttProvider` stub is in place; `SpeechToTextProvider` (online) is the
