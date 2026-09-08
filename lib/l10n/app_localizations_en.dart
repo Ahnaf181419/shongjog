@@ -526,25 +526,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get callTooltip => 'Call';
 
   @override
-  String get safeBeaconTitle => 'I\'m Safe';
-
-  @override
-  String get safeBeaconDesc => 'Let your family and contacts know you\'re okay';
-
-  @override
-  String get safeBeaconButton => 'I\'m Safe';
-
-  @override
-  String lastSent(Object count) {
-    return 'Last sent: $count';
-  }
-
-  @override
-  String pendingWait(Object count) {
-    return '$count pending — will send when connected';
-  }
-
-  @override
   String beaconSentPending(Object count) {
     return 'Beacon sent. $count pending.';
   }

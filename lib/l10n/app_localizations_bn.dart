@@ -525,26 +525,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get callTooltip => 'কল করুন';
 
   @override
-  String get safeBeaconTitle => 'আমি নিরাপদ';
-
-  @override
-  String get safeBeaconDesc =>
-      'আপনার পরিবার ও সংযুক্ত মানুষদের জানান আপনি ভালো আছেন';
-
-  @override
-  String get safeBeaconButton => 'আমি নিরাপদ আছি';
-
-  @override
-  String lastSent(Object count) {
-    return 'শেষ পাঠানো: $countটি';
-  }
-
-  @override
-  String pendingWait(Object count) {
-    return '$countটি অপেক্ষমান — সংযোগ ফিরলে পাঠানো হবে';
-  }
-
-  @override
   String beaconSentPending(Object count) {
     return 'বীকন পাঠানো হয়েছে। $countটি অপেক্ষমান।';
   }

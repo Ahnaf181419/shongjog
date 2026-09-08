@@ -1058,36 +1058,6 @@ abstract class AppLocalizations {
   /// **'কল করুন'**
   String get callTooltip;
 
-  /// No description provided for @safeBeaconTitle.
-  ///
-  /// In bn, this message translates to:
-  /// **'আমি নিরাপদ'**
-  String get safeBeaconTitle;
-
-  /// No description provided for @safeBeaconDesc.
-  ///
-  /// In bn, this message translates to:
-  /// **'আপনার পরিবার ও সংযুক্ত মানুষদের জানান আপনি ভালো আছেন'**
-  String get safeBeaconDesc;
-
-  /// No description provided for @safeBeaconButton.
-  ///
-  /// In bn, this message translates to:
-  /// **'আমি নিরাপদ আছি'**
-  String get safeBeaconButton;
-
-  /// No description provided for @lastSent.
-  ///
-  /// In bn, this message translates to:
-  /// **'শেষ পাঠানো: {count}টি'**
-  String lastSent(Object count);
-
-  /// No description provided for @pendingWait.
-  ///
-  /// In bn, this message translates to:
-  /// **'{count}টি অপেক্ষমান — সংযোগ ফিরলে পাঠানো হবে'**
-  String pendingWait(Object count);
-
   /// No description provided for @beaconSentPending.
   ///
   /// In bn, this message translates to:

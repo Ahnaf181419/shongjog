@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/bangla_numerals.dart';
 import '../../core/connectivity_provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../contacts/contacts_repository.dart';
@@ -93,12 +94,23 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
     setState(() => _sending = true);
     try {
       final p = await _readProfile();
+
+      // Audit F3 (2026-09-08): the safe beacon used to ship WITHOUT GPS
+      // (null, null) — ported from the orphaned SafeBeaconScreen, whose
+      // one-tap flow always tried a fix first. A safe message with a
+      // location answers the family's real question ("WHERE are you
+      // safe?") and fails soft when GPS is denied or times out.
+      final gps = await _getGps();
+      if (!mounted) return;
+
       final report = SafetyReport(
         id: 'safe-${DateTime.now().microsecondsSinceEpoch}',
         userId: p.userId,
         userName: p.name,
         userPhone: p.phone,
         status: SafetyReport.safeStatus,
+        lat: gps.lat,
+        lon: gps.lon,
         timestamp: DateTime.now(),
       );
 
@@ -112,13 +124,21 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
       meshService.sendMessage('SAFE:${jsonEncode(report.toJson())}',
           echoSelf: false);
 
-      // 2. Queue SMS to contacts.
-      await _queueSms(_safeMessage(p.name, p.phone, null, null));
+      // 2. Queue SMS to contacts (with GPS when available).
+      final sms = await _queueSms(
+          _safeMessage(p.name, p.phone, gps.lat, gps.lon));
 
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context).safetyStatusSent),
+            // Count-aware feedback, ported from SafeBeaconScreen: the
+            // user must know whether contacts were notified now, will
+            // be notified on reconnect, or there are none configured.
+            content: Text(sms.sent > 0
+                ? l10n.smsSent(banglaNumber(sms.sent))
+                : l10n.willNotifyOnReconnect(
+                    banglaNumber(sms.pending))),
             backgroundColor:
                 ShongjogTheme.toneFill(context, SemanticTone.success),
           ),
@@ -192,7 +212,12 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
     }
   }
 
-  Future<void> _queueSms(String body) async {
+  /// Queues the SMS body for every configured contact, then drains
+  /// immediately if online. Returns counts so the caller can tell the
+  /// user whether contacts were notified NOW, will be notified on
+  /// reconnect, or there are none configured to notify.
+  /// (Audit F3 — count-aware feedback ported from SafeBeaconScreen.)
+  Future<({int sent, int pending})> _queueSms(String body) async {
     final contacts = await ContactsRepository.loadCustom();
     final phones = contacts
         .map((c) => c.phone)
@@ -203,8 +228,10 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
       _queue.enqueue(body, p);
     }
     if (connectivityProvider.isOnline) {
-      await _queue.drain();
+      final sent = await _queue.drain();
+      return (sent: sent, pending: phones.length - sent);
     }
+    return (sent: 0, pending: phones.length);
   }
 
   String _safeMessage(String name, String phone, double? lat, double? lon) {
