@@ -37,6 +37,13 @@ class MainShell extends StatefulWidget {
 }
 
 class _MainShellState extends State<MainShell> {
+  /// Audit F7 (2026-09-08): a single incoming-call signal triggered
+  /// BOTH a heads-up notification AND a direct route push, and tapping
+  /// the notification pushed another copy. This flag tracks whether a
+  /// call screen is already presenting for a given caller — the second
+  /// arrival (or the notification tap) is a no-op.
+  String? _activeIncomingCallFromId;
+
   StreamSubscription? _connectionSub;
   StreamSubscription? _incomingCallSub;
 
@@ -114,32 +121,38 @@ class _MainShellState extends State<MainShell> {
         ? sig.fromName.substring(kMeshPeerPrefix.length)
         : sig.fromName;
 
+    // Audit F7 (2026-09-08): dedup. A signal that arrives while we're
+    // already showing its call screen should not push another copy,
+    // nor should a notification-tap re-stack the route. The flag
+    // clears when the call screen pops (disposed lifecycle hook).
+    if (_activeIncomingCallFromId == sig.fromId) return;
+
     // Vibrate immediately for tactile feedback.
     try {
       HapticFeedback.vibrate();
     } catch (_) {}
 
+    _activeIncomingCallFromId = sig.fromId;
+
     // Show a heads-up notification (visible even when on another page).
+    // The notification's onTap is a no-op while the call is active —
+    // the screen is already up. We still show the notification so a
+    // user who backgrounded the app gets a heads-up.
     localNotificationService.showCallNotification(
       callerName: displayName,
       onTap: () {
-        // Navigate to the call screen when notification is tapped.
+        // No-op when the call screen is already presenting.
+        if (_activeIncomingCallFromId == sig.fromId) return;
         if (!mounted) return;
-        final peer = MeshPeer(
-          endpointId: sig.fromId,
-          name: sig.fromName,
-          status: PeerStatus.connected,
-        );
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => MeshCallScreen(peer: peer, isIncoming: true),
-          ),
-        );
+        _pushCallScreen(sig);
       },
     );
 
     // Also navigate directly if the app is in the foreground.
+    if (mounted) _pushCallScreen(sig);
+  }
+
+  void _pushCallScreen(CallSignalMessage sig) {
     final peer = MeshPeer(
       endpointId: sig.fromId,
       name: sig.fromName,
@@ -150,7 +163,12 @@ class _MainShellState extends State<MainShell> {
       MaterialPageRoute(
         builder: (_) => MeshCallScreen(peer: peer, isIncoming: true),
       ),
-    );
+    ).then((_) {
+      // Clear the guard when the call screen pops — the next signal
+      // for this caller (or a fresh caller) must present again.
+      if (!mounted) return;
+      _activeIncomingCallFromId = null;
+    });
   }
 
   int _index = 0;
