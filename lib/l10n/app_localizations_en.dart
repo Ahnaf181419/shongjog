@@ -1807,6 +1807,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get modelSemanticTitle => 'Semantic search (EmbeddingGemma)';
+
+  @override
+  String get modelSemanticActive => 'Active';
+
+  @override
+  String get modelSemanticAbsent => 'Off — using keyword search';
+
+  @override
   String get modelBadgeExpected => 'Expected';
 
   @override

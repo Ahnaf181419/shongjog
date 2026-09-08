@@ -3506,6 +3506,24 @@ abstract class AppLocalizations {
   /// **'ডাউনলোড করা: {size}'**
   String modelStorageUsed(String size);
 
+  /// No description provided for @modelSemanticTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'সেমান্টিক সার্চ (EmbeddingGemma)'**
+  String get modelSemanticTitle;
+
+  /// No description provided for @modelSemanticActive.
+  ///
+  /// In bn, this message translates to:
+  /// **'চালু'**
+  String get modelSemanticActive;
+
+  /// No description provided for @modelSemanticAbsent.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্ধ — কীওয়ার্ড সার্চ চলছে'**
+  String get modelSemanticAbsent;
+
   /// No description provided for @modelBadgeExpected.
   ///
   /// In bn, this message translates to:

@@ -1810,6 +1810,15 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String get modelSemanticTitle => 'সেমান্টিক সার্চ (EmbeddingGemma)';
+
+  @override
+  String get modelSemanticActive => 'চালু';
+
+  @override
+  String get modelSemanticAbsent => 'বন্ধ — কীওয়ার্ড সার্চ চলছে';
+
+  @override
   String get modelBadgeExpected => '✅ প্রত্যাশিত';
 
   @override

@@ -15,6 +15,7 @@ import 'app/app.dart';
 import 'core/admin_broadcast_service.dart';
 import 'core/connectivity_provider.dart';
 import 'core/device_registry_service.dart';
+import 'core/embedder_service.dart';
 import 'core/firebase_auth_service.dart';
 import 'core/local_notification_service.dart';
 import 'core/model_manager.dart';
@@ -169,6 +170,21 @@ Future<void> main() async {
       }
     } catch (e) {
       debugPrint('[warmup] deferred model load failed (non-fatal): $e');
+    }
+  }));
+  // Same pattern for the semantic-search embedder (EmbeddingGemma 300M):
+  // never delays the first frame, never fatal — when absent or broken the
+  // chat silently uses keyword retrieval.
+  unawaited(Future(() async {
+    try {
+      await embedderService.refreshStatus();
+      if (embedderService.status == EmbedderStatus.ready) {
+        final sw = Stopwatch()..start();
+        await embedderService.createEmbedder();
+        debugPrint('[warmup] embedder ready in ${sw.elapsedMilliseconds}ms');
+      }
+    } catch (e) {
+      debugPrint('[warmup] embedder load failed (non-fatal): $e');
     }
   }));
   // Deliberately NOT `dart:io`'s Platform.isAndroid. That compiles fine for

@@ -611,6 +611,9 @@
   "modelTierMedium": "Medium",
   "modelTierPowerful": "Powerful",
   "modelStorageUsed": "Downloaded: {size}",
+  "modelSemanticTitle": "Semantic search (EmbeddingGemma)",
+  "modelSemanticActive": "Active",
+  "modelSemanticAbsent": "Off — using keyword search",
   "@modelStorageUsed": {
     "placeholders": {
       "size": {

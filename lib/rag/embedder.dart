@@ -1,39 +1,64 @@
+import 'dart:math' as math;
+
 import 'dart:typed_data';
 
-/// EmbeddingGemma client — embeds a Bangla query into a 768-dim
-/// L2-normalized vector for brute-force cosine retrieval.
-///
-/// This is the adapter layer (docs/architecture.md §3): it wraps whichever
-/// embedder surface Phase 0 spike A confirms, and hands a plain
-/// [Float32List] inward to the pure [BruteForceRetriever].
-///
-/// STATUS (skeleton phase): flutter_gemma 0.5.1 does NOT expose an embedder
-/// API — only the generative [InferenceModel]. The three resolution paths
-/// the spike must choose between:
-///   1. flutter_gemma 1.2.3+ — bump the constraint; newer versions may add
-///      embedder support.
-///   2. MediaPipe tasks-genai — the same `com.google.mediapipe:tasks-genai`
-///      artifact flutter_gemma already pulls in exposes embedder tasks via
-///      a platform channel.
-///   3. A separate Dart-native embedder package.
-///
-/// Until the spike resolves, this concrete implementation throws. The
-/// abstract [Embedder] interface (returned to by ChatRepository) is stable;
-/// only this file changes when the embedder lands.
-class EmbedderImpl implements Embedder {
-  @override
-  Future<Float32List> embed(String text) async {
-    throw UnimplementedError(
-      'EmbedderImpl not yet wired — Phase 0 spike A must confirm the '
-      'embedder API surface (flutter_gemma 0.5.1 has none). See '
-      'docs/architecture.md §13 open question #1.',
-    );
-  }
+import 'package:flutter_gemma/flutter_gemma.dart';
+
+/// Which task an embedding is for. Mirrors `flutter_gemma`'s `TaskType`
+/// (the plugin prepends the canonical EmbeddingGemma prefix itself):
+/// query → `task: search result | query: `,
+/// document → `title: none | text: `.
+enum EmbedTask { query, document }
+
+/// Abstract interface — pure, no Flutter or plugin deps beyond the data
+/// type. The retriever and ChatRepository code against this, so the
+/// concrete impl can swap without touching inner layers.
+abstract class Embedder {
+  Future<Float32List> embed(String text, {EmbedTask task});
 }
 
-/// Abstract interface — pure, no Flutter or package deps. The retriever
-/// and ChatRepository code against this, so the concrete impl can swap
-/// without touching inner layers.
-abstract class Embedder {
-  Future<Float32List> embed(String text);
+/// EmbeddingGemma 300M client — embeds Bangla text into a 768-dim
+/// L2-normalized vector for brute-force cosine retrieval.
+///
+/// flutter_gemma 1.3.2 exposes a real embedder API
+/// (`FlutterGemma.installEmbedder()` / `getActiveEmbedder()` →
+/// `EmbeddingModel.generateEmbedding`), resolving the old Phase 0 spike
+/// question — this file used to throw `UnimplementedError`.
+///
+/// The adapter L2-normalizes whatever the plugin returns so the plain
+/// dot product in [BruteForceRetriever] equals cosine similarity even if
+/// a future backend forgets to normalize.
+class EmbedderImpl implements Embedder {
+  EmbedderImpl(this._model);
+
+  final EmbeddingModel _model;
+
+  @override
+  Future<Float32List> embed(String text,
+      {EmbedTask task = EmbedTask.query}) async {
+    final vector = await _model.generateEmbedding(
+      text,
+      taskType: task == EmbedTask.query
+          ? TaskType.retrievalQuery
+          : TaskType.retrievalDocument,
+    );
+    return normalize(Float32List.fromList(vector));
+  }
+
+  /// Scale [v] to unit length (on a copy). A zero vector is returned
+  /// unchanged — cosine against it is meaningless either way, and
+  /// dividing by 0 would poison the whole index.
+  static Float32List normalize(Float32List v) {
+    var sumSquares = 0.0;
+    for (final x in v) {
+      sumSquares += x * x;
+    }
+    final norm = math.sqrt(sumSquares);
+    if (norm == 0.0 || norm == 1.0) return v;
+    final out = Float32List(v.length);
+    for (var i = 0; i < v.length; i++) {
+      out[i] = v[i] / norm;
+    }
+    return out;
+  }
 }

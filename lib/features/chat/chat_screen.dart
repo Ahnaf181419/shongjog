@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,10 +11,12 @@ import '../../l10n/app_localizations.dart';
 import '../../app/main_shell.dart';
 import '../../core/api_key_store.dart';
 import '../../core/connectivity_provider.dart';
+import '../../core/embedder_service.dart';
 import '../../core/haptics.dart';
 import '../../core/model_manager.dart';
 import '../../core/pending_chat_prompt.dart';
 import '../../knowledge/kb_loader.dart';
+import '../../rag/embedding_retriever.dart';
 import '../../rag/keyword_retriever.dart';
 import '../../rag/types.dart';
 import '../audio/sound_service.dart';
@@ -205,6 +210,27 @@ class _ChatScreenState extends State<ChatScreen> {
       debugPrint('KB load error: $e');
     }
 
+    // Semantic retrieval (EmbeddingGemma) — attach only when an embedder
+    // is installed. Constructing the retriever is cheap (the corpus index
+    // loads from cache or builds lazily on the first query), so this
+    // never delays the chat becoming usable below.
+    EmbeddingRetriever? embedding;
+    if (kb != null) {
+      try {
+        final embedder = await embedderService.createEmbedder();
+        if (embedder != null) {
+          final dir = await getApplicationDocumentsDirectory();
+          embedding = EmbeddingRetriever(
+            embedder: embedder,
+            chunks: kb.chunks,
+            cacheFile: File('${dir.path}/kb_vectors_embeddinggemma.bin'),
+          );
+        }
+      } catch (e) {
+        debugPrint('Embedder init error (keyword-only fallback): $e');
+      }
+    }
+
     if (!mounted) return;
 
     // ── Make the chat usable HERE, not at the end of this method. ──────
@@ -229,6 +255,7 @@ class _ChatScreenState extends State<ChatScreen> {
         kb: kb ?? _emptyKb(),
         model: modelManager,
         cloudAi: null, // attached below, once the key ring resolves
+        embedding: embedding,
         shelterProvider: _shelterProvider,
         userLocationProvider: _resolveUserLocation,
       );
@@ -267,6 +294,7 @@ class _ChatScreenState extends State<ChatScreen> {
               kb: kb ?? _emptyKb(),
               model: modelManager,
               cloudAi: cloudAi,
+              embedding: embedding,
               shelterProvider: _shelterProvider,
               userLocationProvider: _resolveUserLocation,
             );

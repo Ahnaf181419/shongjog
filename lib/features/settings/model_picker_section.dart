@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../app/theme.dart';
+import '../../core/embedder_service.dart';
 import '../../core/model_manager.dart';
 import '../../core/device_capability.dart';
 import '../../l10n/app_localizations.dart';
@@ -134,6 +135,7 @@ class _ModelPickerSectionState extends State<ModelPickerSection> {
               ),
             ),
           ),
+        const _EmbedderStatusRow(),
         // Unverified variants (broken URL / guessed size) are not offered.
         ..._recommendations!.where((r) => r.available).map((r) => _ModelCard(
           rec: r,
@@ -141,6 +143,52 @@ class _ModelPickerSectionState extends State<ModelPickerSection> {
           l10n: l10n,
         )),
       ],
+    );
+  }
+}
+
+/// One-line semantic-search status under the model cards. Informational
+/// only for now: the EmbeddingGemma download is license-gated on HF, so
+/// install flows through [EmbedderService.install] with a token rather
+/// than a button here.
+class _EmbedderStatusRow extends StatelessWidget {
+  const _EmbedderStatusRow();
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+    return ListenableBuilder(
+      listenable: embedderService,
+      builder: (context, _) {
+        final active = embedderService.status == EmbedderStatus.ready;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              Icon(
+                active
+                    ? Icons.travel_explore_rounded
+                    : Icons.search_rounded,
+                size: 20,
+                color: active ? ShongjogTheme.success : cs.onSurfaceVariant,
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  '${l10n.modelSemanticTitle} — ${active ? l10n.modelSemanticActive : l10n.modelSemanticAbsent}',
+                  style: TextStyle(
+                    fontFamily: ShongjogTheme.fontFamily,
+                    fontFamilyFallback: ShongjogTheme.fontFallback,
+                    color: cs.onSurfaceVariant,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
