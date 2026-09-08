@@ -76,7 +76,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     await prefs.setBool('pref_has_onboarded', true);
     if (!mounted) return;
     widget.onComplete();
-    Navigator.pushNamed(context, AppRoutes.settings);
+    pushNamedSafe(context, AppRoutes.settings);
   }
 
   @override

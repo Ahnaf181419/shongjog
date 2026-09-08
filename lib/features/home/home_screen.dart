@@ -114,7 +114,7 @@ class _ProfileTitleState extends State<_ProfileTitle> {
 
     return GestureDetector(
       onTap: () async {
-        await Navigator.pushNamed(context, AppRoutes.profile);
+        await pushNamedSafe(context, AppRoutes.profile);
         if (mounted) {
           final updated = await UserProfileData.load();
           if (mounted) setState(() => _profile = updated);

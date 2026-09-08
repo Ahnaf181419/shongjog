@@ -608,7 +608,7 @@ class _ProfileRow extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: () async {
-          await Navigator.pushNamed(context, AppRoutes.profile);
+          await pushNamedSafe(context, AppRoutes.profile);
           onChanged?.call();
         },
         borderRadius: BorderRadius.circular(ShongjogTheme.radiusSm),

@@ -771,7 +771,7 @@ class _QuickChip extends StatelessWidget {
       borderRadius: BorderRadius.circular(ShongjogTheme.radiusLg),
       child: InkWell(
         borderRadius: BorderRadius.circular(ShongjogTheme.radiusLg),
-        onTap: () => Navigator.pushNamed(context, route),
+        onTap: () => pushNamedSafe(context, route),
         child: Container(
           // §6 puts the floor for a tap target at 48dp. These chips were
           // 8dp of padding around a 16px icon — about 32dp tall, and the

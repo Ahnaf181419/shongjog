@@ -155,7 +155,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                       titleActive: l10n.adminSafetyDanger,
                       titleCalm: l10n.adminDangerListTitle,
                       onTap: () =>
-                          Navigator.pushNamed(context, AppRoutes.adminDangerList),
+                          pushNamedSafe(context, AppRoutes.adminDangerList),
                     ),
                   ),
                   const SizedBox(height: 16),

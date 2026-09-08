@@ -30,9 +30,13 @@ class AppRoutes {
 
 /// Push a named route only if the current route is not already that route.
 /// Prevents duplicate stack entries from rapid double-taps.
-void pushNamedSafe(BuildContext context, String routeName) {
+/// Returns the future from the underlying Navigator.pushNamed so
+/// callers can await the route popping (audit F9, 2026-09-08 — every
+/// raw Navigator.pushNamed site was a double-tap re-stack hazard AND
+/// lost the route's future, breaking refresh-on-return patterns).
+Future<void> pushNamedSafe(BuildContext context, String routeName) {
   final current = ModalRoute.of(context)?.settings.name;
-  if (current == routeName) return;
-  Navigator.pushNamed(context, routeName);
+  if (current == routeName) return Future<void>.value();
+  return Navigator.pushNamed(context, routeName);
 }
 
