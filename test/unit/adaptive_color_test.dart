@@ -48,6 +48,16 @@ void main() {
   /// SURFACES to the scale.
   const allowedRadii = {2, 4, 6, 8, 14, 24};
 
+  /// Files allowed radius literals beyond `allowedRadii`, with why. The
+  /// entry must cite the documented rule in docs/design.md §5.4 — a bare
+  /// exemption without prose in the spec is how the scale drifted in the
+  /// first place.
+  const radiusFileExempt = <String, String>{
+    'lib/app/main_shell.dart':
+        'floating nav pill container + selected-item chip (40/30dp) — '
+            'documented exception in docs/design.md §5.4, added 2026-09',
+  };
+
   Iterable<File> dartFiles() sync* {
     for (final e in Directory('lib').listSync(recursive: true)) {
       if (e is File && e.path.endsWith('.dart') && !e.path.contains('l10n')) {
@@ -90,11 +100,13 @@ void main() {
 
     for (final f in dartFiles()) {
       if (rel(f).endsWith('lib/app/theme.dart')) continue;
+      final exempt = radiusFileExempt.containsKey(rel(f));
       final lines = f.readAsLinesSync();
       for (var i = 0; i < lines.length; i++) {
         for (final m in radius.allMatches(lines[i])) {
           final v = int.parse(m.group(1)!);
           if (allowedRadii.contains(v)) continue;
+          if (exempt) continue;
           offenders.add('${rel(f)}:${i + 1}  circular($v)');
         }
       }
@@ -109,7 +121,12 @@ void main() {
   test('every colour exemption names a file that still exists', () {
     for (final path in colorExempt.keys) {
       expect(File(path).existsSync(), isTrue,
-          reason: '$path is exempted but no longer exists — remove the entry.');
+        reason: '$path is exempted but no longer exists — remove the entry.');
+    }
+    for (final path in radiusFileExempt.keys) {
+      expect(File(path).existsSync(), isTrue,
+        reason: '$path is radius-exempted but no longer exists — remove '
+            'the entry.');
     }
   });
 }

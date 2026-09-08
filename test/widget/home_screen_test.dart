@@ -48,9 +48,13 @@ void main() {
         (tester) async {
       await tester.pumpWidget(wrapHome());
       await pumpOnce(tester);
-      // Two body tiles remain — 999 has moved to the AppBar pill.
-      expect(find.text('জরুরি কার্ড'), findsOneWidget);
-      expect(find.text('নিকটস্থ আশ্রয়'), findsOneWidget);
+      // Audit N1b (2026-09-08): this test previously expected 'জরুরি কার্ড'
+      // and 'নিকটস্থ আশ্রয়' — tiles that no longer exist. The cards entry
+      // moved to the কার্ড tab; the triad is now triage + status beacon
+      // (plus a directory tile below). Updated to the current labels.
+      expect(find.text('ট্রায়াজ উইজার্ড'), findsOneWidget);
+      expect(find.text('আমার অবস্থা জানান'), findsOneWidget);
+      expect(find.text('জরুরি নম্বর'), findsOneWidget);
       // জরুরি কল lives in the AppBar pill exactly once.
       expect(find.text('জরুরি কল'), findsOneWidget);
       // Settings still in AppBar — must NOT appear in body.

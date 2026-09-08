@@ -288,6 +288,14 @@ Devanagari (last resort, degraded).
 only full-pill shape in the app. No mixing radii on the same screen unless there is a
 documented rule.
 
+> **Documented exception — floating navigation bar (2026-09, `feat(ui): floating nav
+> bar`).** The bottom navigation is a detached floating pill container, not a card:
+> its own corner is 40dp and each selected-item chip is 30dp. A 12/16 corner on a
+> pill that overhangs the screen bottom reads as a rendering error, not a design
+> choice — pill navigation is shaped by its height, not the card scale. These two
+> literals are exempted in `test/unit/adaptive_color_test.dart` by file. No other
+> surface may follow them.
+
 > `ShongjogTheme.radiusSm` was 10dp — a value this spec never named — while 12dp was
 > the most common literal in the app. The token was the drift, not the call sites; it
 > is now 12dp. Tokens: `radiusSm` 12 / `radius` 16 / `radiusLg` 20.
