@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
+import '../../l10n/app_localizations.dart';
+
 /// Damage category detected by the AI Damage Scanner (Module D).
 enum DamageType {
   flood,
@@ -24,6 +26,20 @@ enum DamageType {
         DamageType.smoke => 'ধোঁয়া',
         DamageType.other => 'অন্যান্য',
         DamageType.unknown => 'অজানা',
+      };
+
+  /// Locale-aware label for UI (English mode showed Bangla chips —
+  /// user-reported 2026-09-09). [labelBn] stays for AI prompts.
+  String label(AppLocalizations l10n) => switch (this) {
+        DamageType.flood => l10n.damageTypeFlood,
+        DamageType.fire => l10n.damageTypeFire,
+        DamageType.collapsedBuilding => l10n.damageTypeCollapsedBuilding,
+        DamageType.fallenTree => l10n.damageTypeFallenTree,
+        DamageType.blockedRoad => l10n.damageTypeBlockedRoad,
+        DamageType.electricHazard => l10n.damageTypeElectricHazard,
+        DamageType.smoke => l10n.damageTypeSmoke,
+        DamageType.other => l10n.damageTypeOther,
+        DamageType.unknown => l10n.damageTypeUnknown,
       };
 
   static DamageType fromString(String s) {
@@ -57,6 +73,15 @@ enum Severity {
         Severity.high => 'উচ্চ',
         Severity.critical => 'অত্যন্ত উচ্চ',
         Severity.unknown => 'অজানা',
+      };
+
+  /// Locale-aware label for UI (English mode showed Bangla chips).
+  String label(AppLocalizations l10n) => switch (this) {
+        Severity.low => l10n.damageSeverityLow,
+        Severity.medium => l10n.damageSeverityMedium,
+        Severity.high => l10n.damageSeverityHigh,
+        Severity.critical => l10n.damageSeverityCritical,
+        Severity.unknown => l10n.damageSeverityUnknown,
       };
 
   static Severity fromString(String s) {

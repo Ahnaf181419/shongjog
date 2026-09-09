@@ -179,7 +179,8 @@ class _ResultView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final scoreBn = banglaNumber(result.score);
+    final scoreBn =
+        numberForLocale(result.score, l10n.localeName);
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(

@@ -57,9 +57,14 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
   }
 
   Future<({String name, String phone, String userId})> _readProfile() async {
+    // Capture the localized default BEFORE the await (lint:
+    // use_build_context_synchronously).
+    final defaultName = AppLocalizations.of(context).profileDefaultName;
     final prefs = await SharedPreferences.getInstance();
     return (
-      name: prefs.getString('user_name') ?? 'একজন ব্যবহারকারী',
+      // Locale-aware default (the report's userName surfaces in the
+      // admin danger list and mesh peers' screens).
+      name: prefs.getString('user_name') ?? defaultName,
       phone: prefs.getString('user_phone') ?? '',
       userId: await stableUserId(prefs),
     );
@@ -136,8 +141,9 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
         final content = sms.pending == 0 && sms.sent == 0
             ? l10n.safetyNoContacts
             : (sms.sent > 0
-                ? l10n.smsSent(banglaNumber(sms.sent))
-                : l10n.willNotifyOnReconnect(banglaNumber(sms.pending)));
+                ? l10n.smsSent(numberForLocale(sms.sent, l10n.localeName))
+                : l10n.willNotifyOnReconnect(
+                    numberForLocale(sms.pending, l10n.localeName)));
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             // Count-aware feedback, ported from SafeBeaconScreen: the
@@ -208,8 +214,8 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
         // (e.g. "৩টি এসএমএস পাঠানো হয়েছে, ২টি অপেক্ষমান").
         final content = sms.pending == 0 && sms.sent == 0
             ? l10n.safetyNoContacts
-            : l10n.dangerSmsSummary(
-                banglaNumber(sms.sent), banglaNumber(sms.pending));
+            : l10n.dangerSmsSummary(numberForLocale(sms.sent, l10n.localeName),
+                numberForLocale(sms.pending, l10n.localeName));
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(content),

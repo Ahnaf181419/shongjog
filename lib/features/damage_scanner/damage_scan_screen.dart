@@ -452,7 +452,7 @@ class _ResultView extends StatelessWidget {
                       Text(l10n.damageTypeLabel,
                           style: const TextStyle(fontSize: 14, color: Colors.grey)),
                       const SizedBox(height: 4),
-                      Text(result.toBanglaType,
+                      Text(result.damageType.label(l10n),
                           style: const TextStyle(
                               fontSize: 20, fontWeight: FontWeight.bold)),
                     ],
@@ -469,7 +469,7 @@ class _ResultView extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    Text(result.toBanglaSeverity,
+                    Text(result.severity.label(l10n),
                         style: TextStyle(
                             color: sevColor,
                             fontWeight: FontWeight.bold,

@@ -1,6 +1,7 @@
 import 'nearest_shelter.dart';
 import '../hazards/eonet_service.dart';
 import '../hazards/gdacs_service.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Builds the prompt for an AI-generated per-shelter risk brief
 /// (Option 3 in docs/AI-MAP-FEATURES.md).
@@ -64,15 +65,32 @@ class ShelterBriefBuilder {
 
   /// Deterministic fallback brief for when the model is unavailable.
   /// Always returns a useful sentence — never empty.
+  ///
+  /// Locale-aware (2026-09-09): English mode used to show the Bangla
+  /// sentence while the model loaded (or when the model is off). The
+  /// no-l10n overload stays for the AI-prompt path and old callers.
   static String fallbackBrief({
     required RankedShelter? shelter,
+    AppLocalizations? l10n,
   }) {
     if (shelter == null) {
-      return 'এই শেল্টারের তথ্য লোড হচ্ছে।';
+      return l10n?.shelterBriefLoading ?? 'এই শেল্টারের তথ্য লোড হচ্ছে।';
     }
     final s = shelter.shelter;
-    final name = s.nameBn.isNotEmpty ? s.nameBn : s.name;
-    // Build the distance with Bengali numerals.
+    final isBn = l10n == null || l10n.localeName.startsWith('bn');
+    final name = isBn
+        ? (s.nameBn.isNotEmpty ? s.nameBn : s.name)
+        : (s.name.isNotEmpty ? s.name : s.nameBn);
+    if (l10n != null && !isBn) {
+      // English deterministic brief.
+      final brief =
+          l10n.shelterBriefDistance(name, shelter.km.toStringAsFixed(1));
+      if (s.capacity != null) {
+        return brief + l10n.shelterBriefCapacity('${s.capacity}');
+      }
+      return brief;
+    }
+    // Bangla brief (original behavior) — Bengali numerals.
     final distBn = _toBangla(shelter.km.toStringAsFixed(1));
     var brief = '$name আপনার অবস্থান থেকে $distBn কিমি দূরে।';
     if (s.capacity != null) {

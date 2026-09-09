@@ -138,8 +138,11 @@ class _MainShellState extends State<MainShell> {
     // The notification's onTap is a no-op while the call is active —
     // the screen is already up. We still show the notification so a
     // user who backgrounded the app gets a heads-up.
+    final callL10n = AppLocalizations.of(context);
     localNotificationService.showCallNotification(
       callerName: displayName,
+      titleOverride: callL10n.meshCallTitle,
+      bodyOverride: callL10n.meshCallIncoming(displayName),
       onTap: () {
         // No-op when the call screen is already presenting.
         if (_activeIncomingCallFromId == sig.fromId) return;

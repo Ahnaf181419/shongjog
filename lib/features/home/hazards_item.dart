@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../hazards/eonet_service.dart';
 import '../hazards/gdacs_service.dart';
 import '../hazards/usgs_earthquake_service.dart';
@@ -42,9 +43,11 @@ class HazardsItem {
         isNearby: e.isCrossBorder,
       );
 
-  factory HazardsItem.fromQuake(EarthquakeEvent q) => HazardsItem(
+  factory HazardsItem.fromQuake(EarthquakeEvent q, AppLocalizations l10n) =>
+      HazardsItem(
         icon: Icons.public_rounded,
-        title: 'ভূমিকম্প M${q.magnitude.toStringAsFixed(1)}',
+        title: l10n.hazardEarthquakeMag(
+            q.magnitude.toStringAsFixed(1)),
         subtitle: q.place,
         color: _colorForQuake(q.severity),
         weight: 80 + q.magnitude.toInt() * 5,

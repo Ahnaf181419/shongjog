@@ -138,12 +138,20 @@ class LocalNotificationService {
   Future<void> showCallNotification({
     required String callerName,
     required VoidCallback? onTap,
+    String? titleOverride,
+    String? bodyOverride,
   }) async {
+    // Locale-aware title/body (user-reported 2026-09-09: English mode
+    // still showed the Bangla tray text). Callers that have a context
+    // pass the localized strings; the Bangla fallback keeps the
+    // no-context call sites (and tests) unchanged.
+    final title = titleOverride ?? 'মেশ কল';
+    final body = bodyOverride ?? '$callerName আপনাকে কল করছে';
     if (debugSinkOverride != null) {
       await debugSinkOverride!(
         _callNotificationId,
-        'মেশ কল',
-        '$callerName আপনাকে কল করছে',
+        title,
+        body,
       );
       onTap?.call();
       return;
@@ -166,8 +174,8 @@ class LocalNotificationService {
 
       await _plugin.show(
         id: _callNotificationId,
-        title: 'মেশ কল',
-        body: '$callerName আপনাকে কল করছে',
+        title: title,
+        body: body,
         notificationDetails: NotificationDetails(
           android: AndroidNotificationDetails(
             callChannelId,

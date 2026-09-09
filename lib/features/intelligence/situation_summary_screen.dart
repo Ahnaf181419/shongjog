@@ -130,9 +130,9 @@ class _SituationSummaryScreenState extends State<SituationSummaryScreen> {
         builder: (ctx, snap) {
           final n = snap.data;
           if (n == null) return const SizedBox.shrink();
+          final l10n = AppLocalizations.of(context);
           return Text(
-            AppLocalizations.of(context)
-                .situationIntro(banglaNumber(n)),
+            l10n.situationIntro(numberForLocale(n, l10n.localeName)),
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 16, height: 1.5),
           );

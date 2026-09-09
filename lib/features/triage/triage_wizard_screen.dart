@@ -178,8 +178,10 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
           const SizedBox(height: 32),
           Text(
             AppLocalizations.of(context).triageQuestion(
-              banglaNumber(_answers.length + 1),
-              banglaNumber(TriageTree.questions.length),
+              numberForLocale(_answers.length + 1,
+                  AppLocalizations.of(context).localeName),
+              numberForLocale(TriageTree.questions.length,
+                  AppLocalizations.of(context).localeName),
             ),
             style: TextStyle(
               fontSize: 14,
@@ -515,7 +517,7 @@ class _InlineSteps extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
     final card = _findCard(cardId, l10n);
-    final steps = card.stepsBn.take(3).toList();
+    final steps = card.steps(context).take(3).toList();
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
@@ -551,7 +553,7 @@ class _InlineSteps extends StatelessWidget {
                   SizedBox(
                     width: 18,
                     child: Text(
-                      '${banglaNumber(entry.key + 1)}.',
+                      '${numberForLocale(entry.key + 1, AppLocalizations.of(context).localeName)}.',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -585,9 +587,11 @@ class _InlineSteps extends StatelessWidget {
     return QuickCard(
       id: '__missing__',
       titleBn: l10n.triageCardNotFound,
+      titleEn: l10n.triageCardNotFound,
       icon: Icons.help_outline_rounded,
       color: Colors.grey,
       stepsBn: const [],
+      stepsEn: const [],
     );
   }
 }

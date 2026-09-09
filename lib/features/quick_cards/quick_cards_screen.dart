@@ -30,9 +30,14 @@ class _QuickCardsScreenState extends State<QuickCardsScreen> {
   List<QuickCard> get _filteredCards {
     if (_query.isEmpty) return kQuickCards;
     final q = _query.toLowerCase();
+    // Search matches the CURRENT locale's text (bn or en) — the Cards
+    // tab is bilingual since 2026-09-09.
+    final isBn = AppLocalizations.of(context).localeName.startsWith('bn');
     return kQuickCards.where((card) {
-      final titleMatch = card.titleBn.toLowerCase().contains(q);
-      final stepsMatch = card.stepsBn.any((s) => s.toLowerCase().contains(q));
+      final titleMatch =
+          (isBn ? card.titleBn : card.titleEn).toLowerCase().contains(q);
+      final stepsMatch = (isBn ? card.stepsBn : card.stepsEn)
+          .any((s) => s.toLowerCase().contains(q));
       return titleMatch || stepsMatch;
     }).toList();
   }
@@ -131,7 +136,7 @@ class _CardTile extends StatelessWidget {
             child: Icon(card.icon, color: card.color, size: 24),
           ),
           title: Text(
-            card.titleBn,
+            card.title(context),
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
@@ -142,7 +147,7 @@ class _CardTile extends StatelessWidget {
           collapsedIconColor: ShongjogTheme.bodySecondary(context),
           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           children: [
-            ...card.stepsBn.asMap().entries.map((e) => Padding(
+            ...card.steps(context).asMap().entries.map((e) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 6),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,7 +162,8 @@ class _CardTile extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            banglaNumber(e.key + 1),
+                          numberForLocale(e.key + 1,
+                              AppLocalizations.of(context).localeName),
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -191,6 +197,8 @@ class _CardTile extends StatelessWidget {
                 backgroundColor: card.color.withValues(alpha: 0.08),
                 side: BorderSide(color: card.color.withValues(alpha: 0.3)),
                 onPressed: () {
+                  // The AI handoff stays Bangla by design — the on-device
+                  // model is instructed to answer in Bangla (AGENTS.md).
                   final firstStep =
                       card.stepsBn.isNotEmpty ? card.stepsBn.first : '';
                   onRequestAiChat('${card.titleBn}। $firstStep');

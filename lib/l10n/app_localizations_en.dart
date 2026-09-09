@@ -900,6 +900,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shelterNoData => 'No shelter information';
 
   @override
+  String get shelterBriefLoading => 'Loading shelter information.';
+
+  @override
+  String shelterBriefDistance(Object dist, Object name) {
+    return '$name is $dist km from your location.';
+  }
+
+  @override
+  String shelterBriefCapacity(Object count) {
+    return ' Capacity $count people.';
+  }
+
+  @override
   String get shelterKm => 'km';
 
   @override
@@ -1442,6 +1455,64 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hazardEarthquake => 'Earthquake';
+
+  @override
+  String hazardEarthquakeMag(Object mag) {
+    return 'Earthquake M$mag';
+  }
+
+  @override
+  String get damageTypeFlood => 'Flood';
+
+  @override
+  String get damageTypeFire => 'Fire';
+
+  @override
+  String get damageTypeCollapsedBuilding => 'Collapsed building';
+
+  @override
+  String get damageTypeFallenTree => 'Fallen tree';
+
+  @override
+  String get damageTypeBlockedRoad => 'Blocked road';
+
+  @override
+  String get damageTypeElectricHazard => 'Electrical hazard';
+
+  @override
+  String get damageTypeSmoke => 'Smoke';
+
+  @override
+  String get damageTypeOther => 'Other';
+
+  @override
+  String get damageTypeUnknown => 'Unknown';
+
+  @override
+  String get damageSeverityLow => 'Low';
+
+  @override
+  String get damageSeverityMedium => 'Medium';
+
+  @override
+  String get damageSeverityHigh => 'High';
+
+  @override
+  String get damageSeverityCritical => 'Critical';
+
+  @override
+  String get damageSeverityUnknown => 'Unknown';
+
+  @override
+  String get meshCallTitle => 'Mesh call';
+
+  @override
+  String meshCallIncoming(Object name) {
+    return '$name is calling you';
+  }
+
+  @override
+  String get homePromoCardsSubtitle => 'First aid for 10+ emergency conditions';
 
   @override
   String get hazardWildfire => 'Wildfire';
@@ -2161,46 +2232,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get damageTryAgain => 'Try again';
 
   @override
-  String get damageTypeFlood => 'Flood';
-
-  @override
-  String get damageTypeFire => 'Fire';
-
-  @override
   String get damageTypeBuildingCollapse => 'Collapsed building';
-
-  @override
-  String get damageTypeFallenTree => 'Fallen tree';
-
-  @override
-  String get damageTypeBlockedRoad => 'Blocked road';
 
   @override
   String get damageTypeElectricalHazard => 'Electrical hazard';
 
   @override
-  String get damageTypeSmoke => 'Smoke';
-
-  @override
-  String get damageTypeOther => 'Other';
-
-  @override
-  String get damageTypeUnknown => 'Unknown';
-
-  @override
-  String get damageSeverityLow => 'Low';
-
-  @override
-  String get damageSeverityMedium => 'Medium';
-
-  @override
-  String get damageSeverityHigh => 'High';
-
-  @override
   String get damageSeverityVeryHigh => 'Very High';
-
-  @override
-  String get damageSeverityUnknown => 'Unknown';
 
   @override
   String get damageDefaultRecommendation =>

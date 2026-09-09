@@ -40,7 +40,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   String _formatTimestamp(BuildContext context, DateTime ts) {
-    String bn(int n) => banglaNumber(n);
+    final lang = AppLocalizations.of(context).localeName;
+    String bn(int n) => numberForLocale(n, lang);
     final now = DateTime.now();
     final diff = now.difference(ts);
     final l10n = AppLocalizations.of(context);

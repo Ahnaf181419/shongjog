@@ -285,7 +285,8 @@ class _NotificationBellState extends State<_NotificationBell> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                banglaNumber(count),
+                numberForLocale(
+                    count, AppLocalizations.of(context).localeName),
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -731,7 +732,7 @@ class _TriageTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '১০+ ধরনের জরুরি অবস্থায় প্রাথমিক চিকিৎসা',
+                      AppLocalizations.of(context).homePromoCardsSubtitle,
                       style: TextStyle(
                         fontSize: 14,
                         color: cs.onErrorContainer.withValues(alpha: 0.8),
@@ -885,9 +886,9 @@ class _ModelDownloadBanner extends StatelessWidget {
   const _ModelDownloadBanner();
 
 
-  String _bnPct(double? progress) {
+  String _bnPct(BuildContext context, double? progress) {
     if (progress == null) return '';
-    return '${banglaNumber((progress * 100).round())}%';
+    return '${numberForLocale((progress * 100).round(), AppLocalizations.of(context).localeName)}%';
   }
 
   @override
@@ -921,7 +922,8 @@ class _ModelDownloadBanner extends StatelessWidget {
                     Icon(Icons.download_rounded, size: 14, color: cs.primary),
                     const SizedBox(width: 6),
                     Text(
-                      AppLocalizations.of(context).modelDownloadProgress(_bnPct(progress)),
+                      AppLocalizations.of(context).modelDownloadProgress(
+                          _bnPct(context, progress)),
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,

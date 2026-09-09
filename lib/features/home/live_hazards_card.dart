@@ -85,7 +85,8 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
       items.add(HazardsItem.fromEonet(e, context));
     }
     for (final q in quakes ?? const <EarthquakeEvent>[]) {
-      items.add(HazardsItem.fromQuake(q));
+      items.add(
+          HazardsItem.fromQuake(q, AppLocalizations.of(context)));
     }
     for (final g in gdacs ?? const <GdacsAlert>[]) {
       items.add(HazardsItem.fromGdacs(g, context));

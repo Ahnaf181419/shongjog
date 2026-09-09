@@ -312,6 +312,12 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
 
   Widget _buildMap(List<Shelter> shelters, List<RankedShelter>? ranked) {
     final l10n = AppLocalizations.of(context);
+    // The shell Scaffold uses extendBody: true with a floating nav bar, so
+    // this screen renders BEHIND the bar. Flutter exposes the bar's height
+    // to the body as MediaQuery.padding.bottom — the bottom-anchored cards
+    // must add it to their offsets or they slide under the bar (the nav
+    // overlap reported on the shelter details tile).
+    final navBarHeight = MediaQuery.of(context).padding.bottom;
     return Stack(
       children: [
         FlutterMap(
@@ -449,7 +455,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
           Positioned(
             left: 12,
             right: 12,
-            bottom: 12,
+            bottom: navBarHeight + 12,
             child: ShelterRouteInfoCard(
               selected: _vm.selectedShelter!,
               loading: _vm.loadingRoute,
@@ -462,7 +468,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
           Positioned(
             left: 16,
             right: 16,
-            bottom: 16,
+            bottom: navBarHeight + 16,
             child: NearestCard(
               top3: ranked.take(3).toList(),
               onTapRow: (s) => _vm.fetchRoute(s as Shelter),
@@ -525,7 +531,15 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      s.nameBn.isNotEmpty ? s.nameBn : s.name,
+                      // Locale-aware primary name (2026-09-09: English
+                      // mode used to always show the Bangla name). The
+                      // secondary line below shows the other language
+                      // when both exist.
+                      AppLocalizations.of(context)
+                              .localeName
+                              .startsWith('bn')
+                          ? (s.nameBn.isNotEmpty ? s.nameBn : s.name)
+                          : (s.name.isNotEmpty ? s.name : s.nameBn),
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
@@ -533,11 +547,15 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
               ),
               const SizedBox(height: 8),
               if (s.nameBn.isNotEmpty && s.name.isNotEmpty)
-                Text(s.name,
-                    style: TextStyle(
-                        fontSize: 14,
-                        color:
-                            Theme.of(context).colorScheme.onSurfaceVariant)),
+                Text(
+                  AppLocalizations.of(context).localeName.startsWith('bn')
+                      ? s.name
+                      : s.nameBn,
+                  style: TextStyle(
+                      fontSize: 14,
+                      color:
+                          Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
               const SizedBox(height: 16),
               if (km != null)
                 _row(l10n.shelterDistLabel, '${km.toStringAsFixed(1)} ${l10n.shelterKm}'),
@@ -737,8 +755,12 @@ class _AiBriefRowState extends State<_AiBriefRow> {
   }
 
   Future<void> _loadBrief() async {
-    // Start with the deterministic fallback.
-    final fallback = ShelterBriefBuilder.fallbackBrief(shelter: widget.shelter);
+    // Start with the deterministic fallback (locale-aware — English
+    // mode gets the English sentence).
+    final fallback = ShelterBriefBuilder.fallbackBrief(
+      shelter: widget.shelter,
+      l10n: AppLocalizations.of(context),
+    );
     if (!mounted) return;
     setState(() {
       _brief = fallback;

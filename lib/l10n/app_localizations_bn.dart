@@ -898,6 +898,19 @@ class AppLocalizationsBn extends AppLocalizations {
   String get shelterNoData => 'কোনো আশ্রয়কেন্দ্রের তথ্য নেই';
 
   @override
+  String get shelterBriefLoading => 'এই শেল্টারের তথ্য লোড হচ্ছে।';
+
+  @override
+  String shelterBriefDistance(Object dist, Object name) {
+    return '$name আপনার অবস্থান থেকে $dist কিমি দূরে।';
+  }
+
+  @override
+  String shelterBriefCapacity(Object count) {
+    return ' ধারণক্ষমতা $count জন।';
+  }
+
+  @override
   String get shelterKm => 'কিমি';
 
   @override
@@ -1446,6 +1459,65 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get hazardEarthquake => 'ভূমিকম্প';
+
+  @override
+  String hazardEarthquakeMag(Object mag) {
+    return 'ভূমিকম্প M$mag';
+  }
+
+  @override
+  String get damageTypeFlood => 'বন্যা';
+
+  @override
+  String get damageTypeFire => 'আগুন';
+
+  @override
+  String get damageTypeCollapsedBuilding => 'ধসে পড়া ভবন';
+
+  @override
+  String get damageTypeFallenTree => 'পড়ে যাওয়া গাছ';
+
+  @override
+  String get damageTypeBlockedRoad => 'অবরুদ্ধ রাস্তা';
+
+  @override
+  String get damageTypeElectricHazard => 'বৈদ্যুতিক বিপদ';
+
+  @override
+  String get damageTypeSmoke => 'ধোঁয়া';
+
+  @override
+  String get damageTypeOther => 'অন্যান্য';
+
+  @override
+  String get damageTypeUnknown => 'অজানা';
+
+  @override
+  String get damageSeverityLow => 'নিম্ন';
+
+  @override
+  String get damageSeverityMedium => 'মাঝারি';
+
+  @override
+  String get damageSeverityHigh => 'উচ্চ';
+
+  @override
+  String get damageSeverityCritical => 'অত্যন্ত উচ্চ';
+
+  @override
+  String get damageSeverityUnknown => 'অজানা';
+
+  @override
+  String get meshCallTitle => 'মেশ কল';
+
+  @override
+  String meshCallIncoming(Object name) {
+    return '$name আপনাকে কল করছে';
+  }
+
+  @override
+  String get homePromoCardsSubtitle =>
+      '১০+ ধরনের জরুরি অবস্থায় প্রাথমিক চিকিৎসা';
 
   @override
   String get hazardWildfire => 'দাবানল';
@@ -2164,46 +2236,13 @@ class AppLocalizationsBn extends AppLocalizations {
   String get damageTryAgain => 'আবার চেষ্টা করুন';
 
   @override
-  String get damageTypeFlood => 'বন্যা';
-
-  @override
-  String get damageTypeFire => 'আগুন';
-
-  @override
   String get damageTypeBuildingCollapse => 'ধসে পড়া ভবন';
-
-  @override
-  String get damageTypeFallenTree => 'পড়ে যাওয়া গাছ';
-
-  @override
-  String get damageTypeBlockedRoad => 'অবরুদ্ধ রাস্তা';
 
   @override
   String get damageTypeElectricalHazard => 'বৈদ্যুতিক বিপদ';
 
   @override
-  String get damageTypeSmoke => 'ধোঁয়া';
-
-  @override
-  String get damageTypeOther => 'অন্যান্য';
-
-  @override
-  String get damageTypeUnknown => 'অজানা';
-
-  @override
-  String get damageSeverityLow => 'নিম্ন';
-
-  @override
-  String get damageSeverityMedium => 'মাঝারি';
-
-  @override
-  String get damageSeverityHigh => 'উচ্চ';
-
-  @override
   String get damageSeverityVeryHigh => 'অত্যন্ত উচ্চ';
-
-  @override
-  String get damageSeverityUnknown => 'অজানা';
 
   @override
   String get damageDefaultRecommendation =>

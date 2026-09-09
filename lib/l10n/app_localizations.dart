@@ -1760,6 +1760,24 @@ abstract class AppLocalizations {
   /// **'কোনো আশ্রয়কেন্দ্রের তথ্য নেই'**
   String get shelterNoData;
 
+  /// No description provided for @shelterBriefLoading.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই শেল্টারের তথ্য লোড হচ্ছে।'**
+  String get shelterBriefLoading;
+
+  /// No description provided for @shelterBriefDistance.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} আপনার অবস্থান থেকে {dist} কিমি দূরে।'**
+  String shelterBriefDistance(Object dist, Object name);
+
+  /// No description provided for @shelterBriefCapacity.
+  ///
+  /// In bn, this message translates to:
+  /// **' ধারণক্ষমতা {count} জন।'**
+  String shelterBriefCapacity(Object count);
+
   /// No description provided for @shelterKm.
   ///
   /// In bn, this message translates to:
@@ -2821,6 +2839,114 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'ভূমিকম্প'**
   String get hazardEarthquake;
+
+  /// No description provided for @hazardEarthquakeMag.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভূমিকম্প M{mag}'**
+  String hazardEarthquakeMag(Object mag);
+
+  /// No description provided for @damageTypeFlood.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্যা'**
+  String get damageTypeFlood;
+
+  /// No description provided for @damageTypeFire.
+  ///
+  /// In bn, this message translates to:
+  /// **'আগুন'**
+  String get damageTypeFire;
+
+  /// No description provided for @damageTypeCollapsedBuilding.
+  ///
+  /// In bn, this message translates to:
+  /// **'ধসে পড়া ভবন'**
+  String get damageTypeCollapsedBuilding;
+
+  /// No description provided for @damageTypeFallenTree.
+  ///
+  /// In bn, this message translates to:
+  /// **'পড়ে যাওয়া গাছ'**
+  String get damageTypeFallenTree;
+
+  /// No description provided for @damageTypeBlockedRoad.
+  ///
+  /// In bn, this message translates to:
+  /// **'অবরুদ্ধ রাস্তা'**
+  String get damageTypeBlockedRoad;
+
+  /// No description provided for @damageTypeElectricHazard.
+  ///
+  /// In bn, this message translates to:
+  /// **'বৈদ্যুতিক বিপদ'**
+  String get damageTypeElectricHazard;
+
+  /// No description provided for @damageTypeSmoke.
+  ///
+  /// In bn, this message translates to:
+  /// **'ধোঁয়া'**
+  String get damageTypeSmoke;
+
+  /// No description provided for @damageTypeOther.
+  ///
+  /// In bn, this message translates to:
+  /// **'অন্যান্য'**
+  String get damageTypeOther;
+
+  /// No description provided for @damageTypeUnknown.
+  ///
+  /// In bn, this message translates to:
+  /// **'অজানা'**
+  String get damageTypeUnknown;
+
+  /// No description provided for @damageSeverityLow.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিম্ন'**
+  String get damageSeverityLow;
+
+  /// No description provided for @damageSeverityMedium.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাঝারি'**
+  String get damageSeverityMedium;
+
+  /// No description provided for @damageSeverityHigh.
+  ///
+  /// In bn, this message translates to:
+  /// **'উচ্চ'**
+  String get damageSeverityHigh;
+
+  /// No description provided for @damageSeverityCritical.
+  ///
+  /// In bn, this message translates to:
+  /// **'অত্যন্ত উচ্চ'**
+  String get damageSeverityCritical;
+
+  /// No description provided for @damageSeverityUnknown.
+  ///
+  /// In bn, this message translates to:
+  /// **'অজানা'**
+  String get damageSeverityUnknown;
+
+  /// No description provided for @meshCallTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেশ কল'**
+  String get meshCallTitle;
+
+  /// No description provided for @meshCallIncoming.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} আপনাকে কল করছে'**
+  String meshCallIncoming(Object name);
+
+  /// No description provided for @homePromoCardsSubtitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'১০+ ধরনের জরুরি অবস্থায় প্রাথমিক চিকিৎসা'**
+  String get homePromoCardsSubtitle;
 
   /// No description provided for @hazardWildfire.
   ///
@@ -4166,35 +4292,11 @@ abstract class AppLocalizations {
   /// **'আবার চেষ্টা করুন'**
   String get damageTryAgain;
 
-  /// No description provided for @damageTypeFlood.
-  ///
-  /// In bn, this message translates to:
-  /// **'বন্যা'**
-  String get damageTypeFlood;
-
-  /// No description provided for @damageTypeFire.
-  ///
-  /// In bn, this message translates to:
-  /// **'আগুন'**
-  String get damageTypeFire;
-
   /// No description provided for @damageTypeBuildingCollapse.
   ///
   /// In bn, this message translates to:
   /// **'ধসে পড়া ভবন'**
   String get damageTypeBuildingCollapse;
-
-  /// No description provided for @damageTypeFallenTree.
-  ///
-  /// In bn, this message translates to:
-  /// **'পড়ে যাওয়া গাছ'**
-  String get damageTypeFallenTree;
-
-  /// No description provided for @damageTypeBlockedRoad.
-  ///
-  /// In bn, this message translates to:
-  /// **'অবরুদ্ধ রাস্তা'**
-  String get damageTypeBlockedRoad;
 
   /// No description provided for @damageTypeElectricalHazard.
   ///
@@ -4202,53 +4304,11 @@ abstract class AppLocalizations {
   /// **'বৈদ্যুতিক বিপদ'**
   String get damageTypeElectricalHazard;
 
-  /// No description provided for @damageTypeSmoke.
-  ///
-  /// In bn, this message translates to:
-  /// **'ধোঁয়া'**
-  String get damageTypeSmoke;
-
-  /// No description provided for @damageTypeOther.
-  ///
-  /// In bn, this message translates to:
-  /// **'অন্যান্য'**
-  String get damageTypeOther;
-
-  /// No description provided for @damageTypeUnknown.
-  ///
-  /// In bn, this message translates to:
-  /// **'অজানা'**
-  String get damageTypeUnknown;
-
-  /// No description provided for @damageSeverityLow.
-  ///
-  /// In bn, this message translates to:
-  /// **'নিম্ন'**
-  String get damageSeverityLow;
-
-  /// No description provided for @damageSeverityMedium.
-  ///
-  /// In bn, this message translates to:
-  /// **'মাঝারি'**
-  String get damageSeverityMedium;
-
-  /// No description provided for @damageSeverityHigh.
-  ///
-  /// In bn, this message translates to:
-  /// **'উচ্চ'**
-  String get damageSeverityHigh;
-
   /// No description provided for @damageSeverityVeryHigh.
   ///
   /// In bn, this message translates to:
   /// **'অত্যন্ত উচ্চ'**
   String get damageSeverityVeryHigh;
-
-  /// No description provided for @damageSeverityUnknown.
-  ///
-  /// In bn, this message translates to:
-  /// **'অজানা'**
-  String get damageSeverityUnknown;
 
   /// No description provided for @damageDefaultRecommendation.
   ///

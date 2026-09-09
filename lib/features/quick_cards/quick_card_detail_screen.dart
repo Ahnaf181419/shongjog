@@ -24,7 +24,7 @@ class QuickCardDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: ShongjogTheme.cardSurface(context),
       appBar: AppBar(
-        title: Text(card.titleBn),
+        title: Text(card.title(context)),
         backgroundColor: cs.surfaceContainerHighest,
         foregroundColor: cs.onSurface,
         leading: IconButton(
@@ -33,7 +33,7 @@ class QuickCardDetailScreen extends StatelessWidget {
           onPressed: () => Navigator.of(context).maybePop(),
         ),
       ),
-      body: card.stepsBn.isEmpty
+      body: card.steps(context).isEmpty
           ? Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -46,11 +46,11 @@ class QuickCardDetailScreen extends StatelessWidget {
             )
           : ListView.separated(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-              itemCount: card.stepsBn.length,
+              itemCount: card.steps(context).length,
               separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (_, i) => _StepTile(
                 index: i + 1,
-                text: card.stepsBn[i],
+                text: card.steps(context)[i],
                 accent: card.color,
               ),
             ),
@@ -66,9 +66,11 @@ class QuickCardDetailScreen extends StatelessWidget {
     return QuickCard(
       id: '__missing__',
       titleBn: l10n.cardDetailNotFound,
+      titleEn: l10n.cardDetailNotFound,
       icon: Icons.help_outline_rounded,
       color: Colors.grey,
       stepsBn: [],
+      stepsEn: [],
     );
   }
 }
@@ -105,7 +107,8 @@ class _StepTile extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                banglaNumber(index),
+                numberForLocale(
+                    index, AppLocalizations.of(context).localeName),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
