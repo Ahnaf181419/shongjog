@@ -7,7 +7,7 @@
 ## Corpus Under Review
 
 - **File:** `tools/corpus.json` / `assets/kb/corpus.json`
-- **Current size:** 23 chunks across 10 topics
+- **Current size:** 48 chunks across 22 topics
 - **Target size:** 50+ chunks (Phase 6 expansion)
 - **Topics covered:** ORS/diarrhea, water safety, snakebite, drowning,
   bleeding/wound care, fever, cyclone/shelter, infant care, electrical

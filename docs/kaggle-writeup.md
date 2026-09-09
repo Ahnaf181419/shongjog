@@ -60,7 +60,7 @@ Every generation is **time-bounded** — the app always returns an answer throug
 
 ### Retrieval-Augmented Generation
 
-Gemma 4 answers **only** from vetted content. **23 verified guidance chunks** in simple Bangla, each tagged to a named source across **17 cited documents** — WHO, BDRCS, CDC, MoDMR, IFRC, UNICEF, and BMD. Every chunk is hand-checked against its source.
+Gemma 4 answers **only** from vetted content. **48 verified guidance chunks** in simple Bangla, each tagged to a named source across the cited documents — WHO, BDRCS, CDC, MoDMR, IFRC, UNICEF, and BMD. Every chunk is hand-checked against its source.
 
 Embeddings use `paraphrase-multilingual-mpnet-base-v2` (768-dim, L2-normalized), bundled as an asset — present in airplane mode with no first-run download. Retrieval is keyword-first (sub-millisecond) with brute-force cosine as a second path.
 

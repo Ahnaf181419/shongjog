@@ -185,7 +185,7 @@ work completed during a build phase or significant milestone.
 - Project scaffold (`pubspec.yaml`, `android/app/build.gradle.kts`).
 - `arm64-v8a` ABI filter.
 - Bangla theme + 3-way system/light/dark toggle + ThemeController.
-- 4-tab bottom navigation in `MainShell`.
+- 5-tab bottom navigation in `MainShell`.
 - `quick_cards_screen.dart` with 8 emergency cards (ORS, water, snakebite, diarrhea, shelter, bleeding, fever, drowning).
 - `quick_cards_screen_test.dart` (now 7 widget test files total).
 

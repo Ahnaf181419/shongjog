@@ -159,7 +159,7 @@ our Phase 0 spike. For anything it mishears, typed input is always available as 
 fallback.
 
 **Q: What's the corpus size? How do you scale it?**
-A: ~23 chunks right now, hand-curated and sourced. The brute-force retriever scales to
+A: ~48 chunks right now, hand-curated and sourced. The brute-force retriever scales to
 ~500 chunks before we'd swap in an HNSW index. Post-hackathon we'd partner with BDRCS and
 MoDMR to expand and medically review it.
 
@@ -181,7 +181,7 @@ under 8 seconds on our demo device. (Cite the actual Phase 5 numbers.)
 
 Judges trust teams that name their limits. Bring these up if asked, or in the close:
 
-- **Corpus is small and draft-quality.** ~23 chunks, paraphrased from public sources. Not
+- **Corpus is small and draft-quality.** ~48 chunks, paraphrased from public sources. Not
   medically reviewed by a professional yet — that's a post-hackathon milestone with BDRCS.
 - **Vosk Bangla isn't perfect.** It handles our target phrases; freeform medical
   description can trip it. Typed input covers the gap.

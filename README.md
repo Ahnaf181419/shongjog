@@ -50,7 +50,7 @@ Every on-device module falls back to a deterministic result rather than an error
 
 ### Core
 
-- **Offline RAG** — 23 verified Bangla chunks across 10 topics, each tagged to a named source (WHO, BDRCS, CDC, MoDMR, IFRC, UNICEF, BMD). Keyword retrieval primary; brute-force cosine over bundled 768-dim L2-normalized fp32 vectors as a second path.
+- **Offline RAG** — 48 verified Bangla chunks across 22 topics, each tagged to a named source (WHO, BDRCS, CDC, MoDMR, IFRC, UNICEF, BMD). Keyword retrieval primary; brute-force cosine over bundled 768-dim L2-normalized fp32 vectors as a second path.
 - **Voice-first** — Bangla STT with locale resolution and failure classification; Bangla TTS (bn-BD, bn-IN fallback), opt-in auto-read.
 - **Bilingual** — Bangla-first with a complete English locale (834 strings) behind a toggle.
 - **Shelter map** — 263 bundled shelter locations, GPS ranking, cached tiles, OSRM turn-by-turn routing, Nominatim/Overpass search. No Google Maps dependency.
@@ -201,7 +201,7 @@ For local development only, `.env` / `--dart-define=GEMINI_API_KEY=…` still wo
 | `scripts/build_release.sh` | Build + 10-gate APK verification |
 | `android/app/proguard-rules.pro` | Load-bearing R8 `-keep` rules for MediaPipe/Protobuf/ODML |
 | `android/app/src/main/AndroidManifest.xml` | 19 permissions + `<queries>` for speech, TTS, camera, pickers |
-| `assets/kb/corpus.json` | 23 verified Bangla chunks, 10 topics |
+| `assets/kb/corpus.json` | 48 verified Bangla chunks, 22 topics |
 | `assets/kb/vectors.bin` | 768-dim L2-normalized fp32 vectors |
 | `assets/shelter/cyclone_shelters.geojson` | 263 shelter locations |
 | `assets/emergency/directory.json` | 22-entry emergency directory |

@@ -39,7 +39,7 @@ git tag hackathon-final vX.Y.Z         # tag the demo build
 ### Repo artifacts to verify
 
 - [ ] `lib/` has no commented-out code or TODO comments in critical paths
-- [ ] `assets/kb/corpus.json` is current (23 chunks)
+- [ ] `assets/kb/corpus.json` is current (48 chunks)
 - [ ] `assets/kb/vectors.bin` is current (matches corpus via tools/verify_kb.py)
 - [ ] `assets/kb/meta.json` reflects the same build
 - [ ] `assets/shelter/cyclone_shelters.geojson` spot-checked

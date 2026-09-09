@@ -19,9 +19,9 @@ import '../../core/bangla_numerals.dart';
 
 /// Home tab — context-first dashboard.
 ///
-/// Layout: status strip → weather card (today + 3-day strip) → AI hero
-/// (28 sp CTA on the drenched panel) → 2-up emergency triad (cards /
-/// shelter; 999 lives in the AppBar now) → mesh tile → tip.
+/// Layout: status strip → weather card (today + 3-day strip) → live
+/// hazards → marine card → 2-up emergency triad (triage / safety; 999
+/// lives in the AppBar now) → tip.
 ///
 /// Per AGENTS.md, the 999 entry point is always reachable via the
 /// persistent AppBar pill, even when the body content scrolls past.

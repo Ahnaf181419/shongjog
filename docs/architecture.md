@@ -119,7 +119,7 @@ lib/
 │   ├── app.dart              MaterialApp, theme, _StartupGate (onboarding vs main)
 │   ├── theme.dart            Bangla-first calm palette, type scale
 │   ├── router.dart           Route table
-│   └── main_shell.dart       Bottom nav scaffold (4 tabs)
+│   └── main_shell.dart       Bottom nav scaffold (5 tabs)
 ├── core/                     Cross-cutting singletons + state
 │   ├── model_manager.dart    Singleton: Gemma download/load (ChangeNotifier)
 │   └── theme_controller.dart 3-way theme toggle (System/Light/Dark)

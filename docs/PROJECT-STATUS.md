@@ -49,7 +49,7 @@ Everything below runs on the Android emulator and in `flutter test`:
 ### Core UX
 - **App launch + onboarding gate.** First-run shows 3-page flow
   (`welcome → permissions → model download hint`).
-- **Bottom navigation.** 4 tabs: হোম / এআই / কার্ড / আশ্রয়.
+- **Bottom navigation.** 5 tabs: হোম / এআই / টুলস / কার্ড / আশ্রয়.
 - **3-way theme toggle.** System / Light / Dark, persisted via `ThemeController`.
 - **Home screen.** Bento grid of feature tiles that link to tabs.
 
@@ -364,7 +364,7 @@ integration_test/
 ```
 assets/
 ├── fonts/                             # AnekBangla.ttf + Manrope.ttf (~1.5 MB)
-├── kb/                                # 23 chunks × 768-dim vectors (~69 KB)
+├── kb/                                # 48 chunks × 768-dim vectors (~147 KB)
 ├── shelter/                           # cyclone_shelters.geojson
 ├── sound/                             # chime.wav (66 KB), knock.wav (13 KB)
 └── vosk/                              # (empty — bundled when ready)
@@ -487,7 +487,7 @@ ship-ready assets only.
 |---|---|---|
 | `lib/` (all Dart) | ~3.5 MB | Lines of code: ~42,300 |
 | `assets/fonts/` | ~1.5 MB | AnekBangla + Manrope (2 families) |
-| `assets/kb/` | ~75 KB | 23 chunks × 768 floats × 4 bytes |
+| `assets/kb/` | ~147 KB | 48 chunks × 768 floats × 4 bytes |
 | `assets/shelter/` | ~10 KB | GeoJSON (variable per source) |
 | `assets/sound/` | ~80 KB | chime.wav + knock.wav |
 | **APK (no model)** | ~15 MB | arm64-v8a, release |

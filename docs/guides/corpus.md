@@ -22,7 +22,7 @@ Three reasons, in order of importance:
 2. **Attribution.** Every chunk carries a source (WHO, BDRCS, MoDMR, CDC). When the app
    answers, it can tell the user *where* the guidance comes from. This builds trust and
    makes the corpus auditable by partners post-hackathon.
-3. **Offline simplicity.** ~23 chunks × 768 dims ≈ 69 KB of vectors. It ships inside the
+3. **Offline simplicity.** ~48 chunks × 768 dims ≈ 147 KB of vectors. It ships inside the
    APK, loads in under 200ms, and searches in under 5ms. No server, no network, no
    first-run download that could fail in a flood.
 
@@ -33,7 +33,7 @@ the 10–12 topics most likely to save lives in a Bangladesh flood or cyclone.
 
 ## 2. Topic Coverage Matrix
 
-Target: **~23 chunks** across 10 topics. Each topic has a target count; the counts add
+Target: **~48 chunks** across 22 topics. Each topic has a target count; the counts add
 up to 23. Topics are ordered by demo impact (the first ones are what we'll show on
 stage).
 
