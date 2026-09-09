@@ -222,7 +222,13 @@ class _EmbedderStatusRowState extends State<_EmbedderStatusRow> {
       builder: (context, _) {
         final status = embedderService.status;
         final active = status == EmbedderStatus.ready;
-        final showInstallCta = !active && !_busy;
+        // In a prebuilt APK the model is bundled — no install button, no
+        // download. We still trigger one [install] call on first launch so
+        // [flutter_gemma] copies the asset into its docs dir; that's
+        // handled by [main.dart], not here.
+        final showInstallCta = !active &&
+            !_busy &&
+            embedderService.source == EmbedderSource.network;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Column(

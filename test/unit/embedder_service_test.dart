@@ -62,6 +62,18 @@ void main() {
       await svc.refreshStatus();
       expect(calls, 2);
     });
+
+    test('source defaults to the compile-time EMBEDDER_SOURCE define',
+        () async {
+      // No --dart-define in tests; should default to network.
+      expect(kDefaultEmbedderSource, EmbedderSource.network);
+      expect(EmbedderService().source, EmbedderSource.network);
+    });
+
+    test('source can be overridden to asset for prebuilt APKs', () async {
+      final svc = EmbedderService(source: EmbedderSource.asset);
+      expect(svc.source, EmbedderSource.asset);
+    });
   });
 }
 

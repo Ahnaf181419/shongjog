@@ -175,8 +175,19 @@ Future<void> main() async {
   // Same pattern for the semantic-search embedder (EmbeddingGemma 300M):
   // never delays the first frame, never fatal — when absent or broken the
   // chat silently uses keyword retrieval.
+  //
+  // For prebuilt APKs (EMBEDDER_SOURCE=asset) the model ships in the
+  // APK assets, but flutter_gemma still needs us to call install() once
+  // to copy it into its docs directory. We do that here, then refresh
+  // the status + create the live Embedder so the first chat message
+  // doesn't pay the install cost.
   unawaited(Future(() async {
     try {
+      if (embedderService.source == EmbedderSource.asset) {
+        // Prebuilt APK: install copies the bundled asset into the docs
+        // dir. Idempotent — if it's already there, the plugin no-ops.
+        await embedderService.install();
+      }
       await embedderService.refreshStatus();
       if (embedderService.status == EmbedderStatus.ready) {
         final sw = Stopwatch()..start();
