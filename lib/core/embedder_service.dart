@@ -8,10 +8,10 @@ import '../rag/embedder.dart';
 ///
 /// Default (`network`) downloads from HuggingFace using an HF access token
 /// (license-gated). `asset` reads pre-bundled files from
-/// `android/app/src/main/assets/embeddinggemma/` — populated by
-/// `tool/bundle_embedder.py` before a prebuilt APK build. The runtime
-/// source is selected at compile time via `--dart-define` and read
-/// once when [EmbedderService] is constructed.
+/// `assets/embeddinggemma/` (project root, declared in pubspec.yaml) —
+/// populated by `tool/bundle_embedder.py` before a prebuilt APK build.
+/// The runtime source is selected at compile time via `--dart-define`
+/// and read once when [EmbedderService] is constructed.
 enum EmbedderSource { network, asset }
 
 /// Asset paths used when [EmbedderSource.asset] is selected. Kept as
@@ -101,8 +101,9 @@ class EmbedderService extends ChangeNotifier {
   ///
   /// Behavior depends on [source]:
   /// - [EmbedderSource.asset] reads pre-bundled files from
-  ///   `assets/embeddinggemma/`. [hfToken] is ignored. This is what a
-  ///   prebuilt APK uses; the user never has to do anything.
+  ///   `assets/embeddinggemma/` (project root, pubspec-declared). [hfToken]
+  ///   is ignored. This is what a prebuilt APK uses; the user never has
+  ///   to do anything.
   /// - [EmbedderSource.network] (default) downloads from HuggingFace using
   ///   [hfToken]. The HF repos for EmbeddingGemma are license-gated, so
   ///   the caller must supply a valid token whose account has accepted

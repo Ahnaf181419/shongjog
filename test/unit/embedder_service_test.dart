@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_gemma/flutter_gemma.dart';
@@ -73,6 +74,47 @@ void main() {
     test('source can be overridden to asset for prebuilt APKs', () async {
       final svc = EmbedderService(source: EmbedderSource.asset);
       expect(svc.source, EmbedderSource.asset);
+    });
+  });
+
+  // Guards the prebuilt-APK asset-install path. flutter_gemma's
+  // AssetSourceHandler delegates to the native large_file_handler plugin,
+  // which resolves the asset via FlutterLoader.getLookupKeyForAsset — and
+  // that only knows assets listed in pubspec.yaml's flutter.assets. Files
+  // sitting under android/app/src/main/assets/ but NOT declared in pubspec
+  // made install() throw "Asset key not found" (surfaced as IOException),
+  // which the startup warmup swallowed, leaving the Settings row stuck on
+  // "off" with no visible error (see commit history for the field report).
+  group('prebuilt asset declarations', () {
+    test('kEmbedderAsset paths are declared in pubspec.yaml flutter.assets',
+        () {
+      final pubspec = File('pubspec.yaml').readAsStringSync();
+      expect(
+        pubspec,
+        contains('- assets/embeddinggemma/'),
+        reason: 'tool/bundle_embedder.py writes to assets/embeddinggemma/ '
+            'but pubspec.yaml does not list it under flutter.assets — '
+            'getLookupKeyForAsset() will throw and the prebuilt APK '
+            'install() will fail silently.',
+      );
+    });
+
+    test('bundled model files exist on disk when the bundle script has run',
+        () {
+      final dir = Directory('assets/embeddinggemma');
+      if (!dir.existsSync()) {
+        // Standard checkout: the ~175 MB payloads are gitignored and only
+        // materialize after `HF_TOKEN=... python3 tool/bundle_embedder.py`.
+        return;
+      }
+      expect(File('assets/embeddinggemma/model.tflite').existsSync(), isTrue,
+          reason: 'assets/embeddinggemma/ exists but model.tflite is '
+              'missing — re-run tool/bundle_embedder.py.');
+      expect(
+          File('assets/embeddinggemma/sentencepiece.model').existsSync(),
+          isTrue,
+          reason: 'assets/embeddinggemma/ exists but sentencepiece.model is '
+              'missing — re-run tool/bundle_embedder.py.');
     });
   });
 }
