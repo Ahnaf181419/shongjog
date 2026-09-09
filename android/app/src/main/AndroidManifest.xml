@@ -137,5 +137,27 @@
             <action android:name="android.intent.action.PICK"/>
             <data android:mimeType="image/*"/>
         </intent>
+        <!--
+          Package visibility for the map / link launchers.
+
+          The admin danger list "View on map" button (and the SOS safe-SMS
+          maps.google.com link, plus home / directory / hazards list link
+          openers) calls url_launcher's launchUrl() with a `geo:` or `https:`
+          URI. On Android 11+ the intent does not resolve unless the app
+          declares it here — canLaunchUrl() then returns false silently
+          and the button appears dead with no error feedback.
+
+          VIEW + both schemes covers (a) the geo:lat,lng intent used by
+          Google Maps and (b) the https://maps.google.com fallback URL
+          the admin page passes when no geo:lat,lng is available.
+        -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="geo"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
+        </intent>
     </queries>
 </manifest>
