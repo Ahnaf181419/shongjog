@@ -1819,6 +1819,36 @@ class AppLocalizationsBn extends AppLocalizations {
   String get modelSemanticAbsent => 'বন্ধ — কীওয়ার্ড সার্চ চলছে';
 
   @override
+  String get embedderInstallButton => 'ইনস্টল';
+
+  @override
+  String get embedderInstallTitle => 'সেমান্টিক সার্চ ইনস্টল করুন';
+
+  @override
+  String get embedderInstallBody =>
+      'EmbeddingGemma-এর HuggingFace রিপোজিটরি লাইসেন্স-গেটেড। google/embeddinggemma-300m অ্যাক্সেস দেওয়া একটি HF টোকেন পেস্ট করুন — তাহলে স্মার্ট মাল্টিলিংগুয়াল সার্চ চালু হবে।';
+
+  @override
+  String get embedderTokenLabel => 'HF অ্যাক্সেস টোকেন';
+
+  @override
+  String get embedderTokenHint => 'hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+
+  @override
+  String get embedderInstallCancel => 'বাতিল';
+
+  @override
+  String get embedderInstallProgress => 'এমবেডার মডেল ডাউনলোড হচ্ছে…';
+
+  @override
+  String get embedderInstallSuccess => 'সেমান্টিক সার্চ এখন চালু।';
+
+  @override
+  String embedderInstallFailed(String error) {
+    return 'ইনস্টল ব্যর্থ: $error';
+  }
+
+  @override
   String get modelBadgeExpected => '✅ প্রত্যাশিত';
 
   @override

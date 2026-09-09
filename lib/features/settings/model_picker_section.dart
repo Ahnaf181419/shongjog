@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../app/theme.dart';
+import '../../core/api_key_store.dart';
 import '../../core/embedder_service.dart';
 import '../../core/model_manager.dart';
 import '../../core/device_capability.dart';
@@ -147,12 +148,70 @@ class _ModelPickerSectionState extends State<ModelPickerSection> {
   }
 }
 
-/// One-line semantic-search status under the model cards. Informational
-/// only for now: the EmbeddingGemma download is license-gated on HF, so
-/// install flows through [EmbedderService.install] with a token rather
-/// than a button here.
-class _EmbedderStatusRow extends StatelessWidget {
+/// One-line semantic-search status under the model cards. When the
+/// embedder is not yet installed, surfaces an Install button that opens
+/// a token-entry dialog and triggers [EmbedderService.install].
+class _EmbedderStatusRow extends StatefulWidget {
   const _EmbedderStatusRow();
+
+  @override
+  State<_EmbedderStatusRow> createState() => _EmbedderStatusRowState();
+}
+
+class _EmbedderStatusRowState extends State<_EmbedderStatusRow> {
+  final ApiKeyStore _apiKeyStore = ApiKeyStore();
+  bool _busy = false;
+  double? _progress;
+
+  Future<void> _showInstallDialog() async {
+    final l10n = AppLocalizations.of(context);
+    final existing = await _apiKeyStore.getHfToken();
+    if (!mounted) return;
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => _EmbedderTokenDialog(
+        existingToken: existing,
+        l10n: l10n,
+      ),
+    );
+    if (!mounted) return;
+    if (result == null || result.trim().isEmpty) return;
+    await _apiKeyStore.saveHfToken(result);
+    await _runInstall(result);
+  }
+
+  Future<void> _runInstall(String hfToken) async {
+    setState(() {
+      _busy = true;
+      _progress = 0.0;
+    });
+    final l10n = AppLocalizations.of(context);
+    final messenger = scaffoldMessengerKey.currentState;
+    try {
+      await embedderService.install(
+        hfToken: hfToken,
+        onModelProgress: (p) {
+          if (!mounted) return;
+          setState(() => _progress = p / 100.0);
+        },
+        onTokenizerProgress: (p) {
+          if (!mounted) return;
+          setState(() => _progress = p / 100.0);
+        },
+      );
+      if (!mounted) return;
+      messenger?.showSnackBar(
+        SnackBar(content: Text(l10n.embedderInstallSuccess)),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      messenger?.showSnackBar(
+        SnackBar(content: Text(l10n.embedderInstallFailed('$e'))),
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -161,34 +220,142 @@ class _EmbedderStatusRow extends StatelessWidget {
     return ListenableBuilder(
       listenable: embedderService,
       builder: (context, _) {
-        final active = embedderService.status == EmbedderStatus.ready;
+        final status = embedderService.status;
+        final active = status == EmbedderStatus.ready;
+        final showInstallCta = !active && !_busy;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                active
-                    ? Icons.travel_explore_rounded
-                    : Icons.search_rounded,
-                size: 20,
-                color: active ? ShongjogTheme.success : cs.onSurfaceVariant,
+              Row(
+                children: [
+                  Icon(
+                    active
+                        ? Icons.travel_explore_rounded
+                        : Icons.search_rounded,
+                    size: 20,
+                    color: active ? ShongjogTheme.success : cs.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      '${l10n.modelSemanticTitle} — ${active ? l10n.modelSemanticActive : l10n.modelSemanticAbsent}',
+                      style: TextStyle(
+                        fontFamily: ShongjogTheme.fontFamily,
+                        fontFamilyFallback: ShongjogTheme.fontFallback,
+                        color: cs.onSurfaceVariant,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  if (showInstallCta) ...[
+                    const SizedBox(width: 8),
+                    TextButton.icon(
+                      key: const ValueKey('embedder_install_button'),
+                      onPressed: _showInstallDialog,
+                      icon: const Icon(Icons.download_rounded, size: 18),
+                      label: Text(l10n.embedderInstallButton),
+                    ),
+                  ],
+                ],
               ),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Text(
-                  '${l10n.modelSemanticTitle} — ${active ? l10n.modelSemanticActive : l10n.modelSemanticAbsent}',
-                  style: TextStyle(
-                    fontFamily: ShongjogTheme.fontFamily,
-                    fontFamilyFallback: ShongjogTheme.fontFallback,
-                    color: cs.onSurfaceVariant,
-                    fontSize: 14,
+              if (_busy)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8, left: 28),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: _progress,
+                          minHeight: 6,
+                          backgroundColor: cs.primary.withValues(alpha: 0.15),
+                          valueColor: AlwaysStoppedAnimation<Color>(cs.primary),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.embedderInstallProgress,
+                        style: TextStyle(
+                          color: cs.onSurfaceVariant,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
             ],
           ),
         );
       },
+    );
+  }
+}
+
+/// Dialog that asks for an HF access token. The token is kept locally
+/// in [ApiKeyStore] and used by [EmbedderService.install].
+class _EmbedderTokenDialog extends StatefulWidget {
+  final String? existingToken;
+  final AppLocalizations l10n;
+  const _EmbedderTokenDialog({this.existingToken, required this.l10n});
+
+  @override
+  State<_EmbedderTokenDialog> createState() => _EmbedderTokenDialogState();
+}
+
+class _EmbedderTokenDialogState extends State<_EmbedderTokenDialog> {
+  late final TextEditingController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = TextEditingController(text: widget.existingToken ?? '');
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = widget.l10n;
+    return AlertDialog(
+      title: Text(l10n.embedderInstallTitle),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.embedderInstallBody),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _ctrl,
+            obscureText: true,
+            autofocus: true,
+            decoration: InputDecoration(
+              labelText: l10n.embedderTokenLabel,
+              hintText: l10n.embedderTokenHint,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          style: ShongjogTheme.dialogAction(),
+          onPressed: () => Navigator.pop(context),
+          child: Text(l10n.embedderInstallCancel),
+        ),
+        FilledButton(
+          key: const ValueKey('embedder_install_submit'),
+          style: ShongjogTheme.dialogAction(),
+          onPressed: () => Navigator.pop(context, _ctrl.text),
+          child: Text(l10n.embedderInstallButton),
+        ),
+      ],
     );
   }
 }

@@ -1816,6 +1816,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get modelSemanticAbsent => 'Off — using keyword search';
 
   @override
+  String get embedderInstallButton => 'Install';
+
+  @override
+  String get embedderInstallTitle => 'Install semantic search';
+
+  @override
+  String get embedderInstallBody =>
+      'EmbeddingGemma\'s HuggingFace repo is license-gated. Paste an HF access token that has been granted access to google/embeddinggemma-300m to enable smart, multilingual retrieval.';
+
+  @override
+  String get embedderTokenLabel => 'HF access token';
+
+  @override
+  String get embedderTokenHint => 'hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+
+  @override
+  String get embedderInstallCancel => 'Cancel';
+
+  @override
+  String get embedderInstallProgress => 'Downloading embedder model…';
+
+  @override
+  String get embedderInstallSuccess => 'Semantic search is now active.';
+
+  @override
+  String embedderInstallFailed(String error) {
+    return 'Install failed: $error';
+  }
+
+  @override
   String get modelBadgeExpected => 'Expected';
 
   @override
