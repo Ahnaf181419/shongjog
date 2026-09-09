@@ -4,6 +4,7 @@ import 'package:shongjog/features/intelligence/situation_summary_screen.dart';
 import 'test_app.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   // Audit F4 (2026-09-08): Situation Summary used to summarize 3 hardcoded
   // sample queries ("নিকটস্থ সাইক্লোন শেল্টার" / "বন্যার পানি..." / "SOS: আটকা
   // পড়েছি") with a comment admitting "a richer build would pull from

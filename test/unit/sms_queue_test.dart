@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/safe_beacon/sms_queue.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   test('enqueue increases pending', () {
     final q = SmsQueue((b, p) async => true);
     expect(q.pending, 0);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   // Independent-review suggestion 5 (2026-09-09): the F7 dedup guard
   // is keyed only by caller id, so a redial from the same caller
   // (call dropped, immediate redial) is also suppressed until the

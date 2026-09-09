@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/intelligence/situation_summary_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   final t = DateTime(2026, 7, 25);
 
   group('buildSituationPrompt', () {

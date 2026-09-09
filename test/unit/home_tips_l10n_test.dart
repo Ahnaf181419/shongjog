@@ -8,6 +8,7 @@ import 'package:shongjog/l10n/app_localizations_en.dart';
 /// saw an English title above a Bangla paragraph — on the most-viewed card of
 /// the most-viewed screen. These pin that both locales carry a real string.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   final bn = AppLocalizationsBn();
   final en = AppLocalizationsEn();
 

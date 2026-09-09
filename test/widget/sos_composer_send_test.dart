@@ -6,6 +6,7 @@ import 'package:shongjog/features/emergency/sos_composer_screen.dart';
 import 'test_app.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   // Audit F2 (2026-09-08): the composer's big red "৯৯৯ কল" button was
   // `Navigator.pop(_smsPreview)` — nothing was sent anywhere, and the only
   // caller (triage) dropped the popped value. These tests pin the contract:

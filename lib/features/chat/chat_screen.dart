@@ -456,6 +456,7 @@ class _ChatScreenState extends State<ChatScreen> {
       }
 
       final answer = await _repo!.ask(
+        Localizations.localeOf(context),
         _lastQuery!,
         history: history,
         onPath: (path) {

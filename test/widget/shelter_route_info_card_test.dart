@@ -15,6 +15,7 @@ const _shelter = Shelter(
 );
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('ShelterRouteInfoCard', () {
     testWidgets('shows the Bangla shelter name + capacity in the header',
         (tester) async {

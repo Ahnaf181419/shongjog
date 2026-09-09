@@ -18,6 +18,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// equal height. Forgetting it on a new dialog is silent and looks like a
 /// layout accident rather than a missing style, hence a test.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   final actionsBlock = RegExp(r'actions:\s*\[(.*?)\n\s*\],', dotAll: true);
 
   /// A button constructor that opens an action-row child — but not the

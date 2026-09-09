@@ -8,6 +8,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:shongjog/features/shelter/osrm_route_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('OsrmRouteService', () {
     test('returns parsed route on 200 + code Ok', () async {
       // OSRM GeoJSON LineString: [longitude, latitude] per spec.

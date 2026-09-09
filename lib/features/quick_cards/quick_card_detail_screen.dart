@@ -5,7 +5,7 @@ import '../../app/theme.dart';
 import 'cards_data.dart';
 import '../../core/bangla_numerals.dart';
 
-/// Full-screen view of a single [QuickCard]. Pushed from the triage
+/// Full-screen view of a single [QuickCardEntry]. Pushed from the triage
 /// wizard's "View Card" CTA so the wizard's terminal screen can stay
 /// focused on the immediate act-now steps and the operator handoff,
 /// while the deep first-aid script is one tap away.
@@ -24,7 +24,7 @@ class QuickCardDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: ShongjogTheme.cardSurface(context),
       appBar: AppBar(
-        title: Text(card.title(context)),
+        title: Text(card.title),
         backgroundColor: cs.surfaceContainerHighest,
         foregroundColor: cs.onSurface,
         leading: IconButton(
@@ -33,7 +33,7 @@ class QuickCardDetailScreen extends StatelessWidget {
           onPressed: () => Navigator.of(context).maybePop(),
         ),
       ),
-      body: card.steps(context).isEmpty
+      body: card.steps.isEmpty
           ? Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -46,31 +46,28 @@ class QuickCardDetailScreen extends StatelessWidget {
             )
           : ListView.separated(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-              itemCount: card.steps(context).length,
+              itemCount: card.steps.length,
               separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (_, i) => _StepTile(
                 index: i + 1,
-                text: card.steps(context)[i],
+                text: card.steps[i],
                 accent: card.color,
               ),
             ),
     );
   }
 
-  static QuickCard _findCard(String id, AppLocalizations l10n) {
-    for (final c in kQuickCards) {
+  static QuickCardEntry _findCard(String id, AppLocalizations l10n) {
+    final cards = cachedQuickCards();
+    for (final c in cards) {
       if (c.id == id) return c;
     }
-    // Unknown id — render an empty fallback so callers never crash on
-    // a stale route arg.
-    return QuickCard(
+    return QuickCardEntry(
       id: '__missing__',
-      titleBn: l10n.cardDetailNotFound,
-      titleEn: l10n.cardDetailNotFound,
+      title: l10n.cardDetailNotFound,
+      steps: const [],
       icon: Icons.help_outline_rounded,
       color: Colors.grey,
-      stepsBn: [],
-      stepsEn: [],
     );
   }
 }
@@ -131,5 +128,4 @@ class _StepTile extends StatelessWidget {
       ),
     );
   }
-
 }

@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/core/haptics.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('HapticService', () {
     test('lightTap does not throw', () async {
       await HapticService.lightTap();

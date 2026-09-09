@@ -84,6 +84,7 @@ List<RankedShelter> _buildRankedWithDivisions() {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('ShelterSearchPanel', () {
     testWidgets('renders every ranked shelter by default (no filter)',
         (tester) async {

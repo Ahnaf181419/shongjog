@@ -4,6 +4,7 @@ import 'package:shongjog/features/triage/triage_tts.dart';
 import '../widget/fake_triage_tts.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('TriageTts', () {
     test('SilentTriageTts.speak is a no-op', () async {
       const tts = SilentTriageTts();

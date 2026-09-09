@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/chat/chat_store.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late Directory tempDir;
 
   setUp(() {

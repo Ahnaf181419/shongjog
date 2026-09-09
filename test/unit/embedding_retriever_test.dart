@@ -38,6 +38,7 @@ const _chunks = [
 ];
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('EmbeddingRetriever index build', () {
     test('ensureIndex embeds every chunk once and ranks by cosine', () async {
       final fake = _FakeEmbedder(Float32List.fromList([0, 1, 0])); // query ≈ snakebite

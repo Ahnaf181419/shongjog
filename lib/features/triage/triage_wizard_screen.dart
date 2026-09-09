@@ -517,7 +517,7 @@ class _InlineSteps extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
     final card = _findCard(cardId, l10n);
-    final steps = card.steps(context).take(3).toList();
+    final steps = card.steps.take(3).toList();
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
@@ -580,18 +580,17 @@ class _InlineSteps extends StatelessWidget {
     );
   }
 
-  static QuickCard _findCard(String id, AppLocalizations l10n) {
-    for (final c in kQuickCards) {
+  static QuickCardEntry _findCard(String id, AppLocalizations l10n) {
+    final cards = cachedQuickCards();
+    for (final c in cards) {
       if (c.id == id) return c;
     }
-    return QuickCard(
+    return QuickCardEntry(
       id: '__missing__',
-      titleBn: l10n.triageCardNotFound,
-      titleEn: l10n.triageCardNotFound,
+      title: l10n.triageCardNotFound,
       icon: Icons.help_outline_rounded,
       color: Colors.grey,
-      stepsBn: const [],
-      stepsEn: const [],
+      steps: const [],
     );
   }
 }

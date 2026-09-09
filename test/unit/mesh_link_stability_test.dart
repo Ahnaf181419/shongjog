@@ -15,6 +15,7 @@ import 'package:shongjog/features/mesh_comm/mesh_service.dart';
 /// These tests pin its semantics, because every call site guards on it and a
 /// wrong answer here silently restores the flapping.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   // MeshService is a global singleton, so reset the seeded map between
   // tests — a leaked peer from one case would silently satisfy the next.
   tearDown(() => meshService.debugSeedPeers(const []));

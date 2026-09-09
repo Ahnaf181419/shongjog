@@ -6,6 +6,7 @@ import 'package:shongjog/features/planner/kit_screen.dart';
 import 'test_app.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('KitScreen', () {
     setUp(() {
       SharedPreferences.setMockInitialValues({});

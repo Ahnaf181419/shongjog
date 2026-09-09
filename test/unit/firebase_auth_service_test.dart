@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/core/firebase_auth_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('FirebaseAuthService', () {
     test('ensureSignedIn signs in when no user is present', () async {
       final auth = MockFirebaseAuth(signedIn: false);

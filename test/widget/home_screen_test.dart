@@ -10,6 +10,7 @@ import 'package:shongjog/l10n/app_localizations.dart';
 
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   Widget wrapHome({ValueChanged<int>? onNavigateToTab}) {
     return MaterialApp(
       locale: const Locale('bn'),

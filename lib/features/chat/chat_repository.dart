@@ -8,6 +8,7 @@ import '../../rag/rumour_checker.dart';
 import '../../rag/types.dart';
 import '../../rag/urgency_classifier.dart';
 import '../cloud_ai/cloud_ai_service.dart';
+import '../rag/persona_loader.dart';
 import '../shelter/shelter_intent_detector.dart';
 import '../shelter/shelter_model.dart';
 import '../shelter/shelter_tool_dispatcher.dart';
@@ -71,7 +72,7 @@ class ChatRepository {
   /// to the UI. It gracefully falls back through the tiers.
   ///
   /// [history] is the prior conversation turns (oldest first).
-  Future<String> ask(
+  Future<String> ask(Locale? locale,
     String userQuery, {
     List<ChatTurn> history = const [],
     void Function(GenerationPath path)? onPath,
@@ -101,6 +102,11 @@ class ChatRepository {
 
     final hits = await _retrieve(userQuery);
 
+    // Persona bundle — load once per `ask()`. Source of truth for the
+    // chat-tier chain's prompt text lives in assets/prompts/persona.json
+    // via lib/features/rag/persona_loader.dart.
+    final persona = await loadPersona(locale?.languageCode);
+
     // TIER 1: Cloud AI — primary when `cloudAi` is configured and the device
     // is online. We check `isOnline` here (not just key availability) so a
     // phone in airplane mode skips Cloud entirely and goes straight to
@@ -108,7 +114,7 @@ class ChatRepository {
     if (cloudAi != null && await cloudAi!.isOnline) {
       debugPrint('[ChatRepo/Tier1] cloud path entered for q="${userQuery.substring(0, userQuery.length.clamp(0, 40))}…"');
       try {
-        final userMessage = buildUserMessage(query: userQuery, hits: hits);
+        final userMessage = buildUserMessage(query: userQuery, hits: hits, persona: persona);
         final answer = await cloudAi!.generateWithHistory(
           userMessage: userMessage,
           history: history,
@@ -132,7 +138,7 @@ class ChatRepository {
     final isRumour = isRumourQuery(userQuery);
     final prompt = isRumour
         ? buildRumourCheckPrompt(query: userQuery, hits: hits, history: history)
-        : buildPrompt(query: userQuery, hits: hits, history: history);
+        : buildPrompt(query: userQuery, hits: hits, history: history, persona: persona);
 
     // Adaptive thinking mode — classify urgency before generation.
     // Critical emergencies get thinking OFF (reflex, max speed); complex

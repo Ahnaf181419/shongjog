@@ -5,6 +5,7 @@ import 'package:shongjog/features/planner/planner_screen.dart';
 import 'test_app.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('PlannerScreen family-member stepper', () {
     // Regression test for the reported bug: tapping the +/- buttons
     // mutated the underlying TextEditingController but nothing rebuilt

@@ -4,6 +4,7 @@ import 'package:shongjog/features/shelter/nearest_shelter.dart';
 import 'package:shongjog/features/shelter/shelter_tool_result_formatter.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('ShelterToolResultFormatter.toBanglaMessage', () {
     test('empty list returns a helpful fallback', () {
       final msg = ShelterToolResultFormatter.toBanglaMessage(const []);

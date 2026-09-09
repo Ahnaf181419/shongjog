@@ -13,6 +13,7 @@ import 'package:shongjog/features/mesh_comm/mesh_service.dart';
 /// makes that impossible: the extension is the only thing that survives, and
 /// it survives only if it is on an allowlist.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('safeExtensionFor rejects path control', () {
     const attacks = <String>[
       'model_e2b.litertlm',

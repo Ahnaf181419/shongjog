@@ -16,6 +16,7 @@ import 'fake_url_launcher.dart';
 /// production code path (canLaunchUrl + launchUrl) actually fires for
 /// the maps.google.com URI produced by SafetyReport.mapsLink.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   test('mapsLink produces the contract URI the View on Map button uses',
       () {
     final report = SafetyReport(

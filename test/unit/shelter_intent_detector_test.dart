@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/shelter/shelter_intent_detector.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('ShelterIntentDetector.isShelterQuery', () {
     test('true for a direct Bangla shelter request', () {
       expect(

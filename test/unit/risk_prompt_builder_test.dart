@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/planner/risk_prompt_builder.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('RiskPromptBuilder.buildPrompt', () {
     test('null for all-empty inputs', () {
       expect(RiskPromptBuilder.buildPrompt(RiskInputs.empty), isNull);

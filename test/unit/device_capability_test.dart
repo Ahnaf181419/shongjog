@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/core/device_capability.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('DeviceCapability.getRecommendations', () {
     test('covers every ModelVariant so on-disk lookups stay total', () async {
       final recs = await DeviceCapability.getRecommendations();

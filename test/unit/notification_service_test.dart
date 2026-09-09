@@ -3,6 +3,7 @@ import 'package:shongjog/features/intelligence/notification_service.dart';
 import 'package:shongjog/features/intelligence/user_profile.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('NotificationService.generateInsights', () {
     test('empty profile yields exactly the default insight', () {
       final insights = NotificationService.generateInsights(UserProfile.empty());

@@ -9,6 +9,7 @@ import 'package:shongjog/features/shelter/shelter_model.dart';
 import 'package:shongjog/features/shelter/shelter_repository.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   const sampleA = Shelter(
     name: 'A',
     nameBn: 'এ',

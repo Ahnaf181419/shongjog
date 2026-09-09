@@ -5,6 +5,7 @@ import 'package:shongjog/features/emergency/directory_screen.dart';
 import 'test_app.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() {
     DirectoryLoader.debugClearCache();
     DirectoryLoader.debugSetEntries(const [

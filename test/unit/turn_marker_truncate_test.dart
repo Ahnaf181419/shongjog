@@ -17,6 +17,7 @@ import 'package:shongjog/features/chat/chat_repository.dart';
 /// (ChatRepository.truncateAtTurnMarker) — not a private copy — so
 /// the test breaks if the production code regresses.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('truncateAtTurnMarker (production code)', () {
     test('keeps a clean short answer intact', () {
       const raw = 'ORS খান। প্রচুর পানি পান করুন।';

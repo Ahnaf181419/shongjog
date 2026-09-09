@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/environment/air_quality_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('AirQualityService', () {
     test('returns null when offline', () async {
       final result =

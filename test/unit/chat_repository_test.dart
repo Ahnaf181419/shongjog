@@ -58,6 +58,7 @@ class _FakeLlm implements LocalLlm {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late KnowledgeBase testKb;
 
   setUp(() {
@@ -93,20 +94,20 @@ void main() {
   group('ChatRepository fallback path (no model, no cloud)', () {
     test('returns retrieved chunk text when no model available', () async {
       final repo = ChatRepository(kb: testKb);
-      final answer = await repo.ask('ORS কিভাবে বানাবো');
+      final answer = await repo.ask(null, 'ORS কিভাবে বানাবো');
       expect(answer, contains('ORS'));
       expect(answer, contains('পানি'));
     });
 
     test('returns snakebite text for snake query', () async {
       final repo = ChatRepository(kb: testKb);
-      final answer = await repo.ask('সাপে কামড়েছে');
+      final answer = await repo.ask(null, 'সাপে কামড়েছে');
       expect(answer, contains('সাপ'));
     });
 
     test('returns water text for water query', () async {
       final repo = ChatRepository(kb: testKb);
-      final answer = await repo.ask('বিশুদ্ধ পানি কিভাবে বানাবো');
+      final answer = await repo.ask(null, 'বিশুদ্ধ পানি কিভাবে বানাবো');
       expect(answer, contains('পানি'));
       expect(answer, contains('ফুটিয়ে'));
     });
@@ -114,7 +115,7 @@ void main() {
     test('returns "no answer" message when retrieval finds nothing',
         () async {
       final repo = ChatRepository(kb: testKb);
-      final answer = await repo.ask('আবহাওয়া কেমন');
+      final answer = await repo.ask(null, 'আবহাওয়া কেমন');
       expect(answer, contains('৯৯৯'));
     });
   });
@@ -126,7 +127,7 @@ void main() {
         keywordRetriever: KeywordRetriever(chunks: []),
       );
       final repo = ChatRepository(kb: emptyKb);
-      final answer = await repo.ask('কিছু জিজ্ঞাসা');
+      final answer = await repo.ask(null, 'কিছু জিজ্ঞাসা');
       expect(answer, contains('৯৯৯'));
     });
   });
@@ -161,7 +162,7 @@ void main() {
         ),
       );
       final answer = await repo.ask(
-        'ORS কিভাবে বানাবো',
+        null, 'ORS কিভাবে বানাবো',
         onPath: paths.add,
       );
       expect(answer, 'device answer');
@@ -181,7 +182,7 @@ void main() {
           generateError: StateError('Gemma runtime died'),
         ),
       );
-      final answer = await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+      final answer = await repo.ask(null, 'ORS কিভাবে বানাবো', onPath: paths.add);
       // Falls through to corpus — the ORS chunk text.
       expect(answer, contains('ORS'));
       expect(paths, [GenerationPath.corpus]);
@@ -214,7 +215,7 @@ void main() {
               '<|channel|>thought\n Process<channel|>',
         ),
       );
-      final answer = await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+      final answer = await repo.ask(null, 'ORS কিভাবে বানাবো', onPath: paths.add);
       expect(answer.trim(), isNotEmpty,
           reason: 'a blank bubble must never reach the user');
       expect(answer, contains('ORS'));
@@ -234,7 +235,7 @@ void main() {
               'ORS বানাতে ১ লিটার পানি নিন।\n<|channel|>thought leak',
         ),
       );
-      final answer = await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+      final answer = await repo.ask(null, 'ORS কিভাবে বানাবো', onPath: paths.add);
       expect(answer, 'ORS বানাতে ১ লিটার পানি নিন।');
       expect(paths, [GenerationPath.device]);
     });
@@ -253,6 +254,7 @@ void main() {
         ),
       );
       await repo.ask(
+        null,
         'আবার বলো',
         history: const [
           ChatTurn(text: 'তোমার নাম কি', isUser: true),
@@ -288,7 +290,7 @@ void main() {
           onGenerate: (p) => capturedPrompt = p,
         ),
       );
-      final answer = await repo.ask('ডায়রিয়ায় কী করবো');
+      final answer = await repo.ask(null, 'ডায়রিয়ায় কী করবো');
       expect(answer, 'semantic answer');
       // The ORS chunk (nearest to the fake query vector) is the context.
       expect(capturedPrompt, contains('[Source: WHO] ORS তৈরির সহজ উপায়'));
@@ -303,7 +305,7 @@ void main() {
       final repo = ChatRepository(kb: testKb, embedding: embedding);
       // No model: with the embedder dead, the keyword path must still
       // retrieve the ORS chunk and answer from the corpus tier.
-      final answer = await repo.ask('ORS কিভাবে বানাবো');
+      final answer = await repo.ask(null, 'ORS কিভাবে বানাবো');
       expect(answer, contains('ORS'));
     });
 
@@ -317,7 +319,7 @@ void main() {
         floor: 1.2,
       );
       final repo = ChatRepository(kb: testKb, embedding: embedding);
-      final answer = await repo.ask('ORS কিভাবে বানাবো');
+      final answer = await repo.ask(null, 'ORS কিভাবে বানাবো');
       expect(answer, contains('ORS'));
     });
   });
@@ -356,7 +358,7 @@ void main() {
         ),
       );
       final answer =
-          await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+          await repo.ask(null, 'ORS কিভাবে বানাবো', onPath: paths.add);
       expect(answer, 'cloud answer');
       expect(paths, [GenerationPath.cloud]);
       expect(cloud.requestCount(), 1,
@@ -378,7 +380,7 @@ void main() {
         ),
       );
       final answer =
-          await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+          await repo.ask(null, 'ORS কিভাবে বানাবো', onPath: paths.add);
       expect(answer, 'device answer');
       expect(paths, [GenerationPath.device]);
     });
@@ -394,7 +396,7 @@ void main() {
         // No model — Tier 2 skipped.
       );
       final answer =
-          await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+          await repo.ask(null, 'ORS কিভাবে বানাবো', onPath: paths.add);
       expect(answer, contains('ORS'));
       expect(paths, [GenerationPath.corpus]);
     });
@@ -415,7 +417,7 @@ void main() {
         ),
       );
       final answer =
-          await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+          await repo.ask(null, 'ORS কিভাবে বানাবো', onPath: paths.add);
       expect(answer, 'device answer');
       expect(paths, [GenerationPath.device]);
       expect(cloud.requestCount(), 0,
@@ -434,7 +436,7 @@ void main() {
         // No model.
       );
       final answer =
-          await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+          await repo.ask(null, 'ORS কিভাবে বানাবো', onPath: paths.add);
       expect(answer, contains('ORS'));
       expect(paths, [GenerationPath.corpus]);
       expect(cloud.requestCount(), 0);
@@ -453,7 +455,7 @@ void main() {
         ),
       );
       final answer =
-          await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+          await repo.ask(null, 'ORS কিভাবে বানাবো', onPath: paths.add);
       expect(answer, 'device answer');
       expect(paths, [GenerationPath.device]);
     });
@@ -465,7 +467,7 @@ void main() {
       final paths = <GenerationPath>[];
       final repo = ChatRepository(kb: testKb);
       final answer =
-          await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+          await repo.ask(null, 'ORS কিভাবে বানাবো', onPath: paths.add);
       expect(answer, contains('ORS'));
       expect(paths, [GenerationPath.corpus]);
     });

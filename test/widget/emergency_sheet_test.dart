@@ -4,6 +4,7 @@ import 'package:shongjog/features/emergency/emergency_sheet.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   Widget wrapEmergency() {
     return MaterialApp(
       locale: const Locale('bn'),

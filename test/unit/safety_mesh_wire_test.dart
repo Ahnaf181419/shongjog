@@ -9,6 +9,7 @@ import 'package:shongjog/features/safe_beacon/safety_status_service.dart';
 /// Every receiver's `jsonDecode` threw, the catch swallowed it, and no report
 /// ever landed. These tests pin both halves of the wire contract.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   SafetyReport sample({String id = 'safe-1', String note = ''}) => SafetyReport(
         id: id,
         userId: 'u-2',

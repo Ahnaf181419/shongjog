@@ -3,6 +3,7 @@ import 'package:shongjog/rag/rumour_checker.dart';
 import 'package:shongjog/rag/types.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('isRumourQuery', () {
     test('"গুজব:" prefix → true', () {
       expect(isRumourQuery('গুজব: সাপে কামড়ালে কেটে ফেলা উচিত'), isTrue);

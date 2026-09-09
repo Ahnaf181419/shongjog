@@ -14,6 +14,7 @@ import 'package:shongjog/features/voice/stt_provider.dart';
 /// Engines also report ids inconsistently (`bn_BD`, `bn-BD`, bare `bn`), so
 /// naive string equality misses installed Bangla packs.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('resolveLocale', () {
     test('takes an exact match when the pack is installed', () {
       expect(

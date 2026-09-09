@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/safe_beacon/safe_beacon_payload.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('SafeBeaconPayload', () {
     test('encodes to JSON with state=safe by default', () {
       final p = SafeBeaconPayload(

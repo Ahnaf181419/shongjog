@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shongjog/core/admin_broadcast_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   // Audit F5 (2026-09-08): the screen's per-instance `_hasMarkedRead` flag
   // was dead code (initState runs once per State, so the flag flipped
   // back to false on every push). The static guard fix lives on the

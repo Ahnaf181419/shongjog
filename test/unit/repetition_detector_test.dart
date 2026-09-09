@@ -7,6 +7,7 @@ import 'package:shongjog/rag/repetition_detector.dart';
 /// chat — "long random same texts". Each test feeds a realistic
 /// token stream and asserts the detector fires at the right point.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('RepetitionDetector', () {
     test('does NOT fire on a clean, varied Bangla answer', () {
       final d = RepetitionDetector();

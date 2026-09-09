@@ -18,6 +18,7 @@ import 'package:shongjog/core/pending_chat_prompt.dart';
 /// `PendingChatPrompt`'s notifier must receive every prompt that
 /// arrives via `requestPrompt(...)` for the lifetime of the widget.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   testWidgets(
     'pending prompt arrives at a widget that subscribes after build',
     (tester) async {

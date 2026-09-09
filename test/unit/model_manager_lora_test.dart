@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/core/model_manager.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('ModelManager LoRA + thinking mode', () {
     test('setLoraAdapter stores the path', () {
       final mgr = ModelManager();

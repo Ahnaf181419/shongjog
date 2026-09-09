@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/planner/risk_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('RiskService.extractScore', () {
     const svc = RiskService();
 

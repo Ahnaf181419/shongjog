@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/emergency/sos_sms_template.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('sosSmsBody', () {
     test('includes emergency cue, name, phone, and coords', () {
       final s = sosSmsBody(

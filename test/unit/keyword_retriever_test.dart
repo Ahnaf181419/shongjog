@@ -3,6 +3,7 @@ import 'package:shongjog/rag/keyword_retriever.dart';
 import 'package:shongjog/rag/types.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late List<Chunk> chunks;
 
   setUp(() {

@@ -9,6 +9,7 @@ import 'package:shongjog/features/cloud_ai/cloud_ai_service.dart';
 /// actual answer, glued onto the tail of the final bullet with no
 /// separator. These fixtures pin that exact shape.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('CloudAiService.supportsThinkingConfig', () {
     test('is false for Gemma — the API 400s the whole request otherwise', () {
       expect(CloudAiService.supportsThinkingConfig('gemma-4-31b-it'), isFalse);

@@ -8,6 +8,7 @@ import 'package:shongjog/features/weather/weather_service.dart';
 /// feed a hand-crafted JSON that mirrors Open-Meteo's actual shape so
 /// regressions in either URL contract or parser are caught here.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('WeatherSnapshot.fromOpenMeteo', () {
     test('parses 4-day forecast into daily list', () {
       final json = <String, dynamic>{

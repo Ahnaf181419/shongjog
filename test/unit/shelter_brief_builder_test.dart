@@ -5,6 +5,7 @@ import 'package:shongjog/features/shelter/shelter_brief_builder.dart';
 import 'package:shongjog/features/hazards/eonet_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   final shelter = RankedShelter(
     const Shelter(
         name: 'Test',

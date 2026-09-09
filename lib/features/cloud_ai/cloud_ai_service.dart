@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../../core/connectivity_provider.dart';
-import '../../rag/prompt_builder.dart';
+import '../rag/persona_loader.dart';
 import '../../rag/types.dart';
 import 'api_key_ring.dart';
 
@@ -93,6 +93,9 @@ class CloudAiService {
       throw CloudAiUnavailableException('Device is offline');
     }
 
+    final persona = await loadPersona(null);
+    final systemInstruction = persona.systemInstruction;
+
     final contents = <Map<String, Object?>>[];
 
     for (final turn in history) {
@@ -119,7 +122,7 @@ class CloudAiService {
     //    full lap of four keys costs far less than one 10s timeout.
     while (true) {
       try {
-        final text = await _generate(primaryModelId, contents);
+        final text = await _generate(primaryModelId, contents, systemInstruction);
         if (text != null) return text;
         break; // reached the model but got nothing usable — try the fallback
       } catch (e) {
@@ -139,7 +142,7 @@ class CloudAiService {
           debugPrint('All keys rate limited, retrying in 2s...');
           await Future.delayed(const Duration(seconds: 2));
           try {
-            final retry = await _generate(primaryModelId, contents);
+            final retry = await _generate(primaryModelId, contents, systemInstruction);
             if (retry != null) return retry;
           } catch (retryError) {
             debugPrint('Retry failed: $retryError');
@@ -151,7 +154,7 @@ class CloudAiService {
 
     // 2. Auto-switch to fallback model, on whichever key we ended up holding.
     try {
-      final text = await _generate(fallbackModelId, contents);
+      final text = await _generate(fallbackModelId, contents, systemInstruction);
       if (text != null) return text;
       debugPrint('Fallback ($fallbackModelId) returned nothing usable');
     } catch (e) {
@@ -298,12 +301,13 @@ class CloudAiService {
   Future<String?> _generate(
     String modelId,
     List<Map<String, Object?>> contents,
+    String systemInstruction,
   ) async {
     final uri = Uri.parse('$_baseUrl/models/$modelId:generateContent');
     final body = jsonEncode({
       'contents': contents,
       'systemInstruction': {
-        'parts': [{'text': kSystemInstruction}],
+        'parts': [{'text': systemInstruction}],
       },
       'generationConfig': {
         'temperature': 0.7,
@@ -353,8 +357,10 @@ class CloudAiService {
     List<Map<String, Object?>> contents, [
     String fallback = 'কোনো উত্তর পাওয়া যায়নি।',
   ]) async {
+    final persona = await loadPersona(null);
+    final systemInstruction = persona.systemInstruction;
     try {
-      final text = await _generate(modelId, contents);
+      final text = await _generate(modelId, contents, systemInstruction);
       return text ?? fallback;
     } catch (e) {
       debugPrint('Last-resort model ($modelId) also failed: $e');

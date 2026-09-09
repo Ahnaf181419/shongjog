@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shongjog/features/quick_cards/cards_data.dart';
 import 'package:shongjog/features/quick_cards/quick_cards_screen.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
 
 void main() {
-  testWidgets('renders all quick cards', (tester) async {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    final cards = await loadQuickCards('bn');
+    debugSetCardsForTest(cards);
+  });
+
+  Future<void> boot(WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: const Locale('bn'),
-      home: QuickCardsScreen(
-        onRequestAiChat: (_) {},
-      ),
+      home: QuickCardsScreen(onRequestAiChat: (_) {}),
     ));
+  }
 
+  testWidgets('renders all quick cards', (tester) async {
+    await boot(tester);
     expect(find.byType(ExpansionTile), findsWidgets);
     expect(find.text('ORS তৈরি'), findsOneWidget);
     expect(find.text('পানি শুদ্ধ করা'), findsOneWidget);
@@ -21,31 +30,14 @@ void main() {
   });
 
   testWidgets('expanding a card shows steps', (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      locale: const Locale('bn'),
-      home: QuickCardsScreen(
-        onRequestAiChat: (_) {},
-      ),
-    ));
-
+    await boot(tester);
     await tester.tap(find.text('ORS তৈরি'));
-    await tester.pumpAndSettle();
-
+    await tester.pump(const Duration(milliseconds: 300));
     expect(find.textContaining('পানি'), findsWidgets);
   });
 
   testWidgets('has app bar with bangla title', (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      locale: const Locale('bn'),
-      home: QuickCardsScreen(
-        onRequestAiChat: (_) {},
-      ),
-    ));
-
+    await boot(tester);
     expect(find.text('জরুরি সহায়তা কার্ড'), findsOneWidget);
   });
 
@@ -62,18 +54,16 @@ void main() {
       ),
     ));
 
-    // Expand the snakebite card.
     await tester.tap(find.text('সাপের কামড়'));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 300));
 
-    // AI pill button label is visible inside the expanded card.
     expect(find.text('এআই-তে জিজ্ঞাসা করুন'), findsOneWidget);
 
     final chip = find.byType(ActionChip).first;
     await tester.ensureVisible(chip);
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 200));
     await tester.tap(chip, warnIfMissed: false);
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     expect(capturedPrompt, isNotNull);
     expect(capturedPrompt!.startsWith('সাপের কামড়। '), isTrue,

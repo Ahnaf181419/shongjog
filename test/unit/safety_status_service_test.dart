@@ -5,6 +5,7 @@ import 'package:shongjog/core/firebase_auth_service.dart';
 import 'package:shongjog/features/safe_beacon/safety_status_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late SafetyStatusService svc;
 
   setUp(() {

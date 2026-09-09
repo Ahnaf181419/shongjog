@@ -8,6 +8,7 @@ import 'package:shongjog/features/mesh_comm/sos_relay.dart';
 import 'package:shongjog/features/mesh_comm/sos_relay_listener.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   String encodeSos({String id = 'a', int hops = 0, int hopCount = 0}) {
     final p = SosPayload(
       id: id,

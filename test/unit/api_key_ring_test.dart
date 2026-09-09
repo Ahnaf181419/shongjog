@@ -3,6 +3,7 @@ import 'package:shongjog/features/cloud_ai/api_key_ring.dart';
 import 'package:shongjog/features/cloud_ai/cloud_ai_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('ApiKeyRing', () {
     test('starts on the first key', () {
       final ring = ApiKeyRing(keys: ['a', 'b', 'c', 'd']);

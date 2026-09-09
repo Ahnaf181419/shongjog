@@ -42,6 +42,7 @@ class _FakeGemmaEmbeddingModel implements EmbeddingModel {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('EmbedderImpl.normalize', () {
     test('scales a vector to unit length', () {
       final v = Float32List.fromList([3.0, 4.0]);

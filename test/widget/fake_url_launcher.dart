@@ -52,6 +52,7 @@ FakeUrlLauncher installFakeUrlLauncher() {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   // Guard: the fake itself must record launches. Keeps this helper honest
   // if url_launcher's platform interface changes shape.
   test('FakeUrlLauncher records launched urls', () async {

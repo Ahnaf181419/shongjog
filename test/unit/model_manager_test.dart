@@ -8,6 +8,7 @@ import 'package:shongjog/core/model_manager.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('ModelState enum', () {
     test('has all expected states', () {
       expect(ModelState.values, contains(ModelState.notDownloaded));

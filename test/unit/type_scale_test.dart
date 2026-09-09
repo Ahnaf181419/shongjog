@@ -16,6 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// costs more here than it would in an English-only app. And Shongjog is read
 /// outdoors, at night, by people in an emergency.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   const floor = 14;
 
   /// Sizes below [floor] that are deliberate, with the reason they are exempt.

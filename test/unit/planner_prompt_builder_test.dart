@@ -3,6 +3,7 @@ import 'package:shongjog/features/planner/family_profile.dart';
 import 'package:shongjog/features/planner/planner_prompt_builder.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('PlannerPromptBuilder.buildPlan', () {
     test('returns null for an empty profile', () {
       expect(PlannerPromptBuilder.buildPlan(FamilyProfile.empty), isNull);

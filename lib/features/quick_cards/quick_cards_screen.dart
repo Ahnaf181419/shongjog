@@ -5,9 +5,12 @@ import '../../app/theme.dart';
 import 'cards_data.dart';
 import '../../core/bangla_numerals.dart';
 
-/// Quick cards screen — 8 static Bangla emergency cards.
-/// Works with no model loaded (safety net, docs/prd.md M4).
-/// Per design.md §7.2: ExpansionTile, numbered Bangla steps, 12dp spacing.
+/// Quick cards screen — 25 static emergency cards (bn+en).
+/// Source of truth for card copy: assets/data/cards.json (see Phase 2.1
+/// of docs/superpowers/plans/2026-09-09-text-consolidation.md).
+///
+/// Cards are read synchronously from [cachedQuickCards], which is pre-warmed
+/// in `main.dart` via `ensureQuickCardsLoaded`.
 class QuickCardsScreen extends StatefulWidget {
   final void Function(String prompt) onRequestAiChat;
 
@@ -27,19 +30,15 @@ class _QuickCardsScreenState extends State<QuickCardsScreen> {
     super.dispose();
   }
 
-  List<QuickCard> get _filteredCards {
-    if (_query.isEmpty) return kQuickCards;
+  List<QuickCardEntry> get _filteredCards {
+    final cards = cachedQuickCards();
+    if (_query.isEmpty) return cards;
     final q = _query.toLowerCase();
-    // Search matches the CURRENT locale's text (bn or en) — the Cards
-    // tab is bilingual since 2026-09-09.
-    final isBn = AppLocalizations.of(context).localeName.startsWith('bn');
-    return kQuickCards.where((card) {
-      final titleMatch =
-          (isBn ? card.titleBn : card.titleEn).toLowerCase().contains(q);
-      final stepsMatch = (isBn ? card.stepsBn : card.stepsEn)
-          .any((s) => s.toLowerCase().contains(q));
-      return titleMatch || stepsMatch;
-    }).toList();
+    return cards
+        .where((c) =>
+            c.title.toLowerCase().contains(q) ||
+            c.steps.any((s) => s.toLowerCase().contains(q)))
+        .toList();
   }
 
   @override
@@ -107,13 +106,14 @@ class _QuickCardsScreenState extends State<QuickCardsScreen> {
 }
 
 class _CardTile extends StatelessWidget {
-  final QuickCard card;
+  final QuickCardEntry card;
   final void Function(String prompt) onRequestAiChat;
 
   const _CardTile({required this.card, required this.onRequestAiChat});
 
   @override
   Widget build(BuildContext context) {
+    final localeName = AppLocalizations.of(context).localeName;
     return Container(
       decoration: BoxDecoration(
         color: ShongjogTheme.cardSurface(context),
@@ -136,7 +136,7 @@ class _CardTile extends StatelessWidget {
             child: Icon(card.icon, color: card.color, size: 24),
           ),
           title: Text(
-            card.title(context),
+            card.title,
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
@@ -147,7 +147,7 @@ class _CardTile extends StatelessWidget {
           collapsedIconColor: ShongjogTheme.bodySecondary(context),
           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           children: [
-            ...card.steps(context).asMap().entries.map((e) => Padding(
+            ...card.steps.asMap().entries.map((e) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 6),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,8 +162,7 @@ class _CardTile extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                          numberForLocale(e.key + 1,
-                              AppLocalizations.of(context).localeName),
+                            numberForLocale(e.key + 1, localeName),
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -197,11 +196,9 @@ class _CardTile extends StatelessWidget {
                 backgroundColor: card.color.withValues(alpha: 0.08),
                 side: BorderSide(color: card.color.withValues(alpha: 0.3)),
                 onPressed: () {
-                  // The AI handoff stays Bangla by design — the on-device
-                  // model is instructed to answer in Bangla (AGENTS.md).
                   final firstStep =
-                      card.stepsBn.isNotEmpty ? card.stepsBn.first : '';
-                  onRequestAiChat('${card.titleBn}। $firstStep');
+                      card.steps.isNotEmpty ? card.steps.first : '';
+                  onRequestAiChat('${card.title}। $firstStep');
                 },
               ),
             ),
@@ -210,5 +207,4 @@ class _CardTile extends StatelessWidget {
       ),
     );
   }
-
 }

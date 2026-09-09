@@ -9,6 +9,7 @@ import 'package:shongjog/features/voice/vosk_stt_provider.dart';
 /// When the upstream `vosk_flutter` plugin compileSdk issue is fixed,
 /// these tests will need to be updated to reflect the working state.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('VoskSttProvider (blocked — fallback path)', () {
     final provider = VoskSttProvider();
 

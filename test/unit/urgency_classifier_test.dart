@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/rag/urgency_classifier.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('UrgencyClassifier', () {
     group('critical (thinking OFF)', () {
       test('শ্বাসকষ্ট → critical', () {

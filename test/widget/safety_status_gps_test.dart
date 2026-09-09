@@ -9,6 +9,7 @@ import 'package:shongjog/features/safe_beacon/safety_status_screen.dart';
 import 'test_app.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   // Audit F3 (2026-09-08): SafeBeaconScreen was an orphan — its good parts
   // (GPS in the safe SMS, count-aware send feedback) are merged into the
   // routed SafetyStatusScreen. These tests pin the merged behavior:

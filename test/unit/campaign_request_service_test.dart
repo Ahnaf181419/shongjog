@@ -23,6 +23,7 @@ CampaignRequest _req(String id, {CampaignStatus status = CampaignStatus.pending}
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late Directory tempDir;
 
   setUp(() {

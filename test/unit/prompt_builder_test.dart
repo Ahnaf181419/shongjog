@@ -1,8 +1,19 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shongjog/core/text_loader.dart';
+import 'package:shongjog/features/rag/persona_loader.dart';
 import 'package:shongjog/rag/prompt_builder.dart';
 import 'package:shongjog/rag/types.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  late PersonaBundle bnPersona;
+
+  setUp(() async {
+    TextLoader.debugClearCache();
+    bnPersona = await loadPersona('bn');
+  });
+
   group('buildPrompt', () {
     test('assembles persona + rules + context + query for emergency topic', () {
       final hits = [
@@ -17,7 +28,7 @@ void main() {
           0.82,
         ),
       ];
-      final prompt = buildPrompt(query: 'বাচ্চার ডায়রিয়া', hits: hits);
+      final prompt = buildPrompt(query: 'বাচ্চার ডায়রিয়া', hits: hits, persona: bnPersona);
 
       // Persona present.
       expect(prompt, contains('You are Shongjog'));
@@ -32,7 +43,7 @@ void main() {
     });
 
     test('empty hits omits context section entirely', () {
-      final prompt = buildPrompt(query: 'তোমার নাম কি', hits: const []);
+      final prompt = buildPrompt(query: 'তোমার নাম কি', hits: const [], persona: bnPersona);
       expect(prompt, contains('তোমার নাম কি'));
       // No context section when hits are empty.
       expect(prompt, isNot(contains('Verified context')));
@@ -43,7 +54,7 @@ void main() {
 
     test('999 only appended for emergency queries', () {
       final prompt =
-          buildPrompt(query: 'বাচ্চার জ্বর কমাতে কি করবো', hits: const []);
+          buildPrompt(query: 'বাচ্চার জ্বর কমাতে কি করবো', hits: const [], persona: bnPersona);
       expect(prompt, contains('৯৯৯'));
     });
 
@@ -64,15 +75,15 @@ void main() {
           0.7,
         ),
       ];
-      final prompt = buildPrompt(query: 'q', hits: hits);
+      final prompt = buildPrompt(query: 'q', hits: hits, persona: bnPersona);
       expect(prompt, contains('[Source: WHO] AAA'));
       expect(prompt, contains('[Source: CDC] BBB'));
     });
 
     test('isEmergencyQuery detects Bangla and English keywords', () async {
-      expect(isEmergencyQuery('জরুরি সাহায্য দরকার'), isTrue);
-      expect(isEmergencyQuery('I have chest pain'), isTrue);
-      expect(isEmergencyQuery('what is the weather'), isFalse);
+      expect(isEmergencyQuery('জরুরি সাহায্য দরকার', bnPersona), isTrue);
+      expect(isEmergencyQuery('I have chest pain', bnPersona), isTrue);
+      expect(isEmergencyQuery('what is the weather', bnPersona), isFalse);
     });
 
     test('history turns appear between context and current query', () {
@@ -83,8 +94,7 @@ void main() {
       final prompt = buildPrompt(
         query: 'আবার বলো',
         hits: const [],
-        history: history,
-      );
+        history: history, persona: bnPersona);
       expect(prompt, contains('User: তোমার নাম কি'));
       expect(prompt, contains('Assistant: আমার নাম শঞ্জোগ'));
       final historyIdx = prompt.indexOf('User: তোমার নাম কি');
@@ -93,9 +103,9 @@ void main() {
     });
 
     test('empty history produces same prompt as before', () {
-      final without = buildPrompt(query: 'হাই', hits: const []);
+      final without = buildPrompt(query: 'হাই', hits: const [], persona: bnPersona);
       final withEmpty =
-          buildPrompt(query: 'হাই', hits: const [], history: const []);
+          buildPrompt(query: 'হাই', hits: const [], history: const [], persona: bnPersona);
       expect(without, equals(withEmpty));
     });
 
@@ -105,8 +115,7 @@ void main() {
       final prompt = buildPrompt(
         query: 'latest',
         hits: const [],
-        history: history,
-      );
+        history: history, persona: bnPersona);
       expect(prompt, isNot(contains('User: turn 0')));
       expect(prompt, isNot(contains('User: turn 1')));
       expect(prompt, contains('User: turn 8'));
