@@ -691,6 +691,18 @@
   "modelTierMedium": "মাঝারি",
   "modelTierPowerful": "শক্তিশালী",
   "modelStorageUsed": "ডাউনলোড করা: {size}",
+  "modelSemanticTitle": "সেমান্টিক সার্চ (EmbeddingGemma)",
+  "modelSemanticActive": "চালু",
+  "modelSemanticAbsent": "বন্ধ — কীওয়ার্ড সার্চ চলছে",
+  "embedderInstallButton": "ইনস্টল",
+  "embedderInstallTitle": "সেমান্টিক সার্চ ইনস্টল করুন",
+  "embedderInstallBody": "EmbeddingGemma-এর HuggingFace রিপোজিটরি লাইসেন্স-গেটেড। google/embeddinggemma-300m অ্যাক্সেস দেওয়া একটি HF টোকেন পেস্ট করুন — তাহলে স্মার্ট মাল্টিলিংগুয়াল সার্চ চালু হবে।",
+  "embedderTokenLabel": "HF অ্যাক্সেস টোকেন",
+  "embedderTokenHint": "hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "embedderInstallCancel": "বাতিল",
+  "embedderInstallProgress": "এমবেডার মডেল ডাউনলোড হচ্ছে…",
+  "embedderInstallSuccess": "সেমান্টিক সার্চ এখন চালু।",
+  "embedderInstallFailed": "ইনস্টল ব্যর্থ: {error}",
   "modelBadgeExpected": "✅ প্রত্যাশিত",
   "modelBadgeAdvanced": "⚠️ উন্নত",
   "modelBadgeHeavy": "⚠️ ভারী",
@@ -1083,5 +1095,12 @@
   "modelInfoParamsE2b": "২ বিলিয়ন",
   "modelInfoParamsE4b": "৪ বিলিয়ন",
   "modelInfoRamE2b": "~২.৫ GB",
-  "modelInfoRamE4b": "~৫ GB"
+  "modelInfoRamE4b": "~৫ GB",
+  "@embedderInstallFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
 }

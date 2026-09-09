@@ -16,7 +16,7 @@ import '../features/mesh_comm/mesh_models.dart';
 import '../features/mesh_comm/mesh_service.dart';
 import 'theme.dart';
 
-/// Root app shell — a [NavigationBar] with 4 tabs. Tabs are lazily built
+/// Root app shell — a [NavigationBar] with 5 tabs. Tabs are lazily built
 /// on first selection and kept alive via [Offstage] to preserve state.
 /// Settings and Emergency are reached from the Home tab (push routes),
 /// not as tabs.
@@ -176,6 +176,20 @@ class _MainShellState extends State<MainShell> {
 
   void _goToTab(int i) => setState(() => _index = i);
 
+  /// Shared tap handler for both real touch (via [InkWell] below) and
+  /// screen-reader activation (via the [Semantics.onTap] above).
+  /// Audit F13 (2026-09-09): the floating-pill onTap callback had been
+  /// attached directly to a [Semantics] node, which only fires for
+  /// accessibility services (TalkBack/VoiceOver double-tap) — sighted
+  /// users tapping the pill got no response. The fix is a shared method
+  /// bound by both surfaces so the haptic + tab switch run identically.
+  void _handleTabTap(int i) {
+    try {
+      HapticFeedback.lightImpact();
+    } catch (_) {}
+    _goToTab(i);
+  }
+
   void _onRequestAiChat(String prompt) {
     PendingChatPrompt.of(context)?.requestPrompt(prompt);
     _goToTab(1);
@@ -253,33 +267,24 @@ class _MainShellState extends State<MainShell> {
           children: List.generate(dests.length, (i) {
             final isSelected = _index == i;
             final dest = dests[i];
+            // Audit F6 (2026-09-08) introduced a [Semantics] wrapper so
+            // TalkBack announces the localized nav label and selected
+            // state for every pill. Audit F13 (2026-09-09) restored
+            // real touch handling: [Semantics.onTap] is accessibility-
+            // only (TalkBack double-tap), so the inner [AnimatedContainer]
+            // is also wrapped in an [InkWell] that handles sighted
+            // finger taps. Both surfaces route through [_handleTabTap]
+            // so the haptic + tab switch run identically.
             return Semantics(
-              // Audit F6 (2026-09-08): TalkBack on the four unselected
-              // pills announced only "button" with no name. The
-              // Semantics wrapper gives the labelled, tappable node
-              // screen readers need. The GestureDetector underneath
-              // handles real pointer events — Semantics.onTap alone
-              // does NOT receive regular taps, only TalkBack actions
-              // (regression caught when nav was visibly dead).
               button: true,
               selected: isSelected,
               enabled: true,
               label: dest.label,
-              onTap: () {
-                try {
-                  HapticFeedback.lightImpact();
-                } catch (_) {}
-                _goToTab(i);
-              },
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  try {
-                    HapticFeedback.lightImpact();
-                  } catch (_) {}
-                  _goToTab(i);
-                },
-                child: ExcludeSemantics(
+              onTap: () => _handleTabTap(i),
+              child: ExcludeSemantics(
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(30),
+                  onTap: () => _handleTabTap(i),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeOutCubic,

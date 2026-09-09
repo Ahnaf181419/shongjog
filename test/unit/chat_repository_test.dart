@@ -2,9 +2,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_gemma/core/tool.dart';
 import 'package:shongjog/features/chat/chat_repository.dart';
 import 'package:shongjog/features/chat/local_llm.dart';
+import 'package:shongjog/rag/embedder.dart';
+import 'package:shongjog/rag/embedding_retriever.dart';
 import 'package:shongjog/rag/keyword_retriever.dart';
 import 'package:shongjog/rag/types.dart';
 import 'package:shongjog/knowledge/kb_loader.dart';
+import 'dart:typed_data';
 
 /// Minimal LocalLlm impl for unit tests. Three members, no side effects.
 /// Exists because ModelManager (the production type) can't be subclassed
@@ -252,4 +255,83 @@ void main() {
       expect(capturedPrompt, contains('User: আবার বলো'));
     });
   });
+
+  // ════════════════════════════════════════════════════════════════
+  //  Semantic retrieval (EmbeddingGemma seam). The retriever is a real
+  //  EmbeddingRetriever over a deterministic fake embedder — exercises
+  //  the actual index-build + cosine path ChatRepository will run with
+  //  the plugin embedder, just with hand-placed vectors.
+  // ════════════════════════════════════════════════════════════════
+  group('ChatRepository semantic retrieval', () {
+    test('embedding hits feed the prompt as verified context', () async {
+      String? capturedPrompt;
+      final embedding = EmbeddingRetriever(
+        embedder: _SemanticFakeEmbedder(Float32List.fromList([1, 0])),
+        chunks: testKb.chunks,
+      );
+      final repo = ChatRepository(
+        kb: testKb,
+        embedding: embedding,
+        model: _FakeLlm(
+          ready: true,
+          onDisk: true,
+          generateResult: 'semantic answer',
+          onGenerate: (p) => capturedPrompt = p,
+        ),
+      );
+      final answer = await repo.ask('ডায়রিয়ায় কী করবো');
+      expect(answer, 'semantic answer');
+      // The ORS chunk (nearest to the fake query vector) is the context.
+      expect(capturedPrompt, contains('[Source: WHO] ORS তৈরির সহজ উপায়'));
+    });
+
+    test('a failing embedder falls back to keyword retrieval', () async {
+      final embedding = EmbeddingRetriever(
+        embedder: _SemanticFakeEmbedder(Float32List.fromList([1, 0]))
+          ..throwOn = StateError('embedder OOM'),
+        chunks: testKb.chunks,
+      );
+      final repo = ChatRepository(kb: testKb, embedding: embedding);
+      // No model: with the embedder dead, the keyword path must still
+      // retrieve the ORS chunk and answer from the corpus tier.
+      final answer = await repo.ask('ORS কিভাবে বানাবো');
+      expect(answer, contains('ORS'));
+    });
+
+    test('empty semantic hits fall back to keyword retrieval', () async {
+      // Floor above 1.0 rejects even perfect cosine matches, forcing the
+      // semantic path to return no hits — the keyword path must still
+      // find ORS and answer from the corpus tier.
+      final embedding = EmbeddingRetriever(
+        embedder: _SemanticFakeEmbedder(Float32List.fromList([1, 0])),
+        chunks: testKb.chunks,
+        floor: 1.2,
+      );
+      final repo = ChatRepository(kb: testKb, embedding: embedding);
+      final answer = await repo.ask('ORS কিভাবে বানাবো');
+      expect(answer, contains('ORS'));
+    });
+  });
+}
+
+/// Fake embedder for the ChatRepository group: document embeddings are
+/// fixed basis vectors picked by chunk id; queries return [queryVector].
+class _SemanticFakeEmbedder implements Embedder {
+  _SemanticFakeEmbedder(this.queryVector);
+
+  final Float32List queryVector;
+  Object? throwOn;
+
+  @override
+  Future<int> dim() async => queryVector.length;
+
+  @override
+  Future<Float32List> embed(String text,
+      {EmbedTask task = EmbedTask.query}) async {
+    if (throwOn != null) throw throwOn!;
+    if (task == EmbedTask.query) return queryVector;
+    // Document text is 'Topic: {topic}. …' — match on the topic token.
+    if (text.startsWith('Topic: ors')) return Float32List.fromList([1, 0]);
+    return Float32List.fromList([0, 1]);
+  }
 }

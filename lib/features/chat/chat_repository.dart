@@ -1,8 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../knowledge/kb_loader.dart';
+import '../../rag/embedding_retriever.dart';
 import '../../rag/prompt_builder.dart';
 import '../../rag/rumour_checker.dart';
 import '../../rag/types.dart';
@@ -38,8 +38,10 @@ class ChatRepository {
 
   final CloudAiService? cloudAi;
 
-  /// Optional embedder for cosine retrieval. When null, keyword-only.
-  final EmbedderFn? embedder;
+  /// Optional semantic retriever (EmbeddingGemma 300M). When null — or
+  /// when it fails at runtime — retrieval is keyword-only, exactly as
+  /// before this seam existed.
+  final EmbeddingRetriever? embedding;
 
   /// Optional shelter list for the conversational shelter-search feature
   /// (Option 1 in docs/AI-MAP-FEATURES.md). When null, shelter-intent
@@ -54,7 +56,7 @@ class ChatRepository {
     required this.kb,
     this.model,
     this.cloudAi,
-    this.embedder,
+    this.embedding,
     this.shelterProvider,
     this.userLocationProvider,
   });
@@ -92,7 +94,7 @@ class ChatRepository {
       }
     }
 
-    final hits = _retrieve(userQuery);
+    final hits = await _retrieve(userQuery);
 
     // TIER 1: On-device Gemma 4 (E2B/E4B) — the primary model.
     // Route rumour-check queries through a dedicated prompt that asks
@@ -180,8 +182,22 @@ class ChatRepository {
     return 'আমার কাছে এই প্রশ্নের উত্তর নেই। ৯৯৯ এ কল করুন।';
   }
 
-  /// Retrieve relevant chunks using keyword matching.
-  List<RetrievalHit> _retrieve(String query) {
+  /// Retrieve relevant chunks: semantic-first when an embedder is wired,
+  /// keyword fallback otherwise (and on any embedding failure — a broken
+  /// embedder must never take the corpus path down with it).
+  Future<List<RetrievalHit>> _retrieve(String query) async {
+    final semantic = embedding;
+    if (semantic != null) {
+      try {
+        if (await semantic.ensureIndex()) {
+          final hits = await semantic.topK(query, k: 3);
+          if (hits.isNotEmpty) return hits;
+        }
+      } catch (e) {
+        debugPrint(
+            '[ChatRepo/Embedding] semantic retrieval failed, falling back to keywords: $e');
+      }
+    }
     final keywordHits = kb.keywordRetriever.topK(query, k: 5);
     return keywordHits.take(3).toList();
   }
@@ -270,9 +286,6 @@ class ChatRepository {
     return raw.substring(0, cutAt).trimRight();
   }
 }
-
-/// Function type for embedding a query into a Float32List.
-typedef EmbedderFn = Future<Float32List> Function(String text);
 
 /// Which generation path answered a given query.
 enum GenerationPath {

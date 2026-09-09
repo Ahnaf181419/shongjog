@@ -18,6 +18,7 @@ class ApiKeyStore {
   static const _geminiKeysLabel = 'gemini_api_keys';
   static const _activeIndexLabel = 'gemini_api_key_index';
   static const _rotationDayLabel = 'gemini_api_key_rotation_day';
+  static const _hfTokenLabel = 'hf_token';
 
   final FlutterSecureStorage _storage;
 
@@ -134,5 +135,40 @@ class ApiKeyStore {
   static String _todayUtc() {
     final now = DateTime.now().toUtc();
     return '${now.year}-${now.month}-${now.day}';
+  }
+
+  // ── HuggingFace token (for EmbeddingGemma 300M install) ──────────────
+  //
+  // EmbeddingGemma's HuggingFace repo (`google/embeddinggemma-300m`) is
+  // license-gated — downloads need an HF token that has been granted
+  // access to the repo. We persist the token here so the user only
+  // types it once; the actual download is triggered from Settings.
+  // The token never leaves the device (FlutterSecureStorage wraps the
+  // Android Keystore / iOS Keychain).
+
+  /// Save the HF access token used to download gated repos like
+  /// EmbeddingGemma. Blank values are ignored — use [deleteHfToken] to
+  /// clear an existing token.
+  Future<void> saveHfToken(String token) async {
+    final trimmed = token.trim();
+    if (trimmed.isEmpty) return;
+    await _storage.write(key: _hfTokenLabel, value: trimmed);
+  }
+
+  /// Retrieve the stored HF token, or null if none is set.
+  Future<String?> getHfToken() async {
+    return await _storage.read(key: _hfTokenLabel);
+  }
+
+  /// Whether an HF token has been stored.
+  Future<bool> hasHfToken() async {
+    final t = await _storage.read(key: _hfTokenLabel);
+    return t != null && t.isNotEmpty;
+  }
+
+  /// Delete the stored HF token. Used by the Settings "Remove embedder"
+  /// flow and on a hard reset.
+  Future<void> deleteHfToken() async {
+    await _storage.delete(key: _hfTokenLabel);
   }
 }

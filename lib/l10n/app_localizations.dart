@@ -3524,6 +3524,78 @@ abstract class AppLocalizations {
   /// **'ডাউনলোড করা: {size}'**
   String modelStorageUsed(String size);
 
+  /// No description provided for @modelSemanticTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'সেমান্টিক সার্চ (EmbeddingGemma)'**
+  String get modelSemanticTitle;
+
+  /// No description provided for @modelSemanticActive.
+  ///
+  /// In bn, this message translates to:
+  /// **'চালু'**
+  String get modelSemanticActive;
+
+  /// No description provided for @modelSemanticAbsent.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্ধ — কীওয়ার্ড সার্চ চলছে'**
+  String get modelSemanticAbsent;
+
+  /// No description provided for @embedderInstallButton.
+  ///
+  /// In bn, this message translates to:
+  /// **'ইনস্টল'**
+  String get embedderInstallButton;
+
+  /// No description provided for @embedderInstallTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'সেমান্টিক সার্চ ইনস্টল করুন'**
+  String get embedderInstallTitle;
+
+  /// No description provided for @embedderInstallBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'EmbeddingGemma-এর HuggingFace রিপোজিটরি লাইসেন্স-গেটেড। google/embeddinggemma-300m অ্যাক্সেস দেওয়া একটি HF টোকেন পেস্ট করুন — তাহলে স্মার্ট মাল্টিলিংগুয়াল সার্চ চালু হবে।'**
+  String get embedderInstallBody;
+
+  /// No description provided for @embedderTokenLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'HF অ্যাক্সেস টোকেন'**
+  String get embedderTokenLabel;
+
+  /// No description provided for @embedderTokenHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'**
+  String get embedderTokenHint;
+
+  /// No description provided for @embedderInstallCancel.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাতিল'**
+  String get embedderInstallCancel;
+
+  /// No description provided for @embedderInstallProgress.
+  ///
+  /// In bn, this message translates to:
+  /// **'এমবেডার মডেল ডাউনলোড হচ্ছে…'**
+  String get embedderInstallProgress;
+
+  /// No description provided for @embedderInstallSuccess.
+  ///
+  /// In bn, this message translates to:
+  /// **'সেমান্টিক সার্চ এখন চালু।'**
+  String get embedderInstallSuccess;
+
+  /// No description provided for @embedderInstallFailed.
+  ///
+  /// In bn, this message translates to:
+  /// **'ইনস্টল ব্যর্থ: {error}'**
+  String embedderInstallFailed(String error);
+
   /// No description provided for @modelBadgeExpected.
   ///
   /// In bn, this message translates to:

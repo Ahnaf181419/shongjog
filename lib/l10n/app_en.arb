@@ -614,6 +614,25 @@
   "modelTierMedium": "Medium",
   "modelTierPowerful": "Powerful",
   "modelStorageUsed": "Downloaded: {size}",
+  "modelSemanticTitle": "Semantic search (EmbeddingGemma)",
+  "modelSemanticActive": "Active",
+  "modelSemanticAbsent": "Off — using keyword search",
+  "embedderInstallButton": "Install",
+  "embedderInstallTitle": "Install semantic search",
+  "embedderInstallBody": "EmbeddingGemma's HuggingFace repo is license-gated. Paste an HF access token that has been granted access to google/embeddinggemma-300m to enable smart, multilingual retrieval.",
+  "embedderTokenLabel": "HF access token",
+  "embedderTokenHint": "hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "embedderInstallCancel": "Cancel",
+  "embedderInstallProgress": "Downloading embedder model…",
+  "embedderInstallSuccess": "Semantic search is now active.",
+  "embedderInstallFailed": "Install failed: {error}",
+  "@embedderInstallFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "@modelStorageUsed": {
     "placeholders": {
       "size": {
