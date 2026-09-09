@@ -30,9 +30,11 @@ import 'api_key_ring.dart';
 /// quota of zero. All three models below were verified live against the
 /// project's own keys before being set here.
 ///
-/// This is only the *online* tier. The offline thesis rests on Gemma 4
-/// E2B/E4B running on-device via `modelManager`, which this file never
-/// touches.
+/// **Role in the chat chain.** Cloud AI is Tier-1 of `ChatRepository`'s
+/// answer chain on connected devices (Cloud → On-device Gemma → Corpus →
+/// canned "৯৯৯"). The on-device Gemma 4 E2B/E4B in `modelManager` is the
+/// offline primary — this service never touches it. The full tier policy
+/// lives in `docs/prd.md` §13.
 class CloudAiService {
   static const String primaryModelId = 'gemini-3.1-flash-lite';
   static const String fallbackModelId = 'gemini-3.1-flash-lite-preview';

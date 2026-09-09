@@ -288,10 +288,19 @@ Deferred to post-hackathon roadmap (see §14):
 
 ## 13. Hackathon Rule Compliance
 
-- **Gemma 4 is the primary and only LLM** powering the app's generative AI.
+- **The chat answer chain is Cloud AI → On-device Gemma 4 → RAG corpus → canned
+  "৯৯৯" message**, gated on `connectivityProvider.isOnline`. When the device
+  is online and a Cloud API key is configured, Cloud AI (Gemini 3.1 Flash Lite)
+  is tried first because it answers faster (~2.5s vs. ~5-10s cold-start plus
+  30-90s per generation for on-device Gemma) and produces higher-quality,
+  non-degenerate responses. On-device Gemma 4 (E2B/E4B) is the offline primary
+  — the safety net when the network is down, when no API key is configured,
+  or when Cloud AI fails (quota spent, key blocked, request times out).
+- **Gemma 4 remains the only on-device LLM** powering the app's generative AI
+  in offline scenarios. The cloud tier is an *enhancement*, not a replacement.
 - EmbeddingGemma (retrieval), Vosk (STT), `flutter_tts` (TTS), GPS, and mapping are
   **non-generative supporting components** — explicitly permitted, since they support
-  Gemma rather than replace it.
+  the answer chain rather than replace it.
 - Gemma is **core to the solution**: without on-device Gemma 4, the offline value
   proposition does not exist.
 

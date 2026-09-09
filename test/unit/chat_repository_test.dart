@@ -1,5 +1,13 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_gemma/core/tool.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
+import 'package:shongjog/core/connectivity_provider.dart';
+import 'package:shongjog/features/cloud_ai/api_key_ring.dart';
+import 'package:shongjog/features/cloud_ai/cloud_ai_service.dart';
 import 'package:shongjog/features/chat/chat_repository.dart';
 import 'package:shongjog/features/chat/local_llm.dart';
 import 'package:shongjog/rag/embedder.dart';
@@ -7,7 +15,6 @@ import 'package:shongjog/rag/embedding_retriever.dart';
 import 'package:shongjog/rag/keyword_retriever.dart';
 import 'package:shongjog/rag/types.dart';
 import 'package:shongjog/knowledge/kb_loader.dart';
-import 'dart:typed_data';
 
 /// Minimal LocalLlm impl for unit tests. Three members, no side effects.
 /// Exists because ModelManager (the production type) can't be subclassed
@@ -130,16 +137,18 @@ void main() {
   //  OOM during load), ChatRepository MUST surface that failure via
   //  onPath — NOT silently fall through to the corpus chunk.
   //
-  //  Before this fix, Tier-2 was wrapped in a try/catch with `debugPrint`
-  //  and the bubble chip reported `কোরপাস` ("answer came from RAG lookup")
-  //  when in fact the answer came from a corpus chunk because the local
-  //  model crashed. The user saw a misleading corpus answer and assumed
-  //  the device model was broken.
+  //  Before the original fix, the on-device tier (now Tier-2; was Tier-1
+  //  before the cloud-first flip) was wrapped in a try/catch with
+  //  `debugPrint` and the bubble chip reported `কোরপাস` ("answer came
+  //  from RAG lookup") when in fact the answer came from a corpus chunk
+  //  because the local model crashed. The user saw a misleading corpus
+  //  answer and assumed the device model was broken.
   //
-  //  These tests pin the expected behavior so we can watch the test
-  //  fail RED, then write the fix (GREEN), then refactor.
+  //  None of these tests configure a `cloudAi`, so with the cloud-first
+  //  ordering the Cloud tier is skipped and the device tier runs as
+  //  before. The assertions below pin that behavior.
   // ════════════════════════════════════════════════════════════════
-  group('ChatRepository Tier-2 surface-on-failure', () {
+  group('ChatRepository device-failure surfaces via corpus fallback', () {
     test(
         'reports device path when local model generates successfully '
         '(regression guard for GREEN)', () async {
@@ -161,7 +170,7 @@ void main() {
 
     test(
         'when the local model says it is ready but generate() throws, '
-        'ChatRepository falls through to Tier-3 corpus instead of '
+        'ChatRepository falls through to the corpus tier instead of '
         'showing an error bubble', () async {
       final paths = <GenerationPath>[];
       final repo = ChatRepository(
@@ -184,16 +193,16 @@ void main() {
     //  When the engine leaks its thought channel, the raw output starts
     //  with `<|channel|>` at index 0. truncateAtTurnMarker correctly cuts
     //  everything from the first marker onward — which for that input is
-    //  the ENTIRE string. Tier-2 used to return that empty string as a
-    //  successful device answer, rendering a blank bubble that looks
-    //  exactly like a crash.
+    //  the ENTIRE string. The on-device tier (Tier-2 after the cloud-first
+    //  flip) used to return that empty string as a successful device
+    //  answer, rendering a blank bubble that looks exactly like a crash.
     //
     //  Correct behavior: treat "cleaned to nothing" as no answer and fall
     //  through to the corpus.
     // ══════════════════════════════════════════════════════════════
     test(
-        'when the model emits only control tokens, Tier-2 falls through to '
-        'corpus instead of returning a blank bubble', () async {
+        'when the model emits only control tokens, the device tier falls '
+        'through to corpus instead of returning a blank bubble', () async {
       final paths = <GenerationPath>[];
       final repo = ChatRepository(
         kb: testKb,
@@ -312,6 +321,155 @@ void main() {
       expect(answer, contains('ORS'));
     });
   });
+
+  // ════════════════════════════════════════════════════════════════
+  //  Cloud-first tier order
+  //
+  //  After the flip, the chain is Cloud → Device → Corpus → Canned, gated
+  //  on `connectivityProvider.isOnline`. These tests drive a real
+  //  CloudAiService through a MockClient and assert both the answer and
+  //  the GenerationPath reported via onPath.
+  //
+  //  Connectivity is set in setUp (online) and reset in tearDown
+  //  (offline) — the same pattern as cloud_ai_key_rotation_test.dart —
+  //  so a failing assertion cannot leak online state into the next group.
+  // ════════════════════════════════════════════════════════════════
+  group('ChatRepository tier order — Cloud first when online', () {
+    setUp(() => connectivityProvider.debugSetOnline(true));
+    tearDown(() => connectivityProvider.debugSetOnline(false));
+
+    test(
+        'online + cloud configured → Cloud is tried first, on-device model '
+        'is never invoked, no cloud failure surfaces', () async {
+      final cloud = cloudAiWithAnswer('cloud answer');
+      final paths = <GenerationPath>[];
+      final repo = ChatRepository(
+        kb: testKb,
+        cloudAi: cloud.service,
+        model: _FakeLlm(
+          // If the device is ever called in this scenario the test must
+          // fail — generateResult is intentionally set so a successful
+          // device call would surface as 'device answer' below.
+          ready: true,
+          onDisk: true,
+          generateResult: 'device answer',
+        ),
+      );
+      final answer =
+          await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+      expect(answer, 'cloud answer');
+      expect(paths, [GenerationPath.cloud]);
+      expect(cloud.requestCount(), 1,
+          reason: 'online + key configured → exactly one Cloud request');
+    });
+
+    test(
+        'online + cloud throws → falls through to on-device when device '
+        'is ready', () async {
+      final cloud = cloudAiThrowingWithError();
+      final paths = <GenerationPath>[];
+      final repo = ChatRepository(
+        kb: testKb,
+        cloudAi: cloud,
+        model: _FakeLlm(
+          ready: true,
+          onDisk: true,
+          generateResult: 'device answer',
+        ),
+      );
+      final answer =
+          await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+      expect(answer, 'device answer');
+      expect(paths, [GenerationPath.device]);
+    });
+
+    test(
+        'online + cloud throws + device not ready → falls through to '
+        'corpus', () async {
+      final cloud = cloudAiThrowingWithError();
+      final paths = <GenerationPath>[];
+      final repo = ChatRepository(
+        kb: testKb,
+        cloudAi: cloud,
+        // No model — Tier 2 skipped.
+      );
+      final answer =
+          await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+      expect(answer, contains('ORS'));
+      expect(paths, [GenerationPath.corpus]);
+    });
+
+    test(
+        'offline + device ready → on-device is used, cloud is NEVER called '
+        '(no wasted network request on an airplane-mode phone)', () async {
+      connectivityProvider.debugSetOnline(false);
+      final cloud = cloudAiWithAnswer('cloud answer');
+      final paths = <GenerationPath>[];
+      final repo = ChatRepository(
+        kb: testKb,
+        cloudAi: cloud.service,
+        model: _FakeLlm(
+          ready: true,
+          onDisk: true,
+          generateResult: 'device answer',
+        ),
+      );
+      final answer =
+          await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+      expect(answer, 'device answer');
+      expect(paths, [GenerationPath.device]);
+      expect(cloud.requestCount(), 0,
+          reason: 'offline devices must not waste a Cloud request');
+    });
+
+    test(
+        'offline + cloud configured + device not ready → corpus, no '
+        'network call', () async {
+      connectivityProvider.debugSetOnline(false);
+      final cloud = cloudAiWithAnswer('cloud answer');
+      final paths = <GenerationPath>[];
+      final repo = ChatRepository(
+        kb: testKb,
+        cloudAi: cloud.service,
+        // No model.
+      );
+      final answer =
+          await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+      expect(answer, contains('ORS'));
+      expect(paths, [GenerationPath.corpus]);
+      expect(cloud.requestCount(), 0);
+    });
+
+    test(
+        'online + no cloudAi configured → falls straight to on-device', () async {
+      final paths = <GenerationPath>[];
+      final repo = ChatRepository(
+        kb: testKb,
+        // No cloudAi.
+        model: _FakeLlm(
+          ready: true,
+          onDisk: true,
+          generateResult: 'device answer',
+        ),
+      );
+      final answer =
+          await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+      expect(answer, 'device answer');
+      expect(paths, [GenerationPath.device]);
+    });
+
+    test(
+        'offline + no cloudAi + no device → corpus (the existing no-model '
+        'baseline must still work)', () async {
+      connectivityProvider.debugSetOnline(false);
+      final paths = <GenerationPath>[];
+      final repo = ChatRepository(kb: testKb);
+      final answer =
+          await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+      expect(answer, contains('ORS'));
+      expect(paths, [GenerationPath.corpus]);
+    });
+  });
 }
 
 /// Fake embedder for the ChatRepository group: document embeddings are
@@ -334,4 +492,60 @@ class _SemanticFakeEmbedder implements Embedder {
     if (text.startsWith('Topic: ors')) return Float32List.fromList([1, 0]);
     return Float32List.fromList([0, 1]);
   }
+}
+
+/// Build a real [CloudAiService] wired to a [MockClient] that responds to
+/// any `generateContent` request with [cloudAnswer]. Returns the service and
+/// a request-counting function so the tier-order tests can assert exactly
+/// how many HTTP calls the repository made through this fake.
+///
+/// Uses `http.Response.bytes` with utf-8 encoding so Bangla text survives
+/// the mock boundary (the `String` constructor encodes as latin1, which
+/// cannot represent Bangla and throws "Contains invalid characters").
+({CloudAiService service, int Function() requestCount}) cloudAiWithAnswer(
+  String cloudAnswer,
+) {
+  var count = 0;
+  final client = MockClient((req) async {
+    count++;
+    final body = utf8.encode(jsonEncode({
+      'candidates': [
+        {
+          'content': {
+            'parts': [
+              {'text': cloudAnswer},
+            ],
+          },
+        },
+      ],
+    }));
+    return http.Response.bytes(body, 200,
+        headers: {'content-type': 'application/json; charset=utf-8'});
+  });
+  return (
+    service: CloudAiService(
+      keys: ApiKeyRing.single('test-key'),
+      httpClient: client,
+    ),
+    requestCount: () => count,
+  );
+}
+
+/// Build a real [CloudAiService] whose transport always returns HTTP 500,
+/// forcing the Cloud tier to throw and exercise the on-device fallthrough.
+/// 500 (not a key-fatal 429/403) keeps the key ring out of the picture — the
+/// goal is to prove the repository's own catch-and-fallthrough behavior, not
+/// the rotation policy.
+CloudAiService cloudAiThrowingWithError() {
+  final client = MockClient((req) async {
+    return http.Response.bytes(
+      utf8.encode('{"error":{"code":500,"message":"boom"}}'),
+      500,
+      headers: {'content-type': 'application/json; charset=utf-8'},
+    );
+  });
+  return CloudAiService(
+    keys: ApiKeyRing.single('test-key'),
+    httpClient: client,
+  );
 }

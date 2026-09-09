@@ -29,6 +29,14 @@ work completed during a build phase or significant milestone.
 
 ### Changed
 
+- **Chat tier order flipped: Cloud AI is now tried first when online.** `ChatRepository`
+  chain is now `Cloud AI → On-device Gemma 4 → RAG corpus → canned "৯৯৯"`, gated on
+  `connectivityProvider.isOnline`. Cloud AI (Gemini 3.1 Flash Lite) answers in ~2.5s vs.
+  ~5-10s cold-start plus 30-90s per generation for on-device Gemma. The on-device model
+  is now the offline primary — reached when the network is down, when no API key is
+  configured, or when Cloud AI fails (quota spent, key blocked, request times out).
+  `docs/prd.md` §13 updated to match. The previous Tier-1-on-device ordering remains
+  the documented behavior for v0.8.0.
 - **Bangla spelling corrected** to `সংযোগ` across active docs (`CONTRIBUTING.md`, `design.md`, `kaggle-writeup.md`).
 - **`CONTRIBUTING.md`** — test count (878), bilingual red-line, Firestore key-delivery pointer, corrected file paths.
 - **`docs/README.md`** — rebuilt index to reflect current flat `docs/` structure.

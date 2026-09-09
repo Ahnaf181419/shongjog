@@ -34,16 +34,25 @@ Query ──> KeywordRetriever (fallback) ──> top-3 verified emergency chunk
          |                                         |
          |                      top-3 verified emergency chunks
          v                                         |
+[Shelter intent?] ─yes──> pure-Dart haversine ranker ──> nearest shelter (no model)
+         no
+         v
+Cloud AI: Gemini 3.1 Flash Lite  <──── retrieved context + Bangla system prompt
+   ↓ (when offline, or Cloud has no key / fails / times out)
 Gemma 4 E2B  <──── retrieved context + Bangla system prompt
-  (or Cloud AI fallback: Gemini 2.5-flash → 2.0-flash-lite, when online)
+   ↓ (when no on-device model is downloaded)
+top retrieved chunk (RAG corpus)
+   ↓ (when no hits)
+canned "call 999 / talk to a human" response
          |
          +──> grounded step-by-step Bangla answer ──> screen (typewriter reveal) + TTS (read aloud)
          |
          +──> function call ──> [nearest shelter map/list] / [prepare SOS SMS]
-         |
-         +──> (low confidence) ──> canned "call 999 / talk to a human" response
 
-===================== everything above requires NO network (except Cloud AI fallback) ====================
+===================== only Cloud AI requires the network ====================
+                                                                                   |
+Calls (tel:999) and SOS SMS (sms:999?body=...) use the cellular voice channel  <-+
+which frequently survives when mobile data is down.
                                                                                   |
 Calls (tel:999) and SOS SMS (sms:999?body=...) use the cellular voice channel  <-+
 which frequently survives when mobile data is down.
@@ -159,7 +168,7 @@ lib/
 │   ├── about/
 │   │   └── about_screen.dart       Sources attribution page
 │   ├── cloud_ai/
-│   │   └── cloud_ai_service.dart   Gemini 2.5-flash + 2.0-flash-lite fallback
+│   │   └── cloud_ai_service.dart   Gemini 3.1 Flash Lite (primary online tier, with fallback chain)
 │   ├── mesh_comm/
 │   │   ├── mesh_service.dart       nearby_connections P2P adapter
 │   │   ├── mesh_radar_screen.dart  Radar + peer-to-peer chat
@@ -223,10 +232,11 @@ Per query:
   ChatRepository.ask(userQuery)
     1. hits = KeywordRetriever.topK(query, k:3)       [offline-first, no embedder needed]
        (BruteForceRetriever available as fallback if embedder API lands)
-    2. if hits.isEmpty → try Cloud AI fallback (if online)
-    3. if Cloud AI unavailable → return canned low-confidence response
-    4. prompt = buildPrompt(query, hits)              [system + context + query]
-    5. answer = local Gemma session OR cloud AI
+    2. Tier 1: Cloud AI if cloudAi != null AND connectivity.isOnline
+                (Gemini 3.1 Flash Lite → preview → last-resort Gemma 4 26B-A4B)
+    3. Tier 2: On-device Gemma if model.isReady || model.isAnyOnDisk()
+    4. Tier 3: return top retrieved chunk as the answer
+    5. Tier 4: return canned "৯৯৯" message
     6. (UI) TypewriterText reveals answer char-by-char
     7. (UI) TtsService.speak(answer) if auto-read on  [bn-BD]
     8. (Persistence) ChatStore.save() persists messages to JSON
@@ -240,9 +250,14 @@ using live embeddings is the future path if `flutter_gemma` exposes an embedder 
 `modelManager` singleton. `createSession()` may be called per query or reused; we reuse
 one session and inject context per turn to keep memory flat.
 
-**Cloud fallback chain:** when offline retrieval produces no confident hits AND
-`connectivity_plus` reports online, `ChatRepository` tries Cloud AI (Gemini 2.5-flash →
-2.0-flash-lite fallback chain) before falling back to canned low-confidence response.
+**Tier chain (Cloud → Device → Corpus → Canned):** the chat answer chain is gated
+on `connectivity_plus` — when online AND a Cloud API key is configured, Cloud AI
+(Gemini 3.1 Flash Lite primary, preview-channel fallback, last-resort Gemma 4
+26B-A4B) is tried first because it answers faster and produces higher-quality
+output than the on-device model. On-device Gemma 4 (E2B/E4B) is the offline
+primary — reached when the network is down, when no API key is configured, or
+when Cloud AI fails (quota spent, key blocked, request times out). The RAG
+corpus is always available as a final grounded fallback. See `docs/prd.md` §13.
 
 **Cold start:** first `initialize()` loads the model into RAM — expect 3–10s depending on
 device. The UI surfaces "AI প্রস্তুত হচ্ছে..." during this window via the reactive
