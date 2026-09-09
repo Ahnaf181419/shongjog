@@ -101,20 +101,24 @@ void main() {
 
     test('bundled model files exist on disk when the bundle script has run',
         () {
-      final dir = Directory('assets/embeddinggemma');
-      if (!dir.existsSync()) {
-        // Standard checkout: the ~175 MB payloads are gitignored and only
-        // materialize after `HF_TOKEN=... python3 tool/bundle_embedder.py`.
-        return;
-      }
-      expect(File('assets/embeddinggemma/model.tflite').existsSync(), isTrue,
-          reason: 'assets/embeddinggemma/ exists but model.tflite is '
-              'missing — re-run tool/bundle_embedder.py.');
-      expect(
-          File('assets/embeddinggemma/sentencepiece.model').existsSync(),
-          isTrue,
-          reason: 'assets/embeddinggemma/ exists but sentencepiece.model is '
-              'missing — re-run tool/bundle_embedder.py.');
+      // "Script has run" = at least one payload present. The dir itself is
+      // NOT the signal — it always exists on a fresh checkout (committed
+      // .gitkeep) — and a standard checkout has neither payload, which must
+      // skip rather than fail. A partial bundle (one payload present, the
+      // other missing) is exactly the corruption this test exists to catch.
+      final hasModel =
+          File('assets/embeddinggemma/model.tflite').existsSync();
+      final hasTokenizer =
+          File('assets/embeddinggemma/sentencepiece.model').existsSync();
+      if (!hasModel && !hasTokenizer) return; // standard checkout — skip.
+      expect(hasModel, isTrue,
+          reason: 'sentencepiece.model is present under '
+              'assets/embeddinggemma/ but model.tflite is missing — '
+              're-run tool/bundle_embedder.py.');
+      expect(hasTokenizer, isTrue,
+          reason: 'model.tflite is present under '
+              'assets/embeddinggemma/ but sentencepiece.model is missing — '
+              're-run tool/bundle_embedder.py.');
     });
   });
 }
