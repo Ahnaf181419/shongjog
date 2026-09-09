@@ -402,7 +402,7 @@ class _AdminTile extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           margin: EdgeInsets.zero,
           child: InkWell(
-            onTap: () => Navigator.pushNamed(context, route),
+            onTap: () => pushNamedSafe(context, route),
             child: Stack(
               children: [
                 Padding(
