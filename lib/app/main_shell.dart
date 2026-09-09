@@ -16,7 +16,7 @@ import '../features/mesh_comm/mesh_models.dart';
 import '../features/mesh_comm/mesh_service.dart';
 import 'theme.dart';
 
-/// Root app shell — a [NavigationBar] with 4 tabs. Tabs are lazily built
+/// Root app shell — a [NavigationBar] with 5 tabs. Tabs are lazily built
 /// on first selection and kept alive via [Offstage] to preserve state.
 /// Settings and Emergency are reached from the Home tab (push routes),
 /// not as tabs.
@@ -176,6 +176,20 @@ class _MainShellState extends State<MainShell> {
 
   void _goToTab(int i) => setState(() => _index = i);
 
+  /// Shared tap handler for both real touch (via [InkWell] below) and
+  /// screen-reader activation (via the [Semantics.onTap] above).
+  /// Audit F13 (2026-09-09): the floating-pill onTap callback had been
+  /// attached directly to a [Semantics] node, which only fires for
+  /// accessibility services (TalkBack/VoiceOver double-tap) — sighted
+  /// users tapping the pill got no response. The fix is a shared method
+  /// bound by both surfaces so the haptic + tab switch run identically.
+  void _handleTabTap(int i) {
+    try {
+      HapticFeedback.lightImpact();
+    } catch (_) {}
+    _goToTab(i);
+  }
+
   void _onRequestAiChat(String prompt) {
     PendingChatPrompt.of(context)?.requestPrompt(prompt);
     _goToTab(1);
@@ -253,74 +267,75 @@ class _MainShellState extends State<MainShell> {
           children: List.generate(dests.length, (i) {
             final isSelected = _index == i;
             final dest = dests[i];
-            // Audit F6 (2026-09-08): the custom GestureDetector pill had
-            // no Semantics label — TalkBack on the four unselected pills
-            // announced only "button" with no name. Using Semantics(onTap)
-            // here (rather than wrapping the GestureDetector) gives one
-            // shared labelled, tappable node instead of two stacked ones,
-            // and announces the selected state to screen readers.
+            // Audit F6 (2026-09-08) introduced a [Semantics] wrapper so
+            // TalkBack announces the localized nav label and selected
+            // state for every pill. Audit F13 (2026-09-09) restored
+            // real touch handling: [Semantics.onTap] is accessibility-
+            // only (TalkBack double-tap), so the inner [AnimatedContainer]
+            // is also wrapped in an [InkWell] that handles sighted
+            // finger taps. Both surfaces route through [_handleTabTap]
+            // so the haptic + tab switch run identically.
             return Semantics(
               button: true,
               selected: isSelected,
               enabled: true,
               label: dest.label,
-              onTap: () {
-                try {
-                  HapticFeedback.lightImpact();
-                } catch (_) {}
-                _goToTab(i);
-              },
+              onTap: () => _handleTabTap(i),
               child: ExcludeSemantics(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeOutCubic,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isSelected ? 16 : 12,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? cs.primary.withValues(alpha: 0.15)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        transitionBuilder: (child, animation) {
-                          return ScaleTransition(scale: animation, child: child);
-                        },
-                        child: Icon(
-                          isSelected
-                              ? (dest.selectedIcon as Icon).icon
-                              : (dest.icon as Icon).icon,
-                          key: ValueKey<bool>(isSelected),
-                          color: isSelected
-                              ? cs.primary
-                              : cs.onSurface.withValues(alpha: 0.6),
-                          size: 24,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(30),
+                  onTap: () => _handleTabTap(i),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOutCubic,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isSelected ? 16 : 12,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? cs.primary.withValues(alpha: 0.15)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          transitionBuilder: (child, animation) {
+                            return ScaleTransition(scale: animation, child: child);
+                          },
+                          child: Icon(
+                            isSelected
+                                ? (dest.selectedIcon as Icon).icon
+                                : (dest.icon as Icon).icon,
+                            key: ValueKey<bool>(isSelected),
+                            color: isSelected
+                                ? cs.primary
+                                : cs.onSurface.withValues(alpha: 0.6),
+                            size: 24,
+                          ),
                         ),
-                      ),
-                      AnimatedSize(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeOutCubic,
-                        child: isSelected
-                            ? Padding(
-                                padding: const EdgeInsets.only(left: 8),
-                                child: Text(
-                                  dest.label,
-                                  style: TextStyle(
-                                    color: cs.primary,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 14,
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOutCubic,
+                          child: isSelected
+                              ? Padding(
+                                  padding: const EdgeInsets.only(left: 8),
+                                  child: Text(
+                                    dest.label,
+                                    style: TextStyle(
+                                      color: cs.primary,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 14,
+                                    ),
                                   ),
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-                    ],
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

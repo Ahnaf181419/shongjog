@@ -52,10 +52,18 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
   // 0.5↔1.0 per design.md §7.3 — the one piece of liveliness on an
   // otherwise static map. Animations belong in the widget layer (close
   // to the TickerProvider's mount lifecycle), not in the VM.
-  late final AnimationController _pulse = AnimationController(
-    vsync: this,
-    duration: ShelterConstants.pulseDuration,
-  )..repeat(reverse: true);
+  //
+  // Audit F14 (2026-09-09): the controller used to be a `late final
+  // = AnimationController(...)..repeat(...)` field initializer. That
+  // made creation lazy — and since [_pulse] is only read when the user
+  // has a GPS fix (buildUserMarker, line ~345), a unit test or a
+  // cold-start-without-GPS would never trigger the initializer until
+  // [dispose] called [_pulse.dispose]. At that point the element was
+  // already deactivated and the `AnimationController` constructor
+  // threw "Looking up a deactivated widget's ancestor is unsafe".
+  // Moving construction into [initState] matches the pattern used by
+  // ChatScreen / HomeScreen and lets [dispose] just dispose.
+  late final AnimationController _pulse;
 
   StreamSubscription<bool>? _connSub;
   double _currentZoom = 11.0;
@@ -67,6 +75,10 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
   @override
   void initState() {
     super.initState();
+    _pulse = AnimationController(
+      vsync: this,
+      duration: ShelterConstants.pulseDuration,
+    )..repeat(reverse: true);
     _vm.addListener(_onVmChanged);
     campaignRequestService.addListener(_onCampaignChanged);
     _connSub = ConnectivityHelper.onConnectivityChanged.listen(_vm.setOnline);
