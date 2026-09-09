@@ -140,3 +140,6 @@ Shongjog-*.apk
 
 /.impeccable/
 /shongjog-site-v2.zip
+
+# Eval harness generated artifacts (Colab T4 outputs)
+/eval/results/

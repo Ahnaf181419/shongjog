@@ -14,6 +14,11 @@ enum EmbedTask { query, document }
 /// type. The retriever and ChatRepository code against this, so the
 /// concrete impl can swap without touching inner layers.
 abstract class Embedder {
+  /// Output dimensionality of the embedder (e.g. 768 for EmbeddingGemma).
+  /// Used by the retriever cache to detect a model swap that would produce
+  /// silently-incompatible vectors against the cached corpus.
+  Future<int> dim();
+
   Future<Float32List> embed(String text, {EmbedTask task});
 }
 
@@ -32,6 +37,9 @@ class EmbedderImpl implements Embedder {
   EmbedderImpl(this._model);
 
   final EmbeddingModel _model;
+
+  @override
+  Future<int> dim() => _model.getDimension();
 
   @override
   Future<Float32List> embed(String text,

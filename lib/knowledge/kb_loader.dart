@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart' show debugPrint, kReleaseMode;
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:path_provider/path_provider.dart';
 
 import '../rag/keyword_retriever.dart';
 import '../rag/retriever.dart';
@@ -51,14 +48,5 @@ class KnowledgeBase {
       keywordRetriever: KeywordRetriever(chunks: chunks),
       cosineRetriever: cosine,
     );
-  }
-
-  /// Copy the bundled vectors to the app docs dir so the on-device embedder
-  /// (Phase 3.3) can read them as a plain file. Used during integration.
-  Future<File>? writeToDiskForEmbedder() async {
-    final dir = await getApplicationDocumentsDirectory();
-    final f = File('${dir.path}/kb_vectors.bin');
-    final bytes = await rootBundle.load('assets/kb/vectors.bin');
-    return f.writeAsBytes(bytes.buffer.asUint8List(), flush: true);
   }
 }

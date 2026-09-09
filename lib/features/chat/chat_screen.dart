@@ -94,17 +94,27 @@ class _ChatScreenState extends State<ChatScreen> {
   /// yet" without triggering disk I/O on every rebuild.
   bool? _hasLocalModelOnDisk;
 
+  /// KB loaded at boot; kept here so an embedder install that happens after
+  /// _loadPrefsAndBootstrap() can rebuild ChatRepository without reloading.
+  KnowledgeBase? _kb;
+
+  /// Tracks the last embedder service status we wired a repo for, so we
+  /// only rebuild when a new embedder appeared (not on every notify).
+  EmbedderStatus _wiredEmbedderStatus = EmbedderStatus.unknown;
+
   @override
   void initState() {
     super.initState();
     _sound.init();
     _loadPrefsAndBootstrap();
     modelManager.addListener(_onModelManagerChanged);
+    embedderService.addListener(_onEmbedderServiceChanged);
   }
 
   @override
   void dispose() {
     modelManager.removeListener(_onModelManagerChanged);
+    embedderService.removeListener(_onEmbedderServiceChanged);
     _pendingPromptNotifier?.removeListener(_onPendingPromptChanged);
     _stt.dispose();
     super.dispose();
@@ -154,6 +164,46 @@ class _ChatScreenState extends State<ChatScreen> {
   void _onModelManagerChanged() {
     _hasLocalModelOnDisk = null;
     if (mounted) setState(() {});
+  }
+
+  /// Rebuilds ChatRepository with a freshly-installed EmbeddingGemma retriever
+  /// when Settings installs one mid-session. Without this, the retriever
+  /// wired at _loadPrefsAndBootstrap() stays keyword-only until cold restart.
+  /// Idempotent: bails when status hasn't moved to ready for the first time.
+  Future<void> _onEmbedderServiceChanged() async {
+    final s = embedderService.status;
+    if (s != EmbedderStatus.ready || _wiredEmbedderStatus == EmbedderStatus.ready) {
+      return;
+    }
+    if (_repo == null) return;
+    final embedder = await embedderService.createEmbedder();
+    if (embedder == null || !mounted) return;
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final embedding = EmbeddingRetriever(
+        embedder: embedder,
+        chunks: _kb?.chunks ?? const [],
+        cacheFile: File(
+            '${dir.path}/${EmbeddingRetriever.cacheFilename(await embedder.dim())}'),
+      );
+      setState(() {
+        _wiredEmbedderStatus = EmbedderStatus.ready;
+        // Preserve all behaviour the previous repo had: same KB, same model,
+        // same cloud tier (if any), same shelter/location providers. We
+        // simply add `embedding` and bump the instance.
+        final previous = _repo!;
+        _repo = ChatRepository(
+          kb: _kb ?? _emptyKb(),
+          model: modelManager,
+          cloudAi: previous.cloudAi,
+          embedding: embedding,
+          shelterProvider: _shelterProvider,
+          userLocationProvider: _resolveUserLocation,
+        );
+      });
+    } catch (e) {
+      debugPrint('Embedder wire-on-install error: $e');
+    }
   }
 
   Future<void> _loadPrefsAndBootstrap() async {
@@ -206,6 +256,7 @@ class _ChatScreenState extends State<ChatScreen> {
     KnowledgeBase? kb;
     try {
       kb = await KnowledgeBase.load();
+      _kb = kb;
     } catch (e) {
       debugPrint('KB load error: $e');
     }
@@ -223,7 +274,8 @@ class _ChatScreenState extends State<ChatScreen> {
           embedding = EmbeddingRetriever(
             embedder: embedder,
             chunks: kb.chunks,
-            cacheFile: File('${dir.path}/kb_vectors_embeddinggemma.bin'),
+            cacheFile: File(
+                '${dir.path}/${EmbeddingRetriever.cacheFilename(await embedder.dim())}'),
           );
         }
       } catch (e) {
@@ -251,6 +303,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
     setState(() {
       _messages.addAll(restored);
+      _wiredEmbedderStatus = embedding != null
+          ? EmbedderStatus.ready
+          : EmbedderStatus.notInstalled;
       _repo = ChatRepository(
         kb: kb ?? _emptyKb(),
         model: modelManager,

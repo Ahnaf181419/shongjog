@@ -17,6 +17,9 @@ class _FakeEmbedder implements Embedder {
   _FakeEmbedder(this.queryVector);
 
   @override
+  Future<int> dim() async => queryVector.length;
+
+  @override
   Future<Float32List> embed(String text,
       {EmbedTask task = EmbedTask.query}) async {
     calls++;
@@ -162,6 +165,36 @@ void main() {
       );
       expect(await r.ensureIndex(), isTrue);
       expect(fake.calls, 3);
+    });
+
+    test('dim-mismatched cache (model swap) is rebuilt', () async {
+      // First retriever writes a cache built with a 3-dim fake.
+      final cacheFile = File('${tmp.path}/v.bin');
+      final a = EmbeddingRetriever(
+        embedder: _FakeEmbedder(Float32List.fromList([1, 0, 0])),
+        chunks: _chunks,
+        cacheFile: cacheFile,
+      );
+      expect(await a.ensureIndex(), isTrue);
+
+      // Second retriever (e.g. user swapped to a 4-dim model) must reject
+      // the cache and rebuild — loading would silently score garbage.
+      final fakeB = _FakeEmbedder(Float32List.fromList([1, 0, 0, 0]));
+      final b = EmbeddingRetriever(
+        embedder: fakeB,
+        chunks: _chunks,
+        cacheFile: cacheFile,
+      );
+      expect(await b.ensureIndex(), isTrue);
+      expect(fakeB.calls, 3); // rebuilt from scratch, not loaded
+    });
+
+    test('cacheFilename embeds the dim so model swaps use distinct files',
+        () {
+      expect(EmbeddingRetriever.cacheFilename(3),
+          'kb_vectors_embeddinggemma_d3.bin');
+      expect(EmbeddingRetriever.cacheFilename(768),
+          'kb_vectors_embeddinggemma_d768.bin');
     });
   });
 }

@@ -90,7 +90,7 @@ Topic: {topic}. {text} {keywords joined}
 | `lib/rag/embedding_retriever.dart` | ✅ 164 lines — cache file (`SJEG` magic + int32 count + int32 dim + float32 payload, little-endian, row-major); single-flight `ensureIndex` with failure reset; rebuilds when chunk count changes |
 | `lib/core/embedder_service.dart` | ✅ `ChangeNotifier` singleton mirroring `modelManager` shape; `refreshStatus`/`createEmbedder`/`install` (HF-token-aware, 4-bit 75 MB variant supported) |
 | `lib/features/chat/chat_repository.dart` | ✅ `embedding: EmbeddingRetriever?` param; semantic-first `_retrieve` with graceful keyword fallback on any embedding failure |
-| `lib/features/chat/chat_screen.dart` | ✅ Builds the retriever on chat init when an embedder is installed; cache at `<docs>/kb_vectors_embeddinggemma.bin` |
+| `lib/features/chat/chat_screen.dart` | ✅ Builds the retriever on chat init when an embedder is installed; cache at `<docs>/kb_vectors_embeddinggemma_d{dim}.bin` (dim-derived filename prevents a model swap from corrupting the prior cache); also listens to `embedderService` so install-via-Settings takes effect mid-session |
 | `lib/main.dart` | ✅ Embedder warmup block, mirroring the model warmup pattern (unawaited, non-fatal, stopwatch-timed) |
 | `lib/features/settings/model_picker_section.dart` | ✅ `_EmbedderStatusRow` (rounded icons, success-tone color when active) |
 | `lib/l10n/app_bn.arb` + `app_en.arb` | ✅ 3 keys: `modelSemanticTitle`/`Active`/`Absent` |
@@ -105,6 +105,7 @@ Topic: {topic}. {text} {keywords joined}
 | EmbeddingGemma HF repo is license-gated (`needsAuth: true`) | `install()` accepts a `hfToken`; until configured, `hasActiveEmbedder()` returns false and the app silently uses keyword retrieval — no behaviour change |
 | Latency hit on first AI tap (embed + retrieve) | Warm the embedder at startup, mirroring `lib/main.dart` model warmup; corpus vectors persist to disk so subsequent launches are ~1 ms |
 | Recall regression vs current 60-62% baseline | EmbeddingGemma on-device measurement is pending (Colab eval); the retriever gracefully falls back to keyword retrieval if the index is absent, fails, or returns empty hits above the floor |
+| Install-via-Settings wiring gap | `chat_screen.dart` listens to `embedderService` so an install via Settings rebuilds `ChatRepository` with the new retriever mid-session — no cold restart required (`_onEmbedderServiceChanged`) |
 
 ## Combined timeline
 
@@ -122,7 +123,7 @@ Topic: {topic}. {text} {keywords joined}
 | `eval/gen_test_set.jsonl` | ✅ 76 queries, schema validated at load, extractive gold |
 | `eval/run_gen_eval.py` | ✅ Selftest PASS; byte-exact prompt parity (asserted at startup) |
 | `eval/results/gen_compare.md` | ⏳ Pending Colab runs |
-| EmbeddingGemma code | ✅ Compiles, analyzer clean, 20 new unit tests pass, full suite 916/1/0 |
+| EmbeddingGemma code | ✅ Compiles, analyzer clean, 29 new unit tests pass, full suite 928/1/0 |
 | `flutter analyze` + `flutter test` | ✅ No issues / 916 pass / 1 skip / 0 fail |
 | No commits to `lib/` from Part A | ✅ Part A is read-only; only `eval/` gains files |
 | **No model swap before the eval** | ✅ Gemma 4 E2B remains the shipped default until `gen_compare.md` picks a winner |

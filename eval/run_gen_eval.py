@@ -20,6 +20,7 @@ CLI: --models all|comma-list, --limit N, --no-judge, --embed-mode,
 import argparse
 import io
 import json
+import os
 import re
 import statistics
 import sys
@@ -41,7 +42,7 @@ GEN_SCORE_WEIGHTS = {
     'bangla_fidelity': 0.10, 'forbidden_safe': 0.05,
 }
 SPEED_FLOOR_TOK_S = 15.0  # ≈ 5 tok/s on a mid-range phone
-TIE_BAND_PP = 1.0  # within 1.0pp gen_score → prefer faster
+TIE_BAND_FRACTION = 0.01  # within 1pp of gen_score (1.0 on 0–1 scale) → prefer faster
 GENERATION_DEFAULTS = {
     'temperature': 0.3, 'top_k': 40, 'top_p': 0.95,
     'max_tokens': 256,
@@ -450,7 +451,7 @@ def write_compare(path, summaries):
         if len(eligible) > 1:
             leader_score = winner[1]['gen_score']
             band = [e for e in eligible
-                    if (leader_score - e[1]['gen_score']) <= TIE_BAND_PP / 100]
+                    if (leader_score - e[1]['gen_score']) <= TIE_BAND_FRACTION]
             if len(band) > 1:
                 band.sort(key=lambda x: -x[2])  # faster first
                 winner = band[0]
@@ -459,7 +460,7 @@ def write_compare(path, summaries):
         f.write("# Gen Compare — Local-model Decision Table\n\n")
         f.write(f"Selection rule (locked): `argmax gen_score` subject to "
                 f"`tok/s ≥ {SPEED_FLOOR_TOK_S}` on Colab T4 (≈ 5 tok/s on a "
-                f"mid-range phone). Within {TIE_BAND_PP:.1f}pp on `gen_score`, "
+                f"mid-range phone). Within {TIE_BAND_FRACTION * 100:.1f}pp on `gen_score`, "
                 f"prefer the faster model.\n\n")
         f.write(f"Phone tok/s estimate = T4 tok/s / 6.\n\n")
         f.write("| Model | gen_score | groundedness | safety | action_cov "
@@ -585,17 +586,32 @@ def evaluate_model(model_id, entries, chunks, persona, rules,
 
 
 def load_entries():
-    with io.open(TEST_SET_PATH, encoding='utf-8') as f:
-        entries = [json.loads(line) for line in f if line.strip()]
-    counts = {}
-    for e in entries:
-        counts[e['category']] = counts.get(e['category'], 0) + 1
-    print(f'[schema] {len(entries)} entries, categories: {counts}',
-          file=sys.stderr)
-    cats = {'standard', 'cross_hazard', 'myth', 'follow_up', 'out_of_scope'}
-    assert set(counts.keys()) <= cats, f'unexpected categories: {counts}'
-    assert all(c in cats for c in counts), f'missing categories: {counts}'
-    return entries
+    try:
+        with io.open(TEST_SET_PATH, encoding='utf-8') as f:
+            entries = [json.loads(line) for line in f if line.strip()]
+        counts = {}
+        for e in entries:
+            counts[e['category']] = counts.get(e['category'], 0) + 1
+        cats = {'standard', 'cross_hazard', 'myth', 'follow_up', 'out_of_scope'}
+        unknown = set(counts.keys()) - cats
+        if unknown:
+            print(f'[schema] FAIL: unexpected categories {sorted(unknown)}',
+                  file=sys.stderr)
+            sys.exit(2)
+        missing = cats - set(counts.keys())
+        if missing:
+            print(f'[schema] FAIL: missing categories {sorted(missing)}',
+                  file=sys.stderr)
+            sys.exit(2)
+        print(f'[schema] {len(entries)} entries, categories: {counts}',
+              file=sys.stderr)
+        return entries
+    except FileNotFoundError:
+        print(f'[schema] FAIL: {TEST_SET_PATH} not found', file=sys.stderr)
+        sys.exit(2)
+    except json.JSONDecodeError as e:
+        print(f'[schema] FAIL: invalid JSON: {e}', file=sys.stderr)
+        sys.exit(2)
 
 
 # ── selftest ───────────────────────────────────────────────────────
@@ -637,14 +653,7 @@ def run_selftest():
     print(f'  gen_score: {summary["gen_score"]:.3f}')
     print(f'  sample truncated response (first): {records[0]["cleaned_response"][:80]!r}')
     print(f'  wrote {out_jsonl}, gen_selftest_report.md, gen_selftest_compare.md')
-
-
-def _extract_keywords(dart):
-    """The keywords list is inside _kEmergencyKeywords = [ … ]; regex
-    pulled the bracket body. Parse it as a Python list of literals."""
-    raw = dart['kEmergencyKeywords']
-    # crude but adequate: each entry is a quoted string literal.
-    return re.findall(r"""'((?:[^'\\]|\\.)*)'""", raw)
+    return True
 
 
 # ── main ───────────────────────────────────────────────────────────
@@ -659,10 +668,21 @@ def main():
     ap.add_argument('--selftest', action='store_true')
     ap.add_argument('--compare', action='store_true',
                     help='regenerate gen_compare.md from existing jsonl files')
+    ap.add_argument('--gemini-key', default=os.environ.get('GEMINI_API_KEY'),
+                    help='Gemini API key (else $GEMINI_API_KEY / $GOOGLE_API_KEY); '
+                         'no key → judge=None, metrics imputed by category means')
+    ap.add_argument('--hf-token', default=os.environ.get('HF_TOKEN'),
+                    help='HF token (else $HF_TOKEN); required for --embed-mode '
+                         'and EmbeddingGemma license-gated installs')
     args = ap.parse_args()
 
+    if args.gemini_key is None:
+        gemini_key = os.environ.get('GOOGLE_API_KEY')
+    else:
+        gemini_key = args.gemini_key
+
     if args.selftest:
-        return 0 if run_selftest() or True else 1
+        return 0 if run_selftest() else 1
 
     corpus = load_corpus()
     chunks = chunks_for(corpus)
@@ -688,7 +708,7 @@ def main():
         records, summary, tps = evaluate_model(
             mid, entries, chunks, dart['kPersona'], dart['kRules'],
             _extract_keywords(dart), limit=args.limit, no_judge=args.no_judge,
-            embed_model=embed_model)
+            embed_model=embed_model, gemini_key=gemini_key)
         if records is None:
             summaries.append((mid, None, None))
             continue

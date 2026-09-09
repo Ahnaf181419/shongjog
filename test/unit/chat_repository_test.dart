@@ -323,6 +323,9 @@ class _SemanticFakeEmbedder implements Embedder {
   Object? throwOn;
 
   @override
+  Future<int> dim() async => queryVector.length;
+
+  @override
   Future<Float32List> embed(String text,
       {EmbedTask task = EmbedTask.query}) async {
     if (throwOn != null) throw throwOn!;

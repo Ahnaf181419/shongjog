@@ -38,7 +38,17 @@ class EmbeddingRetriever {
   /// Optional persistent cache for the document vectors. When null the
   /// index is rebuilt (48 embeds) on every launch — still correct, just
   /// slower, and the right default for tests.
+  ///
+  /// Callers should derive the filename from [cacheFilename] so a model swap
+  /// (different `dim`) writes to a distinct file instead of corrupting the
+  /// prior cache.
   final File? cacheFile;
+
+  /// Stable, dim-derived cache filename inside an app docs dir.
+  /// Example: `kb_vectors_embeddinggemma_d768.bin`. Use with `getApplicationDocumentsDirectory()`.
+  /// Callers should `await embedder.dim()` first (cached inside the embedder impl).
+  static String cacheFilename(int dim) =>
+      'kb_vectors_embeddinggemma_d$dim.bin';
 
   /// Minimum cosine similarity for a hit. Passed through to
   /// [BruteForceRetriever.topK].
@@ -83,7 +93,7 @@ class EmbeddingRetriever {
 
   Future<bool> _loadOrBuild() async {
     if (chunks.isEmpty) return false;
-    final cached = _readCache();
+    final cached = await _readCache();
     if (cached != null) {
       _index = BruteForceRetriever(chunks: chunks, vectors: cached);
       debugPrint('[EmbeddingRetriever] loaded cached index '
@@ -115,7 +125,7 @@ class EmbeddingRetriever {
   static String _documentText(Chunk c) =>
       'Topic: ${c.topic}. ${c.text} ${c.keywordsBn.join(' ')}';
 
-  Float32List? _readCache() {
+  Future<Float32List?> _readCache() async {
     final f = cacheFile;
     if (f == null) return null;
     try {
@@ -127,6 +137,10 @@ class EmbeddingRetriever {
       final count = data.getInt32(4, Endian.little);
       final dim = data.getInt32(8, Endian.little);
       if (count != chunks.length || dim <= 0) return null;
+      // Defend against a dimension mismatch if the embedder model changes
+      // (e.g. swap EmbeddingGemma for a different model). A wrong dim would
+      // silently produce garbage cosine scores against the new query vectors.
+      if (dim != await embedder.dim()) return null;
       if (bytes.length != _kHeaderBytes + 4 * count * dim) return null;
       final out = Float32List(count * dim);
       for (var i = 0; i < out.length; i++) {

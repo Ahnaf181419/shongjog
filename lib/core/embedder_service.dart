@@ -18,6 +18,16 @@ import '../rag/embedder.dart';
 /// URL) is configured, callers should treat the embedder as optional
 /// and the app degrades to keyword retrieval exactly as before.
 class EmbedderService extends ChangeNotifier {
+  EmbedderService({
+    @visibleForTesting bool Function()? hasActive,
+    @visibleForTesting Future<EmbeddingModel> Function()? getActive,
+  })  : _hasActive = hasActive ?? FlutterGemma.hasActiveEmbedder,
+        _getActive = getActive ?? FlutterGemma.getActiveEmbedder;
+
+  /// Override hooks for unit tests; defaults to the live plugin calls.
+  final bool Function() _hasActive;
+  final Future<EmbeddingModel> Function() _getActive;
+
   EmbedderStatus _status = EmbedderStatus.unknown;
   String? _error;
 
@@ -28,7 +38,7 @@ class EmbedderService extends ChangeNotifier {
   /// safe to call at startup.
   Future<void> refreshStatus() async {
     try {
-      _status = FlutterGemma.hasActiveEmbedder()
+      _status = _hasActive()
           ? EmbedderStatus.ready
           : EmbedderStatus.notInstalled;
       _error = null;
@@ -44,8 +54,8 @@ class EmbedderService extends ChangeNotifier {
   /// active instance), so prefer calling this off the first frame.
   Future<Embedder?> createEmbedder() async {
     try {
-      if (!FlutterGemma.hasActiveEmbedder()) return null;
-      final model = await FlutterGemma.getActiveEmbedder();
+      if (!_hasActive()) return null;
+      final model = await _getActive();
       return EmbedderImpl(model);
     } catch (e) {
       debugPrint('[EmbedderService] getActiveEmbedder failed: $e');
