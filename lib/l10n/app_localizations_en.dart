@@ -1584,7 +1584,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get safetySafeButton => 'I\'m Safe';
 
   @override
-  String get safetyDangerButton => 'I\'m in Danger';
+  String get safetyDangerButton => 'I\'m in danger';
+
+  @override
+  String get safetyNoContacts =>
+      'No emergency contacts configured. Add one in Settings → Emergency Numbers.';
+
+  @override
+  String dangerSmsSummary(Object pending, Object sent) {
+    return '$sent SMS sent, $pending pending.';
+  }
+
+  @override
+  String get safetyDangerSent => 'Danger alert sent.';
 
   @override
   String get safetyStatusSent => 'Safe status sent';

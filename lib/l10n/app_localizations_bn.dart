@@ -1591,6 +1591,18 @@ class AppLocalizationsBn extends AppLocalizations {
   String get safetyDangerButton => 'আমি বিপদে আছি';
 
   @override
+  String get safetyNoContacts =>
+      'কোনো জরুরি যোগাযোগ সেট করা নেই। সেটিংস → জরুরি নম্বর থেকে যোগ করুন।';
+
+  @override
+  String dangerSmsSummary(Object pending, Object sent) {
+    return '$sentটি এসএমএস পাঠানো হয়েছে, $pendingটি অপেক্ষমান।';
+  }
+
+  @override
+  String get safetyDangerSent => 'বিপদ সংকেত পাঠানো হয়েছে।';
+
+  @override
   String get safetyStatusSent => 'নিরাপদ বার্তা পাঠানো হয়েছে';
 
   @override

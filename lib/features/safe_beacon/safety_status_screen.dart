@@ -130,15 +130,20 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
 
       if (mounted) {
         final l10n = AppLocalizations.of(context);
+        // Independent-review suggestion 2 (2026-09-09): when there are
+        // no contacts configured, "will notify 0 on reconnect" is
+        // misleading UX. Show an explicit "no contacts" branch.
+        final content = sms.pending == 0 && sms.sent == 0
+            ? l10n.safetyNoContacts
+            : (sms.sent > 0
+                ? l10n.smsSent(banglaNumber(sms.sent))
+                : l10n.willNotifyOnReconnect(banglaNumber(sms.pending)));
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             // Count-aware feedback, ported from SafeBeaconScreen: the
             // user must know whether contacts were notified now, will
             // be notified on reconnect, or there are none configured.
-            content: Text(sms.sent > 0
-                ? l10n.smsSent(banglaNumber(sms.sent))
-                : l10n.willNotifyOnReconnect(
-                    banglaNumber(sms.pending))),
+            content: Text(content),
             backgroundColor:
                 ShongjogTheme.toneFill(context, SemanticTone.success),
           ),
@@ -194,13 +199,20 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
           echoSelf: false);
 
       // 4. Queue SMS to contacts (with GPS link).
-      await _queueSms(
+      final sms = await _queueSms(
           _dangerMessage(l10n, p.name, p.phone, dangerType, gps.lat, gps.lon));
 
       if (mounted) {
+        // Independent-review suggestion 3 (2026-09-09): mirror the
+        // safe-path count-aware feedback so operators see the truth
+        // (e.g. "৩টি এসএমএস পাঠানো হয়েছে, ২টি অপেক্ষমান").
+        final content = sms.pending == 0 && sms.sent == 0
+            ? l10n.safetyNoContacts
+            : l10n.dangerSmsSummary(
+                banglaNumber(sms.sent), banglaNumber(sms.pending));
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context).dangerAlertSent),
+            content: Text(content),
             backgroundColor:
                 ShongjogTheme.toneFill(context, SemanticTone.danger),
             duration: const Duration(seconds: 4),

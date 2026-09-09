@@ -27,6 +27,13 @@ class _SituationSummaryScreenState extends State<SituationSummaryScreen> {
   String? _summary;
   bool _loading = false;
 
+  /// Cached count future so build() doesn't allocate a fresh Future
+  /// every frame (independent-review suggestion 1, 2026-09-09). The
+  /// State lives for the lifetime of the screen; _collectReports is
+  /// pure-Dart aside from SharedPreferences + safetyStatusService
+  /// reads, both of which are deterministic within a single session.
+  late final Future<int> _reportCountFuture;
+
   /// Aggregate the live data sources into a single report list for the
   /// summarizer. Empty in a fresh install; filled when there is chat
   /// history or a safety report. Three placeholder reports are returned
@@ -97,6 +104,12 @@ class _SituationSummaryScreenState extends State<SituationSummaryScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _reportCountFuture = _collectReports().then((r) => r.length);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context).situationTitle)),
@@ -113,7 +126,7 @@ class _SituationSummaryScreenState extends State<SituationSummaryScreen> {
 
   FutureBuilder<int> _buildCountFuture() =>
       FutureBuilder<int>(
-        future: _collectReports().then((r) => r.length),
+        future: _reportCountFuture,
         builder: (ctx, snap) {
           final n = snap.data;
           if (n == null) return const SizedBox.shrink();

@@ -3104,6 +3104,24 @@ abstract class AppLocalizations {
   /// **'আমি বিপদে আছি'**
   String get safetyDangerButton;
 
+  /// No description provided for @safetyNoContacts.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোনো জরুরি যোগাযোগ সেট করা নেই। সেটিংস → জরুরি নম্বর থেকে যোগ করুন।'**
+  String get safetyNoContacts;
+
+  /// No description provided for @dangerSmsSummary.
+  ///
+  /// In bn, this message translates to:
+  /// **'{sent}টি এসএমএস পাঠানো হয়েছে, {pending}টি অপেক্ষমান।'**
+  String dangerSmsSummary(Object pending, Object sent);
+
+  /// No description provided for @safetyDangerSent.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিপদ সংকেত পাঠানো হয়েছে।'**
+  String get safetyDangerSent;
+
   /// No description provided for @safetyStatusSent.
   ///
   /// In bn, this message translates to:
