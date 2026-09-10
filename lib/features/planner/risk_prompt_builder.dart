@@ -3,6 +3,9 @@
 /// FamilyProfile HomeType pattern.
 library;
 
+import 'planner_strings_loader.dart' show fillTemplate;
+import 'risk_strings_loader.dart';
+
 enum HomeMaterial {
   tinShed,
   halfPucka,
@@ -112,35 +115,33 @@ class RiskPromptBuilder {
   RiskPromptBuilder._();
 
   /// Build the model prompt. Returns null if all defaults (nothing to assess).
-  static String? buildPrompt(RiskInputs r) {
+  static String? buildPrompt(RiskInputs r, {RiskStrings? s}) {
+    final strings = s ?? cachedRisk;
     if (!r.hasContent &&
         r.homeMaterial == HomeMaterial.tinShed &&
         r.elevation == Elevation.mid) {
-      // Empty / pure-default state: nothing useful to assess.
       return null;
     }
 
     final buf = StringBuffer();
-    buf.writeln('তুমি সংযোগ। এই বাড়ি ও পরিবারের জন্য একটি '
-        'ঝুঁকি মূল্যায়ন করো। ১-১০ এর মধ্যে একটি ঝুঁকি স্কোর '
-        'দাও (১০ = সর্বোচ্চ ঝুঁকি) এবং একটি ছোট ব্যাখ্যা ও '
-        'উন্নতির পরামর্শ দাও। বাংলায়, বাংলা সংখ্যা ব্যবহার করো।');
+    buf.writeln(strings.task);
     buf.writeln();
-    buf.writeln('• ঘরের ধরন: ${r.homeMaterial.labelBn}');
-    buf.writeln('• পূর্ববর্তী বন্যার ইতিহাস: ${r.previousFloods.labelBn}');
-    buf.writeln('• উচ্চতা: ${r.elevation.labelBn}');
-    if (r.nearRiver) buf.writeln('• নিকটবর্তী নদী আছে');
-    if (r.nearCoast) buf.writeln('• সমুদ্রতীরের কাছে');
-    if (r.hasElderly) buf.writeln('• পরিবারে প্রবীণ আছে');
-    if (r.hasInfants) buf.writeln('• পরিবারে শিশু আছে');
+    buf.writeln(fillTemplate(strings.homeMaterial, {'material': r.homeMaterial.labelBn}));
+    buf.writeln(fillTemplate(strings.floodHistory, {'history': r.previousFloods.labelBn}));
+    buf.writeln(fillTemplate(strings.elevation, {'elevation': r.elevation.labelBn}));
+    if (r.nearRiver) buf.writeln(strings.nearRiver);
+    if (r.nearCoast) buf.writeln(strings.nearCoast);
+    if (r.hasElderly) buf.writeln(strings.hasElderly);
+    if (r.hasInfants) buf.writeln(strings.hasInfants);
     buf.writeln();
-    buf.write('ঝুঁকি মূল্যায়ন:');
+    buf.write(strings.riskLabel);
     return buf.toString();
   }
 
   /// Deterministic risk score + summary, 1-10.
   /// Higher = more risk. Weighted score with a Bangla explanation.
-  static RiskResult fallbackScore(RiskInputs r) {
+  static RiskResult fallbackScore(RiskInputs r, {RiskStrings? s}) {
+    final strings = s ?? cachedRisk;
     var score = 1;
 
     // Home material (1-4 points)
@@ -176,8 +177,8 @@ class RiskPromptBuilder {
     // Clamp 1-10.
     score = score.clamp(1, 10);
 
-    final summary = _summaryForScore(score, r);
-    final improvements = _improvementsForScore(score, r);
+    final summary = _summaryForScore(score, r, strings);
+    final improvements = _improvementsForScore(score, r, strings);
 
     return RiskResult(
       score: score,
@@ -186,40 +187,41 @@ class RiskPromptBuilder {
     );
   }
 
-  static String _summaryForScore(int score, RiskInputs r) {
+  static String _summaryForScore(int score, RiskInputs r, RiskStrings s) {
     final bn = _bn(score);
     final hazards = <String>[];
     if (r.nearRiver) hazards.add('নদী');
     if (r.nearCoast) hazards.add('সমুদ্র');
-    final hazardsStr = hazards.isEmpty
-        ? 'কোনো বড় হুমকি নেই'
-        : hazards.join(' ও ');
+    final hazardsStr = hazards.isEmpty ? s.noMajorThreat : hazards.join(' ও ');
 
-    return 'আপনার ঝুঁকি স্কোর: $bn/১০। '
-        '${r.homeMaterial.labelBn} এবং $hazardsStr।';
+    return fillTemplate(s.scoreOf, {
+      'score': bn,
+      'material': r.homeMaterial.labelBn,
+      'hazards': hazardsStr,
+    });
   }
 
-  static String _improvementsForScore(int score, RiskInputs r) {
+  static String _improvementsForScore(int score, RiskInputs r, RiskStrings s) {
     final buf = StringBuffer();
-    buf.writeln('উন্নতির পরামর্শ:');
+    buf.writeln(s.improvementsTitle);
     if (r.homeMaterial == HomeMaterial.tinShed) {
-      buf.writeln('• ঘরের ছাউনি শক্তিশালী করুন বা পাকা ঘরে স্থানান্তরিত হন।');
+      buf.writeln(s.improveRoof);
     }
     if (r.elevation == Elevation.low) {
-      buf.writeln('• উঁচু স্থানে স্থানান্তরের পরিকল্পনা রাখুন।');
+      buf.writeln(s.improveElevation);
     }
     if (r.nearRiver || r.nearCoast) {
-      buf.writeln('• নদী/সমুদ্র থেকে কমপক্ষে ১ কিমি দূরে নিরাপদ আশ্রয় চিহ্নিত করুন।');
+      buf.writeln(s.improveShelter);
     }
     if (r.hasElderly || r.hasInfants) {
-      buf.writeln('• ঝুঁকিপূর্ণ সময়ে প্রবীণ/শিশুদের জন্য বিশেষ সরঞ্জাম প্রস্তুত রাখুন।');
+      buf.writeln(s.improveVulnerable);
     }
     if (score <= 3) {
-      buf.writeln('• আপনার ঝুঁকি কম — নিয়মিত প্রস্তুতি অব্যাহত রাখুন।');
+      buf.writeln(s.improveLow);
     } else if (score <= 6) {
-      buf.writeln('• আপনার ঝুঁকি মাঝারি — দুর্যোগ প্রস্তুতি পরিকল্পনা তৈরি করুন।');
+      buf.writeln(s.improveMid);
     } else {
-      buf.writeln('• আপনার ঝুঁকি উচ্চ — জরুরি স্থানান্তরের পরিকল্পনা করুন।');
+      buf.writeln(s.improveHigh);
     }
     return buf.toString();
   }

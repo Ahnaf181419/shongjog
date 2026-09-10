@@ -4903,6 +4903,42 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'~৫ GB'**
   String get modelInfoRamE4b;
+
+  /// No description provided for @demoSeedQ1Question.
+  ///
+  /// In bn, this message translates to:
+  /// **'ওআরএস কীভাবে বানাবো?'**
+  String get demoSeedQ1Question;
+
+  /// No description provided for @demoSeedQ1Answer.
+  ///
+  /// In bn, this message translates to:
+  /// **'১ লিটার পরিষ্কার পানিতে ৬ চা চামচ চিনি ও আধা চা চামচ লবণ মেশান। ভালো করে নাড়ুন এবং ২৪ ঘণ্টার মধ্যে খেয়ে ফেলুন। শিশুদের বারবার চামচ দিয়ে খাওয়ান।'**
+  String get demoSeedQ1Answer;
+
+  /// No description provided for @demoSeedQ2Question.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিকটস্থ আশ্রয়কেন্দ্র কোথায়?'**
+  String get demoSeedQ2Question;
+
+  /// No description provided for @demoSeedQ2Answer.
+  ///
+  /// In bn, this message translates to:
+  /// **'আশ্রয় মানচিত্রে (হোম → আশ্রয়) নিকটস্থ ঘূর্ণিঝড় আশ্রয়কেন্দ্র দেখুন। GPS অনুমতি দিলে দূরত্ব অনুযায়ী সাজানো তালিকা পাবেন।'**
+  String get demoSeedQ2Answer;
+
+  /// No description provided for @demoSeedQ3Question.
+  ///
+  /// In bn, this message translates to:
+  /// **'সাপে কামড়ালে কী করবো?'**
+  String get demoSeedQ3Question;
+
+  /// No description provided for @demoSeedQ3Answer.
+  ///
+  /// In bn, this message translates to:
+  /// **'রোগীকে শান্ত রাখুন। কাটা, চুষা বা টর্নিকেট ব্যবহার করবেন না। আক্রান্ত স্থান নড়াচলা বন্ধ রাখুন এবং দ্রুত নিকটস্থ হাসপাতালে নিন。'**
+  String get demoSeedQ3Answer;
 }
 
 class _AppLocalizationsDelegate

@@ -9,7 +9,34 @@ work completed during a build phase or significant milestone.
 
 ---
 
-## [Unreleased] — Docs, license & submission assets
+## [Unreleased] - 2026-09-09
+
+### Changed
+- **i18n foundation:** Every user-facing string now lives in one of three sources of truth:
+  `lib/l10n/app_*.arb`, `assets/data/*.json`, or `assets/prompts/*.json`.
+  Quick cards, districts, emergency directory, RAG corpus, planner/kit/risk/rumour/
+  situation-summary/shelter/damage-scan prompts all extracted to bilingual JSON.
+  `lib/rag/urgency_classifier.dart` `labelBn` field removed; surfaces via `AppLocalizations`.
+  `ChatRepository` `ask(Locale?, …)`; `PersonaBundle` drives the system prompt.
+
+### Added
+- `lib/core/text_loader.dart` shared async JSON loader with parsed-result cache
+  keyed by `(path, locale)` so bn and en blocks coexist.
+- `assets/prompts/{persona,planner,kit,risk,rumour,situation_summary,shelter,damage_scan}.json`.
+- `assets/data/{cards,districts,emergency_directory,corpus}.json`.
+- `test/lint/no_scattered_bangla_test.dart` enforcing bn/en parity + ARB key parity
+  + legacy Bangla-literal file budget ≤ 60.
+
+### Removed
+- `assets/emergency/directory.json` (relocated to `assets/data/emergency_directory.json`).
+- `assets/kb/corpus.json` (relocated to `assets/data/corpus.json`).
+- `lib/features/planner/{planner,kit,risk}_prompt_builder.dart` inline Bangla strings
+  (now sourced from JSON loaders).
+- `lib/features/intelligence/situation_summary_service.dart` inline Bangla strings.
+- `lib/features/emergency/directory_loader.dart` old asset path.
+- `lib/features/quick_cards/cards_data.dart` giant constant (replaced by JSON loader).
+
+## [Unreleased - prior] — Docs, license & submission assets
 
 ### Added
 

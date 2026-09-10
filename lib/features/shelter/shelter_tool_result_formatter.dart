@@ -1,4 +1,5 @@
 import 'nearest_shelter.dart';
+import 'shelter_strings_loader.dart';
 import '../../core/bangla_numerals.dart';
 
 /// Formats the result of a `find_nearest_shelter` tool call into a
@@ -11,32 +12,36 @@ class ShelterToolResultFormatter {
   ShelterToolResultFormatter._();
 
   /// Build the user-facing Bangla message from a ranked shelter list.
-  ///
-  /// Empty list → a helpful fallback pointing the user to 999.
-  /// Non-empty → a numbered list (Bengali digits) of name + distance +
-  /// optional capacity, plus a "tap to view on map" hint.
-  static String toBanglaMessage(List<RankedShelter> ranked) {
+  static String toBanglaMessage(List<RankedShelter> ranked, {ShelterStrings? s}) {
+    final strings = s ?? cachedShelter;
     if (ranked.isEmpty) {
-      return 'আমার কাছে এই এলাকার কোনো শেল্টারের তথ্য নেই। '
-          'জরুরি সাহায্যের জন্য ৯৯৯ এ কল করুন।';
+      return strings.toolEmpty;
     }
 
     final buf = StringBuffer();
-    buf.writeln('নিকটস্থ শেল্টারসমূহ:');
+    buf.writeln(strings.toolTitle);
     buf.writeln();
     for (var i = 0; i < ranked.length; i++) {
       final r = ranked[i];
       final name = r.shelter.nameBn.isNotEmpty ? r.shelter.nameBn : r.shelter.name;
       final distBn = toBanglaDigits(r.km.toStringAsFixed(1));
-      buf.write('${toBanglaDigits('${i + 1}')}. $name — $distBn কিমি');
+      final indexBn = toBanglaDigits('${i + 1}');
+      final template = r.shelter.capacity != null
+          ? strings.toolEntryWithCapacity
+          : strings.toolEntry;
+      final entry = template
+          .replaceAll('{index}', indexBn)
+          .replaceAll('{name}', name)
+          .replaceAll('{km}', distBn);
       if (r.shelter.capacity != null) {
         final capBn = toBanglaDigits('${r.shelter.capacity}');
-        buf.write(' (ধারণক্ষমতা $capBn)');
+        buf.writeln(entry.replaceAll('{capacity}', capBn));
+      } else {
+        buf.writeln(entry);
       }
-      buf.writeln();
     }
     buf.writeln();
-    buf.write('মানচিত্রে দেখতে আশ্রয় ট্যাবে যান।');
+    buf.write(strings.toolMapHint);
     return buf.toString();
   }
 

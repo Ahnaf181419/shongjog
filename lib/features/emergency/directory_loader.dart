@@ -32,7 +32,7 @@ class EmergencyEntry {
 /// `assets/emergency/directory.json`. Cached in memory after the
 /// first read.
 class DirectoryLoader {
-  static const _assetPath = 'assets/emergency/directory.json';
+  static const _assetPath = 'assets/data/emergency_directory.json';
   static List<EmergencyEntry>? _cache;
 
   static Future<List<EmergencyEntry>> loadAll() async {

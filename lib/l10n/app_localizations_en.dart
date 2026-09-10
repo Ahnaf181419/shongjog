@@ -2566,4 +2566,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get modelInfoRamE4b => '~5 GB';
+
+  @override
+  String get demoSeedQ1Question => 'How do I make ORS?';
+
+  @override
+  String get demoSeedQ1Answer =>
+      'Mix 6 teaspoons of sugar and half a teaspoon of salt into 1 litre of clean water. Stir well and drink within 24 hours. Feed children small spoonfuls often.';
+
+  @override
+  String get demoSeedQ2Question => 'Where is the nearest shelter?';
+
+  @override
+  String get demoSeedQ2Answer =>
+      'Open the Shelter map (Home → Shelter) to see the nearest cyclone shelters. With GPS permission on, you get a sorted list by distance.';
+
+  @override
+  String get demoSeedQ3Question => 'What do I do for a snakebite?';
+
+  @override
+  String get demoSeedQ3Answer =>
+      'Keep the patient calm. Don\'t cut, suck, or use a tourniquet. Immobilize the bitten limb and get to the nearest hospital quickly.';
 }

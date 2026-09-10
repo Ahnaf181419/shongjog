@@ -16,6 +16,11 @@
       "পানি",
       "খাবার স্যালাইন",
       "ORS বানানো"
+    ],
+    "text_en": "",
+    "source_en": "WHO Cholera fact sheet, 2024",
+    "keywords_en": [
+      "ors"
     ]
   },
   {
@@ -35,6 +40,11 @@
       "পরিমাণ",
       "খাওয়ানো",
       "খাবার স্যালাইন"
+    ],
+    "text_en": "",
+    "source_en": "WHO Diarrhoeal disease fact sheet, 2024",
+    "keywords_en": [
+      "ors"
     ]
   },
   {
@@ -53,6 +63,11 @@
       "লক্ষণ",
       "999",
       "ডাক্তার"
+    ],
+    "text_en": "",
+    "source_en": "BDRCS First Aid Guide, 2023",
+    "keywords_en": [
+      "ors"
     ]
   },
   {
@@ -70,6 +85,11 @@
       "ঢাকনা",
       "বরফ",
       "২৪ ঘণ্টা"
+    ],
+    "text_en": "",
+    "source_en": "WHO Water safety fact sheet, 2024",
+    "keywords_en": [
+      "water"
     ]
   },
   {
@@ -87,6 +107,11 @@
       "মেঘ",
       "দুই দিন",
       "SODIS"
+    ],
+    "text_en": "",
+    "source_en": "WHO Water safety fact sheet, 2024",
+    "keywords_en": [
+      "water"
     ]
   },
   {
@@ -103,6 +128,11 @@
       "গন্ধ",
       "মিশানো",
       "অপেক্ষা"
+    ],
+    "text_en": "",
+    "source_en": "CDC Emergency water treatment, 2024",
+    "keywords_en": [
+      "water"
     ]
   },
   {
@@ -122,6 +152,11 @@
       "24 ঘণ্টা",
       "বাচ্চা",
       "বাচ্চার ডায়রিয়া"
+    ],
+    "text_en": "",
+    "source_en": "WHO Diarrhoeal disease fact sheet, 2024",
+    "keywords_en": [
+      "diarrhea"
     ]
   },
   {
@@ -140,6 +175,11 @@
       "হাসপাতাল",
       "999",
       "বাচ্চার ডায়রিয়া"
+    ],
+    "text_en": "",
+    "source_en": "WHO Cholera fact sheet, 2024",
+    "keywords_en": [
+      "diarrhea"
     ]
   },
   {
@@ -158,6 +198,11 @@
       "হোমিওপ্যাথি",
       "লেপ",
       "সাপে কামড়"
+    ],
+    "text_en": "",
+    "source_en": "WHO Snakebite fact sheet, 2024",
+    "keywords_en": [
+      "snakebite"
     ]
   },
   {
@@ -177,6 +222,11 @@
       "প্রথম সহায়তা",
       "বিষ",
       "সাপে কামড়"
+    ],
+    "text_en": "",
+    "source_en": "BDRCS First Aid Guide, 2023",
+    "keywords_en": [
+      "snakebite"
     ]
   },
   {
@@ -194,6 +244,11 @@
       "বন্ধ",
       "কল",
       "999"
+    ],
+    "text_en": "",
+    "source_en": "IFRC First Aid Guide, 2023",
+    "keywords_en": [
+      "bleeding"
     ]
   },
   {
@@ -212,6 +267,11 @@
       "লাল",
       "পুঁজ",
       "ডাক্তার"
+    ],
+    "text_en": "",
+    "source_en": "WHO Wound care guidance, 2023",
+    "keywords_en": [
+      "bleeding"
     ]
   },
   {
@@ -230,6 +290,11 @@
       "গজ",
       "কাঁচি",
       "999"
+    ],
+    "text_en": "",
+    "source_en": "BDRCS First Aid Guide, 2023",
+    "keywords_en": [
+      "bleeding"
     ]
   },
   {
@@ -247,6 +312,11 @@
       "কাগজপত্র",
       "ওষুধ",
       "বৈদ্যুতিক"
+    ],
+    "text_en": "",
+    "source_en": "MoDMR Cyclone preparedness advisory, 2024",
+    "keywords_en": [
+      "cyclone"
     ]
   },
   {
@@ -264,6 +334,11 @@
       "মোমবাতি",
       "শিশু",
       "বাইরে"
+    ],
+    "text_en": "",
+    "source_en": "BMD Cyclone warning guidelines, 2024",
+    "keywords_en": [
+      "cyclone"
     ]
   },
   {
@@ -282,6 +357,11 @@
       "মোবাইল",
       "চার্জ",
       "999"
+    ],
+    "text_en": "",
+    "source_en": "MoDMR Flood safety advisory, 2024",
+    "keywords_en": [
+      "cyclone"
     ]
   },
   {
@@ -300,6 +380,11 @@
       "CPR",
       "999",
       "শ্বাস"
+    ],
+    "text_en": "",
+    "source_en": "WHO Drowning prevention fact sheet, 2024",
+    "keywords_en": [
+      "drowning"
     ]
   },
   {
@@ -318,6 +403,11 @@
       "CPR",
       "999",
       "উল্টানো"
+    ],
+    "text_en": "",
+    "source_en": "WHO Drowning prevention fact sheet, 2024",
+    "keywords_en": [
+      "drowning"
     ]
   },
   {
@@ -334,6 +424,11 @@
       "কম্প্রেস",
       "তাপমাত্রা",
       "ডাক্তার"
+    ],
+    "text_en": "",
+    "source_en": "WHO Fever management guidance, 2023",
+    "keywords_en": [
+      "fever"
     ]
   },
   {
@@ -352,6 +447,11 @@
       "অজ্ঞান",
       "হাঁপানি",
       "999"
+    ],
+    "text_en": "",
+    "source_en": "CDC Fever danger signs, 2024",
+    "keywords_en": [
+      "fever"
     ]
   },
   {
@@ -369,6 +469,11 @@
       "বোতল",
       "ওজন",
       "ডাক্তার"
+    ],
+    "text_en": "",
+    "source_en": "WHO Infant feeding in emergencies, 2023",
+    "keywords_en": [
+      "infant"
     ]
   },
   {
@@ -386,6 +491,11 @@
       "কাপড়",
       "ময়লা",
       "ডাক্তার"
+    ],
+    "text_en": "",
+    "source_en": "UNICEF Child hygiene in emergencies, 2023",
+    "keywords_en": [
+      "infant"
     ]
   },
   {
@@ -403,6 +513,11 @@
       "সান্ত্বনা",
       "নাম",
       "একা"
+    ],
+    "text_en": "",
+    "source_en": "IFRC Psychosocial support guide, 2023",
+    "keywords_en": [
+      "emotional"
     ]
   },
   {
@@ -420,6 +535,11 @@
       "ছায়া",
       "তাপমাত্রা",
       "999"
+    ],
+    "text_en": "",
+    "source_en": "WHO Heatwave guidance, 2024",
+    "keywords_en": [
+      "heat"
     ]
   },
   {
@@ -438,6 +558,11 @@
       "লবণ",
       "বাচ্চা",
       "বৃদ্ধ"
+    ],
+    "text_en": "",
+    "source_en": "WHO Heatwave guidance, 2024",
+    "keywords_en": [
+      "heat"
     ]
   },
   {
@@ -455,6 +580,11 @@
       "জানালা",
       "ভেজা",
       "কাঁপুনি"
+    ],
+    "text_en": "",
+    "source_en": "WHO Cold weather health guidance, 2024",
+    "keywords_en": [
+      "cold"
     ]
   },
   {
@@ -471,6 +601,11 @@
       "কম্বল",
       "পানি",
       "999"
+    ],
+    "text_en": "",
+    "source_en": "WHO Cold weather health guidance, 2024",
+    "keywords_en": [
+      "cold"
     ]
   },
   {
@@ -489,6 +624,11 @@
       "ডাক্তার",
       "999",
       "ওষুধ"
+    ],
+    "text_en": "",
+    "source_en": "WHO Pregnancy care in emergencies, 2023",
+    "keywords_en": [
+      "pregnancy"
     ]
   },
   {
@@ -507,6 +647,11 @@
       "ব্যথা",
       "রক্ত",
       "আশ্রয়"
+    ],
+    "text_en": "",
+    "source_en": "WHO Pregnancy care in emergencies, 2023",
+    "keywords_en": [
+      "pregnancy"
     ]
   },
   {
@@ -525,6 +670,11 @@
       "ঠাণ্ডা",
       "গরম",
       "ডাক্তার"
+    ],
+    "text_en": "",
+    "source_en": "WHO Older persons in emergencies, 2023",
+    "keywords_en": [
+      "elderly"
     ]
   },
   {
@@ -542,6 +692,11 @@
       "সময়",
       "ভেজা",
       "ডাক্তার"
+    ],
+    "text_en": "",
+    "source_en": "WHO Older persons in emergencies, 2023",
+    "keywords_en": [
+      "elderly"
     ]
   },
   {
@@ -559,6 +714,11 @@
       "শক",
       "বন্যা",
       "999"
+    ],
+    "text_en": "",
+    "source_en": "IFRC Electrical safety in disasters, 2023",
+    "keywords_en": [
+      "electrical"
     ]
   },
   {
@@ -577,6 +737,11 @@
       "CPR",
       "999",
       "পানি"
+    ],
+    "text_en": "",
+    "source_en": "IFRC First Aid Guide, 2023",
+    "keywords_en": [
+      "electrical"
     ]
   },
   {
@@ -595,6 +760,11 @@
       "জুতা",
       "খাবার",
       "হাত"
+    ],
+    "text_en": "",
+    "source_en": "WHO Post-flood hygiene guidance, 2024",
+    "keywords_en": [
+      "hygiene"
     ]
   },
   {
@@ -613,6 +783,11 @@
       "ব্লিচ",
       "মাস্ক",
       "শ্বাসকষ্ট"
+    ],
+    "text_en": "",
+    "source_en": "CDC Mold cleanup guidance, 2024",
+    "keywords_en": [
+      "hygiene"
     ]
   },
   {
@@ -630,6 +805,11 @@
       "চোখ",
       "একা",
       "নিরাপদ"
+    ],
+    "text_en": "",
+    "source_en": "IFRC Psychosocial support guide, 2023",
+    "keywords_en": [
+      "emotional"
     ]
   },
   {
@@ -648,6 +828,11 @@
       "খাবার",
       "বিশ্রাম",
       "সাহায্য"
+    ],
+    "text_en": "",
+    "source_en": "IFRC Psychosocial support guide, 2023",
+    "keywords_en": [
+      "emotional"
     ]
   },
   {
@@ -666,6 +851,11 @@
       "বন্যা",
       "চিকিৎসক",
       "বিক্রি"
+    ],
+    "text_en": "",
+    "source_en": "MoDMR Agricultural safety advisory, 2024",
+    "keywords_en": [
+      "livestock"
     ]
   },
   {
@@ -683,6 +873,11 @@
       "জাতীয় পরিচয়পত্র",
       "দলিল",
       "জলরোধী"
+    ],
+    "text_en": "",
+    "source_en": "IFRC Document recovery guidance, 2023",
+    "keywords_en": [
+      "documents"
     ]
   },
   {
@@ -700,6 +895,11 @@
       "সাবান",
       "সিদ্ধ",
       "রান্না"
+    ],
+    "text_en": "",
+    "source_en": "WHO Food safety in emergencies, 2024",
+    "keywords_en": [
+      "food"
     ]
   },
   {
@@ -717,6 +917,11 @@
       "মুখ",
       "পাশ",
       "999"
+    ],
+    "text_en": "",
+    "source_en": "IFRC CPR guidelines, 2023",
+    "keywords_en": [
+      "cpr"
     ]
   },
   {
@@ -734,6 +939,11 @@
       "ধাক্কা",
       "পিঠ",
       "999"
+    ],
+    "text_en": "",
+    "source_en": "IFRC First Aid Guide, 2023",
+    "keywords_en": [
+      "cpr"
     ]
   },
   {
@@ -751,6 +961,11 @@
       "শান্ত",
       "ভয়",
       "কামড়"
+    ],
+    "text_en": "",
+    "source_en": "WHO Snakebite envenoming guidelines, 2024",
+    "keywords_en": [
+      "snakebite"
     ]
   },
   {
@@ -768,6 +983,11 @@
       "রেবিস",
       "টিকা",
       "ডাক্তার"
+    ],
+    "text_en": "",
+    "source_en": "WHO Rabies fact sheet, 2024",
+    "keywords_en": [
+      "animal_bite"
     ]
   },
   {
@@ -786,6 +1006,11 @@
       "রক্ত",
       "ডাক্তার",
       "জ্বর"
+    ],
+    "text_en": "",
+    "source_en": "WHO Foodborne illnesses fact sheet, 2024",
+    "keywords_en": [
+      "food"
     ]
   },
   {
@@ -803,6 +1028,11 @@
       "ওষুধ",
       "তোয়ালে",
       "ডাক্তার"
+    ],
+    "text_en": "",
+    "source_en": "WHO Eye health in emergencies, 2023",
+    "keywords_en": [
+      "hygiene"
     ]
   },
   {
@@ -821,6 +1051,11 @@
       "ফাঙ্গাস",
       "দাদ",
       "ক্ষত"
+    ],
+    "text_en": "",
+    "source_en": "WHO Skin diseases in floods, 2024",
+    "keywords_en": [
+      "hygiene"
     ]
   },
   {
@@ -840,6 +1075,11 @@
       "শিশু",
       "বৃদ্ধ",
       "999"
+    ],
+    "text_en": "",
+    "source_en": "WHO Acute respiratory infections, 2024",
+    "keywords_en": [
+      "respiratory"
     ]
   }
 ]

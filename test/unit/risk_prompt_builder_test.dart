@@ -1,11 +1,18 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/planner/risk_prompt_builder.dart';
+import 'package:shongjog/features/planner/risk_strings_loader.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  late RiskStrings bnRiskStrings;
+  setUpAll(() async {
+    bnRiskStrings = await loadRiskStrings('bn');
+  });
+
   group('RiskPromptBuilder.buildPrompt', () {
     test('null for all-empty inputs', () {
-      expect(RiskPromptBuilder.buildPrompt(RiskInputs.empty), isNull);
+      expect(RiskPromptBuilder.buildPrompt(RiskInputs.empty, s: bnRiskStrings), isNull);
     });
 
     test('includes home material + flood history in the prompt', () {
@@ -18,7 +25,7 @@ void main() {
         hasElderly: true,
         hasInfants: false,
       );
-      final prompt = RiskPromptBuilder.buildPrompt(r);
+      final prompt = RiskPromptBuilder.buildPrompt(r, s: bnRiskStrings);
       expect(prompt, isNotNull);
       expect(prompt!, contains('টিনের ঘর'));
       expect(prompt, contains('প্রধান'));
@@ -33,7 +40,7 @@ void main() {
         elevation: Elevation.mid,
         nearCoast: true,
       );
-      final prompt = RiskPromptBuilder.buildPrompt(r);
+      final prompt = RiskPromptBuilder.buildPrompt(r, s: bnRiskStrings);
       expect(prompt, isNotNull);
       expect(prompt!, contains('সমুদ্র'));
     });
@@ -48,7 +55,7 @@ void main() {
         elevation: Elevation.low,
         nearRiver: true,
       );
-      final result = RiskPromptBuilder.fallbackScore(r);
+      final result = RiskPromptBuilder.fallbackScore(r, s: bnRiskStrings);
       expect(result.score, greaterThanOrEqualTo(8));
       expect(result.summary, isNotEmpty);
     });
@@ -61,7 +68,7 @@ void main() {
         nearRiver: false,
         nearCoast: false,
       );
-      final result = RiskPromptBuilder.fallbackScore(r);
+      final result = RiskPromptBuilder.fallbackScore(r, s: bnRiskStrings);
       expect(result.score, lessThanOrEqualTo(3));
     });
 
@@ -69,7 +76,7 @@ void main() {
       for (final hm in HomeMaterial.values) {
         for (final elev in Elevation.values) {
           final r = RiskInputs(homeMaterial: hm, elevation: elev);
-          final s = RiskPromptBuilder.fallbackScore(r).score;
+          final s = RiskPromptBuilder.fallbackScore(r, s: bnRiskStrings).score;
           expect(s, inInclusiveRange(1, 10));
         }
       }

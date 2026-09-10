@@ -8,6 +8,7 @@ import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../app/theme.dart';
 import 'district_data.dart';
+import '../../core/locale_controller.dart';
 
 /// Lightweight profile data holder for display outside the profile screen.
 class UserProfileData {
@@ -60,6 +61,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? _photoPath;
   String? _district;
   bool _loading = true;
+  Map<String, List<String>>? _districts;
   bool _saving = false;
 
   @override
@@ -77,12 +79,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadProfile() async {
     final prefs = await SharedPreferences.getInstance();
+    final localeCode = localeController.languageCode;
+    Map<String, List<String>>? districts;
+    try {
+      districts = await loadDistricts(localeCode);
+    } catch (_) {
+      districts = await loadDistricts('bn');
+    }
     if (!mounted) return;
     setState(() {
       _nameController.text = prefs.getString('user_name') ?? '';
       _phoneController.text = prefs.getString('user_phone') ?? '';
       _photoPath = prefs.getString('user_photo_path');
       _district = prefs.getString('user_district');
+      _districts = districts;
       _loading = false;
     });
   }
@@ -353,8 +363,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   List<DropdownMenuItem<String>> _buildDistrictItems() {
     final items = <DropdownMenuItem<String>>[];
+    final divisions = _districts ?? (throw StateError('districts not loaded'));
 
-    for (final entry in districtsByDivision.entries) {
+    for (final entry in divisions.entries) {
       // Division header (disabled)
       items.add(
         DropdownMenuItem<String>(

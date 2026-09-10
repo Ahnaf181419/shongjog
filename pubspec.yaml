@@ -113,7 +113,6 @@ flutter:
     - assets/shelter/
     - assets/sound/chime.wav
     - assets/sound/knock.wav
-    - assets/emergency/
     - assets/data/
     - assets/prompts/
     - assets/icon_foreground.png

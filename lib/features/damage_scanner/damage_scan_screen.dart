@@ -423,7 +423,7 @@ class _ResultView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sevColor = Color(result.severity.color);
+    final sevColor = result.severity.color;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(

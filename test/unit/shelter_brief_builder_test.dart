@@ -2,10 +2,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/shelter/nearest_shelter.dart';
 import 'package:shongjog/features/shelter/shelter_model.dart';
 import 'package:shongjog/features/shelter/shelter_brief_builder.dart';
+import 'package:shongjog/features/shelter/shelter_strings_loader.dart';
 import 'package:shongjog/features/hazards/eonet_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  late ShelterStrings bnShelterStrings;
+  setUpAll(() async {
+    bnShelterStrings = await loadShelterStrings('bn');
+  });
   final shelter = RankedShelter(
     const Shelter(
         name: 'Test',
@@ -23,6 +29,7 @@ void main() {
         userLat: null,
         userLon: null,
         shelter: shelter,
+        s: bnShelterStrings,
       );
       expect(p, isNull);
     });
@@ -32,6 +39,7 @@ void main() {
         userLat: 23.0,
         userLon: 90.0,
         shelter: null,
+        s: bnShelterStrings,
       );
       expect(p, isNull);
     });
@@ -41,6 +49,7 @@ void main() {
         userLat: 23.0,
         userLon: 90.0,
         shelter: shelter,
+        s: bnShelterStrings,
       );
       expect(p, isNotNull);
       expect(p!, contains('টেস্ট শেল্টার'));
@@ -65,6 +74,7 @@ void main() {
             longitude: 91.0,
           ),
         ],
+        s: bnShelterStrings,
       );
       expect(p, isNotNull);
       expect(p!, contains('ঘূর্ণিঝড়'));
@@ -74,7 +84,7 @@ void main() {
 
   group('ShelterBriefBuilder.fallbackBrief', () {
     test('returns a useful sentence with name + distance', () {
-      final brief = ShelterBriefBuilder.fallbackBrief(shelter: shelter);
+      final brief = ShelterBriefBuilder.fallbackBrief(shelter: shelter, s: bnShelterStrings);
       expect(brief, contains('টেস্ট শেল্টার'));
       expect(brief, contains('৩.৫'));
       expect(brief, contains('কিমি'));
@@ -86,20 +96,20 @@ void main() {
         const Shelter(name: 'X', nameBn: 'এক্স', lat: 0, lon: 0, capacity: null, source: 't'),
         5.0,
       );
-      final brief = ShelterBriefBuilder.fallbackBrief(shelter: noCap);
+      final brief = ShelterBriefBuilder.fallbackBrief(shelter: noCap, s: bnShelterStrings);
       expect(brief, contains('এক্স'));
       expect(brief, contains('৫.০'));
       expect(brief.contains('ধারণক্ষমতা'), isFalse);
     });
 
     test('returns a loading message when shelter is null', () {
-      final brief = ShelterBriefBuilder.fallbackBrief(shelter: null);
+      final brief = ShelterBriefBuilder.fallbackBrief(shelter: null, s: bnShelterStrings);
       expect(brief, isNotEmpty);
       expect(brief, contains('লোড'));
     });
 
     test('uses Bengali numerals', () {
-      final brief = ShelterBriefBuilder.fallbackBrief(shelter: shelter);
+      final brief = ShelterBriefBuilder.fallbackBrief(shelter: shelter, s: bnShelterStrings);
       // Distance 3.5 → Bengali ৩.৫, capacity 1200 → ১২০০.
       expect(brief, contains('৩.৫'));
       expect(brief, contains('১২০০'));

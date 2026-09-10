@@ -2,9 +2,16 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/damage_scanner/damage_scan_service.dart';
+import 'package:shongjog/features/damage_scanner/damage_scan_strings_loader.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  late DamageScanStrings bnStrings;
+  setUpAll(() async {
+    bnStrings = await loadDamageScanStrings('bn');
+  });
+
   group('DamageScanResult.fromJson', () {
     test('parses a complete JSON envelope', () {
       final json = jsonEncode({
@@ -58,7 +65,7 @@ void main() {
   group('DamageType.labelBn + severityColor', () {
     test('every damage type has a Bangla label', () {
       for (final t in DamageType.values) {
-        expect(t.labelBn, isNotEmpty);
+        expect(t.labelBn(bnStrings), isNotEmpty);
       }
     });
 
@@ -70,7 +77,7 @@ void main() {
 
   group('DamageScanService.buildPrompt', () {
     test('contains structured-JSON instruction', () {
-      final prompt = DamageScanService.buildPrompt();
+      final prompt = DamageScanService.buildPrompt(s: bnStrings);
       expect(prompt, contains('JSON'));
       expect(prompt, contains('damageType'));
       expect(prompt, contains('severity'));
@@ -87,8 +94,8 @@ void main() {
         recommendation: 'Evacuate area.',
         description: 'Structural damage visible.',
       );
-      expect(result.toBanglaType, 'ধসে পড়া ভবন');
-      expect(result.toBanglaSeverity, 'উচ্চ');
+      expect(result.damageType.labelBn(bnStrings), 'ধসে পড়া ভবন');
+      expect(result.severity.labelBn(bnStrings), 'উচ্চ');
     });
   });
 }

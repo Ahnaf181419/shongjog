@@ -135,7 +135,7 @@ class ChatRepository {
     // Cloud has no key, the device is offline, or Cloud failed above.
     // Route rumour-check queries through a dedicated prompt that asks
     // the model to verify the claim against the corpus.
-    final isRumour = isRumourQuery(userQuery);
+    final isRumour = await isRumourQuery(userQuery);
     final prompt = isRumour
         ? buildRumourCheckPrompt(query: userQuery, hits: hits, history: history)
         : buildPrompt(query: userQuery, hits: hits, history: history, persona: persona);

@@ -232,7 +232,8 @@ class _ChatScreenState extends State<ChatScreen> {
     // 'pref_demo_seeded_v1' flag.
     if (restored.isEmpty &&
         !(prefs.getBool('pref_demo_seeded_v1') ?? false)) {
-      final seeds = DemoSeeder.seeds();
+      final l10n = AppLocalizations.of(context);
+      final seeds = DemoSeeder.seeds(l10n);
       final seeded = <_Msg>[];
       for (final s in seeds) {
         seeded.add(_Msg(s.question, true));

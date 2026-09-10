@@ -5,55 +5,62 @@ import 'package:flutter/services.dart' show rootBundle;
 ///
 /// All content assets under `assets/data/*.json` and `assets/prompts/*.json`
 /// are loaded through this. The first read materialises the asset and caches
-/// the *parsed* result keyed by asset path. Concurrent callers share the same
-/// Future via an in-flight map — so a second call while the first is still
-/// loading returns the same parsed object.
+/// the *raw* string keyed by asset path. The parser is locale-aware — it
+/// receives the raw string AND the active locale and resolves the right
+/// bn|en block. Subsequent calls with the same locale return the cached
+/// parsed value; with a different locale, the parser runs again. This means
+/// the cache is per-path-per-locale — bn and en blocks coexist.
 ///
 /// Prompts in `assets/prompts/*.json` use the bilingual shape
 /// `{"bn": {...}, "en": {...}}`. [pickBundle] returns the right block for
 /// the active locale, with `bn` as the fallback (matches the project's
 /// default locale in [LocaleController]).
 abstract final class TextLoader {
-  static final Map<String, Object?> _cache = <String, Object?>{};
-  static final Map<String, Future<Object?>> _inFlight =
-      <String, Future<Object?>>{};
+  static final Map<String, String> _rawCache = <String, String>{};
+  static final Map<String, Future<String>> _inFlightRaw =
+      <String, Future<String>>{};
+  static final Map<String, Object?> _parsedCache = <String, Object?>{};
 
-  /// Load and parse a JSON asset, with a typed parser.
+  /// Load and parse a JSON asset, with a locale-aware typed parser.
   ///
-  /// [parseRaw] receives the raw UTF-8 string and must return the typed value.
-  /// Same parser function MUST be used for the same path — the cache stores
-  /// the parser's return type, so a different parser for the same path will
-  /// fail at the cast site.
+  /// [parseRaw] receives the raw UTF-8 string and the active locale tag, and
+  /// must return the typed value. The parsed result is cached per
+  /// `(assetPath, locale)` so a different locale re-parses from the same
+  /// raw payload — saving the asset read.
   static Future<T> loadJson<T>(
     String assetPath,
-    T Function(String raw) parseRaw,
-  ) async {
-    final cached = _cache[assetPath];
+    T Function(String raw, String? locale) parseRaw, {
+    String? locale,
+  }) async {
+    final cacheKey = _cacheKey(assetPath, locale);
+    final cached = _parsedCache[cacheKey];
     if (cached != null) {
       return cached as T;
     }
-    final inFlight = _inFlight[assetPath];
-    if (inFlight != null) {
-      return inFlight as Future<T>;
-    }
-    final completer = _doLoad<T>(assetPath, parseRaw);
-    _inFlight[assetPath] = completer;
+    final raw = await _loadRaw(assetPath);
+    final parsed = parseRaw(raw, locale);
+    _parsedCache[cacheKey] = parsed;
+    return parsed;
+  }
+
+  static Future<String> _loadRaw(String assetPath) async {
+    final cached = _rawCache[assetPath];
+    if (cached != null) return cached;
+    final inFlight = _inFlightRaw[assetPath];
+    if (inFlight != null) return inFlight;
+    final completer = rootBundle.loadString(assetPath);
+    _inFlightRaw[assetPath] = completer;
     try {
-      final value = await completer;
-      _cache[assetPath] = value;
-      return value;
+      final raw = await completer;
+      _rawCache[assetPath] = raw;
+      return raw;
     } finally {
-      _inFlight.remove(assetPath);
+      _inFlightRaw.remove(assetPath);
     }
   }
 
-  static Future<T> _doLoad<T>(
-    String assetPath,
-    T Function(String) parseRaw,
-  ) async {
-    final raw = await rootBundle.loadString(assetPath);
-    return parseRaw(raw);
-  }
+  static String _cacheKey(String path, String? locale) =>
+      '$path::${locale ?? 'default'}';
 
   /// Coerce a language tag (case-insensitive) to one of `bn` | `en`.
   /// Returns `bn` for anything unrecognised, including `null`.
@@ -84,6 +91,7 @@ abstract final class TextLoader {
 
   /// For tests — drop the parsed cache so the next `loadJson` re-reads.
   static void debugClearCache() {
-    _cache.clear();
+    _rawCache.clear();
+    _parsedCache.clear();
   }
 }

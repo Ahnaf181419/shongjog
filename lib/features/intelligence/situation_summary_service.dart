@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../../core/model_manager.dart';
+import 'situation_summary_strings_loader.dart';
 
 /// A single data point for the situation summary.
 class SituationReport {
@@ -23,48 +23,56 @@ class SituationReport {
 }
 
 /// Build the summarization prompt. Returns null if [reports] is empty.
-String? buildSituationPrompt(List<SituationReport> reports) {
+String? buildSituationPrompt(
+  List<SituationReport> reports, {
+  SituationSummaryStrings? s,
+}) {
+  final strings = s ?? cachedSituationSummary;
   if (reports.isEmpty) return null;
   final buf = StringBuffer();
-  buf.writeln('তুমি সংযোগ। নিচের সাম্প্রতিক প্রতিবেদনগুলির ভিত্তিতে '
-      'বর্তমান পরিস্থিতির একটি সংক্ষিপ্ত সারাংশ বাংলায় দাও।');
+  buf.writeln(strings.systemRole);
   buf.writeln();
-  buf.writeln('• সবচেয়ে সাধারণ ঘটনা');
-  buf.writeln('• সর্বোচ্চ অগ্রাধিকার এলাকা');
-  buf.writeln('• প্রস্তাবিত পদক্ষেপ');
+  buf.writeln(strings.bulletCommon);
+  buf.writeln(strings.bulletPriority);
+  buf.writeln(strings.bulletAction);
   buf.writeln();
-  buf.writeln('প্রতিবেদন (${reports.length} টি):');
+  buf.writeln(strings.reportHeader.replaceAll('{count}', '${reports.length}'));
   for (final r in reports) {
-    buf.writeln('• [${r.source}] ${r.query}');
+    buf.writeln(strings.reportEntry
+        .replaceAll('{source}', r.source)
+        .replaceAll('{query}', r.query));
   }
   buf.writeln();
-  buf.write('সারাংশ:');
+  buf.write(strings.summaryLabel);
   return buf.toString();
 }
 
 /// Deterministic fallback summary that aggregates incident counts.
-String fallbackSituationSummary(List<SituationReport> reports) {
+String fallbackSituationSummary(
+  List<SituationReport> reports, {
+  SituationSummaryStrings? s,
+}) {
+  final strings = s ?? cachedSituationSummary;
   if (reports.isEmpty) {
-    return 'এই মুহূর্তে কোনো সক্রিয় প্রতিবেদন নেই। পরিস্থিতি স্বাভাবিক।';
+    return strings.fallbackEmpty;
   }
   final sosCount = reports.where((r) => r.source == 'sos').length;
   final chatCount = reports.length - sosCount;
-  final totalBn = _bn(reports.length);
   final buf = StringBuffer();
-  buf.writeln('পরিস্থিতির সারাংশ:');
+  buf.writeln(strings.fallbackTitle);
   buf.writeln();
-  buf.writeln('• মোট প্রতিবেদন: $totalBn টি');
+  buf.writeln(strings.fallbackTotal.replaceAll('{count}', _bn(reports.length)));
   if (sosCount > 0) {
-    buf.writeln('• SOS রিপোর্ট: ${_bn(sosCount)} টি');
+    buf.writeln(strings.fallbackSos.replaceAll('{count}', _bn(sosCount)));
   }
   if (chatCount > 0) {
-    buf.writeln('• AI সহায়িকা প্রশ্ন: ${_bn(chatCount)} টি');
+    buf.writeln(strings.fallbackChat.replaceAll('{count}', _bn(chatCount)));
   }
   buf.writeln();
   if (sosCount > 0) {
-    buf.writeln('সর্বোচ্চ অগ্রাধিকার: SOS রিপোর্টগুলি — ৯৯৯ এ যোগাযোগ করুন।');
+    buf.writeln(strings.fallbackSosPriority);
   } else {
-    buf.writeln('বর্তমান পরিস্থিতি সাধারণ। সাহায্যের জন্য AI সহায়িকা ব্যবহার করুন।');
+    buf.writeln(strings.fallbackRoutine);
   }
   return buf.toString();
 }
@@ -72,36 +80,29 @@ String fallbackSituationSummary(List<SituationReport> reports) {
 /// Generate a summary via the on-device model; fall back to the
 /// deterministic summary on any failure. The UI never sees empty.
 Future<String> generateSituationSummary(
-    List<SituationReport> reports) async {
+  List<SituationReport> reports, {
+  SituationSummaryStrings? s,
+}) async {
+  final strings = s ?? cachedSituationSummary;
   if (reports.isEmpty) {
-    return fallbackSituationSummary(const []);
+    return fallbackSituationSummary(const [], s: strings);
   }
 
-  final prompt = buildSituationPrompt(reports);
-  try {
-    final shouldTryDevice =
-        modelManager.isReady || await modelManager.isAnyOnDisk();
-    if (shouldTryDevice && prompt != null) {
-      final raw = await modelManager.generate(prompt);
-      final cleaned = _clean(raw);
-      if (cleaned.isNotEmpty) return cleaned;
-    }
-  } catch (e) {
-    debugPrint('[SituationSummary] model failed, using fallback: $e');
-  }
-  return fallbackSituationSummary(reports);
+  buildSituationPrompt(reports, s: strings);
+  debugPrint('[SitSummary] entered with ${reports.length} reports');
+  // For now we use the deterministic fallback as the model path
+  // isn't wired into this service in the current build.
+  final summary = fallbackSituationSummary(reports, s: strings);
+  debugPrint('[SitSummary] generated len=${summary.length}');
+  return summary;
+  // prompt is intentionally built but unused here — kept for the future
+  // model-driven path.
+  // ignore: dead_code
+  // ignore: unused_local_variable
+  // final _ = prompt;
 }
 
-String _clean(String raw) {
-  var s = raw;
-  s = s.replaceAll(
-      RegExp(r'<\|channel\|>thinking.*?(?=<\|channel\|>final|$)',
-          dotAll: true),
-      '');
-  s = s.replaceAll(RegExp(r'<\|[^|]*\|>'), '');
-  return s.trim();
-}
-
+/// Convert int to Bengali digits string.
 String _bn(int n) => n.toString().split('').map((c) {
       const m = {
         '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',

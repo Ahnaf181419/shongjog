@@ -1,4 +1,6 @@
 import 'family_profile.dart';
+import 'kit_strings_loader.dart';
+import 'planner_strings_loader.dart' show fillTemplate;
 
 /// Builds the prompt for the AI Emergency Kit Generator
 /// (Module B in docs/AI-FIRST-FEATURES.md).
@@ -9,67 +11,72 @@ class KitPromptBuilder {
   static const _waterPerPerson = 3;
 
   /// Build the generation prompt. Returns null for an empty profile.
-  static String? buildPrompt(FamilyProfile p) {
+  static String? buildPrompt(FamilyProfile p, {KitStrings? s}) {
+    final strings = s ?? cachedKit;
     if (p.isEmpty) return null;
 
     final buf = StringBuffer();
-    buf.writeln('তুমি সংযোগ। এই পরিবারের জন্য একটি ব্যক্তিগতকৃত '
-        'জরুরি কিটের তালিকা তৈরি করো। বাংলায়, বাংলা সংখ্যা ব্যবহার করো। '
-        'প্রতিটি আইটেমের পাশে আনুমানিক পরিমাণ লেখো।');
+    buf.writeln(strings.systemRole);
     buf.writeln();
-    buf.writeln('পরিবার: ${p.familySize} জন।');
+    buf.writeln(fillTemplate(strings.familyLine, {'count': '${p.familySize}'}));
     if (p.childrenCount > 0) {
-      buf.writeln('• শিশু আছে: ${p.childrenCount} জন — শিশু খাবার, ফর্মুলা, ডায়াপার।');
+      buf.writeln(fillTemplate(strings.children, {'count': '${p.childrenCount}'}));
     }
     if (p.elderlyCount > 0) {
-      buf.writeln('• প্রবীণ আছে: ${p.elderlyCount} জন — চিকিৎসা সরঞ্জাম।');
+      buf.writeln(fillTemplate(strings.elderly, {'count': '${p.elderlyCount}'}));
     }
     if (p.hasPets) {
-      buf.writeln('• পোষা প্রাণী আছে — পোষা খাবার অন্তর্ভুক্ত করো।');
+      buf.writeln(strings.pets);
     }
     if (p.medicalConditions.isNotEmpty) {
-      buf.writeln('• চিকিৎসা অবস্থা: ${p.medicalConditions.join(", ")}।');
-      buf.writeln('  এই অবস্থার জন্য প্রয়োজনীয় আইটেম অন্তর্ভুক্ত করো।');
+      buf.writeln(fillTemplate(strings.medical, {'conditions': p.medicalConditions.join(", ")}));
+      buf.writeln(strings.medicalFollowup);
     }
     if (p.nearbyRiver || p.nearbyCoast) {
-      buf.writeln('• জলমগ্ন এলাকা — লাইফ জ্যাকেট ও শুকনো ব্যাগ অন্তর্ভুক্ত করো।');
+      buf.writeln(strings.waterZone);
     }
     buf.writeln();
-    buf.write('কিটের তালিকা:');
+    buf.write(strings.kitLabel);
     return buf.toString();
   }
 
   /// Deterministic kit for when the model is unavailable.
-  static String fallbackKit(FamilyProfile p) {
+  static String fallbackKit(FamilyProfile p, {KitStrings? s}) {
+    final strings = s ?? cachedKit;
     final waterTotal = p.familySize * _waterPerPerson;
     final waterBn = _toBangla('$waterTotal');
     final foodKg = p.familySize * 2;
     final foodBn = _toBangla('$foodKg');
     final buf = StringBuffer();
-    buf.writeln('জরুরি কিটের তালিকা:');
+    buf.writeln(strings.fallbackTitle);
     buf.writeln();
-    buf.writeln('• পানি: $waterBn লিটার/দিন (প্রতিজন $_waterPerPerson লিটার)');
-    buf.writeln('• শুকনো খাবার: $foodBn কেজি');
-    buf.writeln('• ফ্ল্যাশলাইট + ব্যাটারি');
-    buf.writeln('• ফার্স্ট এইড বক্স');
-    buf.writeln('• ওষুধ (নিয়মিত)');
-    buf.writeln('• গুরুত্বপূর্ণ কাগজপত্র (জলরোধী ব্যাগে)');
-    buf.writeln('• হুইসেল');
+    buf.writeln(fillTemplate(strings.fallbackWater, {
+      'litres': waterBn,
+      'perPerson': _toBangla('$_waterPerPerson'),
+    }));
+    buf.writeln(fillTemplate(strings.fallbackFood, {'kg': foodBn}));
+    buf.writeln(strings.fallbackFlashlight);
+    buf.writeln(strings.fallbackFirstAid);
+    buf.writeln(strings.fallbackMedicine);
+    buf.writeln(strings.fallbackDocuments);
+    buf.writeln(strings.fallbackWhistle);
     if (p.childrenCount > 0) {
-      buf.writeln('• শিশু খাবার/ফর্মুলা');
-      buf.writeln('• ডায়াপার');
+      buf.writeln(strings.fallbackBabyFood);
+      buf.writeln(strings.fallbackDiapers);
     }
     if (p.elderlyCount > 0) {
-      buf.writeln('• প্রবীণ ওষুধের অতিরিক্ত সরবরাহ');
+      buf.writeln(strings.fallbackElderMedicine);
     }
     if (p.hasPets) {
-      buf.writeln('• পোষা প্রাণীর খাবার');
+      buf.writeln(strings.fallbackPetFood);
     }
     if (p.medicalConditions.isNotEmpty) {
-      buf.writeln('• বিশেষ চিকিৎসা সরঞ্জাম: ${p.medicalConditions.join(", ")}');
+      buf.writeln(fillTemplate(strings.fallbackMedicalSpecial, {
+        'conditions': p.medicalConditions.join(", "),
+      }));
     }
     if (p.nearbyRiver || p.nearbyCoast) {
-      buf.writeln('• লাইফ জ্যাকেট');
+      buf.writeln(strings.fallbackLifeJacket);
     }
     return buf.toString();
   }

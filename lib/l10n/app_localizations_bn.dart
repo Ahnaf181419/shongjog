@@ -2569,4 +2569,25 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get modelInfoRamE4b => '~৫ GB';
+
+  @override
+  String get demoSeedQ1Question => 'ওআরএস কীভাবে বানাবো?';
+
+  @override
+  String get demoSeedQ1Answer =>
+      '১ লিটার পরিষ্কার পানিতে ৬ চা চামচ চিনি ও আধা চা চামচ লবণ মেশান। ভালো করে নাড়ুন এবং ২৪ ঘণ্টার মধ্যে খেয়ে ফেলুন। শিশুদের বারবার চামচ দিয়ে খাওয়ান।';
+
+  @override
+  String get demoSeedQ2Question => 'নিকটস্থ আশ্রয়কেন্দ্র কোথায়?';
+
+  @override
+  String get demoSeedQ2Answer =>
+      'আশ্রয় মানচিত্রে (হোম → আশ্রয়) নিকটস্থ ঘূর্ণিঝড় আশ্রয়কেন্দ্র দেখুন। GPS অনুমতি দিলে দূরত্ব অনুযায়ী সাজানো তালিকা পাবেন।';
+
+  @override
+  String get demoSeedQ3Question => 'সাপে কামড়ালে কী করবো?';
+
+  @override
+  String get demoSeedQ3Answer =>
+      'রোগীকে শান্ত রাখুন। কাটা, চুষা বা টর্নিকেট ব্যবহার করবেন না। আক্রান্ত স্থান নড়াচলা বন্ধ রাখুন এবং দ্রুত নিকটস্থ হাসপাতালে নিন。';
 }

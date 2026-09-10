@@ -9,8 +9,8 @@ void main() {
   group('TextLoader', () {
     test('loadJson parses an array asset (directory.json)', () async {
       final result = await TextLoader.loadJson<List<dynamic>>(
-        'assets/emergency/directory.json',
-        (raw) => jsonDecode(raw) as List<dynamic>,
+        'assets/data/emergency_directory.json',
+        (raw, _) => jsonDecode(raw) as List<dynamic>,
       );
       expect(result, isA<List<dynamic>>());
       expect(result, isNotEmpty);

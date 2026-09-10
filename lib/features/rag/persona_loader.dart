@@ -50,6 +50,7 @@ PersonaBundle decodePersonaBundle(String raw, String? locale) {
 Future<PersonaBundle> loadPersona(String? locale) {
   return TextLoader.loadJson<PersonaBundle>(
     _kAssetPath,
-    (raw) => decodePersonaBundle(raw, locale),
+    (raw, localeCode) => decodePersonaBundle(raw, localeCode),
+    locale: locale,
   );
 }

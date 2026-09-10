@@ -7,7 +7,7 @@ import '../rag/types.dart';
 
 /// In-memory handle to the loaded on-device knowledge base.
 ///
-/// Loads `assets/kb/corpus.json` (the verified Bangla chunks) and
+/// Loads `assets/data/corpus.json` (the verified Bangla chunks) and
 /// `assets/kb/vectors.bin` (the float32 [N, 768] L2-normalized embeddings
 /// produced by `tools/build_kb.py`). Both ship inside the APK so the KB is
 /// present in airplane mode with no first-run network step

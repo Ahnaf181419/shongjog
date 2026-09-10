@@ -9,6 +9,7 @@ class Chunk {
   final String source;
   final String text;
   final List<String> keywordsBn;
+  final String textEn;
 
   const Chunk({
     required this.id,
@@ -16,6 +17,7 @@ class Chunk {
     required this.source,
     required this.text,
     required this.keywordsBn,
+    this.textEn = '',
   });
 
   factory Chunk.fromJson(Map<String, dynamic> j) => Chunk(
@@ -24,6 +26,7 @@ class Chunk {
         source: j['source'] as String,
         text: j['text'] as String,
         keywordsBn: (j['keywords_bn'] as List).cast<String>(),
+        textEn: j['text_en'] as String? ?? '',
       );
 }
 

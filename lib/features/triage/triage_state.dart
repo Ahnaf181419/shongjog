@@ -1,5 +1,5 @@
-import '../../l10n/app_localizations.dart';
 import 'decision_tree.dart';
+import '../../l10n/app_localizations.dart';
 
 /// A single yes/no answer captured during the triage walk.
 class TriageAnswer {
@@ -71,7 +71,7 @@ class TriageState {
     final no = answers.length - yes;
     final since = elapsedBn();
     if (l10n == null) {
-      final routeText = route == null ? 'চলমান' : _routeNameBn(route!);
+      final routeText = route == null ? _ongoingLabel(l10n) : _routeNameBnL10n(route!, l10n ?? _fallbackL10n());
       return 'প্রশ্ন: ${_bn(answers.length)} '
           '(হ্যাঁ ${_bn(yes)} / না ${_bn(no)}) | '
           'সময়: $since | অবস্থা: $routeText';
@@ -94,7 +94,7 @@ class TriageState {
     final yes = answers.where((a) => a.answer).length;
     final no = answers.length - yes;
     if (l10n == null) {
-      final routeText = route == null ? 'অজানা' : _routeNameBn(route!);
+      final routeText = route == null ? _unknownLabel(l10n) : _routeNameBnL10n(route!, l10n ?? _fallbackL10n());
       return 'ট্রায়াজ: $routeText\n'
           'সময়: $since\n'
           'প্রশ্ন: ${_bn(answers.length)} '
@@ -112,7 +112,8 @@ class TriageState {
     );
   }
 
-  String _routeNameBnL10n(TriageRoute route, AppLocalizations l10n) {
+  String _routeNameBnL10n(TriageRoute route, AppLocalizations? l10n) {
+    if (l10n == null) return _routeNameBn(route);
     switch (route) {
       case TriageRoute.cpr:
         return l10n.triageRouteNameCpr;
@@ -159,3 +160,11 @@ class TriageState {
     return n.toString().split('').map((d) => digits[int.parse(d)]).join();
   }
 }
+
+  String _ongoingLabel(AppLocalizations? l10n) =>
+      l10n?.triageStateOngoing ?? 'চলমান';
+
+  String _unknownLabel(AppLocalizations? l10n) =>
+      l10n?.triageStateUnknown ?? 'অজানা';
+
+  AppLocalizations? _fallbackL10n() => null;
