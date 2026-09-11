@@ -15,13 +15,17 @@ class UserProfileData {
   final String name;
   final String phone;
   final String? photoPath;
-  final String? district;
+
+  /// Locale-independent canonical id for the saved district, or `null`
+  /// when nothing is saved. Resolve via [displayDistrictName] for any
+  /// given locale so consumers always get the right script.
+  final String? districtId;
 
   const UserProfileData({
     required this.name,
     this.phone = '',
     this.photoPath,
-    this.district,
+    this.districtId,
   });
 
   bool get hasPhoto => photoPath != null && photoPath!.isNotEmpty && File(photoPath!).existsSync();
@@ -35,8 +39,42 @@ class UserProfileData {
       name: prefs.getString('user_name') ?? '',
       phone: prefs.getString('user_phone') ?? '',
       photoPath: prefs.getString('user_photo_path'),
-      district: prefs.getString('user_district'),
+      districtId: prefs.getString('user_district'),
     );
+  }
+
+  /// Resolves [districtId] to a display name in the requested locale,
+  /// or `null` if no district is saved.
+  Future<String?> displayDistrictName(String localeCode) async {
+    final id = districtId;
+    if (id == null) return null;
+    final bn = await loadDistricts('bn');
+    final decoded = districtFromCanonicalId(bn, id);
+    if (decoded != null) {
+      return _displayFor(bn, decoded.division, decoded.district, localeCode);
+    }
+    // Legacy value — a localized district name persisted before the
+    // canonical-id migration. Try matching by name in the bn block
+    // (the SSOT).
+    for (final divEntry in bn.entries) {
+      if (divEntry.value.contains(id)) {
+        return _displayFor(bn, divEntry.key, id, localeCode);
+      }
+    }
+    return id;
+  }
+
+  Future<String> _displayFor(
+      Map<String, List<String>> bn, String division, String district, String localeCode) async {
+    final local = await loadDistricts(localeCode);
+    final localDivs = local.keys.toList();
+    final divIdx = bn.keys.toList().indexOf(division);
+    if (divIdx < 0 || divIdx >= localDivs.length) return district;
+    final divisionLocal = localDivs[divIdx];
+    final districts = local[divisionLocal]!;
+    final distIdx = bn[division]!.indexOf(district);
+    if (distIdx < 0 || distIdx >= districts.length) return district;
+    return districts[distIdx];
   }
 }
 
@@ -68,31 +106,71 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     _loadProfile();
+    localeController.addListener(_onLocaleChanged);
   }
 
   @override
   void dispose() {
+    localeController.removeListener(_onLocaleChanged);
     _nameController.dispose();
     _phoneController.dispose();
     super.dispose();
   }
 
+  void _onLocaleChanged() {
+    if (!mounted) return;
+    _loadProfile();
+  }
+
   Future<void> _loadProfile() async {
     final prefs = await SharedPreferences.getInstance();
     final localeCode = localeController.languageCode;
-    Map<String, List<String>>? districts;
-    try {
-      districts = await loadDistricts(localeCode);
-    } catch (_) {
-      districts = await loadDistricts('bn');
-    }
+    // Always load both bn and en blocks so we can resolve canonical
+    // district ids to a locale-appropriate display name.
+    final bn = await loadDistricts('bn');
+    final local = await loadDistricts(localeCode);
     if (!mounted) return;
+    // Resolve any saved canonical id to the current locale's display
+    // name so the dropdown reflects the user's language.
+    final savedId = prefs.getString('user_district');
+    String? initialDistrict;
+    if (savedId != null) {
+      final decoded = districtFromCanonicalId(bn, savedId);
+      if (decoded != null) {
+        final divIdx = bn.keys.toList().indexOf(decoded.division);
+        final distIdx = bn[decoded.division]!.indexOf(decoded.district);
+        final localDivs = local.keys.toList();
+        if (divIdx >= 0 && divIdx < localDivs.length) {
+          final districts = local[localDivs[divIdx]]!;
+          if (distIdx >= 0 && distIdx < districts.length) {
+            initialDistrict = districts[distIdx];
+          }
+        }
+      } else {
+        // Legacy: saved value may be a localized district name; try to
+        // find a match and migrate on the fly.
+        for (final divEntry in bn.entries) {
+          if (divEntry.value.contains(savedId)) {
+            final divIdx = bn.keys.toList().indexOf(divEntry.key);
+            final distIdx = divEntry.value.indexOf(savedId);
+            final localDivs = local.keys.toList();
+            if (divIdx >= 0 && divIdx < localDivs.length) {
+              final districts = local[localDivs[divIdx]]!;
+              if (distIdx >= 0 && distIdx < districts.length) {
+                initialDistrict = districts[distIdx];
+              }
+            }
+            break;
+          }
+        }
+      }
+    }
     setState(() {
       _nameController.text = prefs.getString('user_name') ?? '';
       _phoneController.text = prefs.getString('user_phone') ?? '';
       _photoPath = prefs.getString('user_photo_path');
-      _district = prefs.getString('user_district');
-      _districts = districts;
+      _district = initialDistrict;
+      _districts = local;
       _loading = false;
     });
   }
@@ -165,7 +243,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
     await prefs.setString('user_phone', _phoneController.text.trim());
     await prefs.setString('user_photo_path', _photoPath ?? '');
     if (_district != null) {
-      await prefs.setString('user_district', _district!);
+      // Convert the localized display name back into a canonical id so
+      // the saved value is locale-independent.
+      final bn = await loadDistricts('bn');
+      String? canonical;
+      for (final divEntry in bn.entries) {
+        final distIdx = divEntry.value.indexOf(_district!);
+        if (distIdx >= 0) {
+          final divIdx = bn.keys.toList().indexOf(divEntry.key);
+          canonical = '__district_${divIdx}_$distIdx';
+          break;
+        }
+      }
+      if (canonical != null) {
+        await prefs.setString('user_district', canonical);
+      } else {
+        // Fall back to the display string — won't switch with locale but
+        // preserves the user's selection rather than dropping it.
+        await prefs.setString('user_district', _district!);
+      }
     } else {
       await prefs.remove('user_district');
     }

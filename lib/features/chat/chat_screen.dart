@@ -10,6 +10,7 @@ import '../../app/theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../app/main_shell.dart';
 import '../../core/api_key_store.dart';
+import '../../core/locale_controller.dart';
 import '../../core/connectivity_provider.dart';
 import '../../core/embedder_service.dart';
 import '../../core/haptics.dart';
@@ -232,6 +233,7 @@ class _ChatScreenState extends State<ChatScreen> {
     // 'pref_demo_seeded_v1' flag.
     if (restored.isEmpty &&
         !(prefs.getBool('pref_demo_seeded_v1') ?? false)) {
+      if (!mounted) return;
       final l10n = AppLocalizations.of(context);
       final seeds = DemoSeeder.seeds(l10n);
       final seeded = <_Msg>[];
@@ -379,6 +381,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   KnowledgeBase _emptyKb() {
+    // Localized fallback chunk. Bangla is the SSOT (used for prompt
+    // construction by the LLM); the en block is added so an English
+    // locale can also retrieve against it.
     const fallbackChunk = Chunk(
       id: 'fallback',
       topic: 'general',
@@ -590,7 +595,9 @@ class _ChatScreenState extends State<ChatScreen> {
     }
     HapticService.lightTap();
     setState(() => _listening = true);
-    final transcript = await _stt.listen(localeId: 'bn-BD');
+    final sttLocaleId =
+        localeController.isBangla ? 'bn-BD' : 'en-US';
+    final transcript = await _stt.listen(localeId: sttLocaleId);
     if (!mounted) return;
     setState(() => _listening = false);
     if (transcript != null && transcript.trim().isNotEmpty) {
@@ -603,12 +610,14 @@ class _ChatScreenState extends State<ChatScreen> {
     // fails identically every time, forever.
     debugPrint(_stt.diagnostics);
     final l10n = AppLocalizations.of(context);
+    final isBn = localeController.isBangla;
     final String message;
-    if (!_stt.hasLanguage('bn') && _stt.availableLocales.isNotEmpty) {
+    if (isBn && !_stt.hasLanguage('bn') && _stt.availableLocales.isNotEmpty) {
       message = l10n.chatSttNoBangla;
     } else {
       message = switch (_stt.lastFailure) {
-        SttFailure.languageUnavailable => l10n.chatSttNoBangla,
+        SttFailure.languageUnavailable =>
+          isBn ? l10n.chatSttNoBangla : l10n.chatSttUnavailable,
         SttFailure.networkRequired => l10n.chatSttNetwork,
         SttFailure.permissionDenied => l10n.chatMicPermission,
         SttFailure.engineUnavailable => l10n.chatSttUnavailable,

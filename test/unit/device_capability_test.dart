@@ -45,12 +45,18 @@ void main() {
     });
   });
 
-  group('DeviceCapability.formatBytesBn', () {
-    test('formats across magnitudes', () {
-      expect(DeviceCapability.formatBytesBn(512), '512 B');
-      expect(DeviceCapability.formatBytesBn(2048), '2.0 KB');
-      expect(DeviceCapability.formatBytesBn(5 * 1024 * 1024), '5.0 MB');
-      expect(DeviceCapability.formatBytesBn(2003697664), '1.9 GB');
+  group('DeviceCapability.formatBytes', () {
+    test('formats across units with bn digits by default', () {
+      expect(DeviceCapability.formatBytes(512), '৫১২ B');
+      expect(DeviceCapability.formatBytes(2048), '২.০ KB');
+      expect(DeviceCapability.formatBytes(5 * 1024 * 1024), '৫.০ MB');
+      expect(DeviceCapability.formatBytes(2003697664), '১.৯ GB');
+    });
+    test('formats with Latin digits when locale is en', () {
+      expect(
+          DeviceCapability.formatBytes(512, localeCode: 'en'), '512 B');
+      expect(
+          DeviceCapability.formatBytes(2048, localeCode: 'en'), '2.0 KB');
     });
   });
 }

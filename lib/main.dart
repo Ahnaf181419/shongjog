@@ -3,7 +3,7 @@ import 'dart:ui' show PlatformDispatcher;
 
 import 'package:firebase_core/firebase_core.dart';
 import 'core/locale_controller.dart';
-import 'features/quick_cards/cards_data.dart';
+import 'core/prompt_cache_warmer.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 import 'package:flutter/material.dart';
@@ -34,15 +34,13 @@ final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Pre-warm the Quick Cards cache so the Cards tab renders synchronously
-  // off the loaded list — the screen relies on `cachedQuickCards()` in
-  // `cards_data.dart` rather than re-fetching per build.
-  try {
-    await ensureQuickCardsLoaded(localeController.languageCode);
-  } catch (_) {
-    // Cards tab will show no cards if the asset is missing — that path
-    // is exercised in tests with a stub setUpAll.
-  }
+  // Restore the persisted locale before any locale-dependent warm-up so
+  // the first frame already renders in the user's chosen language.
+  await localeController.ensureLoaded();
+
+  // Prime every locale-dependent asset cache (quick cards, districts,
+  // and the six prompt-string bundles) and listen for language switches.
+  await PromptCacheWarmer(localeController).start();
 
   // Global error handlers — capture uncaught errors in release mode where
   // debugPrint is a no-op. Without this, errors vanish silently on a

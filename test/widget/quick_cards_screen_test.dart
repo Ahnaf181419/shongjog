@@ -19,6 +19,7 @@ void main() {
       locale: const Locale('bn'),
       home: QuickCardsScreen(onRequestAiChat: (_) {}),
     ));
+    await tester.pumpAndSettle();
   }
 
   testWidgets('renders all quick cards', (tester) async {
@@ -53,6 +54,7 @@ void main() {
         onRequestAiChat: (prompt) => capturedPrompt = prompt,
       ),
     ));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.text('সাপের কামড়'));
     await tester.pump(const Duration(milliseconds: 300));

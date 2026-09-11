@@ -20,17 +20,22 @@ bool isEmergencyQuery(String query, PersonaBundle persona) {
 
 /// Build the user-side message that goes on top of an existing
 /// `systemInstruction` (Cloud AI path — Tier 1).
+///
+/// [localeCode] selects which chunk text variant to inject: `en` uses
+/// `textEn` (empty chunks fall back to Bangla), `bn` (default) uses
+/// the Bangla body.
 String buildUserMessage({
   required String query,
   required List<RetrievalHit> hits,
   required PersonaBundle persona,
+  String localeCode = 'bn',
 }) {
   final buf = StringBuffer();
   if (hits.isNotEmpty) {
     buf
       ..writeln(persona.verifiedContextHeader)
       ..writeln(hits
-          .map((h) => '[${h.chunk.source}] ${h.chunk.text}')
+          .map((h) => '[${h.chunk.source}] ${h.chunk.displayText(localeCode)}')
           .join('\n\n'))
       ..writeln();
   }
@@ -50,6 +55,7 @@ String buildPrompt({
   required List<RetrievalHit> hits,
   required PersonaBundle persona,
   List<ChatTurn> history = const [],
+  String localeCode = 'bn',
 }) {
   final buf = StringBuffer()
     ..writeln(persona.persona)
@@ -59,7 +65,8 @@ String buildPrompt({
     buf
       ..writeln(persona.verifiedContextHeaderWithCitation)
       ..writeln(hits
-          .map((h) => '[Source: ${h.chunk.source}] ${h.chunk.text}')
+          .map(
+              (h) => '[Source: ${h.chunk.source}] ${h.chunk.displayText(localeCode)}')
           .join('\n\n'))
       ..writeln();
   }

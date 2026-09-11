@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/haptics.dart';
 import '../../l10n/app_localizations.dart';
+import '../../core/bangla_numerals.dart';
 import 'mesh_chat_screen.dart';
 import 'mesh_models.dart';
 import 'mesh_service.dart';
@@ -190,7 +191,7 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
                 child: Text(
                   meshService.activeTransport == MeshTransportType.wifiDirect
                       ? 'Wi-Fi Direct'
-                      : 'Nearby',
+                      : AppLocalizations.of(context).meshTransportNearby,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -226,7 +227,8 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
               child: Padding(
                 padding: const EdgeInsets.only(right: 16),
                 child: Text(
-                  AppLocalizations.of(context).meshDeviceCount(_peers.length),
+                  AppLocalizations.of(context).meshDeviceCount(numberForLocale(
+                      _peers.length, AppLocalizations.of(context).localeName)),
                   style: TextStyle(
                     color: cs.onSurfaceVariant,
                     fontSize: 14,

@@ -1,10 +1,14 @@
 /// Risk-input enums for Module C (AI Risk Assessment).
-/// Pure-Dart + Bangla labels + fromString parsers — mirror the
-/// FamilyProfile HomeType pattern.
+/// Pure-Dart + Bangla labels (intrinsic, used in the LLM system prompt)
+/// + localized `label(l10n)` for UI rendering, plus fromString parsers
+/// for round-tripping Bangla labels back to enum values.
 library;
+
+import 'package:shongjog/l10n/app_localizations.dart';
 
 import 'planner_strings_loader.dart' show fillTemplate;
 import 'risk_strings_loader.dart';
+import '../../core/bangla_numerals.dart';
 
 enum HomeMaterial {
   tinShed,
@@ -17,6 +21,13 @@ enum HomeMaterial {
         HomeMaterial.halfPucka => 'আধা পাকা',
         HomeMaterial.pucka => 'পাকা',
         HomeMaterial.apartment => 'অ্যাপার্টমেন্ট',
+      };
+
+  String label(AppLocalizations l10n) => switch (this) {
+        HomeMaterial.tinShed => l10n.riskHomeMaterialTinShed,
+        HomeMaterial.halfPucka => l10n.riskHomeMaterialHalfPucka,
+        HomeMaterial.pucka => l10n.riskHomeMaterialPucka,
+        HomeMaterial.apartment => l10n.riskHomeMaterialApartment,
       };
 
   static HomeMaterial fromString(String s) => switch (s) {
@@ -39,6 +50,12 @@ enum FloodHistory {
         FloodHistory.major => 'প্রধান',
       };
 
+  String label(AppLocalizations l10n) => switch (this) {
+        FloodHistory.none => l10n.riskFloodHistoryNone,
+        FloodHistory.minor => l10n.riskFloodHistoryMinor,
+        FloodHistory.major => l10n.riskFloodHistoryMajor,
+      };
+
   static FloodHistory fromString(String s) => switch (s) {
         'কখনো না' => FloodHistory.none,
         'মাঝারি' => FloodHistory.minor,
@@ -56,6 +73,12 @@ enum Elevation {
         Elevation.low => 'নিচু',
         Elevation.mid => 'মাঝারি',
         Elevation.high => 'উঁচু',
+      };
+
+  String label(AppLocalizations l10n) => switch (this) {
+        Elevation.low => l10n.riskElevationLow,
+        Elevation.mid => l10n.riskElevationMid,
+        Elevation.high => l10n.riskElevationHigh,
       };
 
   static Elevation fromString(String s) => switch (s) {
@@ -140,7 +163,7 @@ class RiskPromptBuilder {
 
   /// Deterministic risk score + summary, 1-10.
   /// Higher = more risk. Weighted score with a Bangla explanation.
-  static RiskResult fallbackScore(RiskInputs r, {RiskStrings? s}) {
+  static RiskResult fallbackScore(RiskInputs r, {RiskStrings? s, String? locale}) {
     final strings = s ?? cachedRisk;
     var score = 1;
 
@@ -177,7 +200,7 @@ class RiskPromptBuilder {
     // Clamp 1-10.
     score = score.clamp(1, 10);
 
-    final summary = _summaryForScore(score, r, strings);
+    final summary = _summaryForScore(score, r, strings, locale);
     final improvements = _improvementsForScore(score, r, strings);
 
     return RiskResult(
@@ -187,16 +210,35 @@ class RiskPromptBuilder {
     );
   }
 
-  static String _summaryForScore(int score, RiskInputs r, RiskStrings s) {
-    final bn = _bn(score);
+  static String _summaryForScore(
+    int score,
+    RiskInputs r,
+    RiskStrings s, [
+    String? locale,
+  ]) {
+    final isBn = locale != null
+        ? locale.toLowerCase().startsWith('bn')
+        : (!s.scoreOf.toLowerCase().contains('your risk score'));
+    final localeTag = isBn ? 'bn' : 'en';
+    final scoreStr = numberForLocale(score, localeTag);
     final hazards = <String>[];
-    if (r.nearRiver) hazards.add('নদী');
-    if (r.nearCoast) hazards.add('সমুদ্র');
-    final hazardsStr = hazards.isEmpty ? s.noMajorThreat : hazards.join(' ও ');
+    if (r.nearRiver) hazards.add(isBn ? 'নদী' : 'River');
+    if (r.nearCoast) hazards.add(isBn ? 'সমুদ্র' : 'Coast');
+    final hazardsStr = hazards.isEmpty
+        ? s.noMajorThreat
+        : (isBn ? hazards.join(' ও ') : hazards.join(' and '));
+    final materialStr = isBn
+        ? r.homeMaterial.labelBn
+        : switch (r.homeMaterial) {
+            HomeMaterial.tinShed => 'Tin shed house',
+            HomeMaterial.halfPucka => 'Half-pucka house',
+            HomeMaterial.pucka => 'Pucca house',
+            HomeMaterial.apartment => 'Apartment',
+          };
 
     return fillTemplate(s.scoreOf, {
-      'score': bn,
-      'material': r.homeMaterial.labelBn,
+      'score': scoreStr,
+      'material': materialStr,
       'hazards': hazardsStr,
     });
   }
@@ -225,13 +267,4 @@ class RiskPromptBuilder {
     }
     return buf.toString();
   }
-
-  /// Convert int to Bengali digits string.
-  static String _bn(int n) => n.toString().split('').map((c) {
-    const m = {
-      '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
-      '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯',
-    };
-    return m[c] ?? c;
-  }).join();
 }

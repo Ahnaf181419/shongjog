@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:geolocator/geolocator.dart';
 
+import '../../core/bangla_numerals.dart';
+import '../../l10n/app_localizations.dart';
 import '../admin/campaign_request.dart';
 import 'notification_service.dart';
 
@@ -20,6 +22,7 @@ class ProximityNotificationService {
     double radiusKm = _defaultProximityRadiusKm,
   }) async {
     final insights = <ProactiveInsight>[];
+    final l10n = AppLocalizations.of(context);
 
     for (final campaign in approvedCampaigns) {
       final distance = _calculateDistance(
@@ -30,10 +33,14 @@ class ProximityNotificationService {
       );
 
       if (distance <= radiusKm) {
+        final typeLabel = campaign.type.label(context);
         insights.add(ProactiveInsight(
-          title: 'নিকটস্থ ${campaign.type.label(context)}',
-          message:
-              '${campaign.type.label(context)} চলছে: ${campaign.address} (${distance.toStringAsFixed(1)} কিমি দূরত্বে)',
+          title: l10n.proximityAlertTitle(typeLabel),
+          message: l10n.proximityAlertBody(
+            typeLabel,
+            campaign.address,
+            digitsForLocale(distance.toStringAsFixed(1), l10n.localeName),
+          ),
           route: '/shelter',
         ));
       }

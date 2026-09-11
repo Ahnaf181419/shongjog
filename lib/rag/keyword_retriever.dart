@@ -19,7 +19,13 @@ class KeywordRetriever {
   ///
   /// Only chunks with score > 0 are returned. If nothing matches, the
   /// caller falls back to the canned low-confidence response.
-  List<RetrievalHit> topK(String query, {int k = 3}) {
+  ///
+  /// [localeCode] selects which keyword set / text to score against. In
+  /// bn mode the Bangla keywords + Bangla text are used (default). In
+  /// en mode the English keywords + textEn are used. The on-disk
+  /// embeddings index is bn-only (see [EmbeddingRetriever]); for en
+  /// queries the keyword path is the only retrieval option.
+  List<RetrievalHit> topK(String query, {int k = 3, String localeCode = 'bn'}) {
     if (chunks.isEmpty) return const [];
 
     final q = query.toLowerCase();
@@ -31,7 +37,7 @@ class KeywordRetriever {
       final chunk = chunks[i];
       var score = 0.0;
 
-      for (final kw in chunk.keywordsBn) {
+      for (final kw in chunk.getKeywords(localeCode)) {
         final kwLower = kw.toLowerCase();
         if (q.contains(kwLower)) {
           score += 1.0;
@@ -42,7 +48,7 @@ class KeywordRetriever {
         score += 0.5;
       }
 
-      final textLower = chunk.text.toLowerCase();
+      final textLower = chunk.displayText(localeCode).toLowerCase();
       for (final w in queryWords) {
         if (w.length > 2 && textLower.contains(w)) {
           score += 0.1;

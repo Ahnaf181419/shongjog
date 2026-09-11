@@ -198,7 +198,10 @@ class _ContactRow extends StatelessWidget {
     this.onDelete,
   });
 
-  String get _phoneBn => toBanglaDigits(contact.phone);
+  String _phoneFor(BuildContext context) {
+    final isBangla = AppLocalizations.of(context).localeName == 'bn';
+    return isBangla ? toBanglaDigits(contact.phone) : contact.phone;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -273,7 +276,7 @@ class _ContactRow extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  _phoneBn,
+                  _phoneFor(context),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,

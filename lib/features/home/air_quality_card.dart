@@ -5,6 +5,7 @@ import '../../app/theme.dart';
 import '../../core/connectivity_provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../environment/air_quality_service.dart';
+import '../../core/bangla_numerals.dart';
 
 /// Air-quality card for the home screen.
 ///
@@ -239,7 +240,7 @@ class _AirQualityCardState extends State<AirQualityCard> {
                 textBaseline: TextBaseline.alphabetic,
                 children: [
                   Text(
-                    s.pm25.toStringAsFixed(0),
+                    digitsForLocale(s.pm25.toStringAsFixed(0), AppLocalizations.of(context).localeName),
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
@@ -273,7 +274,7 @@ class _AirQualityCardState extends State<AirQualityCard> {
               ),
             ),
             Text(
-              s.pm10.toStringAsFixed(0),
+              digitsForLocale(s.pm10.toStringAsFixed(0), AppLocalizations.of(context).localeName),
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,

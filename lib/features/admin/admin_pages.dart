@@ -858,8 +858,9 @@ class _CampaignRequestTile extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          '${req.type.label(context)} '
-          '${approving ? l10n.adminApproved : l10n.adminRejected}',
+          approving
+              ? l10n.adminRequestApproved(req.type.label(context))
+              : l10n.adminRequestRejected(req.type.label(context)),
         ),
       ),
     );
@@ -1014,7 +1015,9 @@ class _DangerCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    report.userName,
+                    report.userName?.isNotEmpty == true
+                        ? report.userName!
+                        : AppLocalizations.of(context).beaconAnonymousReporter,
                     style: tt.titleMedium?.copyWith(color: cs.onSurface),
                   ),
                 ),

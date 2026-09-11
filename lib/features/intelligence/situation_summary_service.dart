@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'situation_summary_strings_loader.dart';
+import '../../core/bangla_numerals.dart';
 
 /// A single data point for the situation summary.
 class SituationReport {
@@ -51,22 +52,27 @@ String? buildSituationPrompt(
 String fallbackSituationSummary(
   List<SituationReport> reports, {
   SituationSummaryStrings? s,
+  String? locale,
 }) {
   final strings = s ?? cachedSituationSummary;
   if (reports.isEmpty) {
     return strings.fallbackEmpty;
   }
+  final isBn = locale != null
+      ? locale.toLowerCase().startsWith('bn')
+      : (!strings.fallbackTitle.toLowerCase().contains('situation summary'));
+  final localeTag = isBn ? 'bn' : 'en';
   final sosCount = reports.where((r) => r.source == 'sos').length;
   final chatCount = reports.length - sosCount;
   final buf = StringBuffer();
   buf.writeln(strings.fallbackTitle);
   buf.writeln();
-  buf.writeln(strings.fallbackTotal.replaceAll('{count}', _bn(reports.length)));
+  buf.writeln(strings.fallbackTotal.replaceAll('{count}', numberForLocale(reports.length, localeTag)));
   if (sosCount > 0) {
-    buf.writeln(strings.fallbackSos.replaceAll('{count}', _bn(sosCount)));
+    buf.writeln(strings.fallbackSos.replaceAll('{count}', numberForLocale(sosCount, localeTag)));
   }
   if (chatCount > 0) {
-    buf.writeln(strings.fallbackChat.replaceAll('{count}', _bn(chatCount)));
+    buf.writeln(strings.fallbackChat.replaceAll('{count}', numberForLocale(chatCount, localeTag)));
   }
   buf.writeln();
   if (sosCount > 0) {
@@ -82,17 +88,18 @@ String fallbackSituationSummary(
 Future<String> generateSituationSummary(
   List<SituationReport> reports, {
   SituationSummaryStrings? s,
+  String? locale,
 }) async {
   final strings = s ?? cachedSituationSummary;
   if (reports.isEmpty) {
-    return fallbackSituationSummary(const [], s: strings);
+    return fallbackSituationSummary(const [], s: strings, locale: locale);
   }
 
   buildSituationPrompt(reports, s: strings);
   debugPrint('[SitSummary] entered with ${reports.length} reports');
   // For now we use the deterministic fallback as the model path
   // isn't wired into this service in the current build.
-  final summary = fallbackSituationSummary(reports, s: strings);
+  final summary = fallbackSituationSummary(reports, s: strings, locale: locale);
   debugPrint('[SitSummary] generated len=${summary.length}');
   return summary;
   // prompt is intentionally built but unused here — kept for the future
@@ -101,12 +108,3 @@ Future<String> generateSituationSummary(
   // ignore: unused_local_variable
   // final _ = prompt;
 }
-
-/// Convert int to Bengali digits string.
-String _bn(int n) => n.toString().split('').map((c) {
-      const m = {
-        '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
-        '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯',
-      };
-      return m[c] ?? c;
-    }).join();

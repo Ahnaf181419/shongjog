@@ -19,48 +19,56 @@ class QuickCardDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final card = _findCard(cardId, l10n);
-    final cs = Theme.of(context).colorScheme;
-    return Scaffold(
-      backgroundColor: ShongjogTheme.cardSurface(context),
-      appBar: AppBar(
-        title: Text(card.title),
-        backgroundColor: cs.surfaceContainerHighest,
-        foregroundColor: cs.onSurface,
-        leading: IconButton(
-          tooltip: l10n.cardDetailBack,
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => Navigator.of(context).maybePop(),
-        ),
-      ),
-      body: card.steps.isEmpty
-          ? Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text(
-                  l10n.cardDetailNoSteps,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: cs.onSurfaceVariant),
-                ),
-              ),
-            )
-          : ListView.separated(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-              itemCount: card.steps.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 12),
-              itemBuilder: (_, i) => _StepTile(
-                index: i + 1,
-                text: card.steps[i],
-                accent: card.color,
-              ),
+    final localeName = l10n.localeName;
+    return FutureBuilder<List<QuickCardEntry>>(
+      future: loadQuickCards(localeName),
+      builder: (context, snap) {
+        final card = _findCard(cardId, snap.data, l10n);
+        final cs = Theme.of(context).colorScheme;
+        return Scaffold(
+          backgroundColor: ShongjogTheme.cardSurface(context),
+          appBar: AppBar(
+            title: Text(card.title),
+            backgroundColor: cs.surfaceContainerHighest,
+            foregroundColor: cs.onSurface,
+            leading: IconButton(
+              tooltip: l10n.cardDetailBack,
+              icon: const Icon(Icons.arrow_back_rounded),
+              onPressed: () => Navigator.of(context).maybePop(),
             ),
+          ),
+          body: card.steps.isEmpty
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Text(
+                      l10n.cardDetailNoSteps,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: cs.onSurfaceVariant),
+                    ),
+                  ),
+                )
+              : ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                  itemCount: card.steps.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
+                  itemBuilder: (_, i) => _StepTile(
+                    index: i + 1,
+                    text: card.steps[i],
+                    accent: card.color,
+                  ),
+                ),
+        );
+      },
     );
   }
 
-  static QuickCardEntry _findCard(String id, AppLocalizations l10n) {
-    final cards = cachedQuickCards();
-    for (final c in cards) {
-      if (c.id == id) return c;
+  static QuickCardEntry _findCard(
+      String id, List<QuickCardEntry>? cards, AppLocalizations l10n) {
+    if (cards != null) {
+      for (final c in cards) {
+        if (c.id == id) return c;
+      }
     }
     return QuickCardEntry(
       id: '__missing__',

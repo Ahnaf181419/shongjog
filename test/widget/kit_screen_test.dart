@@ -48,10 +48,10 @@ void main() {
       await tester.pumpWidget(localizedApp(const KitScreen()));
       await tester.pumpAndSettle();
 
-      // Summary chips (Bangla locale, Latin digits from ICU format).
-      expect(find.text('4 জন'), findsOneWidget);
-      expect(find.text('1 শিশু'), findsOneWidget);
-      expect(find.text('1 প্রবীণ'), findsOneWidget);
+      // Summary chips (Bangla locale, Bengali numerals).
+      expect(find.text('৪ জন'), findsOneWidget);
+      expect(find.text('১ শিশু'), findsOneWidget);
+      expect(find.text('১ প্রবীণ'), findsOneWidget);
 
       // Edit + Generate buttons present.
       expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
@@ -69,7 +69,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Summary view initially.
-      expect(find.text('3 জন'), findsOneWidget);
+      expect(find.text('৩ জন'), findsOneWidget);
 
       // Tap Edit.
       await tester.tap(find.byIcon(Icons.edit_outlined));
@@ -105,7 +105,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Back to summary — original value restored (2, not 3).
-      expect(find.text('2 জন'), findsOneWidget);
+      expect(find.text('২ জন'), findsOneWidget);
       expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
     });
   });

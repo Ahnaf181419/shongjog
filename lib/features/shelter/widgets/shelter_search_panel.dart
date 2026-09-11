@@ -2,12 +2,56 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
+import '../../../core/bangla_numerals.dart';
 
 import '../../../core/connectivity_provider.dart';
+import '../../profile/districts_loader.dart';
 import '../nearest_shelter.dart';
 import '../nominatim_service.dart';
 import '../overpass_service.dart';
 import '../semantic_search_service.dart';
+
+/// Memoized bn→en district-name map, built positionally from
+/// `districts.json` (the bn and en blocks share division order and
+/// district counts per index — verified at data-model design time).
+/// Districts not present in the lookup fall back to the Bangla name.
+Map<String, String>? _districtDisplayCache;
+
+Future<Map<String, String>> _districtDisplayMap() async {
+  final cached = _districtDisplayCache;
+  if (cached != null) return cached;
+  final bn = await loadDistricts('bn');
+  final en = await loadDistricts('en');
+  final bnDivs = bn.keys.toList();
+  final enDivs = en.keys.toList();
+  final out = <String, String>{};
+  for (var i = 0; i < bnDivs.length && i < enDivs.length; i++) {
+    final bnDistricts = bn[bnDivs[i]]!;
+    final enDistricts = en[enDivs[i]]!;
+    for (var j = 0; j < bnDistricts.length && j < enDistricts.length; j++) {
+      out[bnDistricts[j]] = enDistricts[j];
+    }
+  }
+  _districtDisplayCache = out;
+  return out;
+}
+
+/// Resolve a Bangla district name to the requested locale's display
+/// form. Unknown districts fall through to the Bangla name.
+Future<String> districtDisplayName(String bnName, String localeCode) async {
+  if (localeCode == 'bn') return bnName;
+  final map = await _districtDisplayMap();
+  return map[bnName] ?? bnName;
+}
+
+/// Synchronous lookup for use in widget `build` after a state field
+/// has been primed via [primeDistrictDisplayCache]. The [localeCode]
+/// lets callers use either cached block directly without async.
+String districtDisplayNameSync(
+    String bnName, String localeCode, Map<String, String> bnToEn) {
+  if (localeCode == 'bn') return bnName;
+  return bnToEn[bnName] ?? bnName;
+}
 
 /// Full-screen search overlay listing [ranked] shelters with a live
 /// text filter. Tapping a row calls [onSelect]; the X in the suffix
@@ -65,6 +109,12 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
   List<dynamic>? _semanticHits;
   bool _semanticLoading = false;
 
+  /// Cached bn→en district-name map. Loaded once; refreshed on locale
+  /// change (which rebuilds the whole MaterialApp and triggers
+  /// didChangeDependencies below).
+  Map<String, String>? _bnToEnDistricts;
+  String? _bnToEnLocale;
+
   /// Division keys -> localized labels. Reuses the emergency-directory
   /// getters so no new l10n keys are required; the labels are just the
   /// eight division names which read the same in either feature.
@@ -87,6 +137,28 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
   void initState() {
     super.initState();
     _ctrl.addListener(_onSearchChanged);
+    _primeDistrictDisplayMap();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // LocaleController-driven rebuilds flip `localeName`; refresh the
+    // district bn→en map when that happens so the dropdown shows the
+    // requested script.
+    final locale = AppLocalizations.of(context).localeName;
+    if (_bnToEnLocale != locale) {
+      _bnToEnLocale = locale;
+      _primeDistrictDisplayMap();
+    }
+  }
+
+  Future<void> _primeDistrictDisplayMap() async {
+    final map = await _districtDisplayMap();
+    if (!mounted) return;
+    setState(() {
+      _bnToEnDistricts = map;
+    });
   }
 
   @override
@@ -294,7 +366,10 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
                         ),
                         for (final d in _districtsForDivision)
                           DropdownMenuItem<String?>(
-                              value: d, child: Text(d)),
+                            value: d,
+                            child: Text(districtDisplayNameSync(
+                                d, l10n.localeName, _bnToEnDistricts ?? const {})),
+                          ),
                       ],
                       onChanged: (v) {
                         setState(() => _district = v);
@@ -335,7 +410,8 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
       itemBuilder: (_, i) {
         final r = _displayed[i];
         final s = r.shelter;
-        final bnName = s.nameBn.isNotEmpty ? s.nameBn : s.name;
+        final localeCode = AppLocalizations.of(context).localeName;
+        final bnName = s.displayName(localeCode);
         return ListTile(
           leading: Container(
             width: 40,
@@ -350,8 +426,8 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
           title: Text(bnName,
               style: const TextStyle(fontWeight: FontWeight.w500)),
           subtitle: Text(
-            '${r.km.toStringAsFixed(1)} ${l10n.shelterUnitKm}'
-            '${s.capacity != null ? '  •  ${s.capacity} ${l10n.shelterUnitPeople}' : ''}'
+            '${digitsForLocale(r.km.toStringAsFixed(1), l10n.localeName)} ${l10n.shelterUnitKm}'
+            '${s.capacity != null ? '  •  ${numberForLocale(s.capacity!, l10n.localeName)} ${l10n.shelterUnitPeople}' : ''}'
             '  •  ${s.source}',
             style: const TextStyle(fontSize: 14),
           ),
@@ -404,7 +480,7 @@ class _ShelterSearchPanelState extends State<ShelterSearchPanel> {
           lon = h.lon;
           icon = Icons.place_rounded;
         } else if (h is OverpassPoi) {
-          label = h.nameBn ?? h.name;
+          label = h.displayName(AppLocalizations.of(context).localeName);
           lat = h.lat;
           lon = h.lon;
           icon = Icons.local_hospital_rounded;

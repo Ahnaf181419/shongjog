@@ -1847,9 +1847,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String triageSummarySos(
     String route,
     String time,
-    int count,
-    int yes,
-    int no,
+    String count,
+    String yes,
+    String no,
   ) {
     return 'ট্রায়াজ: $route\nসময়: $time\nপ্রশ্ন: $count (হ্যাঁ $yes / না $no)';
   }
@@ -1858,9 +1858,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String triageShareableSos(
     String route,
     String time,
-    int count,
-    int yes,
-    int no,
+    String count,
+    String yes,
+    String no,
   ) {
     return 'ট্রায়াজ: $route\nসময়: $time\nপ্রশ্ন: $count (হ্যাঁ $yes / না $no)';
   }
@@ -2012,7 +2012,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get hazardsNearbyBadge => 'সীমান্তের ওপারে';
 
   @override
-  String hazardsShowMore(int count) {
+  String hazardsShowMore(String count) {
     return 'আরও $countটি দেখুন';
   }
 
@@ -2370,17 +2370,17 @@ class AppLocalizationsBn extends AppLocalizations {
   String get riskTimeJustNow => 'এইমাত্র';
 
   @override
-  String riskTimeMinutesAgo(int count) {
+  String riskTimeMinutesAgo(String count) {
     return '$count মিনিট আগে';
   }
 
   @override
-  String riskTimeHoursAgo(int count) {
+  String riskTimeHoursAgo(String count) {
     return '$count ঘণ্টা আগে';
   }
 
   @override
-  String riskTimeDaysAgo(int count) {
+  String riskTimeDaysAgo(String count) {
     return '$count দিন আগে';
   }
 
@@ -2406,17 +2406,17 @@ class AppLocalizationsBn extends AppLocalizations {
   String get kitMoreOptions => 'আরও অপশন';
 
   @override
-  String kitSummaryMembers(int size) {
+  String kitSummaryMembers(String size) {
     return '$size জন';
   }
 
   @override
-  String kitSummaryChildren(int count) {
+  String kitSummaryChildren(String count) {
     return '$count শিশু';
   }
 
   @override
-  String kitSummaryElderly(int count) {
+  String kitSummaryElderly(String count) {
     return '$count প্রবীণ';
   }
 
@@ -2590,4 +2590,108 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get demoSeedQ3Answer =>
       'রোগীকে শান্ত রাখুন। কাটা, চুষা বা টর্নিকেট ব্যবহার করবেন না। আক্রান্ত স্থান নড়াচলা বন্ধ রাখুন এবং দ্রুত নিকটস্থ হাসপাতালে নিন。';
+
+  @override
+  String get insightCycloneTitle => 'ঘূর্ণিঝড় প্রস্তুতি';
+
+  @override
+  String get insightCycloneBody =>
+      'আপনার নিকটবর্তী আশ্রয়কেন্দ্র আগে থেকেই ম্যাপে দেখে রাখুন।';
+
+  @override
+  String get insightFloodTitle => 'বন্যা সতর্কতা';
+
+  @override
+  String get insightFloodBody => 'পানি বিশুদ্ধ করার নিয়মগুলো জেনে নিন।';
+
+  @override
+  String get insightMedicalTitle => 'চিকিৎসা সহায়তা';
+
+  @override
+  String get insightMedicalBody =>
+      'ORS তৈরির নিয়ম এবং জরুরি যোগাযোগ প্রস্তুত রাখুন।';
+
+  @override
+  String get insightOfflineTitle => 'অফলাইন AI প্রস্তুত';
+
+  @override
+  String get insightOfflineBody =>
+      'ইন্টারনেট ছাড়াই শঙ্গ্যোগ আপনার প্রশ্নের উত্তর দিতে পারে।';
+
+  @override
+  String proximityAlertTitle(String type) {
+    return 'নিকটস্থ $type';
+  }
+
+  @override
+  String proximityAlertBody(String type, String address, String distance) {
+    return '$type চলছে: $address ($distance কিমি দূরত্বে)';
+  }
+
+  @override
+  String get commonLoading => 'লোড হচ্ছে…';
+
+  @override
+  String get riskHomeMaterial => 'ঘরের ধরন';
+
+  @override
+  String get riskHomeMaterialTinShed => 'টিনের ঘর';
+
+  @override
+  String get riskHomeMaterialHalfPucka => 'আধা পাকা';
+
+  @override
+  String get riskHomeMaterialPucka => 'পাকা';
+
+  @override
+  String get riskHomeMaterialApartment => 'অ্যাপার্টমেন্ট';
+
+  @override
+  String get riskFloodHistoryNone => 'কখনো না';
+
+  @override
+  String get riskFloodHistoryMinor => 'মাঝারি';
+
+  @override
+  String get riskFloodHistoryMajor => 'প্রধান';
+
+  @override
+  String get riskElevationLow => 'নিচু';
+
+  @override
+  String get riskElevationMid => 'মাঝারি';
+
+  @override
+  String get riskElevationHigh => 'উঁচু';
+
+  @override
+  String get damageCameraPermanentDenied =>
+      'ক্যামেরার অনুমতি স্থায়ীভাবে প্রত্যাখ্যান করা হয়েছে। অনুগ্রহ করে সেটিংসে গিয়ে অনুমতি দিন।';
+
+  @override
+  String get damageCameraDenied => 'ক্যামেরার অনুমতি প্রত্যাখ্যান করা হয়েছে।';
+
+  @override
+  String get chatFallback999 => 'জরুরি সাহায্যের জন্য ৯৯৯ এ কল করুন।';
+
+  @override
+  String get meshTransportNearby => 'কাছেই';
+
+  @override
+  String get beaconAnonymousReporter => 'একজন ব্যবহারকারী';
+
+  @override
+  String adminRequestApproved(String type) {
+    return '$type অনুমোদিত হয়েছে';
+  }
+
+  @override
+  String adminRequestRejected(String type) {
+    return '$type প্রত্যাখ্যান করা হয়েছে';
+  }
+
+  @override
+  String emergencyGpsFallbackNotice(String warning, String phone) {
+    return '$warning — $phone নম্বরে কল করুন';
+  }
 }

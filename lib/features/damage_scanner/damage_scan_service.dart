@@ -18,17 +18,6 @@ enum DamageType {
   other,
   unknown;
 
-  String labelBn(DamageScanStrings s) => switch (this) {
-        DamageType.flood => s.damageTypeFlood,
-        DamageType.fire => s.damageTypeFire,
-        DamageType.collapsedBuilding => s.damageTypeCollapsedBuilding,
-        DamageType.fallenTree => s.damageTypeFallenTree,
-        DamageType.blockedRoad => s.damageTypeBlockedRoad,
-        DamageType.electricHazard => s.damageTypeElectricHazard,
-        DamageType.smoke => s.damageTypeSmoke,
-        DamageType.other => s.damageTypeOther,
-        DamageType.unknown => s.damageTypeUnknown,
-      };
 
   String label(AppLocalizations l10n) => switch (this) {
         DamageType.flood => l10n.damageTypeFlood,
@@ -51,13 +40,6 @@ enum Severity {
   critical,
   unknown;
 
-  String labelBn(DamageScanStrings s) => switch (this) {
-        Severity.low => s.severityLow,
-        Severity.medium => s.severityMedium,
-        Severity.high => s.severityHigh,
-        Severity.critical => s.severityCritical,
-        Severity.unknown => s.severityUnknown,
-      };
 
   String label(AppLocalizations l10n) => switch (this) {
         Severity.low => l10n.damageSeverityLow,
@@ -222,12 +204,3 @@ class DamageScanService {
   }
 }
 
-/// Compose a Bangla user-facing summary from a scan result.
-String formatDamageScanResult(DamageScanResult r, {DamageScanStrings? s}) {
-  final strings = s ?? cachedDamageScan;
-  return '${r.damageType.labelBn(strings)} (${r.severity.labelBn(strings)}): ${r.recommendation}';
-}
-
-// AppLocalizations may be passed in by screen-level callers.
-// Re-exported here for compatibility.
-typedef AppLocalizationsAlias = AppLocalizations;

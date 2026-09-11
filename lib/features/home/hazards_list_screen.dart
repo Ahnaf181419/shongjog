@@ -69,6 +69,9 @@ class _HazardTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+    final title = item.titleFor(l10n);
+    final subtitle = item.subtitleFor(l10n);
     final hasUrl = _sourceUrl() != null;
     return Card(
       margin: EdgeInsets.zero,
@@ -95,7 +98,7 @@ class _HazardTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      item.title,
+                      title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -104,11 +107,11 @@ class _HazardTile extends StatelessWidget {
                         color: cs.onSurface,
                       ),
                     ),
-                    if (item.subtitle.isNotEmpty)
+                    if (subtitle.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
                         child: Text(
-                          item.subtitle,
+                          subtitle,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(

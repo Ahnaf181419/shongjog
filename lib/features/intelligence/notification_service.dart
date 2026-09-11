@@ -1,3 +1,4 @@
+import '../../l10n/app_localizations.dart';
 import 'user_profile.dart';
 
 class ProactiveInsight {
@@ -14,9 +15,59 @@ class ProactiveInsight {
 
 class NotificationService {
   /// Generates context-aware, proactive notifications based on local behavior.
-  static List<ProactiveInsight> generateInsights(UserProfile profile) {
+  ///
+  /// All user-facing copy is sourced from [AppLocalizations] — call this with
+  /// `AppLocalizations.of(context)` from the BuildContext that owns the
+  /// notification surface.
+  static List<ProactiveInsight> generateInsights(
+    UserProfile profile, {
+    required AppLocalizations l10n,
+  }) {
     final insights = <ProactiveInsight>[];
 
+    if (profile.showsCycloneInterest) {
+      insights.add(ProactiveInsight(
+        title: l10n.insightCycloneTitle,
+        message: l10n.insightCycloneBody,
+        route: '/shelter',
+      ));
+    }
+
+    if (profile.showsFloodInterest) {
+      insights.add(ProactiveInsight(
+        title: l10n.insightFloodTitle,
+        message: l10n.insightFloodBody,
+        route: '/cards',
+      ));
+    }
+
+    if (profile.showsMedicalInterest) {
+      insights.add(ProactiveInsight(
+        title: l10n.insightMedicalTitle,
+        message: l10n.insightMedicalBody,
+        route: '/cards',
+      ));
+    }
+
+    // Default insight if no specific interests
+    if (insights.isEmpty) {
+      insights.add(ProactiveInsight(
+        title: l10n.insightOfflineTitle,
+        message: l10n.insightOfflineBody,
+        route: '/',
+      ));
+    }
+
+    return insights;
+  }
+}
+
+/// Helper: drop-in replacement when callers don't have an [AppLocalizations]
+/// in scope (e.g. tests). Falls back to Bangla — matches the historical
+/// behaviour before this service was i18n'd.
+extension NotificationServiceBanglaFallback on NotificationService {
+  static List<ProactiveInsight> generateInsightsBn(UserProfile profile) {
+    final insights = <ProactiveInsight>[];
     if (profile.showsCycloneInterest) {
       insights.add(const ProactiveInsight(
         title: 'ঘূর্ণিঝড় প্রস্তুতি',
@@ -24,7 +75,6 @@ class NotificationService {
         route: '/shelter',
       ));
     }
-
     if (profile.showsFloodInterest) {
       insights.add(const ProactiveInsight(
         title: 'বন্যা সতর্কতা',
@@ -32,7 +82,6 @@ class NotificationService {
         route: '/cards',
       ));
     }
-
     if (profile.showsMedicalInterest) {
       insights.add(const ProactiveInsight(
         title: 'চিকিৎসা সহায়তা',
@@ -40,8 +89,6 @@ class NotificationService {
         route: '/cards',
       ));
     }
-
-    // Default insight if no specific interests
     if (insights.isEmpty) {
       insights.add(const ProactiveInsight(
         title: 'অফলাইন AI প্রস্তুত',
@@ -49,7 +96,6 @@ class NotificationService {
         route: '/',
       ));
     }
-
     return insights;
   }
 }

@@ -35,7 +35,7 @@ void main() {
       ));
 
       expect(find.text('খুলনা শেল্টার এ'), findsOneWidget);
-      expect(find.text('ধারণক্ষমতা: 1200 জন'), findsOneWidget);
+      expect(find.text('ধারণক্ষমতা: ১২০০ জন'), findsOneWidget);
     });
 
     testWidgets('shows the formatted distance in km when not loading',
@@ -59,7 +59,7 @@ void main() {
         ),
       ));
 
-      expect(find.text('5.0 কিমি'), findsOneWidget);
+      expect(find.text('৫.০ কিমি'), findsOneWidget);
     });
 
     testWidgets('shows "—" placeholder when distance is null', (tester) async {

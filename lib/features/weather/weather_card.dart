@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../../app/theme.dart';
+import '../../core/bangla_numerals.dart';
 import '../../core/connectivity_provider.dart';
 import '../../l10n/app_localizations.dart';
 import 'weather_service.dart';
@@ -213,7 +214,7 @@ class _WeatherCardState extends State<WeatherCard> {
                   textBaseline: TextBaseline.alphabetic,
                   children: [
                     Text(
-                      '${s.tempC.round()}°',
+                      '${digitsForLocale(s.tempC.round().toString(), l10n.localeName)}°',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.w700,
@@ -224,7 +225,7 @@ class _WeatherCardState extends State<WeatherCard> {
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      '↑ ${s.tempMaxC.round()}°  ↓ ${s.tempMinC.round()}°',
+                      '↑ ${digitsForLocale(s.tempMaxC.round().toString(), l10n.localeName)}°  ↓ ${digitsForLocale(s.tempMinC.round().toString(), l10n.localeName)}°',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -246,7 +247,7 @@ class _WeatherCardState extends State<WeatherCard> {
                   size: 14, color: cs.onSurfaceVariant),
               const SizedBox(height: 2),
               Text(
-                '${s.precipProbabilityPct}%',
+                '${digitsForLocale(s.precipProbabilityPct.toString(), l10n.localeName)}%',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -481,6 +482,7 @@ class _DayCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
       child: Column(
@@ -498,7 +500,7 @@ class _DayCell extends StatelessWidget {
           ),
           Icon(icon, color: cs.primary, size: 20),
           Text(
-            '${maxC.round()}°  ${minC.round()}°',
+            '${digitsForLocale(maxC.round().toString(), l10n.localeName)}°  ${digitsForLocale(minC.round().toString(), l10n.localeName)}°',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,

@@ -75,7 +75,7 @@ class _RiskScreenState extends State<RiskScreen> {
             spacing: 8,
             children: HomeMaterial.values
                 .map((m) => ChoiceChip(
-                      label: Text(m.labelBn),
+                      label: Text(m.label(l10n)),
                       selected: _material == m,
                       onSelected: (_) => setState(() => _material = m),
                     ))
@@ -87,7 +87,7 @@ class _RiskScreenState extends State<RiskScreen> {
             spacing: 8,
             children: FloodHistory.values
                 .map((f) => ChoiceChip(
-                      label: Text(f.labelBn),
+                      label: Text(f.label(l10n)),
                       selected: _floods == f,
                       onSelected: (_) => setState(() => _floods = f),
                     ))
@@ -99,7 +99,7 @@ class _RiskScreenState extends State<RiskScreen> {
             spacing: 8,
             children: Elevation.values
                 .map((e) => ChoiceChip(
-                      label: Text(e.labelBn),
+                      label: Text(e.label(l10n)),
                       selected: _elevation == e,
                       onSelected: (_) => setState(() => _elevation = e),
                     ))

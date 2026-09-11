@@ -8,6 +8,7 @@ import '../hazards/usgs_earthquake_service.dart';
 import 'hazards_item.dart';
 import 'hazards_list_screen.dart';
 import '../../app/theme.dart';
+import '../../core/bangla_numerals.dart';
 
 /// Home-screen card showing live natural hazards near Bangladesh.
 ///
@@ -82,14 +83,13 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
     final items = <HazardsItem>[];
 
     for (final e in eonet ?? const <EonetEvent>[]) {
-      items.add(HazardsItem.fromEonet(e, context));
+      items.add(HazardsItem.fromEonet(e));
     }
     for (final q in quakes ?? const <EarthquakeEvent>[]) {
-      items.add(
-          HazardsItem.fromQuake(q, AppLocalizations.of(context)));
+      items.add(HazardsItem.fromQuake(q));
     }
     for (final g in gdacs ?? const <GdacsAlert>[]) {
-      items.add(HazardsItem.fromGdacs(g, context));
+      items.add(HazardsItem.fromGdacs(g));
     }
     // Domestic hazards always outrank cross-border ones, whatever their
     // severity weight — a green alert inside Bangladesh matters more to this
@@ -248,7 +248,9 @@ class _LiveHazardsCardState extends State<LiveHazardsCard> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      l10n.hazardsShowMore(items.length - 3),
+                      l10n.hazardsShowMore(
+                        numberForLocale(items.length - 3, l10n.localeName),
+                      ),
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -276,6 +278,9 @@ class HazardsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+    final title = item.titleFor(l10n);
+    final subtitle = item.subtitleFor(l10n);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -288,7 +293,7 @@ class HazardsRow extends StatelessWidget {
             text: TextSpan(
               children: [
                 TextSpan(
-                  text: item.title,
+                  text: title,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -296,10 +301,10 @@ class HazardsRow extends StatelessWidget {
                     height: 1.25,
                   ),
                 ),
-                if (item.subtitle.isNotEmpty) ...[
+                if (subtitle.isNotEmpty) ...[
                   const TextSpan(text: ' · '),
                   TextSpan(
-                    text: item.subtitle,
+                    text: subtitle,
                     style: TextStyle(
                       fontSize: 14,
                       color: cs.onSurfaceVariant,

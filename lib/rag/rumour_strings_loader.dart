@@ -44,9 +44,9 @@ RumourStrings cachedRumour = RumourStrings._empty();
 Future<RumourStrings> loadRumourStrings(String? locale) async {
   return TextLoader.loadJson<RumourStrings>(_kAssetPath, (raw, localeCode) {
     final outer = jsonDecode(raw) as Map<String, dynamic>;
-    final block = TextLoader.pickBundle(outer, locale);
+    final block = TextLoader.pickBundle(outer, localeCode);
     return RumourStrings._fromMap(block);
-  });
+  }, locale: locale);
 }
 
 Future<void> primeRumourCache(String? locale) async {

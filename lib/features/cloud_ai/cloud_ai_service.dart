@@ -85,6 +85,7 @@ class CloudAiService {
   Future<String> generateWithHistory({
     required String userMessage,
     required List<ChatTurn> history,
+    String? locale,
   }) async {
     // Defense in depth: ChatRepository already gates on connectivity, but a
     // direct caller in airplane mode should fail fast, not after a 10s
@@ -93,7 +94,7 @@ class CloudAiService {
       throw CloudAiUnavailableException('Device is offline');
     }
 
-    final persona = await loadPersona(null);
+    final persona = await loadPersona(locale);
     final systemInstruction = persona.systemInstruction;
 
     final contents = <Map<String, Object?>>[];
@@ -163,11 +164,29 @@ class CloudAiService {
 
     // 3. Both Gemini models are gone. Gemma is slow and only sometimes
     //    salvageable, but the alternative at this point is no answer at all.
-    return _generateOrThrow(lastResortModelId, contents, 'কোনো উত্তর পাওয়া যায়নি।');
+    return _generateOrThrow(
+      lastResortModelId,
+      contents,
+      _lastResortFallback(locale),
+      locale,
+    );
   }
 
-  Future<String> generate(String prompt) async {
-    return generateWithHistory(userMessage: prompt, history: const []);
+  Future<String> generate(String prompt, {String? locale}) async {
+    return generateWithHistory(
+      userMessage: prompt,
+      history: const [],
+      locale: locale,
+    );
+  }
+
+  /// Localized last-resort string for the cloud tier when every model
+  /// returns nothing usable.
+  static String _lastResortFallback(String? locale) {
+    if (locale != null && locale.toLowerCase().startsWith('bn')) {
+      return 'কোনো উত্তর পাওয়া যায়নি।';
+    }
+    return 'No answer available.';
   }
 
   /// Whether [e] means *this key* is finished, as opposed to the request
@@ -355,9 +374,10 @@ class CloudAiService {
   Future<String> _generateOrThrow(
     String modelId,
     List<Map<String, Object?>> contents, [
-    String fallback = 'কোনো উত্তর পাওয়া যায়নি।',
+    String fallback = 'No answer available.',
+    String? locale,
   ]) async {
-    final persona = await loadPersona(null);
+    final persona = await loadPersona(locale);
     final systemInstruction = persona.systemInstruction;
     try {
       final text = await _generate(modelId, contents, systemInstruction);

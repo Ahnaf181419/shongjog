@@ -96,9 +96,9 @@ RiskStrings cachedRisk = RiskStrings._empty();
 Future<RiskStrings> loadRiskStrings(String? locale) async {
   return TextLoader.loadJson<RiskStrings>(_kAssetPath, (raw, localeCode) {
     final outer = jsonDecode(raw) as Map<String, dynamic>;
-    final block = TextLoader.pickBundle(outer, locale);
+    final block = TextLoader.pickBundle(outer, localeCode);
     return RiskStrings._fromMap(block);
-  });
+  }, locale: locale);
 }
 
 Future<void> primeRiskCache(String? locale) async {

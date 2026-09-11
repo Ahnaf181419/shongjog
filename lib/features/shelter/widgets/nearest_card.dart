@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
+import '../../../core/bangla_numerals.dart';
 
 import '../nearest_shelter.dart';
 import '../../../app/theme.dart';
@@ -65,9 +66,7 @@ class _ShelterRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final nameBn = shelter.nameBn as String;
-    final name = shelter.name as String;
-    final shown = nameBn.isNotEmpty ? nameBn : name;
+    final shown = shelter.displayName(l10n.localeName);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
@@ -88,7 +87,7 @@ class _ShelterRow extends StatelessWidget {
               ),
             ),
             Text(
-              '${km.toStringAsFixed(1)} ${l10n.shelterKm}',
+              '${digitsForLocale(km.toStringAsFixed(1), l10n.localeName)} ${l10n.shelterKm}',
               style: TextStyle(
                   fontSize: 14,
                   color: Theme.of(context).colorScheme.onSurfaceVariant),

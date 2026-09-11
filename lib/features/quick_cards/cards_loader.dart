@@ -65,15 +65,16 @@ QuickCardEntry _parse(Map<String, dynamic> j) => QuickCardEntry(
 Future<List<QuickCardEntry>> loadQuickCards(String? locale) {
   return TextLoader.loadJson<List<QuickCardEntry>>(
     _kAssetPath,
-    (raw, locale) {
+    (raw, localeCode) {
       final outer = jsonDecode(raw) as Map<String, dynamic>;
       // pickBundle returns the bn block or en block; the chosen block IS
       // the array of cards (it has shape [{...}, {...}, ...] directly).
-      final block = TextLoader.pickBundle(outer, locale);
+      final block = TextLoader.pickBundle(outer, localeCode);
       final list = block['cards'] as List<dynamic>;
       return list
           .map((e) => _parse(e as Map<String, dynamic>))
           .toList(growable: false);
     },
+    locale: locale,
   );
 }

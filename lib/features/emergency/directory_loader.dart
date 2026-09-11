@@ -26,6 +26,13 @@ class EmergencyEntry {
         division: j['division'] as String? ?? 'all',
         type: j['type'] as String? ?? 'other',
       );
+
+  /// Locale-appropriate name: Bangla in bn mode, English in en mode.
+  String displayName(String localeCode) {
+    final isBangla = localeCode.toLowerCase().startsWith('bn');
+    if (isBangla) return nameBn.isNotEmpty ? nameBn : name;
+    return name.isNotEmpty ? name : nameBn;
+  }
 }
 
 /// Loads and parses the offline emergency directory from

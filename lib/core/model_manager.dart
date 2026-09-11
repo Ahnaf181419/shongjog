@@ -11,6 +11,7 @@ import 'package:shongjog/features/chat/local_llm.dart';
 import 'package:shongjog/rag/repetition_detector.dart';
 
 import 'device_capability.dart';
+import 'bangla_numerals.dart';
 
 enum ModelState {
   notDownloaded,
@@ -846,9 +847,12 @@ class ModelManager extends ChangeNotifier implements LocalLlm {
       case ModelState.notDownloaded:
         return l10n.modelStatusNotDownloaded;
       case ModelState.downloading:
-        final pct = downloadProgress != null
+        final raw = downloadProgress != null
             ? '${(downloadProgress! * 100).round()}%'
             : '';
+        final pct = (l10n.localeName == 'bn' && raw.isNotEmpty)
+            ? '${toBanglaDigits(raw.replaceAll('%', ''))}%'
+            : raw;
         return l10n.modelStatusDownloading(pct);
       case ModelState.ready:
         return l10n.modelStatusReady;

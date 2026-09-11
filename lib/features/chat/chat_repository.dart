@@ -90,7 +90,7 @@ class ChatRepository {
         shelterProvider != null &&
         userLocationProvider != null) {
       try {
-        final shelterAnswer = await _tryShelterToolPath(userQuery);
+        final shelterAnswer = await _tryShelterToolPath(userQuery, locale: locale);
         if (shelterAnswer != null) {
           if (onPath != null) onPath(GenerationPath.device);
           return shelterAnswer;
@@ -100,7 +100,8 @@ class ChatRepository {
       }
     }
 
-    final hits = await _retrieve(userQuery);
+    final localeCode = locale?.languageCode ?? 'bn';
+    final hits = await _retrieve(userQuery, localeCode: localeCode);
 
     // Persona bundle — load once per `ask()`. Source of truth for the
     // chat-tier chain's prompt text lives in assets/prompts/persona.json
@@ -114,10 +115,16 @@ class ChatRepository {
     if (cloudAi != null && await cloudAi!.isOnline) {
       debugPrint('[ChatRepo/Tier1] cloud path entered for q="${userQuery.substring(0, userQuery.length.clamp(0, 40))}…"');
       try {
-        final userMessage = buildUserMessage(query: userQuery, hits: hits, persona: persona);
+        final userMessage = buildUserMessage(
+          query: userQuery,
+          hits: hits,
+          persona: persona,
+          localeCode: localeCode,
+        );
         final answer = await cloudAi!.generateWithHistory(
           userMessage: userMessage,
           history: history,
+          locale: locale?.languageCode,
         );
         debugPrint('[ChatRepo/Tier1] cloud path success len=${answer.length}');
         if (onPath != null) onPath(GenerationPath.cloud);
@@ -135,10 +142,17 @@ class ChatRepository {
     // Cloud has no key, the device is offline, or Cloud failed above.
     // Route rumour-check queries through a dedicated prompt that asks
     // the model to verify the claim against the corpus.
-    final isRumour = await isRumourQuery(userQuery);
+    final isRumour = await isRumourQuery(userQuery, locale: locale?.languageCode);
     final prompt = isRumour
-        ? buildRumourCheckPrompt(query: userQuery, hits: hits, history: history)
-        : buildPrompt(query: userQuery, hits: hits, history: history, persona: persona);
+        ? buildRumourCheckPrompt(
+            query: userQuery, hits: hits, history: history, locale: localeCode)
+        : buildPrompt(
+            query: userQuery,
+            hits: hits,
+            history: history,
+            persona: persona,
+            localeCode: localeCode,
+          );
 
     // Adaptive thinking mode — classify urgency before generation.
     // Critical emergencies get thinking OFF (reflex, max speed); complex
@@ -190,20 +204,24 @@ class ChatRepository {
     // TIER 3: RAG corpus (always available)
     if (hits.isNotEmpty) {
       if (onPath != null) onPath(GenerationPath.corpus);
-      return hits.first.chunk.text;
+      return hits.first.chunk.displayText(localeCode);
     }
 
-    // Absolute fallback
+    // Absolute fallback — localized via ARB.
     if (onPath != null) onPath(GenerationPath.canned);
-    return 'আমার কাছে এই প্রশ্নের উত্তর নেই। ৯৯৯ এ কল করুন।';
+    final code = locale?.languageCode ?? 'bn';
+    final l10n = await AppLocalizations.delegate.load(Locale(code));
+    return l10n.chatNoAnswer;
   }
 
   /// Retrieve relevant chunks: semantic-first when an embedder is wired,
   /// keyword fallback otherwise (and on any embedding failure — a broken
   /// embedder must never take the corpus path down with it).
-  Future<List<RetrievalHit>> _retrieve(String query) async {
+  Future<List<RetrievalHit>> _retrieve(String query, {String localeCode = 'bn'}) async {
     final semantic = embedding;
-    if (semantic != null) {
+    // The on-device embedding index is bn-only; only the keyword retriever
+    // is locale-aware today. Skip the embedding path in en mode.
+    if (semantic != null && localeCode != 'en') {
       try {
         if (await semantic.ensureIndex()) {
           final hits = await semantic.topK(query, k: 3);
@@ -214,7 +232,8 @@ class ChatRepository {
             '[ChatRepo/Embedding] semantic retrieval failed, falling back to keywords: $e');
       }
     }
-    final keywordHits = kb.keywordRetriever.topK(query, k: 5);
+    final keywordHits =
+        kb.keywordRetriever.topK(query, k: 5, localeCode: localeCode);
     return keywordHits.take(3).toList();
   }
 
@@ -241,7 +260,7 @@ class ChatRepository {
   /// query directly, in microseconds, and cannot fail to produce an answer.
   /// The tool schema stays exported for the model-facing paths that still
   /// use it and for the dispatcher's envelope tests.
-  Future<String?> _tryShelterToolPath(String userQuery) async {
+  Future<String?> _tryShelterToolPath(String userQuery, {Locale? locale}) async {
     final pos = await userLocationProvider!();
     if (pos == null) return null;
     final shelters = shelterProvider!();
@@ -255,7 +274,10 @@ class ChatRepository {
       shelters: shelters,
     );
     if (ranked.isEmpty) return null;
-    return ShelterToolResultFormatter.toBanglaMessage(ranked);
+    return ShelterToolResultFormatter.toMessage(
+      ranked,
+      localeCode: locale?.languageCode ?? 'bn',
+    );
   }
 
   /// Clean the raw model output of internal-control tokens that should

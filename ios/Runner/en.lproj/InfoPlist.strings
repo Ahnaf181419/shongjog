@@ -1,0 +1,9 @@
+/* Localized InfoPlist strings for en (English) — Shongjog */
+
+"CFBundleDisplayName" = "Shongjog";
+"NSMicrophoneUsageDescription" = "Shongjog uses the microphone for voice input and mesh calls.";
+"NSCameraUsageDescription" = "Shongjog uses the camera to capture damage photos for analysis.";
+"NSLocationWhenInUseUsageDescription" = "Shongjog uses your location to find nearby shelters and hazards.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "Shongjog uses your location in the background to send SOS alerts with your position.";
+"NSPhotoLibraryUsageDescription" = "Shongjog needs access to your photo library so you can attach a damage photo for analysis.";
+"NSSpeechRecognitionUsageDescription" = "Shongjog converts your spoken questions into text to look up emergency guidance.";

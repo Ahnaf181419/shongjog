@@ -21,12 +21,14 @@ RegExp _rumourPrefixFrom(List<String> prefixes) {
 ///
 /// Queries starting with these prefixes are routed through the rumour
 /// checker instead of the standard RAG path.
-Future<bool> isRumourQuery(String query, {RumourStrings? s}) async {
-  final strings = s ??
-      (cachedRumour.rumourPrefixes.isEmpty
-          ? await loadRumourStrings(null)
-          : cachedRumour);
-  final re = _rumourPrefixFrom(strings.rumourPrefixes);
+Future<bool> isRumourQuery(String query, {RumourStrings? s, String? locale}) async {
+  if (s != null) {
+    return _rumourPrefixFrom(s.rumourPrefixes).hasMatch(query.trim());
+  }
+  if (cachedRumour.rumourPrefixes.isEmpty) {
+    cachedRumour = await loadRumourStrings(locale);
+  }
+  final re = _rumourPrefixFrom(cachedRumour.rumourPrefixes);
   return re.hasMatch(query.trim());
 }
 
@@ -36,9 +38,11 @@ String buildRumourCheckPrompt({
   required List<RetrievalHit> hits,
   List<ChatTurn> history = const [],
   RumourStrings? s,
+  String? locale,
 }) {
   final strings = s ?? cachedRumour;
   final re = _rumourPrefixFrom(strings.rumourPrefixes);
+  final localeCode = locale ?? 'bn';
 
   // Strip the rumour prefix to extract the actual claim.
   final claim = query.replaceAll(re, '').trim();
@@ -50,8 +54,9 @@ String buildRumourCheckPrompt({
   if (hits.isNotEmpty) {
     buf
       ..writeln(strings.verifiedContextHeader)
-      ..writeln(
-          hits.map((h) => '[${h.chunk.source}] ${h.chunk.text}').join('\n\n'))
+      ..writeln(hits
+          .map((h) => '[${h.chunk.source}] ${h.chunk.displayText(localeCode)}')
+          .join('\n\n'))
       ..writeln();
   }
 

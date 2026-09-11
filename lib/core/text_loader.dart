@@ -60,7 +60,7 @@ abstract final class TextLoader {
   }
 
   static String _cacheKey(String path, String? locale) =>
-      '$path::${locale ?? 'default'}';
+      '$path::${localeFor(locale)}';
 
   /// Coerce a language tag (case-insensitive) to one of `bn` | `en`.
   /// Returns `bn` for anything unrecognised, including `null`.

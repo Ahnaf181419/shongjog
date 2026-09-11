@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../app/theme.dart';
+import '../../core/locale_controller.dart';
 import 'cards_data.dart';
 import '../../core/bangla_numerals.dart';
 
@@ -9,8 +10,10 @@ import '../../core/bangla_numerals.dart';
 /// Source of truth for card copy: assets/data/cards.json (see Phase 2.1
 /// of docs/superpowers/plans/2026-09-09-text-consolidation.md).
 ///
-/// Cards are read synchronously from [cachedQuickCards], which is pre-warmed
-/// in `main.dart` via `ensureQuickCardsLoaded`.
+/// Cards are loaded per-build via [FutureBuilder] from [loadQuickCards]
+/// using the live locale. TextLoader caches per-locale so this is
+/// essentially free after the first call, and locale switches refresh
+/// the list immediately because the whole MaterialApp rebuilds.
 class QuickCardsScreen extends StatefulWidget {
   final void Function(String prompt) onRequestAiChat;
 
@@ -23,6 +26,7 @@ class QuickCardsScreen extends StatefulWidget {
 class _QuickCardsScreenState extends State<QuickCardsScreen> {
   final _searchController = TextEditingController();
   String _query = '';
+  String _cardsLocale = localeController.languageCode;
 
   @override
   void dispose() {
@@ -30,15 +34,15 @@ class _QuickCardsScreenState extends State<QuickCardsScreen> {
     super.dispose();
   }
 
-  List<QuickCardEntry> get _filteredCards {
-    final cards = cachedQuickCards();
-    if (_query.isEmpty) return cards;
-    final q = _query.toLowerCase();
-    return cards
-        .where((c) =>
-            c.title.toLowerCase().contains(q) ||
-            c.steps.any((s) => s.toLowerCase().contains(q)))
-        .toList();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Rebuild the FutureBuilder when the locale changes so the card list
+    // refreshes without the user leaving the screen.
+    final current = AppLocalizations.of(context).localeName;
+    if (current != _cardsLocale) {
+      _cardsLocale = current;
+    }
   }
 
   @override
@@ -89,14 +93,39 @@ class _QuickCardsScreenState extends State<QuickCardsScreen> {
             ),
           ),
           Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              itemCount: _filteredCards.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 12),
-              itemBuilder: (_, i) => _CardTile(
-                card: _filteredCards[i],
-                onRequestAiChat: widget.onRequestAiChat,
-              ),
+            child: FutureBuilder<List<QuickCardEntry>>(
+              key: ValueKey(_cardsLocale),
+              future: loadQuickCards(_cardsLocale),
+              builder: (context, snap) {
+                if (snap.connectionState != ConnectionState.done) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        l10n.commonLoading,
+                        style: TextStyle(color: ShongjogTheme.bodySecondary(context)),
+                      ),
+                    ),
+                  );
+                }
+                final cards = snap.data ?? const <QuickCardEntry>[];
+                final filtered = _query.isEmpty
+                    ? cards
+                    : cards.where((c) {
+                        final q = _query.toLowerCase();
+                        return c.title.toLowerCase().contains(q) ||
+                            c.steps.any((s) => s.toLowerCase().contains(q));
+                      }).toList();
+                return ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  itemCount: filtered.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
+                  itemBuilder: (_, i) => _CardTile(
+                    card: filtered[i],
+                    onRequestAiChat: widget.onRequestAiChat,
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -198,7 +227,8 @@ class _CardTile extends StatelessWidget {
                 onPressed: () {
                   final firstStep =
                       card.steps.isNotEmpty ? card.steps.first : '';
-                  onRequestAiChat('${card.title}। $firstStep');
+                  final sep = localeController.isBangla ? '। ' : '. ';
+                  onRequestAiChat('${card.title}$sep$firstStep');
                 },
               ),
             ),

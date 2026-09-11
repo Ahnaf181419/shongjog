@@ -11,6 +11,7 @@ import '../../core/connectivity_provider.dart';
 import '../cloud_ai/cloud_ai_service.dart';
 import '../../l10n/app_localizations.dart';
 import 'damage_scan_service.dart';
+import '../../core/bangla_numerals.dart';
 
 enum DamageErrorCode {
   photoFailed,
@@ -72,10 +73,10 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
       final status = await Permission.camera.status;
       if (status.isPermanentlyDenied) {
         if (!mounted) return;
+        final l10n = AppLocalizations.of(context);
         setState(() {
           _errorCode = DamageErrorCode.photoFailed;
-          _errorDetail = 'Camera permission permanently denied. '
-              'Please enable it in Settings.';
+          _errorDetail = l10n.damageCameraPermanentDenied;
         });
         return;
       }
@@ -83,9 +84,10 @@ class _DamageScannerScreenState extends State<DamageScannerScreen> {
         final result = await Permission.camera.request();
         if (!result.isGranted) {
           if (!mounted) return;
+          final l10n = AppLocalizations.of(context);
           setState(() {
             _errorCode = DamageErrorCode.photoFailed;
-            _errorDetail = 'Camera permission denied.';
+            _errorDetail = l10n.damageCameraDenied;
           });
           return;
         }
@@ -476,7 +478,9 @@ class _ResultView extends StatelessWidget {
                             fontSize: 16)),
                     if (result.confidence > 0)
                       Text(
-                        '${(result.confidence * 100).toStringAsFixed(0)}%',
+                        AppLocalizations.of(context).localeName == 'bn'
+                            ? '${toBanglaDigits(((result.confidence * 100).toStringAsFixed(0)))}%'
+                            : '${(result.confidence * 100).toStringAsFixed(0)}%',
                         style: TextStyle(color: sevColor, fontSize: 14),
                       ),
                   ],

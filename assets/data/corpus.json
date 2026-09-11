@@ -17,10 +17,18 @@
       "খাবার স্যালাইন",
       "ORS বানানো"
     ],
-    "text_en": "",
+    "text_en": "Easy ORS recipe: Take 1 liter of clean water. Mix in 6 teaspoons of sugar and half a teaspoon of salt. Stir well until fully dissolved. Give small sips after each loose stool or vomiting. For children, give small amounts frequently. Make a fresh batch every few hours — do not keep ORS for more than a few hours after mixing.",
     "source_en": "WHO Cholera fact sheet, 2024",
     "keywords_en": [
-      "ors"
+      "ors",
+      "rehydration",
+      "diarrhea",
+      "sugar",
+      "salt",
+      "water",
+      "oral rehydration salts",
+      "mix",
+      "recipe"
     ]
   },
   {
@@ -41,10 +49,18 @@
       "খাওয়ানো",
       "খাবার স্যালাইন"
     ],
-    "text_en": "",
+    "text_en": "ORS dosing for children: Younger infants (under 6 months) — give 1-2 teaspoons at a time, frequently, especially after vomiting. 6 months to 2 years — one-quarter cup after each episode. 2-5 years — one-half cup each time. Over 5 years — one full cup. After every loose stool, give a full cup. If the child vomits, wait 10 minutes and try again.",
     "source_en": "WHO Diarrhoeal disease fact sheet, 2024",
     "keywords_en": [
-      "ors"
+      "ors",
+      "infant",
+      "child",
+      "vomit",
+      "dose",
+      "cup",
+      "teaspoon",
+      "rehydration",
+      "baby"
     ]
   },
   {
@@ -64,10 +80,17 @@
       "999",
       "ডাক্তার"
     ],
-    "text_en": "",
+    "text_en": "Recognize dehydration warning signs: dry mouth, sunken eyes, no tears when crying, reduced urine, dark-colored urine. If you see these signs, give ORS immediately and call 999. For children, act quickly — dehydration is dangerous for them.",
     "source_en": "BDRCS First Aid Guide, 2023",
     "keywords_en": [
-      "ors"
+      "dehydration",
+      "dry mouth",
+      "sunken eyes",
+      "no tears",
+      "low urine",
+      "warning signs",
+      "999",
+      "doctor"
     ]
   },
   {
@@ -86,10 +109,17 @@
       "বরফ",
       "২৪ ঘণ্টা"
     ],
-    "text_en": "",
+    "text_en": "Purify water by boiling: Boil water thoroughly — at least 1 minute of full rolling boil. Cover with a lid after boiling and let it cool. Store in clean bottles. Do not use the same boiled water after 24 hours. Use clean water for making ice as well.",
     "source_en": "WHO Water safety fact sheet, 2024",
     "keywords_en": [
-      "water"
+      "water",
+      "boil",
+      "purify",
+      "bottle",
+      "lid",
+      "cool",
+      "24 hours",
+      "ice"
     ]
   },
   {
@@ -108,10 +138,18 @@
       "দুই দিন",
       "SODIS"
     ],
-    "text_en": "",
+    "text_en": "If you cannot boil water, use the sun: Fill a clear plastic bottle with water. Do not remove the cap. Place in direct sunlight for 6 hours. You can feel the bottle warming up. On cloudy days, leave it for 2 days. This water is also safe for making ORS.",
     "source_en": "WHO Water safety fact sheet, 2024",
     "keywords_en": [
-      "water"
+      "water",
+      "sun",
+      "solar",
+      "bottle",
+      "plastic",
+      "warm",
+      "cloudy",
+      "two days",
+      "sodis"
     ]
   },
   {
@@ -129,10 +167,17 @@
       "মিশানো",
       "অপেক্ষা"
     ],
-    "text_en": "",
+    "text_en": "Purify water with chlorine: Add a tiny amount of bleach (sodium hypochlorite) to clear water. Wait 30 minutes. If you can smell a faint chlorine odor, it has worked. If you cannot smell it, add a little more. If you do not have bleach, boil the water instead.",
     "source_en": "CDC Emergency water treatment, 2024",
     "keywords_en": [
-      "water"
+      "water",
+      "chlorine",
+      "bleach",
+      "hypochlorite",
+      "odor",
+      "mix",
+      "wait",
+      "purify"
     ]
   },
   {
@@ -153,10 +198,18 @@
       "বাচ্চা",
       "বাচ্চার ডায়রিয়া"
     ],
-    "text_en": "",
+    "text_en": "For severe diarrhea: 1. Give ORS frequently — one full cup after every loose stool. 2. Drink plenty of water. 3. Even without appetite, take small amounts of food. 4. If vomiting, give ORS in small sips. 5. If stools have blood or diarrhea lasts more than 24 hours, see a doctor quickly.",
     "source_en": "WHO Diarrhoeal disease fact sheet, 2024",
     "keywords_en": [
-      "diarrhea"
+      "diarrhea",
+      "stool",
+      "ors",
+      "water",
+      "vomit",
+      "blood",
+      "doctor",
+      "24 hours",
+      "child"
     ]
   },
   {
@@ -176,10 +229,18 @@
       "999",
       "বাচ্চার ডায়রিয়া"
     ],
-    "text_en": "",
+    "text_en": "For cholera: Act fast if there is watery diarrhea. Give ORS after every episode — 1-2 cups each time. Rice water (kanji) is a good alternative to ORS. Continue breastfeeding for infants. If watery diarrhea persists beyond 24 hours, go to the hospital quickly. Call 999.",
     "source_en": "WHO Cholera fact sheet, 2024",
     "keywords_en": [
-      "diarrhea"
+      "cholera",
+      "diarrhea",
+      "watery stool",
+      "ors",
+      "rice water",
+      "breastfeeding",
+      "hospital",
+      "999",
+      "child"
     ]
   },
   {
@@ -199,10 +260,18 @@
       "লেপ",
       "সাপে কামড়"
     ],
-    "text_en": "",
+    "text_en": "What NOT to do after a snakebite: 1. Do not cut — this increases infection. 2. Do not try to suck out the venom — it does not work. 3. Do not apply ice — it reduces blood flow and causes harm. 4. Do not tie a tourniquet — it can stop circulation and the limb may die. 5. Do not use homeopathy or charms.",
     "source_en": "WHO Snakebite fact sheet, 2024",
     "keywords_en": [
-      "snakebite"
+      "snake",
+      "bite",
+      "don't cut",
+      "don't suck",
+      "ice",
+      "tourniquet",
+      "homeopathy",
+      "charm",
+      "venom"
     ]
   },
   {
@@ -223,10 +292,18 @@
       "বিষ",
       "সাপে কামড়"
     ],
-    "text_en": "",
+    "text_en": "Correct first aid after a snakebite: 1. Stay calm and calm the bitten person. 2. Keep the bitten limb lower than the heart. 3. Limit movement. 4. Wrap loosely with a wide cloth bandage (you should be able to slip a finger under it). 5. Get to the nearest hospital quickly. 6. Call 999. Do not try to kill or catch the snake.",
     "source_en": "BDRCS First Aid Guide, 2023",
     "keywords_en": [
-      "snakebite"
+      "snake",
+      "bite",
+      "calm",
+      "lower limb",
+      "movement",
+      "hospital",
+      "999",
+      "first aid",
+      "venom"
     ]
   },
   {
@@ -245,10 +322,17 @@
       "কল",
       "999"
     ],
-    "text_en": "",
+    "text_en": "How to stop bleeding: 1. Apply firm pressure with a clean cloth or gauze. 2. Raise the bleeding part above heart level. 3. Maintain pressure for 10 minutes. 4. If the cloth soaks through, add another layer on top — do not remove the first. 5. If bleeding continues beyond 10 minutes, call 999.",
     "source_en": "IFRC First Aid Guide, 2023",
     "keywords_en": [
-      "bleeding"
+      "bleeding",
+      "cloth",
+      "pressure",
+      "elevate",
+      "minutes",
+      "stop",
+      "call",
+      "999"
     ]
   },
   {
@@ -268,10 +352,18 @@
       "পুঁজ",
       "ডাক্তার"
     ],
-    "text_en": "",
+    "text_en": "Wound care: 1. Wash your hands. 2. Rinse the wound with clean water to remove dirt. 3. Pat dry gently with a soft cloth. 4. Cover with clean gauze or bandage. 5. Change the dressing daily. 6. See a doctor if the wound becomes red, swollen, or produces pus.",
     "source_en": "WHO Wound care guidance, 2023",
     "keywords_en": [
-      "bleeding"
+      "wound",
+      "care",
+      "water",
+      "rinse",
+      "gauze",
+      "bandage",
+      "red",
+      "pus",
+      "doctor"
     ]
   },
   {
@@ -291,10 +383,17 @@
       "কাঁচি",
       "999"
     ],
-    "text_en": "",
+    "text_en": "Burn treatment: 1. Run cool (not ice-cold) running water over the burn for 10-20 minutes. 2. Remove jewelry or clothing stuck to the skin before swelling. 3. If the area is swollen, cut clothing away with scissors. 4. Cover with clean gauze. 5. Do not apply ointments. 6. For severe burns, call 999.",
     "source_en": "BDRCS First Aid Guide, 2023",
     "keywords_en": [
-      "bleeding"
+      "burn",
+      "cool",
+      "water",
+      "jewelry",
+      "swelling",
+      "gauze",
+      "scissors",
+      "999"
     ]
   },
   {
@@ -313,10 +412,18 @@
       "ওষুধ",
       "বৈদ্যুতিক"
     ],
-    "text_en": "",
+    "text_en": "Before a cyclone: 1. Know the location of the nearest shelter. 2. Stock up on food and water for 3 days. 3. Prepare an emergency go-bag. 4. Keep important papers and medicines in a waterproof box. 5. Disconnect electrical appliances. 6. Stay away from trees and electric poles.",
     "source_en": "MoDMR Cyclone preparedness advisory, 2024",
     "keywords_en": [
-      "cyclone"
+      "cyclone",
+      "shelter",
+      "food",
+      "water",
+      "go bag",
+      "documents",
+      "medicine",
+      "electrical",
+      "storm"
     ]
   },
   {
@@ -335,10 +442,18 @@
       "শিশু",
       "বাইরে"
     ],
-    "text_en": "",
+    "text_en": "During a cyclone: 1. Stay in a safe place — do not go outside. 2. Close all windows. 3. Take shelter under a sturdy table or against an interior wall. 4. If power goes out, do not light candles — gas lights are safer. 5. Keep children close. 6. Do not go outside until the storm has fully passed.",
     "source_en": "BMD Cyclone warning guidelines, 2024",
     "keywords_en": [
-      "cyclone"
+      "cyclone",
+      "safe",
+      "window",
+      "table",
+      "power",
+      "candle",
+      "child",
+      "outside",
+      "storm"
     ]
   },
   {
@@ -358,10 +473,18 @@
       "চার্জ",
       "999"
     ],
-    "text_en": "",
+    "text_en": "Stay safe during floods: 1. Move to higher ground — rooftop, upper floor, or elevated area. 2. Do not wade through flood water — you cannot judge depth. 3. Do not touch electric poles or wires. 4. Drink only clean water — never flood water. 5. Keep your phone charged. 6. Call 999.",
     "source_en": "MoDMR Flood safety advisory, 2024",
     "keywords_en": [
-      "cyclone"
+      "flood",
+      "safe",
+      "elevated",
+      "water",
+      "electricity",
+      "pole",
+      "phone",
+      "charge",
+      "999"
     ]
   },
   {
@@ -381,10 +504,18 @@
       "999",
       "শ্বাস"
     ],
-    "text_en": "",
+    "text_en": "Rescuing a drowning person: 1. Do not enter the water — extend a rope or stick from shore. 2. Do not jump in unless you are a strong swimmer. 3. Pull the person to dry ground. 4. If water has entered the mouth or nose, press on the back to help drain it. 5. If breathing has stopped, start CPR. 6. Call 999.",
     "source_en": "WHO Drowning prevention fact sheet, 2024",
     "keywords_en": [
-      "drowning"
+      "drowning",
+      "rescue",
+      "water",
+      "rope",
+      "stick",
+      "swimmer",
+      "cpr",
+      "999",
+      "breathing"
     ]
   },
   {
@@ -404,10 +535,18 @@
       "999",
       "উল্টানো"
     ],
-    "text_en": "",
+    "text_en": "Child drowning rescue: 1. Lift the child out — keep the face up. 2. Check whether they are breathing. 3. If not breathing, give 5 rescue breaths (cover the child's mouth with yours). 4. Give 30 chest compressions with two fingers. 5. If breathing returns, place the child on their side. 6. Call 999 quickly. Do not try to drain water by hanging the child upside down.",
     "source_en": "WHO Drowning prevention fact sheet, 2024",
     "keywords_en": [
-      "drowning"
+      "child",
+      "drowning",
+      "rescue",
+      "breathing",
+      "chest",
+      "compressions",
+      "cpr",
+      "999",
+      "upside down"
     ]
   },
   {
@@ -425,10 +564,16 @@
       "তাপমাত্রা",
       "ডাক্তার"
     ],
-    "text_en": "",
+    "text_en": "For fever: 1. Drink plenty of water. 2. Wear light clothing. 3. Take paracetamol (follow dosage instructions). 4. Apply a cool water compress to the forehead. 5. Keep the room at a moderate temperature. 6. See a doctor if fever lasts more than 3 days.",
     "source_en": "WHO Fever management guidance, 2023",
     "keywords_en": [
-      "fever"
+      "fever",
+      "water",
+      "clothing",
+      "paracetamol",
+      "compress",
+      "temperature",
+      "doctor"
     ]
   },
   {
@@ -448,10 +593,17 @@
       "হাঁপানি",
       "999"
     ],
-    "text_en": "",
+    "text_en": "Danger signs with fever: 1. Severe headache with stiff neck. 2. Rash on the head or body (sign of blood-clotting problems). 3. Seizures. 4. Loss of consciousness or confusion. 5. Difficulty breathing or chest pain. 6. If you see these signs, call 999 immediately.",
     "source_en": "CDC Fever danger signs, 2024",
     "keywords_en": [
-      "fever"
+      "fever",
+      "headache",
+      "stiff neck",
+      "rash",
+      "seizure",
+      "unconscious",
+      "breathing",
+      "999"
     ]
   },
   {
@@ -470,10 +622,17 @@
       "ওজন",
       "ডাক্তার"
     ],
-    "text_en": "",
+    "text_en": "Infant feeding during disasters: 1. Continue breastfeeding — it is the safest food. 2. If breast milk is insufficient, give ORS. 3. If using formula, prepare it with clean water. 4. Boil or purify all drinking water. 5. Feed the infant small amounts frequently. 6. See a doctor if the infant loses weight.",
     "source_en": "WHO Infant feeding in emergencies, 2023",
     "keywords_en": [
-      "infant"
+      "infant",
+      "breastfeeding",
+      "disaster",
+      "feeding",
+      "ors",
+      "formula",
+      "weight",
+      "doctor"
     ]
   },
   {
@@ -492,10 +651,17 @@
       "ময়লা",
       "ডাক্তার"
     ],
-    "text_en": "",
+    "text_en": "Infant hygiene during disasters: 1. Wash hands before touching the infant. 2. Keep the infant's feet clean. 3. Keep diapers and clothing clean and dry. 4. Wash hands before feeding the infant. 5. Keep the infant away from dirt and mud. 6. See a doctor quickly if the infant seems unwell.",
     "source_en": "UNICEF Child hygiene in emergencies, 2023",
     "keywords_en": [
-      "infant"
+      "infant",
+      "hygiene",
+      "hands",
+      "clean",
+      "diaper",
+      "clothing",
+      "dirt",
+      "doctor"
     ]
   },
   {
@@ -514,10 +680,17 @@
       "নাম",
       "একা"
     ],
-    "text_en": "",
+    "text_en": "Helping someone who is frightened or panicking: 1. Speak slowly and calmly. 2. Use their name when you address them. 3. Ask them to take deep breaths — inhale for 4 seconds, exhale for 4 seconds. 4. Offer a reassuring touch (ask permission first). 5. Reassure them that they are safe. 6. Do not leave them alone.",
     "source_en": "IFRC Psychosocial support guide, 2023",
     "keywords_en": [
-      "emotional"
+      "fear",
+      "panic",
+      "calm",
+      "breathe",
+      "deep",
+      "comfort",
+      "name",
+      "alone"
     ]
   },
   {
@@ -536,10 +709,17 @@
       "তাপমাত্রা",
       "999"
     ],
-    "text_en": "",
+    "text_en": "Heat exhaustion or heat stroke: 1. Move the person to shade or a cool place. 2. Splash cool water on the body or apply wet cloths. 3. Give plenty of water to drink. 4. Loosen tight clothing. 5. If body temperature does not return to normal, take them to a hospital quickly. 6. Call 999. Heat stroke is life-threatening.",
     "source_en": "WHO Heatwave guidance, 2024",
     "keywords_en": [
-      "heat"
+      "heat stroke",
+      "heat exhaustion",
+      "hot",
+      "cool",
+      "water",
+      "shade",
+      "temperature",
+      "999"
     ]
   },
   {
@@ -559,10 +739,18 @@
       "বাচ্চা",
       "বৃদ্ধ"
     ],
-    "text_en": "",
+    "text_en": "Heat precautions: 1. Avoid going out in the sun during midday (11am-3pm). 2. Drink plenty of water. 3. Wear light-colored, loose clothing. 4. Use an umbrella or hat. 5. Maintain salt and water balance in food. 6. Give extra care to children and the elderly.",
     "source_en": "WHO Heatwave guidance, 2024",
     "keywords_en": [
-      "heat"
+      "heat",
+      "sun",
+      "water",
+      "clothing",
+      "umbrella",
+      "hat",
+      "salt",
+      "child",
+      "elderly"
     ]
   },
   {
@@ -581,10 +769,17 @@
       "ভেজা",
       "কাঁপুনি"
     ],
-    "text_en": "",
+    "text_en": "Cold weather precautions: 1. Wear warm clothing in layers. 2. Give extra warm clothing to children and the elderly. 3. Keep windows and doors closed. 4. Drink warm water and eat warm food. 5. Do not wear wet clothing. 6. If the body is shivering, warm up and see a doctor.",
     "source_en": "WHO Cold weather health guidance, 2024",
     "keywords_en": [
-      "cold"
+      "cold",
+      "warm",
+      "clothing",
+      "child",
+      "elderly",
+      "window",
+      "wet",
+      "shivering"
     ]
   },
   {
@@ -602,10 +797,16 @@
       "পানি",
       "999"
     ],
-    "text_en": "",
+    "text_en": "Hypothermia (excessive cold): 1. Move the person to a warm place. 2. Remove wet clothes and put on dry, warm ones. 3. Cover with a warm blanket. 4. Give warm sweet water to drink. 5. If the person becomes confused or cannot speak, call 999 immediately.",
     "source_en": "WHO Cold weather health guidance, 2024",
     "keywords_en": [
-      "cold"
+      "hypothermia",
+      "cold",
+      "warm",
+      "clothing",
+      "blanket",
+      "water",
+      "999"
     ]
   },
   {
@@ -625,10 +826,17 @@
       "999",
       "ওষুধ"
     ],
-    "text_en": "",
+    "text_en": "Emergency signs in pregnancy: 1. Severe abdominal pain — call 999 immediately. 2. Bleeding — lie down and elevate the legs. 3. If the water breaks, use a clean cloth. 4. If fetal movement decreases, see a doctor quickly. 5. Do not leave a pregnant woman alone. 6. Do not give any medicine without medical advice.",
     "source_en": "WHO Pregnancy care in emergencies, 2023",
     "keywords_en": [
-      "pregnancy"
+      "pregnancy",
+      "abdominal pain",
+      "bleeding",
+      "water breaks",
+      "fetus",
+      "doctor",
+      "999",
+      "medicine"
     ]
   },
   {
@@ -648,10 +856,18 @@
       "রক্ত",
       "আশ্রয়"
     ],
-    "text_en": "",
+    "text_en": "Pregnancy care during disasters: 1. Drink enough water and eat nutritious food. 2. Rest. 3. Take iron and folic acid as prescribed by a doctor. 4. Drink only purified water. 5. See a doctor immediately for abdominal pain or bleeding. 6. Pregnant women have priority at shelters.",
     "source_en": "WHO Pregnancy care in emergencies, 2023",
     "keywords_en": [
-      "pregnancy"
+      "pregnancy",
+      "food",
+      "water",
+      "rest",
+      "iron",
+      "folic acid",
+      "pain",
+      "bleeding",
+      "shelter"
     ]
   },
   {
@@ -671,10 +887,18 @@
       "গরম",
       "ডাক্তার"
     ],
-    "text_en": "",
+    "text_en": "Elderly care during disasters: 1. Keep elderly persons with you at all times — never leave them alone. 2. Give regular medicine on schedule. 3. Provide enough water and food. 4. Help them move around. 5. Protect them from cold and heat. 6. See a doctor quickly if they seem unwell.",
     "source_en": "WHO Older persons in emergencies, 2023",
     "keywords_en": [
-      "elderly"
+      "elderly",
+      "care",
+      "medicine",
+      "water",
+      "food",
+      "mobility",
+      "cold",
+      "heat",
+      "doctor"
     ]
   },
   {
@@ -693,10 +917,17 @@
       "ভেজা",
       "ডাক্তার"
     ],
-    "text_en": "",
+    "text_en": "Managing medicine for the elderly: 1. Pack all medicines in water bottles inside a waterproof bag. 2. Write down each medicine's name and timing. 3. When evacuating, take medicines first. 4. Do not take medicine that has gotten wet. 5. Show the medicine list to a doctor in an emergency.",
     "source_en": "WHO Older persons in emergencies, 2023",
     "keywords_en": [
-      "elderly"
+      "elderly",
+      "medicine",
+      "bottle",
+      "waterproof",
+      "name",
+      "time",
+      "wet",
+      "doctor"
     ]
   },
   {
@@ -715,10 +946,17 @@
       "বন্যা",
       "999"
     ],
-    "text_en": "",
+    "text_en": "Electrical safety during floods: 1. Switch off the main breaker before a flood arrives. 2. Do not touch electrical wires or poles. 3. Do not touch switches with wet hands. 4. Stay away from fallen wires. 5. If someone is being shocked, turn off the main breaker before touching them. 6. Call 999.",
     "source_en": "IFRC Electrical safety in disasters, 2023",
     "keywords_en": [
-      "electrical"
+      "electricity",
+      "switch",
+      "wire",
+      "pole",
+      "wet",
+      "shock",
+      "flood",
+      "999"
     ]
   },
   {
@@ -738,10 +976,17 @@
       "999",
       "পানি"
     ],
-    "text_en": "",
+    "text_en": "Response to electrical shock: 1. First disconnect the power — turn off the main breaker. 2. Do not touch the person if power is still on. 3. Use a dry wooden stick to move the wire away. 4. Once power is off, check the person's pulse. 5. If breathing has stopped, give CPR. 6. Call 999 immediately. Do not give water.",
     "source_en": "IFRC First Aid Guide, 2023",
     "keywords_en": [
-      "electrical"
+      "electricity",
+      "shock",
+      "switch",
+      "wooden stick",
+      "pulse",
+      "cpr",
+      "999",
+      "water"
     ]
   },
   {
@@ -761,10 +1006,18 @@
       "খাবার",
       "হাত"
     ],
-    "text_en": "",
+    "text_en": "Hygiene after floods: 1. Wear gloves while cleaning mud. 2. Do not wash anything with flood water. 3. Wash all surfaces with clean water and soap. 4. Do not walk barefoot through mud. 5. Clean the food preparation area thoroughly. 6. Make hand-washing a habit.",
     "source_en": "WHO Post-flood hygiene guidance, 2024",
     "keywords_en": [
-      "hygiene"
+      "flood",
+      "hygiene",
+      "mud",
+      "gloves",
+      "water",
+      "soap",
+      "shoes",
+      "food",
+      "hands"
     ]
   },
   {
@@ -784,10 +1037,18 @@
       "মাস্ক",
       "শ্বাসকষ্ট"
     ],
-    "text_en": "",
+    "text_en": "Cleaning mold after floods: 1. Remove wet clothing and carpets. 2. Wash walls and floors with clean water and soap. 3. Let the area dry well — open windows for ventilation. 4. You can use bleach to kill mold. 5. If there is a lot of mold, wear a mask. 6. See a doctor for breathing difficulty.",
     "source_en": "CDC Mold cleanup guidance, 2024",
     "keywords_en": [
-      "hygiene"
+      "mold",
+      "wet",
+      "clothing",
+      "carpet",
+      "soap",
+      "ventilation",
+      "bleach",
+      "mask",
+      "breathing"
     ]
   },
   {
@@ -806,10 +1067,17 @@
       "একা",
       "নিরাপদ"
     ],
-    "text_en": "",
+    "text_en": "Panic attacks or intense fear: 1. Breathe deeply — inhale for 4 seconds, hold for 7, exhale for 8. 2. Look at 5 things around you, listen to 4, touch 3. 3. Sip water slowly. 4. Close your eyes and picture a calm place. 5. Talk to someone. 6. You are not alone — you are safe.",
     "source_en": "IFRC Psychosocial support guide, 2023",
     "keywords_en": [
-      "emotional"
+      "panic",
+      "fear",
+      "breathe",
+      "deep",
+      "water",
+      "eyes",
+      "alone",
+      "safe"
     ]
   },
   {
@@ -829,10 +1097,18 @@
       "বিশ্রাম",
       "সাহায্য"
     ],
-    "text_en": "",
+    "text_en": "In moments of grief or loss: 1. Allow yourself to cry — do not suppress emotions. 2. Talk to someone. 3. Do not be alone. 4. Drink enough water and eat. 5. Rest. 6. Do not hesitate to ask for help. 7. With time, it will get better.",
     "source_en": "IFRC Psychosocial support guide, 2023",
     "keywords_en": [
-      "emotional"
+      "grief",
+      "loss",
+      "cry",
+      "emotions",
+      "alone",
+      "water",
+      "food",
+      "rest",
+      "help"
     ]
   },
   {
@@ -852,10 +1128,18 @@
       "চিকিৎসক",
       "বিক্রি"
     ],
-    "text_en": "",
+    "text_en": "Livestock safety during disasters: 1. Move animals to higher ground. 2. Stock up on feed and water. 3. Reinforce animal shelters. 4. Do not leave animals in flood water. 5. Consult a veterinarian if animals get sick. 6. Plan to sell or relocate animals before a disaster strikes.",
     "source_en": "MoDMR Agricultural safety advisory, 2024",
     "keywords_en": [
-      "livestock"
+      "livestock",
+      "animals",
+      "elevated",
+      "feed",
+      "water",
+      "shelter",
+      "flood",
+      "veterinarian",
+      "sell"
     ]
   },
   {
@@ -874,10 +1158,17 @@
       "দলিল",
       "জলরোধী"
     ],
-    "text_en": "",
+    "text_en": "Recovering wet documents: 1. Separate the wet papers from each other. 2. Place each page between clean white paper. 3. Press with a heavy weight. 4. Dry slowly in air or with a fan. 5. Do not dry in direct sunlight — the ink may fade. 6. Keep important documents (national ID, land deeds) in a waterproof bag in the future.",
     "source_en": "IFRC Document recovery guidance, 2023",
     "keywords_en": [
-      "documents"
+      "documents",
+      "wet",
+      "dry",
+      "fan",
+      "sunlight",
+      "national id",
+      "land deed",
+      "waterproof"
     ]
   },
   {
@@ -896,10 +1187,17 @@
       "সিদ্ধ",
       "রান্না"
     ],
-    "text_en": "",
+    "text_en": "Food safety during floods: 1. Do not eat food that has been touched by flood water. 2. Discard any boxed food that has gotten wet. 3. Wash canned food with clean water and soap before opening. 4. Do not leave cooked food out for more than 2 hours. 5. Cook food thoroughly. 6. When in doubt, throw it out.",
     "source_en": "WHO Food safety in emergencies, 2024",
     "keywords_en": [
-      "food"
+      "food",
+      "flood",
+      "water",
+      "box",
+      "can",
+      "soap",
+      "cook",
+      "thorough"
     ]
   },
   {
@@ -918,10 +1216,17 @@
       "পাশ",
       "999"
     ],
-    "text_en": "",
+    "text_en": "Adult CPR: 1. Lay the person flat on a hard surface. 2. Place the heel of your hand in the center of the chest. 3. Push hard 30 times — at a rate of 110-120 per minute. 4. Compress to a depth of 5 cm. 5. After 30 compressions, give 2 rescue breaths. 6. If breathing returns, place on their side. 7. Call 999. Continue CPR until breathing returns.",
     "source_en": "IFRC CPR guidelines, 2023",
     "keywords_en": [
-      "cpr"
+      "cpr",
+      "chest",
+      "compression",
+      "breathing",
+      "breath",
+      "mouth",
+      "side",
+      "999"
     ]
   },
   {
@@ -940,10 +1245,17 @@
       "পিঠ",
       "999"
     ],
-    "text_en": "",
+    "text_en": "Heimlich maneuver (when something is stuck): 1. Stand behind the person. 2. Make a fist with one hand and place it above the navel on the abdomen. 3. Grasp the fist with your other hand. 4. Thrust inward and upward sharply. 5. If the obstruction does not clear, give 5 back blows. 6. If nothing works, call 999.",
     "source_en": "IFRC First Aid Guide, 2023",
     "keywords_en": [
-      "cpr"
+      "heimlich",
+      "choking",
+      "fist",
+      "navel",
+      "abdomen",
+      "thrust",
+      "back blows",
+      "999"
     ]
   },
   {
@@ -962,10 +1274,17 @@
       "ভয়",
       "কামড়"
     ],
-    "text_en": "",
+    "text_en": "Transporting a snakebite victim to hospital: 1. Do not let the victim move — carry on a stretcher or sheet of cloth. 2. Keep the bitten limb below heart level. 3. Cover with a clean cloth. 4. Keep the victim calm — fear speeds venom spread. 5. Do not bring the dead snake — remember the bite marks. 6. Get to the nearest hospital as fast as possible.",
     "source_en": "WHO Snakebite envenoming guidelines, 2024",
     "keywords_en": [
-      "snakebite"
+      "snake",
+      "hospital",
+      "transport",
+      "stretcher",
+      "below",
+      "calm",
+      "fear",
+      "bite marks"
     ]
   },
   {
@@ -984,10 +1303,17 @@
       "টিকা",
       "ডাক্তার"
     ],
-    "text_en": "",
+    "text_en": "Dog or other animal bites: 1. Wash the bite area with clean water and soap for at least 15 minutes. 2. Apply antiseptic. 3. Cover with a clean cloth. 4. See a doctor as soon as possible — a rabies vaccine is needed. 5. Keep the biting animal under observation for 10 days. 6. Rabies is fatal — treatment is mandatory.",
     "source_en": "WHO Rabies fact sheet, 2024",
     "keywords_en": [
-      "animal_bite"
+      "dog",
+      "bite",
+      "animal",
+      "soap",
+      "antiseptic",
+      "rabies",
+      "vaccine",
+      "doctor"
     ]
   },
   {
@@ -1007,10 +1333,18 @@
       "ডাক্তার",
       "জ্বর"
     ],
-    "text_en": "",
+    "text_en": "Food poisoning: 1. Drink plenty of water and ORS. 2. If vomiting, sip water in small amounts. 3. Eat light foods — rice water (kanji), plain rice. 4. Give ORS if you see signs of dehydration. 5. See a doctor if there is blood in vomit or if symptoms persist past 24 hours. 6. See a doctor if there is fever.",
     "source_en": "WHO Foodborne illnesses fact sheet, 2024",
     "keywords_en": [
-      "food"
+      "food poisoning",
+      "vomit",
+      "ors",
+      "water",
+      "rice",
+      "rice water",
+      "blood",
+      "doctor",
+      "fever"
     ]
   },
   {
@@ -1029,10 +1363,17 @@
       "তোয়ালে",
       "ডাক্তার"
     ],
-    "text_en": "",
+    "text_en": "Eye inflammation (conjunctivitis) after floods: 1. Do not touch your eyes with your hands. 2. Rinse your eyes with clean water. 3. Use separate cloths or tissues. 4. Use eye medicine only with medical advice. 5. Do not share towels with an infected person. 6. See a doctor if your vision is affected.",
     "source_en": "WHO Eye health in emergencies, 2023",
     "keywords_en": [
-      "hygiene"
+      "eye",
+      "inflammation",
+      "conjunctivitis",
+      "water",
+      "cloth",
+      "medicine",
+      "towel",
+      "doctor"
     ]
   },
   {
@@ -1052,10 +1393,18 @@
       "দাদ",
       "ক্ষত"
     ],
-    "text_en": "",
+    "text_en": "Preventing skin diseases during floods: 1. Do not wade through flood water — wear boots if you must. 2. Do not keep feet wet — dry them well. 3. If itching starts, keep the area clean. 4. See a doctor for fungal infections or ringworm. 5. Keep affected areas dry and clean. 6. Cover any wounds with clean cloth.",
     "source_en": "WHO Skin diseases in floods, 2024",
     "keywords_en": [
-      "hygiene"
+      "skin disease",
+      "flood",
+      "boots",
+      "feet",
+      "wet",
+      "itching",
+      "fungus",
+      "ringworm",
+      "wound"
     ]
   },
   {
@@ -1076,10 +1425,19 @@
       "বৃদ্ধ",
       "999"
     ],
-    "text_en": "",
+    "text_en": "Preventing respiratory infections: 1. Wash hands frequently with soap. 2. Cover mouth and nose with your elbow or a cloth when coughing or sneezing. 3. Avoid crowded places. 4. See a doctor if fever or cough lasts more than 3 days. 5. Give extra care to children and the elderly. 6. Call 999 for breathing difficulty.",
     "source_en": "WHO Acute respiratory infections, 2024",
     "keywords_en": [
-      "respiratory"
+      "respiratory",
+      "infection",
+      "hands",
+      "soap",
+      "cough",
+      "sneeze",
+      "fever",
+      "child",
+      "elderly",
+      "999"
     ]
   }
 ]

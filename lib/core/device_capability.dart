@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
+import 'bangla_numerals.dart';
 
 enum DeviceTier { low, mid, high }
 enum ModelVariant { e2b, e4b, twelveb }
@@ -178,13 +179,19 @@ class DeviceCapability {
     }
   }
 
-  /// Format bytes to human-readable Bangla string.
-  static String formatBytesBn(int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) {
-      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  /// Format bytes to a human-readable size. Digits follow the locale:
+  /// Bangla numerals in bn mode, Latin elsewhere.
+  static String formatBytes(int bytes, {String localeCode = 'bn'}) {
+    String n(num v, int decimals) {
+      final s = v.toStringAsFixed(decimals);
+      return digitsForLocale(s, localeCode);
     }
-    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
+
+    if (bytes < 1024) return '${n(bytes, 0)} B';
+    if (bytes < 1024 * 1024) return '${n(bytes / 1024, 1)} KB';
+    if (bytes < 1024 * 1024 * 1024) {
+      return '${n(bytes / (1024 * 1024), 1)} MB';
+    }
+    return '${n(bytes / (1024 * 1024 * 1024), 1)} GB';
   }
 }

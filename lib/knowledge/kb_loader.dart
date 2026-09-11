@@ -31,7 +31,7 @@ class KnowledgeBase {
   /// If vectors.bin is missing or fails to load, only the keyword retriever
   /// is available (graceful degradation).
   static Future<KnowledgeBase> load() async {
-    final jsonStr = await rootBundle.loadString('assets/kb/corpus.json');
+    final jsonStr = await rootBundle.loadString('assets/data/corpus.json');
     final chunks = parseCorpus(jsonStr);
 
     BruteForceRetriever? cosine;

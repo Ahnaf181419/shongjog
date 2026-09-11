@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -6,6 +8,19 @@ plugins {
     // Firebase console) and wires the native Android Firebase config.
     id("com.google.gms.google-services")
 }
+
+// Release signing: reads android/key.properties (gitignored) when present and
+// falls back to debug signing otherwise, so `flutter build apk --release`
+// works for local testing before a real keystore exists. Once key.properties
+// is in place (storeFile/storePassword/keyAlias/keyPassword), the same build
+// command produces a Play-Store-signed APK with no further edits.
+val keystoreProperties = Properties().apply {
+    val f = rootProject.file("key.properties")
+    if (f.exists()) {
+        f.inputStream().use { load(it) }
+    }
+}
+val hasReleaseKeystore = keystoreProperties.getProperty("storeFile") != null
 
 android {
     namespace = "dev.frostflux.shongjog"
@@ -62,11 +77,26 @@ android {
         }
     }
 
+    signingConfigs {
+        if (hasReleaseKeystore) {
+            create("release") {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = rootProject.file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // Debug-signed until android/key.properties exists; see the
+            // keystoreProperties block at the top of this file.
+            signingConfig = if (hasReleaseKeystore) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
 
             // R8 / minification is on for release. Keep rules live in
             // proguard-rules.pro (referenced below).

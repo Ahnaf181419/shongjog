@@ -112,9 +112,9 @@ KitStrings cachedKit = KitStrings._empty();
 Future<KitStrings> loadKitStrings(String? locale) async {
   return TextLoader.loadJson<KitStrings>(_kAssetPath, (raw, localeCode) {
     final outer = jsonDecode(raw) as Map<String, dynamic>;
-    final block = TextLoader.pickBundle(outer, locale);
+    final block = TextLoader.pickBundle(outer, localeCode);
     return KitStrings._fromMap(block);
-  });
+  }, locale: locale);
 }
 
 Future<void> primeKitCache(String? locale) async {

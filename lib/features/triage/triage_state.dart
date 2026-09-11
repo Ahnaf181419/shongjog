@@ -1,5 +1,6 @@
 import 'decision_tree.dart';
 import '../../l10n/app_localizations.dart';
+import '../../core/bangla_numerals.dart';
 
 /// A single yes/no answer captured during the triage walk.
 class TriageAnswer {
@@ -63,15 +64,31 @@ class TriageState {
     return '${_bn(h)}:${p(m)}:${p(s)}';
   }
 
+  /// Locale-aware timer — Latin digits in en mode, Bengali in bn mode.
+  /// Width is kept stable (zero-padded) to avoid layout shift either way.
+  String elapsedFor(String localeCode) {
+    final isBangla = localeCode.toLowerCase().startsWith('bn');
+    final d = elapsedDuration;
+    final h = d.inHours;
+    final m = d.inMinutes.remainder(60);
+    final s = d.inSeconds.remainder(60);
+    if (isBangla) return elapsedBn();
+    String p(int n) => n.toString().padLeft(2, '0');
+    return '$h:${p(m)}:${p(s)}';
+  }
+
   /// One-line human-readable summary of the answer trail + final route.
   /// Used in the terminal screen recap and in the SOS handoff body.
-  /// All numbers use Bengali numerals (AGENTS.md).
+  /// All numbers use Bengali numerals in bn mode, Latin in en mode.
   String summaryBn([AppLocalizations? l10n]) {
     final yes = answers.where((a) => a.answer).length;
     final no = answers.length - yes;
-    final since = elapsedBn();
+    final localeName = l10n?.localeName ?? 'bn';
+    final since = elapsedFor(localeName);
     if (l10n == null) {
-      final routeText = route == null ? _ongoingLabel(l10n) : _routeNameBnL10n(route!, l10n ?? _fallbackL10n());
+      final routeText = route == null
+          ? _ongoingLabel(l10n)
+          : _routeNameBnL10n(route!, _fallbackL10n());
       return 'প্রশ্ন: ${_bn(answers.length)} '
           '(হ্যাঁ ${_bn(yes)} / না ${_bn(no)}) | '
           'সময়: $since | অবস্থা: $routeText';
@@ -79,22 +96,28 @@ class TriageState {
     final routeText = route == null
         ? l10n.triageStateOngoing
         : _routeNameBnL10n(route!, l10n);
+    final countStr = numberForLocale(answers.length, localeName);
+    final yesStr = numberForLocale(yes, localeName);
+    final noStr = numberForLocale(no, localeName);
     return '${l10n.triageSummaryPrefix} '
-        '${l10n.triageSummaryQuestions} ${_bn(answers.length)} '
-        '(${l10n.triageSummaryYes} ${_bn(yes)} / ${l10n.triageSummaryNo} ${_bn(no)}) | '
+        '${l10n.triageSummaryQuestions} $countStr '
+        '(${l10n.triageSummaryYes} $yesStr / ${l10n.triageSummaryNo} $noStr) | '
         '${l10n.triageSummaryTime} $since | '
         '${l10n.triageSummaryStatus} $routeText';
   }
 
   /// 3-line body suitable for the SOS Composer `initialBody` field.
   /// Format: condition / time / taps (so the 999 operator sees it
-  /// at a glance). All numbers use Bengali numerals.
+  /// at a glance).
   String shareableSosText([AppLocalizations? l10n]) {
-    final since = elapsedBn();
+    final localeName = l10n?.localeName ?? 'bn';
+    final since = elapsedFor(localeName);
     final yes = answers.where((a) => a.answer).length;
     final no = answers.length - yes;
     if (l10n == null) {
-      final routeText = route == null ? _unknownLabel(l10n) : _routeNameBnL10n(route!, l10n ?? _fallbackL10n());
+      final routeText = route == null
+          ? _unknownLabel(l10n)
+          : _routeNameBnL10n(route!, _fallbackL10n());
       return 'ট্রায়াজ: $routeText\n'
           'সময়: $since\n'
           'প্রশ্ন: ${_bn(answers.length)} '
@@ -106,9 +129,9 @@ class TriageState {
     return l10n.triageSummarySos(
       routeText,
       since,
-      answers.length,
-      yes,
-      no,
+      numberForLocale(answers.length, localeName),
+      numberForLocale(yes, localeName),
+      numberForLocale(no, localeName),
     );
   }
 

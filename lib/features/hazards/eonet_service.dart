@@ -281,18 +281,23 @@ enum EonetCategory {
       };
 
   /// Localized label.
-  String label(BuildContext context) => switch (this) {
-        EonetCategory.severeStorms => AppLocalizations.of(context).hazardCyclone,
-        EonetCategory.floods => AppLocalizations.of(context).hazardFlood,
-        EonetCategory.earthquakes => AppLocalizations.of(context).hazardEarthquake,
-        EonetCategory.wildfires => AppLocalizations.of(context).hazardWildfire,
-        EonetCategory.volcanoes => AppLocalizations.of(context).hazardVolcano,
-        EonetCategory.landslides => AppLocalizations.of(context).hazardLandslide,
-        EonetCategory.extremeTemperatures => AppLocalizations.of(context).hazardExtremeHeat,
-        EonetCategory.drought => AppLocalizations.of(context).hazardDrought,
-        EonetCategory.seaLakeIce => AppLocalizations.of(context).hazardSeaIce,
-        EonetCategory.manmade => AppLocalizations.of(context).hazardManmade,
-        EonetCategory.other => AppLocalizations.of(context).hazardOther,
+  String label(BuildContext context) => labelL10n(AppLocalizations.of(context));
+
+  /// Localized label against an explicit [AppLocalizations] (avoids
+  /// `BuildContext` use across async gaps and lets widgets resolve labels
+  /// in build after the data was loaded earlier).
+  String labelL10n(AppLocalizations l10n) => switch (this) {
+        EonetCategory.severeStorms => l10n.hazardCyclone,
+        EonetCategory.floods => l10n.hazardFlood,
+        EonetCategory.earthquakes => l10n.hazardEarthquake,
+        EonetCategory.wildfires => l10n.hazardWildfire,
+        EonetCategory.volcanoes => l10n.hazardVolcano,
+        EonetCategory.landslides => l10n.hazardLandslide,
+        EonetCategory.extremeTemperatures => l10n.hazardExtremeHeat,
+        EonetCategory.drought => l10n.hazardDrought,
+        EonetCategory.seaLakeIce => l10n.hazardSeaIce,
+        EonetCategory.manmade => l10n.hazardManmade,
+        EonetCategory.other => l10n.hazardOther,
       };
 
   String get labelBn => switch (this) {

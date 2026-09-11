@@ -3585,9 +3585,9 @@ abstract class AppLocalizations {
   String triageSummarySos(
     String route,
     String time,
-    int count,
-    int yes,
-    int no,
+    String count,
+    String yes,
+    String no,
   );
 
   /// No description provided for @triageShareableSos.
@@ -3597,9 +3597,9 @@ abstract class AppLocalizations {
   String triageShareableSos(
     String route,
     String time,
-    int count,
-    int yes,
-    int no,
+    String count,
+    String yes,
+    String no,
   );
 
   /// No description provided for @modelRamLabel.
@@ -3876,7 +3876,7 @@ abstract class AppLocalizations {
   ///
   /// In bn, this message translates to:
   /// **'আরও {count}টি দেখুন'**
-  String hazardsShowMore(int count);
+  String hazardsShowMore(String count);
 
   /// No description provided for @shelterAiRiskAssessment.
   ///
@@ -4560,19 +4560,19 @@ abstract class AppLocalizations {
   ///
   /// In bn, this message translates to:
   /// **'{count} মিনিট আগে'**
-  String riskTimeMinutesAgo(int count);
+  String riskTimeMinutesAgo(String count);
 
   /// No description provided for @riskTimeHoursAgo.
   ///
   /// In bn, this message translates to:
   /// **'{count} ঘণ্টা আগে'**
-  String riskTimeHoursAgo(int count);
+  String riskTimeHoursAgo(String count);
 
   /// No description provided for @riskTimeDaysAgo.
   ///
   /// In bn, this message translates to:
   /// **'{count} দিন আগে'**
-  String riskTimeDaysAgo(int count);
+  String riskTimeDaysAgo(String count);
 
   /// No description provided for @kitTitle.
   ///
@@ -4620,19 +4620,19 @@ abstract class AppLocalizations {
   ///
   /// In bn, this message translates to:
   /// **'{size} জন'**
-  String kitSummaryMembers(int size);
+  String kitSummaryMembers(String size);
 
   /// No description provided for @kitSummaryChildren.
   ///
   /// In bn, this message translates to:
   /// **'{count} শিশু'**
-  String kitSummaryChildren(int count);
+  String kitSummaryChildren(String count);
 
   /// No description provided for @kitSummaryElderly.
   ///
   /// In bn, this message translates to:
   /// **'{count} প্রবীণ'**
-  String kitSummaryElderly(int count);
+  String kitSummaryElderly(String count);
 
   /// No description provided for @kitFamilySizeHint.
   ///
@@ -4939,6 +4939,186 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'রোগীকে শান্ত রাখুন। কাটা, চুষা বা টর্নিকেট ব্যবহার করবেন না। আক্রান্ত স্থান নড়াচলা বন্ধ রাখুন এবং দ্রুত নিকটস্থ হাসপাতালে নিন。'**
   String get demoSeedQ3Answer;
+
+  /// No description provided for @insightCycloneTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঘূর্ণিঝড় প্রস্তুতি'**
+  String get insightCycloneTitle;
+
+  /// No description provided for @insightCycloneBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার নিকটবর্তী আশ্রয়কেন্দ্র আগে থেকেই ম্যাপে দেখে রাখুন।'**
+  String get insightCycloneBody;
+
+  /// No description provided for @insightFloodTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্যা সতর্কতা'**
+  String get insightFloodTitle;
+
+  /// No description provided for @insightFloodBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'পানি বিশুদ্ধ করার নিয়মগুলো জেনে নিন।'**
+  String get insightFloodBody;
+
+  /// Proactive notification when medical interest detected
+  ///
+  /// In bn, this message translates to:
+  /// **'চিকিৎসা সহায়তা'**
+  String get insightMedicalTitle;
+
+  /// No description provided for @insightMedicalBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'ORS তৈরির নিয়ম এবং জরুরি যোগাযোগ প্রস্তুত রাখুন।'**
+  String get insightMedicalBody;
+
+  /// No description provided for @insightOfflineTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'অফলাইন AI প্রস্তুত'**
+  String get insightOfflineTitle;
+
+  /// Default insight body for offline AI
+  ///
+  /// In bn, this message translates to:
+  /// **'ইন্টারনেট ছাড়াই শঙ্গ্যোগ আপনার প্রশ্নের উত্তর দিতে পারে।'**
+  String get insightOfflineBody;
+
+  /// No description provided for @proximityAlertTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিকটস্থ {type}'**
+  String proximityAlertTitle(String type);
+
+  /// No description provided for @proximityAlertBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'{type} চলছে: {address} ({distance} কিমি দূরত্বে)'**
+  String proximityAlertBody(String type, String address, String distance);
+
+  /// No description provided for @commonLoading.
+  ///
+  /// In bn, this message translates to:
+  /// **'লোড হচ্ছে…'**
+  String get commonLoading;
+
+  /// No description provided for @riskHomeMaterial.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঘরের ধরন'**
+  String get riskHomeMaterial;
+
+  /// No description provided for @riskHomeMaterialTinShed.
+  ///
+  /// In bn, this message translates to:
+  /// **'টিনের ঘর'**
+  String get riskHomeMaterialTinShed;
+
+  /// No description provided for @riskHomeMaterialHalfPucka.
+  ///
+  /// In bn, this message translates to:
+  /// **'আধা পাকা'**
+  String get riskHomeMaterialHalfPucka;
+
+  /// No description provided for @riskHomeMaterialPucka.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাকা'**
+  String get riskHomeMaterialPucka;
+
+  /// No description provided for @riskHomeMaterialApartment.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাপার্টমেন্ট'**
+  String get riskHomeMaterialApartment;
+
+  /// No description provided for @riskFloodHistoryNone.
+  ///
+  /// In bn, this message translates to:
+  /// **'কখনো না'**
+  String get riskFloodHistoryNone;
+
+  /// No description provided for @riskFloodHistoryMinor.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাঝারি'**
+  String get riskFloodHistoryMinor;
+
+  /// No description provided for @riskFloodHistoryMajor.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রধান'**
+  String get riskFloodHistoryMajor;
+
+  /// No description provided for @riskElevationLow.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিচু'**
+  String get riskElevationLow;
+
+  /// No description provided for @riskElevationMid.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাঝারি'**
+  String get riskElevationMid;
+
+  /// No description provided for @riskElevationHigh.
+  ///
+  /// In bn, this message translates to:
+  /// **'উঁচু'**
+  String get riskElevationHigh;
+
+  /// No description provided for @damageCameraPermanentDenied.
+  ///
+  /// In bn, this message translates to:
+  /// **'ক্যামেরার অনুমতি স্থায়ীভাবে প্রত্যাখ্যান করা হয়েছে। অনুগ্রহ করে সেটিংসে গিয়ে অনুমতি দিন।'**
+  String get damageCameraPermanentDenied;
+
+  /// No description provided for @damageCameraDenied.
+  ///
+  /// In bn, this message translates to:
+  /// **'ক্যামেরার অনুমতি প্রত্যাখ্যান করা হয়েছে।'**
+  String get damageCameraDenied;
+
+  /// No description provided for @chatFallback999.
+  ///
+  /// In bn, this message translates to:
+  /// **'জরুরি সাহায্যের জন্য ৯৯৯ এ কল করুন।'**
+  String get chatFallback999;
+
+  /// No description provided for @meshTransportNearby.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাছেই'**
+  String get meshTransportNearby;
+
+  /// No description provided for @beaconAnonymousReporter.
+  ///
+  /// In bn, this message translates to:
+  /// **'একজন ব্যবহারকারী'**
+  String get beaconAnonymousReporter;
+
+  /// No description provided for @adminRequestApproved.
+  ///
+  /// In bn, this message translates to:
+  /// **'{type} অনুমোদিত হয়েছে'**
+  String adminRequestApproved(String type);
+
+  /// No description provided for @adminRequestRejected.
+  ///
+  /// In bn, this message translates to:
+  /// **'{type} প্রত্যাখ্যান করা হয়েছে'**
+  String adminRequestRejected(String type);
+
+  /// No description provided for @emergencyGpsFallbackNotice.
+  ///
+  /// In bn, this message translates to:
+  /// **'{warning} — {phone} নম্বরে কল করুন'**
+  String emergencyGpsFallbackNotice(String warning, String phone);
 }
 
 class _AppLocalizationsDelegate

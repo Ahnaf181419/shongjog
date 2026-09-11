@@ -1,6 +1,7 @@
 import 'family_profile.dart';
 import 'kit_strings_loader.dart';
 import 'planner_strings_loader.dart' show fillTemplate;
+import '../../core/bangla_numerals.dart';
 
 /// Builds the prompt for the AI Emergency Kit Generator
 /// (Module B in docs/AI-FIRST-FEATURES.md).
@@ -41,20 +42,24 @@ class KitPromptBuilder {
   }
 
   /// Deterministic kit for when the model is unavailable.
-  static String fallbackKit(FamilyProfile p, {KitStrings? s}) {
+  static String fallbackKit(FamilyProfile p, {KitStrings? s, String? locale}) {
     final strings = s ?? cachedKit;
+    final isBn = locale != null
+        ? locale.toLowerCase().startsWith('bn')
+        : (!strings.fallbackTitle.toLowerCase().contains('emergency'));
+    final localeTag = isBn ? 'bn' : 'en';
     final waterTotal = p.familySize * _waterPerPerson;
-    final waterBn = _toBangla('$waterTotal');
+    final waterStr = digitsForLocale('$waterTotal', localeTag);
     final foodKg = p.familySize * 2;
-    final foodBn = _toBangla('$foodKg');
+    final foodStr = digitsForLocale('$foodKg', localeTag);
     final buf = StringBuffer();
     buf.writeln(strings.fallbackTitle);
     buf.writeln();
     buf.writeln(fillTemplate(strings.fallbackWater, {
-      'litres': waterBn,
-      'perPerson': _toBangla('$_waterPerPerson'),
+      'litres': waterStr,
+      'perPerson': digitsForLocale('$_waterPerPerson', localeTag),
     }));
-    buf.writeln(fillTemplate(strings.fallbackFood, {'kg': foodBn}));
+    buf.writeln(fillTemplate(strings.fallbackFood, {'kg': foodStr}));
     buf.writeln(strings.fallbackFlashlight);
     buf.writeln(strings.fallbackFirstAid);
     buf.writeln(strings.fallbackMedicine);
@@ -79,14 +84,5 @@ class KitPromptBuilder {
       buf.writeln(strings.fallbackLifeJacket);
     }
     return buf.toString();
-  }
-
-  /// Convert ASCII digits to Bengali numerals (০-৯).
-  static String _toBangla(String s) {
-    const map = {
-      '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
-      '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯',
-    };
-    return s.split('').map((c) => map[c] ?? c).join();
   }
 }

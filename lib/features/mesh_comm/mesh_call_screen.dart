@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../core/haptics.dart';
+import '../../core/bangla_numerals.dart';
 import '../../l10n/app_localizations.dart';
 import 'mesh_call_service.dart';
 import 'mesh_models.dart';
@@ -66,9 +67,13 @@ class _MeshCallScreenState extends State<MeshCallScreen>
     super.dispose();
   }
 
-  String _formatDuration(Duration d) {
-    final m = d.inMinutes.toString().padLeft(2, '0');
-    final s = (d.inSeconds % 60).toString().padLeft(2, '0');
+  String _formatDuration(Duration d, String localeCode) {
+    String fmt(int n) {
+      final s = n.toString().padLeft(2, '0');
+      return localeCode == 'bn' ? toBanglaDigits(s) : s;
+    }
+    final m = fmt(d.inMinutes);
+    final s = fmt(d.inSeconds % 60);
     return '$m:$s';
   }
 
@@ -137,7 +142,7 @@ class _MeshCallScreenState extends State<MeshCallScreen>
             // ── Status / duration ────────────────────────────────
             Text(
               isActive
-                  ? _formatDuration(_callDuration)
+                  ? _formatDuration(_callDuration, l10n.localeName)
                   : widget.isIncoming
                       ? l10n.meshIncomingCall
                       : l10n.meshCalling,

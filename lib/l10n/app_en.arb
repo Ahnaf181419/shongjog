@@ -47,9 +47,13 @@
   "soundHintDesc": "A chime when AI answer is ready",
   "prepTips": "Preparation Tips",
   "prepTipsDesc": "Tip cards on the home screen based on chat history",
-  "@meshAutoSaveMedia": {"description": "Mesh media auto-save consent toggle"},
+  "@meshAutoSaveMedia": {
+    "description": "Mesh media auto-save consent toggle"
+  },
   "meshAutoSaveMedia": "Save mesh media to gallery",
-  "@meshAutoSaveMediaDesc": {"description": "Mesh media auto-save consent toggle"},
+  "@meshAutoSaveMediaDesc": {
+    "description": "Mesh media auto-save consent toggle"
+  },
   "meshAutoSaveMediaDesc": "Photos and videos sent by nearby users are copied to your gallery automatically",
   "sectionEmergency": "Emergency",
   "emergencyContacts": "Emergency Contacts",
@@ -108,43 +112,81 @@
   "triageWizard": "Triage Wizard",
   "firstAid": "First Aid",
   "todaysTip": "Today's Tip",
-  "@homeTip1": {"description": "Rotating home-screen preparedness tip #1"},
+  "@homeTip1": {
+    "description": "Rotating home-screen preparedness tip #1"
+  },
   "homeTip1": "During flood season, boil drinking water for at least 1 minute. Keep ORS in stock to prevent waterborne illness.",
-  "@homeTip2": {"description": "Rotating home-screen preparedness tip #2"},
+  "@homeTip2": {
+    "description": "Rotating home-screen preparedness tip #2"
+  },
   "homeTip2": "Close windows and doors before a storm arrives. Cover them with thick cloth to guard against flying glass.",
-  "@homeTip3": {"description": "Rotating home-screen preparedness tip #3"},
+  "@homeTip3": {
+    "description": "Rotating home-screen preparedness tip #3"
+  },
   "homeTip3": "In an earthquake, get under a table and move away from walls. Never use the lift.",
-  "@homeTip4": {"description": "Rotating home-screen preparedness tip #4"},
+  "@homeTip4": {
+    "description": "Rotating home-screen preparedness tip #4"
+  },
   "homeTip4": "In a fire, stay low to the ground to keep below the smoke. Smoke always rises.",
-  "@homeTip5": {"description": "Rotating home-screen preparedness tip #5"},
+  "@homeTip5": {
+    "description": "Rotating home-screen preparedness tip #5"
+  },
   "homeTip5": "In summer heat, drink water every 30 minutes. Wear light-coloured clothing to avoid heatstroke.",
-  "@homeTip6": {"description": "Rotating home-screen preparedness tip #6"},
+  "@homeTip6": {
+    "description": "Rotating home-screen preparedness tip #6"
+  },
   "homeTip6": "Make ORS at home for diarrhoea: mix 1 teaspoon sugar and half a teaspoon salt into 1 litre of boiled, cooled water.",
-  "@homeTip7": {"description": "Rotating home-screen preparedness tip #7"},
+  "@homeTip7": {
+    "description": "Rotating home-screen preparedness tip #7"
+  },
   "homeTip7": "For a snakebite, keep the bitten area below heart level. Never cut it with a knife or scissors.",
-  "@homeTip8": {"description": "Rotating home-screen preparedness tip #8"},
+  "@homeTip8": {
+    "description": "Rotating home-screen preparedness tip #8"
+  },
   "homeTip8": "Before entering floodwater, disconnect electrical equipment. Move gas cylinders and lighters well away.",
-  "@homeTip9": {"description": "Rotating home-screen preparedness tip #9"},
+  "@homeTip9": {
+    "description": "Rotating home-screen preparedness tip #9"
+  },
   "homeTip9": "If an earthquake catches you outdoors, stay in the open — keep clear of trees and electricity poles.",
-  "@homeTip10": {"description": "Rotating home-screen preparedness tip #10"},
+  "@homeTip10": {
+    "description": "Rotating home-screen preparedness tip #10"
+  },
   "homeTip10": "If a fire starts indoors, leave calmly in single file. If there is heavy smoke, hold a wet cloth over your face.",
-  "@homeTip11": {"description": "Rotating home-screen preparedness tip #11"},
+  "@homeTip11": {
+    "description": "Rotating home-screen preparedness tip #11"
+  },
   "homeTip11": "Children dehydrate quickly in heat. Give them water first and sit them in the shade.",
-  "@homeTip12": {"description": "Rotating home-screen preparedness tip #12"},
+  "@homeTip12": {
+    "description": "Rotating home-screen preparedness tip #12"
+  },
   "homeTip12": "Caught outside in a severe storm, lie flat on low ground. Do not stand beside trees.",
-  "@homeTip13": {"description": "Rotating home-screen preparedness tip #13"},
+  "@homeTip13": {
+    "description": "Rotating home-screen preparedness tip #13"
+  },
   "homeTip13": "Keep at least 3 days of drinking water and dry food per household. Store separate water for washing.",
-  "@homeTip14": {"description": "Rotating home-screen preparedness tip #14"},
+  "@homeTip14": {
+    "description": "Rotating home-screen preparedness tip #14"
+  },
   "homeTip14": "Keep a first-aid kit at home: bandages, antiseptic, paracetamol, ORS sachets.",
-  "@homeTip15": {"description": "Rotating home-screen preparedness tip #15"},
+  "@homeTip15": {
+    "description": "Rotating home-screen preparedness tip #15"
+  },
   "homeTip15": "After a flood, never use pond water directly. Purify it by boiling or with chlorine tablets.",
-  "@homeTip16": {"description": "Rotating home-screen preparedness tip #16"},
+  "@homeTip16": {
+    "description": "Rotating home-screen preparedness tip #16"
+  },
   "homeTip16": "After an earthquake, do not go inside until the damaged parts of the building have been checked.",
-  "@homeTip17": {"description": "Rotating home-screen preparedness tip #17"},
+  "@homeTip17": {
+    "description": "Rotating home-screen preparedness tip #17"
+  },
   "homeTip17": "For fever, sponge the body with a wet cloth and drink plenty of water. Above 40°C, go to hospital.",
-  "@homeTip18": {"description": "Rotating home-screen preparedness tip #18"},
+  "@homeTip18": {
+    "description": "Rotating home-screen preparedness tip #18"
+  },
   "homeTip18": "During a sea storm, stay away from the coast. If the waves look abnormal, move to high ground at once.",
-  "@homeTip19": {"description": "Rotating home-screen preparedness tip #19"},
+  "@homeTip19": {
+    "description": "Rotating home-screen preparedness tip #19"
+  },
   "homeTip19": "In an electrical emergency, never touch a switch with wet hands. Keep rubber shoes on.",
   "offlineMessage": "Offline Message",
   "offlineMessageDesc": "Talk to nearby people via Wi-Fi",
@@ -227,7 +269,13 @@
   "weatherFallbackLabel": "📍 Dhaka (default)",
   "weatherLocationRetry": "Retry location",
   "meshConnectionRequest": "New Connection Request",
-  "@meshWantsToConnect": {"placeholders": {"name": {"type": "String"}}},
+  "@meshWantsToConnect": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "meshWantsToConnect": "{name} wants to connect with you.",
   "meshReject": "Reject",
   "meshAccept": "Accept",
@@ -273,7 +321,16 @@
   "meshEarpiece": "Earpiece",
   "triageTitle": "Triage Wizard",
   "triageRestart": "Restart",
-  "@triageQuestion": {"placeholders": {"num": {"type": "String"}, "total": {"type": "String"}}},
+  "@triageQuestion": {
+    "placeholders": {
+      "num": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "triageQuestion": "Question {num} / {total}",
   "triageYes": "Yes",
   "triageNo": "No",
@@ -296,7 +353,13 @@
   "shelterAddress": "Address",
   "shelterLandmark": "Landmark",
   "shelterDesc": "Description",
-  "@shelterCapacityCount": {"placeholders": {"count": {"type": "String"}}},
+  "@shelterCapacityCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "shelterCapacityCount": "Capacity: {count} people",
   "shelterFindingRoute": "Finding route...",
   "shelterDetails": "Details",
@@ -318,7 +381,13 @@
   "chatPathCorpus": "Corpus",
   "chatPathCanned": "999",
   "meshDeleteChatHistory": "Delete chat history?",
-  "@meshDeleteChatBody": {"placeholders": {"peer": {"type": "String"}}},
+  "@meshDeleteChatBody": {
+    "placeholders": {
+      "peer": {
+        "type": "String"
+      }
+    }
+  },
   "meshDeleteChatBody": "All messages with \"{peer}\" will be deleted. This cannot be undone.",
   "meshDeleteChatDone": "Chat history deleted",
   "meshDeleteChatButton": "Delete",
@@ -326,10 +395,22 @@
   "meshSendMediaFailed": "Could not send media — check if peer is connected",
   "meshCallTooltip": "Voice Call",
   "meshDeleteChatMenu": "Delete chat history",
-  "@meshEmptyChat": {"placeholders": {"peer": {"type": "String"}}},
+  "@meshEmptyChat": {
+    "placeholders": {
+      "peer": {
+        "type": "String"
+      }
+    }
+  },
   "meshEmptyChat": "No messages yet\nStart chatting with \"{peer}\"",
   "meshInputHint": "Type a message...",
-  "@meshHopCount": {"placeholders": {"count": {"type": "String"}}},
+  "@meshHopCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "meshHopCount": "↻ {count} hops",
   "meshSendImage": "Send Image",
   "meshSendVideo": "Send Video",
@@ -415,7 +496,13 @@
   "adminDetailNotes": "Admin Notes",
   "adminRejectLabel": "Rejected",
   "adminApproveLabel": "Approve",
-  "@adminApproveSuccess": {"placeholders": {"type": {"type": "String"}}},
+  "@adminApproveSuccess": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
   "adminApproveSuccess": "{type} approved — added to map",
   "adminCloseButton": "Close",
   "adminProximityNotified": "Nearby users have been notified",
@@ -464,7 +551,13 @@
   "profileDistrictHint": "Select division and district",
   "profileEnterName": "Enter name",
   "modelStatusNotDownloaded": "Download required",
-  "@modelStatusDownloading": {"placeholders": {"progress": {"type": "String"}}},
+  "@modelStatusDownloading": {
+    "placeholders": {
+      "progress": {
+        "type": "String"
+      }
+    }
+  },
   "modelStatusDownloading": "Downloading {progress}",
   "modelStatusReady": "Ready",
   "modelStatusLoading": "Loading...",
@@ -619,13 +712,13 @@
         "type": "String"
       },
       "count": {
-        "type": "int"
+        "type": "String"
       },
       "yes": {
-        "type": "int"
+        "type": "String"
       },
       "no": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -639,13 +732,13 @@
         "type": "String"
       },
       "count": {
-        "type": "int"
+        "type": "String"
       },
       "yes": {
-        "type": "int"
+        "type": "String"
       },
       "no": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -736,7 +829,7 @@
   "@hazardsShowMore": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -823,20 +916,9 @@
   "damageRecommendLabel": "Recommendation",
   "damageScanAnother": "Scan another photo",
   "damageTryAgain": "Try again",
-  "damageTypeFlood": "Flood",
-  "damageTypeFire": "Fire",
   "damageTypeBuildingCollapse": "Collapsed building",
-  "damageTypeFallenTree": "Fallen tree",
-  "damageTypeBlockedRoad": "Blocked road",
   "damageTypeElectricalHazard": "Electrical hazard",
-  "damageTypeSmoke": "Smoke",
-  "damageTypeOther": "Other",
-  "damageTypeUnknown": "Unknown",
-  "damageSeverityLow": "Low",
-  "damageSeverityMedium": "Medium",
-  "damageSeverityHigh": "High",
   "damageSeverityVeryHigh": "Very High",
-  "damageSeverityUnknown": "Unknown",
   "damageDefaultRecommendation": "For more information use the shelter tab.",
   "damageParseFailure": "Could not analyze the photo.",
   "plannerTitle": "AI Disaster Plan",
@@ -882,7 +964,7 @@
   "@riskTimeMinutesAgo": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -890,7 +972,7 @@
   "@riskTimeHoursAgo": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -898,7 +980,7 @@
   "@riskTimeDaysAgo": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -913,7 +995,7 @@
   "@kitSummaryMembers": {
     "placeholders": {
       "size": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -921,7 +1003,7 @@
   "@kitSummaryChildren": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -929,7 +1011,7 @@
   "@kitSummaryElderly": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -994,7 +1076,7 @@
   "adminConfirmRejectBody": "The request stays in the list, marked rejected.",
   "adminPasswordShow": "Show password",
   "adminPasswordHide": "Hide password",
-  "adminSigningIn": "Signing in\u2026",
+  "adminSigningIn": "Signing in…",
   "adminWriteMessage": "Write a message...",
   "adminDetailsLink": "Details",
   "adminSystemSummary": "System Summary",
@@ -1007,7 +1089,14 @@
   "settingsDefaultUsername": "User",
   "cardAiButton": "Ask AI",
   "situationTitle": "AI Situation Summary",
-  "@situationIntro": {"description": "Intro line on the AI situation summary screen", "placeholders": {"count": {"type": "String"}}},
+  "@situationIntro": {
+    "description": "Intro line on the AI situation summary screen",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "situationIntro": "Generate a situation summary from {count} recent reports.",
   "situationGenerate": "Generate summary",
   "situationResultHeading": "AI Summary",
@@ -1022,5 +1111,85 @@
   "demoSeedQ2Question": "Where is the nearest shelter?",
   "demoSeedQ2Answer": "Open the Shelter map (Home → Shelter) to see the nearest cyclone shelters. With GPS permission on, you get a sorted list by distance.",
   "demoSeedQ3Question": "What do I do for a snakebite?",
-  "demoSeedQ3Answer": "Keep the patient calm. Don't cut, suck, or use a tourniquet. Immobilize the bitten limb and get to the nearest hospital quickly."
+  "demoSeedQ3Answer": "Keep the patient calm. Don't cut, suck, or use a tourniquet. Immobilize the bitten limb and get to the nearest hospital quickly.",
+  "insightCycloneTitle": "Cyclone preparation",
+  "insightCycloneBody": "Check your nearest shelter on the map before the storm arrives.",
+  "insightFloodTitle": "Flood alert",
+  "insightFloodBody": "Learn the steps for purifying water safely.",
+  "insightMedicalTitle": "Medical help",
+  "insightMedicalBody": "Keep an ORS recipe and emergency contacts ready.",
+  "insightOfflineTitle": "Offline AI ready",
+  "insightOfflineBody": "Shongjog can answer your questions even without the internet.",
+  "@insightMedicalTitle": {
+    "description": "Proactive notification when medical interest detected"
+  },
+  "@insightOfflineBody": {
+    "description": "Default insight body for offline AI"
+  },
+  "proximityAlertTitle": "Nearby {type}",
+  "@proximityAlertTitle": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "proximityAlertBody": "{type} ongoing: {address} ({distance} km away)",
+  "@proximityAlertBody": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "address": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "commonLoading": "Loading…",
+  "riskHomeMaterial": "Home Material",
+  "riskHomeMaterialTinShed": "Tin shed",
+  "riskHomeMaterialHalfPucka": "Half-pucka",
+  "riskHomeMaterialPucka": "Pucka",
+  "riskHomeMaterialApartment": "Apartment",
+  "riskFloodHistoryNone": "Never",
+  "riskFloodHistoryMinor": "Minor",
+  "riskFloodHistoryMajor": "Major",
+  "riskElevationLow": "Low",
+  "riskElevationMid": "Middle",
+  "riskElevationHigh": "High",
+  "damageCameraPermanentDenied": "Camera permission permanently denied. Please enable it in Settings.",
+  "damageCameraDenied": "Camera permission denied.",
+  "chatFallback999": "For emergency help, call 999.",
+  "meshTransportNearby": "Nearby",
+  "beaconAnonymousReporter": "A user",
+  "adminRequestApproved": "{type} approved",
+  "@adminRequestApproved": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "adminRequestRejected": "{type} rejected",
+  "@adminRequestRejected": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "emergencyGpsFallbackNotice": "{warning} — call {phone}",
+  "@emergencyGpsFallbackNotice": {
+    "placeholders": {
+      "warning": {
+        "type": "String"
+      },
+      "phone": {
+        "type": "String"
+      }
+    }
+  }
 }
