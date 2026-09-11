@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/mesh_comm/mesh_models.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('MessageType', () {
     test('has text and voice types', () {
       expect(MessageType.text.index, 0);

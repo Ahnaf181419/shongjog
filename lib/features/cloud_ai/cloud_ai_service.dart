@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../../core/connectivity_provider.dart';
-import '../../rag/prompt_builder.dart';
+import '../rag/persona_loader.dart';
 import '../../rag/types.dart';
 import 'api_key_ring.dart';
 
@@ -30,9 +30,11 @@ import 'api_key_ring.dart';
 /// quota of zero. All three models below were verified live against the
 /// project's own keys before being set here.
 ///
-/// This is only the *online* tier. The offline thesis rests on Gemma 4
-/// E2B/E4B running on-device via `modelManager`, which this file never
-/// touches.
+/// **Role in the chat chain.** Cloud AI is Tier-1 of `ChatRepository`'s
+/// answer chain on connected devices (Cloud → On-device Gemma → Corpus →
+/// canned "৯৯৯"). The on-device Gemma 4 E2B/E4B in `modelManager` is the
+/// offline primary — this service never touches it. The full tier policy
+/// lives in `docs/prd.md` §13.
 class CloudAiService {
   static const String primaryModelId = 'gemini-3.1-flash-lite';
   static const String fallbackModelId = 'gemini-3.1-flash-lite-preview';
@@ -83,6 +85,7 @@ class CloudAiService {
   Future<String> generateWithHistory({
     required String userMessage,
     required List<ChatTurn> history,
+    String? locale,
   }) async {
     // Defense in depth: ChatRepository already gates on connectivity, but a
     // direct caller in airplane mode should fail fast, not after a 10s
@@ -90,6 +93,9 @@ class CloudAiService {
     if (!await isOnline) {
       throw CloudAiUnavailableException('Device is offline');
     }
+
+    final persona = await loadPersona(locale);
+    final systemInstruction = persona.systemInstruction;
 
     final contents = <Map<String, Object?>>[];
 
@@ -117,7 +123,7 @@ class CloudAiService {
     //    full lap of four keys costs far less than one 10s timeout.
     while (true) {
       try {
-        final text = await _generate(primaryModelId, contents);
+        final text = await _generate(primaryModelId, contents, systemInstruction);
         if (text != null) return text;
         break; // reached the model but got nothing usable — try the fallback
       } catch (e) {
@@ -137,7 +143,7 @@ class CloudAiService {
           debugPrint('All keys rate limited, retrying in 2s...');
           await Future.delayed(const Duration(seconds: 2));
           try {
-            final retry = await _generate(primaryModelId, contents);
+            final retry = await _generate(primaryModelId, contents, systemInstruction);
             if (retry != null) return retry;
           } catch (retryError) {
             debugPrint('Retry failed: $retryError');
@@ -149,7 +155,7 @@ class CloudAiService {
 
     // 2. Auto-switch to fallback model, on whichever key we ended up holding.
     try {
-      final text = await _generate(fallbackModelId, contents);
+      final text = await _generate(fallbackModelId, contents, systemInstruction);
       if (text != null) return text;
       debugPrint('Fallback ($fallbackModelId) returned nothing usable');
     } catch (e) {
@@ -158,11 +164,29 @@ class CloudAiService {
 
     // 3. Both Gemini models are gone. Gemma is slow and only sometimes
     //    salvageable, but the alternative at this point is no answer at all.
-    return _generateOrThrow(lastResortModelId, contents, 'কোনো উত্তর পাওয়া যায়নি।');
+    return _generateOrThrow(
+      lastResortModelId,
+      contents,
+      _lastResortFallback(locale),
+      locale,
+    );
   }
 
-  Future<String> generate(String prompt) async {
-    return generateWithHistory(userMessage: prompt, history: const []);
+  Future<String> generate(String prompt, {String? locale}) async {
+    return generateWithHistory(
+      userMessage: prompt,
+      history: const [],
+      locale: locale,
+    );
+  }
+
+  /// Localized last-resort string for the cloud tier when every model
+  /// returns nothing usable.
+  static String _lastResortFallback(String? locale) {
+    if (locale != null && locale.toLowerCase().startsWith('bn')) {
+      return 'কোনো উত্তর পাওয়া যায়নি।';
+    }
+    return 'No answer available.';
   }
 
   /// Whether [e] means *this key* is finished, as opposed to the request
@@ -296,12 +320,13 @@ class CloudAiService {
   Future<String?> _generate(
     String modelId,
     List<Map<String, Object?>> contents,
+    String systemInstruction,
   ) async {
     final uri = Uri.parse('$_baseUrl/models/$modelId:generateContent');
     final body = jsonEncode({
       'contents': contents,
       'systemInstruction': {
-        'parts': [{'text': kSystemInstruction}],
+        'parts': [{'text': systemInstruction}],
       },
       'generationConfig': {
         'temperature': 0.7,
@@ -349,10 +374,13 @@ class CloudAiService {
   Future<String> _generateOrThrow(
     String modelId,
     List<Map<String, Object?>> contents, [
-    String fallback = 'কোনো উত্তর পাওয়া যায়নি।',
+    String fallback = 'No answer available.',
+    String? locale,
   ]) async {
+    final persona = await loadPersona(locale);
+    final systemInstruction = persona.systemInstruction;
     try {
-      final text = await _generate(modelId, contents);
+      final text = await _generate(modelId, contents, systemInstruction);
       return text ?? fallback;
     } catch (e) {
       debugPrint('Last-resort model ($modelId) also failed: $e');

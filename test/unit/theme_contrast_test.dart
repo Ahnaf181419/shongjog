@@ -60,6 +60,7 @@ Future<T> underBrightness<T>(
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   // Small text needs 4.5:1. Every status badge in the app is small text.
   const smallTextFloor = 4.5;
   // Body copy is held to the stricter AAA bar the theme docstring claims.

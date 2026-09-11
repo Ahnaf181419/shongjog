@@ -6,6 +6,7 @@ import 'package:shongjog/features/chat/message_bubble.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   Widget wrap(Widget child) => MaterialApp(
         locale: const Locale('bn'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,

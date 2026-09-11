@@ -6,6 +6,7 @@ import 'package:shongjog/features/shelter/shelter_tool_dispatcher.dart';
 /// call it replaced — which asked the model for exactly one optional integer,
 /// clamped to 1..10, defaulting to 3.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('parseRequestedCount — digits', () {
     test('reads an ASCII digit', () {
       expect(ShelterToolDispatcher.parseRequestedCount('nearest 5 shelters'), 5);

@@ -3,6 +3,7 @@ import 'package:shongjog/features/triage/decision_tree.dart';
 import 'package:shongjog/features/triage/triage_state.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('TriageState', () {
     test('startedAt is captured at construction', () {
       final before = DateTime.now();

@@ -6,6 +6,7 @@ import 'package:shongjog/features/hazards/eonet_service.dart';
 import 'package:shongjog/features/hazards/gdacs_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   // Three shelters ranked by distance from (0, 0).
   final candidates = [
     RankedShelter(

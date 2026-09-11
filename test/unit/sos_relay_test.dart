@@ -15,6 +15,7 @@ SosPayload _p(String id, {int hops = 0, DateTime? ts}) => SosPayload(
     );
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('SosRelayEngine', () {
     test('first time a payload is seen, it should be re-broadcast', () {
       final r = SosRelayEngine(localDevice: 'me');

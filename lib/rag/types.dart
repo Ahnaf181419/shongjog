@@ -9,6 +9,8 @@ class Chunk {
   final String source;
   final String text;
   final List<String> keywordsBn;
+  final String textEn;
+  final List<String> keywordsEn;
 
   const Chunk({
     required this.id,
@@ -16,6 +18,8 @@ class Chunk {
     required this.source,
     required this.text,
     required this.keywordsBn,
+    this.textEn = '',
+    this.keywordsEn = const [],
   });
 
   factory Chunk.fromJson(Map<String, dynamic> j) => Chunk(
@@ -24,7 +28,21 @@ class Chunk {
         source: j['source'] as String,
         text: j['text'] as String,
         keywordsBn: (j['keywords_bn'] as List).cast<String>(),
+        textEn: j['text_en'] as String? ?? '',
+        keywordsEn: ((j['keywords_en'] as List?) ?? const [])
+            .cast<String>(),
       );
+
+  /// Returns the locale-appropriate display text for retrieval grounding
+  /// and Tier-3 answers.
+  String displayText(String localeCode) =>
+      localeCode.toLowerCase().startsWith('en') && textEn.isNotEmpty
+          ? textEn
+          : text;
+
+  /// Locale-appropriate keyword set for retrieval scoring.
+  List<String> getKeywords(String localeCode) =>
+      localeCode.toLowerCase().startsWith('en') ? keywordsEn : keywordsBn;
 }
 
 /// A retrieval result: a chunk plus its cosine similarity score.

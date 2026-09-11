@@ -7,6 +7,7 @@ import 'package:shongjog/features/settings/settings_screen.dart';
 import 'test_app.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() {
     SharedPreferences.setMockInitialValues({});
   });

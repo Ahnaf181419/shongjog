@@ -62,7 +62,7 @@ enum DangerType {
 class SafetyReport {
   final String id;
   final String userId;
-  final String userName;
+  final String? userName;
   final String userPhone;
 
   /// 'safe' or 'danger'.
@@ -85,7 +85,7 @@ class SafetyReport {
   const SafetyReport({
     required this.id,
     required this.userId,
-    required this.userName,
+    this.userName,
     required this.userPhone,
     required this.status,
     this.dangerType,
@@ -123,7 +123,7 @@ class SafetyReport {
   static SafetyReport fromJson(Map<String, dynamic> m) => SafetyReport(
         id: m['id'] as String? ?? '',
         userId: m['userId'] as String? ?? '',
-        userName: m['userName'] as String? ?? 'একজন ব্যবহারকারী',
+        userName: m['userName'] as String?,
         userPhone: m['userPhone'] as String? ?? '',
         status: m['status'] as String? ?? safeStatus,
         dangerType: m['dangerType'] != null

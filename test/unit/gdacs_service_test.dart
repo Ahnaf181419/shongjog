@@ -4,6 +4,7 @@ import 'package:shongjog/features/hazards/gdacs_service.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
 
   group('GdacsService', () {
     test('returns null when offline', () async {

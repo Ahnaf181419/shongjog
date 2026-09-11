@@ -206,7 +206,7 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
 
       // 4. Queue SMS to contacts (with GPS link).
       final sms = await _queueSms(
-          _dangerMessage(l10n, p.name, p.phone, dangerType, gps.lat, gps.lon));
+          _dangerMessage(p.name, p.phone, dangerType, gps.lat, gps.lon));
 
       if (mounted) {
         // Independent-review suggestion 3 (2026-09-09): mirror the
@@ -259,13 +259,13 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
     return 'আমি নিরাপদ আছি। আমি $name। ফোন: $phone।$loc';
   }
 
-  String _dangerMessage(AppLocalizations l10n,
+  String _dangerMessage(
       String name, String phone, DangerType type, double? lat, double? lon) {
     final loc = (lat != null && lon != null)
         ? ' অবস্থান: https://maps.google.com/?q=$lat,$lon'
         : '';
     return 'জরুরি! আমি বিপদে আছি। আমি $name। ফোন: $phone। '
-        'সমস্যা: ${type.label(l10n)}।$loc';
+        'সমস্যা: ${type.labelBn}।$loc';
   }
 
   // ── Build ────────────────────────────────────────────────────

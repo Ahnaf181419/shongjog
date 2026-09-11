@@ -150,3 +150,7 @@ Shongjog-*.apk
 # committed; see the exception below.
 /assets/embeddinggemma/*
 !/assets/embeddinggemma/.gitkeep
+
+# Internal advisor / skill audit plans — local-only design notes, not
+# repo source. Reviewer-facing design lives in docs/ instead.
+/advisor-plans/

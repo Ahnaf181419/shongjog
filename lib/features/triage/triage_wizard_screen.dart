@@ -99,7 +99,8 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
         title: Text(AppLocalizations.of(context).triageTitle),
         actions: [
           if (_state.answers.isNotEmpty) ...[
-            if (_state.elapsedBn().isNotEmpty)
+            if (_state.elapsedFor(AppLocalizations.of(context).localeName)
+                .isNotEmpty)
               Padding(
                 padding: const EdgeInsetsDirectional.only(end: 4),
                 child: Center(
@@ -114,7 +115,8 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
                             size: 14, color: cs.onSurfaceVariant),
                         const SizedBox(width: 4),
                         Text(
-                          _state.elapsedBn(),
+                          _state.elapsedFor(
+                              AppLocalizations.of(context).localeName),
                           style: TextStyle(
                             color: cs.onSurfaceVariant,
                             fontSize: 14,
@@ -516,8 +518,31 @@ class _InlineSteps extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
-    final card = _findCard(cardId, l10n);
-    final steps = card.steps(context).take(3).toList();
+    return FutureBuilder<List<QuickCardEntry>>(
+      future: loadQuickCards(l10n.localeName),
+      builder: (context, snap) {
+        final card = _InlineStepsLookup._findCard(cardId, snap.data, l10n);
+        final steps = card.steps.take(3).toList();
+        return _InlineStepsBody(steps: steps, card: card, l10n: l10n, cs: cs);
+      },
+    );
+  }
+}
+
+class _InlineStepsBody extends StatelessWidget {
+  final List<String> steps;
+  final QuickCardEntry card;
+  final AppLocalizations l10n;
+  final ColorScheme cs;
+  const _InlineStepsBody({
+    required this.steps,
+    required this.card,
+    required this.l10n,
+    required this.cs,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
@@ -553,7 +578,7 @@ class _InlineSteps extends StatelessWidget {
                   SizedBox(
                     width: 18,
                     child: Text(
-                      '${numberForLocale(entry.key + 1, AppLocalizations.of(context).localeName)}.',
+                      '${numberForLocale(entry.key + 1, l10n.localeName)}.',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -579,19 +604,22 @@ class _InlineSteps extends StatelessWidget {
       ),
     );
   }
+}
 
-  static QuickCard _findCard(String id, AppLocalizations l10n) {
-    for (final c in kQuickCards) {
-      if (c.id == id) return c;
+class _InlineStepsLookup {
+  static QuickCardEntry _findCard(
+      String id, List<QuickCardEntry>? cards, AppLocalizations l10n) {
+    if (cards != null) {
+      for (final c in cards) {
+        if (c.id == id) return c;
+      }
     }
-    return QuickCard(
+    return QuickCardEntry(
       id: '__missing__',
-      titleBn: l10n.triageCardNotFound,
-      titleEn: l10n.triageCardNotFound,
+      title: l10n.triageCardNotFound,
       icon: Icons.help_outline_rounded,
       color: Colors.grey,
-      stepsBn: const [],
-      stepsEn: const [],
+      steps: const [],
     );
   }
 }

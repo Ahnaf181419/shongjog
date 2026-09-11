@@ -1,0 +1,10 @@
+/* Localized InfoPlist strings for bn (Bangla) — Shongjog */
+/* Display name + permission prompts in Bangla for users with device locale bn. */
+
+"CFBundleDisplayName" = "সংযোগ";
+"NSMicrophoneUsageDescription" = "সংযোগ ভয়েস ইনপুট এবং মেশ কলের জন্য মাইক্রোফোন ব্যবহার করে।";
+"NSCameraUsageDescription" = "সংযোগ ক্ষয়-ক্ষতির ছবি বিশ্লেষণের জন্য ক্যামেরা ব্যবহার করে।";
+"NSLocationWhenInUseUsageDescription" = "সংযোগ কাছের আশ্রয়কেন্দ্র ও ঝুঁকি খুঁজতে আপনার অবস্থান ব্যবহার করে।";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "সংযোগ জরুরি SOS বার্তার সাথে আপনার অবস্থান পাঠাতে ব্যাকগ্রাউন্ডে অবস্থান ব্যবহার করে।";
+"NSPhotoLibraryUsageDescription" = "সংযোগ ক্ষয়-ক্ষতির ছবি সংযুক্ত করতে আপনার ফটো লাইব্রেরি ব্যবহার করে।";
+"NSSpeechRecognitionUsageDescription" = "সংযোগ আপনার কথা লিখিত আকারে রূপান্তর করে জরুরি সহায়তা খুঁজতে ব্যবহার করে।";

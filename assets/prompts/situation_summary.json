@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "bn": {
+    "systemRole": "তুমি সংযোগ। নিচের সাম্প্রতিক প্রতিবেদনগুলির ভিত্তিতে বর্তমান পরিস্থিতির একটি সংক্ষিপ্ত সারাংশ বাংলায় দাও।",
+    "bulletCommon": "• সবচেয়ে সাধারণ ঘটনা",
+    "bulletPriority": "• সর্বোচ্চ অগ্রাধিকার এলাকা",
+    "bulletAction": "• প্রস্তাবিত পদক্ষেপ",
+    "reportHeader": "প্রতিবেদন ({count} টি):",
+    "reportEntry": "• [{source}] {query}",
+    "summaryLabel": "সারাংশ:",
+    "fallbackEmpty": "এই মুহূর্তে কোনো সক্রিয় প্রতিবেদন নেই। পরিস্থিতি স্বাভাবিক।",
+    "fallbackTitle": "পরিস্থিতির সারাংশ:",
+    "fallbackTotal": "• মোট প্রতিবেদন: {count} টি",
+    "fallbackSos": "• SOS রিপোর্ট: {count} টি",
+    "fallbackChat": "• AI সহায়িকা প্রশ্ন: {count} টি",
+    "fallbackSosPriority": "সর্বোচ্চ অগ্রাধিকার: SOS রিপোর্টগুলি — ৯৯৯ এ যোগাযোগ করুন।",
+    "fallbackRoutine": "বর্তমান পরিস্থিতি সাধারণ। সাহায্যের জন্য AI সহায়িকা ব্যবহার করুন।"
+  },
+  "en": {
+    "systemRole": "You are Shongjog. Based on the recent reports below, give a short situation summary.",
+    "bulletCommon": "• Most common incidents",
+    "bulletPriority": "• Highest priority area",
+    "bulletAction": "• Suggested actions",
+    "reportHeader": "Reports ({count}):",
+    "reportEntry": "• [{source}] {query}",
+    "summaryLabel": "Summary:",
+    "fallbackEmpty": "No active reports at this moment. Situation is normal.",
+    "fallbackTitle": "Situation summary:",
+    "fallbackTotal": "• Total reports: {count}",
+    "fallbackSos": "• SOS reports: {count}",
+    "fallbackChat": "• AI assistant questions: {count}",
+    "fallbackSosPriority": "Highest priority: SOS reports — call 999.",
+    "fallbackRoutine": "Current situation is normal. Use the AI assistant for help."
+  }
+}

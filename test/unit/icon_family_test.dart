@@ -16,6 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 ///     — that is the Material 3 selected-state pattern, not drift;
 ///   * `Icons.foggy` has no `_rounded` variant in the Material set at all.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   const styleSuffixes = ['_rounded', '_outlined', '_sharp', '_two_tone'];
 
   /// Baseline icons with no rounded twin in the Material set. Adding to this

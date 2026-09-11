@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
+import '../../../core/bangla_numerals.dart';
 
 import '../../../app/theme.dart';
 import '../shelter_model.dart';
@@ -29,7 +30,7 @@ class ShelterRouteInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final bnName = selected.nameBn.isNotEmpty ? selected.nameBn : selected.name;
+    final bnName = selected.displayName(l10n.localeName);
     return Material(
       elevation: 8,
       borderRadius: BorderRadius.circular(ShongjogTheme.radius),
@@ -65,7 +66,7 @@ class ShelterRouteInfoCard extends StatelessWidget {
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.w600)),
                       if (selected.capacity != null)
-                        Text(l10n.shelterCapacityCount('${selected.capacity}'),
+                        Text(l10n.shelterCapacityCount(numberForLocale(selected.capacity!, l10n.localeName)),
                             style: const TextStyle(
                                 fontSize: 14,
                                 color: ShongjogTheme.inkSecondary)),
@@ -100,7 +101,9 @@ class ShelterRouteInfoCard extends StatelessWidget {
                         color: Theme.of(context).colorScheme.primary, size: 18),
                     const SizedBox(width: 8),
                     Text(
-                      '${(distanceKm?.toStringAsFixed(1) ?? '—')} ${l10n.shelterKm}',
+                      distanceKm == null
+                          ? '— ${l10n.shelterKm}'
+                          : '${digitsForLocale(distanceKm!.toStringAsFixed(1), l10n.localeName)} ${l10n.shelterKm}',
                       style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,

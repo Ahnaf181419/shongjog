@@ -3,6 +3,7 @@ import 'package:shongjog/features/shelter/nominatim_service.dart';
 import 'package:shongjog/features/shelter/overpass_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('NominatimService', () {
     test('returns null when offline', () async {
       final result = await NominatimService.search(

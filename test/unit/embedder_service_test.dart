@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/core/embedder_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('EmbedderService lifecycle', () {
     test('refreshStatus reports ready when hasActive is true', () async {
       final svc = EmbedderService(hasActive: () => true);

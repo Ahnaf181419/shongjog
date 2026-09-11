@@ -15,6 +15,7 @@ import 'package:shongjog/core/local_notification_service.dart';
 /// side, and the Dart unit tests use `debugSinkOverride` so they never touch
 /// the real channel. A filesystem check is the only cheap way to pin it.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   const resDir = 'android/app/src/main/res';
 
   /// Resolve an `@type/name` reference to the directories that would satisfy

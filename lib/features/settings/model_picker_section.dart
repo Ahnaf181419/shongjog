@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../core/api_key_store.dart';
+import '../../core/bangla_numerals.dart';
 import '../../core/embedder_service.dart';
 import '../../core/model_manager.dart';
 import '../../core/device_capability.dart';
@@ -127,7 +128,9 @@ class _ModelPickerSectionState extends State<ModelPickerSection> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Text(
-              l10n.modelStorageUsed(DeviceCapability.formatBytesBn(_totalStorage)),
+              l10n.modelStorageUsed(DeviceCapability.formatBytes(
+                  _totalStorage,
+                  localeCode: l10n.localeName)),
               style: TextStyle(
                 fontFamily: ShongjogTheme.fontFamily,
                 fontFamilyFallback: ShongjogTheme.fontFallback,
@@ -164,14 +167,12 @@ class _EmbedderStatusRowState extends State<_EmbedderStatusRow> {
   double? _progress;
 
   Future<void> _showInstallDialog() async {
-    final l10n = AppLocalizations.of(context);
     final existing = await _apiKeyStore.getHfToken();
     if (!mounted) return;
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => _EmbedderTokenDialog(
         existingToken: existing,
-        l10n: l10n,
       ),
     );
     if (!mounted) return;
@@ -304,8 +305,7 @@ class _EmbedderStatusRowState extends State<_EmbedderStatusRow> {
 /// in [ApiKeyStore] and used by [EmbedderService.install].
 class _EmbedderTokenDialog extends StatefulWidget {
   final String? existingToken;
-  final AppLocalizations l10n;
-  const _EmbedderTokenDialog({this.existingToken, required this.l10n});
+  const _EmbedderTokenDialog({this.existingToken});
 
   @override
   State<_EmbedderTokenDialog> createState() => _EmbedderTokenDialogState();
@@ -317,6 +317,7 @@ class _EmbedderTokenDialogState extends State<_EmbedderTokenDialog> {
   @override
   void initState() {
     super.initState();
+
     _ctrl = TextEditingController(text: widget.existingToken ?? '');
   }
 
@@ -328,7 +329,7 @@ class _EmbedderTokenDialogState extends State<_EmbedderTokenDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = widget.l10n;
+    final l10n = AppLocalizations.of(context);
     return AlertDialog(
       title: Text(l10n.embedderInstallTitle),
       content: Column(
@@ -513,7 +514,12 @@ class _ModelCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    Text('${((progress ?? 0) * 100).round()}%', style: const TextStyle(fontSize: 14)),
+                    Text(
+                      l10n.localeName == 'bn'
+                          ? '${toBanglaDigits(((progress ?? 0) * 100).round().toString())}%'
+                          : '${((progress ?? 0) * 100).round()}%',
+                      style: const TextStyle(fontSize: 14),
+                    ),
                   ],
                 ),
               ),
@@ -553,7 +559,8 @@ class _ModelCard extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: Text(
-                        DeviceCapability.formatBytesBn(storageUsage),
+                        DeviceCapability.formatBytes(storageUsage,
+                            localeCode: l10n.localeName),
                         style: TextStyle(
                           fontSize: 14,
                           color: cs.onSurfaceVariant,

@@ -24,16 +24,33 @@ class IntelligenceEngine extends ChangeNotifier {
       final topicFreqs = <String, int>{};
 
       for (final query in userQueries) {
-        if (query.contains('ঘূর্ণিঝড়') || query.contains('সাইক্লোন')) {
+        final ql = query.toLowerCase();
+        if (query.contains('ঘূর্ণিঝড়') ||
+            query.contains('সাইক্লোন') ||
+            ql.contains('cyclone') ||
+            ql.contains('storm')) {
           topicFreqs['cyclone'] = (topicFreqs['cyclone'] ?? 0) + 1;
         }
-        if (query.contains('আশ্রয়') || query.contains('শেল্টার')) {
+        if (query.contains('আশ্রয়') ||
+            query.contains('শেল্টার') ||
+            ql.contains('shelter') ||
+            ql.contains('evacuat')) {
           topicFreqs['shelter'] = (topicFreqs['shelter'] ?? 0) + 1;
         }
-        if (query.contains('বন্যা') || query.contains('পানি')) {
+        if (query.contains('বন্যা') ||
+            query.contains('পানি') ||
+            ql.contains('flood') ||
+            ql.contains('water')) {
           topicFreqs['flood'] = (topicFreqs['flood'] ?? 0) + 1;
         }
-        if (query.contains('ডায়রিয়া') || query.contains('সাপে') || query.contains('জ্বর')) {
+        if (query.contains('ডায়রিয়া') ||
+            query.contains('সাপে') ||
+            query.contains('জ্বর') ||
+            ql.contains('diarrh') ||
+            ql.contains('snake') ||
+            ql.contains('fever') ||
+            ql.contains('cholera') ||
+            ql.contains('ors')) {
           topicFreqs['medical'] = (topicFreqs['medical'] ?? 0) + 1;
         }
       }

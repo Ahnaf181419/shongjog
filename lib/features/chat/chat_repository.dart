@@ -8,23 +8,29 @@ import '../../rag/rumour_checker.dart';
 import '../../rag/types.dart';
 import '../../rag/urgency_classifier.dart';
 import '../cloud_ai/cloud_ai_service.dart';
+import '../rag/persona_loader.dart';
 import '../shelter/shelter_intent_detector.dart';
 import '../shelter/shelter_model.dart';
 import '../shelter/shelter_tool_dispatcher.dart';
 import '../shelter/shelter_tool_result_formatter.dart';
 import 'local_llm.dart';
 
-/// Orchestrates a single RAG query via 3-Tier intelligence:
-/// TIER 1: On-device Gemma 4 (E2B/E4B) — the primary model, always tried first
-/// TIER 2: Cloud AI (online fallback only)
-/// TIER 3: RAG corpus
+/// Orchestrates a single RAG query via a connectivity-gated tier chain:
 ///
-/// On-device Gemma runs **first, even when the device is online**. Cloud was
-/// tier 1 previously, which meant a connected phone never executed Gemma at
-/// all — the opposite of this app's premise (`docs/prd.md` §13: "Gemma 4 is
-/// the primary and only LLM powering the app's generative AI") and of the
-/// offline thesis the whole product rests on. Cloud is now strictly a safety
-/// net for when the on-device model is missing, still downloading, or fails.
+/// TIER 1: Cloud AI — tried when `cloudAi != null` AND the device is online.
+/// TIER 2: On-device Gemma 4 (E2B/E4B) — offline fallback; also tried when
+///         online but Cloud has no key / fails / times out.
+/// TIER 3: RAG corpus — always available.
+/// TIER 4: Canned "৯৯৯" message — absolute last resort.
+///
+/// Cloud is tried first on connected devices because it answers faster
+/// (~2.5s vs. ~5-10s cold-start for on-device Gemma, plus 30-90s per
+/// generation) and produces higher-quality, non-degenerate responses. The
+/// on-device model is still the offline thesis of the app — it is the
+/// safety net when the network is down, when no API key is configured, or
+/// when Cloud AI fails (quota spent, key blocked, request times out).
+///
+/// See `docs/prd.md` §13 for the corresponding policy statement.
 class ChatRepository {
   final KnowledgeBase kb;
 
@@ -66,7 +72,7 @@ class ChatRepository {
   /// to the UI. It gracefully falls back through the tiers.
   ///
   /// [history] is the prior conversation turns (oldest first).
-  Future<String> ask(
+  Future<String> ask(Locale? locale,
     String userQuery, {
     List<ChatTurn> history = const [],
     void Function(GenerationPath path)? onPath,
@@ -84,7 +90,7 @@ class ChatRepository {
         shelterProvider != null &&
         userLocationProvider != null) {
       try {
-        final shelterAnswer = await _tryShelterToolPath(userQuery);
+        final shelterAnswer = await _tryShelterToolPath(userQuery, locale: locale);
         if (shelterAnswer != null) {
           if (onPath != null) onPath(GenerationPath.device);
           return shelterAnswer;
@@ -94,15 +100,59 @@ class ChatRepository {
       }
     }
 
-    final hits = await _retrieve(userQuery);
+    final localeCode = locale?.languageCode ?? 'bn';
+    final hits = await _retrieve(userQuery, localeCode: localeCode);
 
-    // TIER 1: On-device Gemma 4 (E2B/E4B) — the primary model.
+    // Persona bundle — load once per `ask()`. Source of truth for the
+    // chat-tier chain's prompt text lives in assets/prompts/persona.json
+    // via lib/features/rag/persona_loader.dart.
+    final persona = await loadPersona(locale?.languageCode);
+
+    // TIER 1: Cloud AI — primary when `cloudAi` is configured and the device
+    // is online. We check `isOnline` here (not just key availability) so a
+    // phone in airplane mode skips Cloud entirely and goes straight to
+    // on-device Gemma — no wasted 10s timeout per model in the fallback chain.
+    if (cloudAi != null && await cloudAi!.isOnline) {
+      debugPrint('[ChatRepo/Tier1] cloud path entered for q="${userQuery.substring(0, userQuery.length.clamp(0, 40))}…"');
+      try {
+        final userMessage = buildUserMessage(
+          query: userQuery,
+          hits: hits,
+          persona: persona,
+          localeCode: localeCode,
+        );
+        final answer = await cloudAi!.generateWithHistory(
+          userMessage: userMessage,
+          history: history,
+          locale: locale?.languageCode,
+        );
+        debugPrint('[ChatRepo/Tier1] cloud path success len=${answer.length}');
+        if (onPath != null) onPath(GenerationPath.cloud);
+        return answer;
+      } catch (e, st) {
+        debugPrint('[ChatRepo/Tier1] cloud path FAILED: $e');
+        debugPrint('[ChatRepo/Tier1] stack: $st');
+        // Silent fallthrough to the on-device tier. Better UX than a hard
+        // error bubble — the user gets *something* useful and can retry or
+        // call 999.
+      }
+    }
+
+    // TIER 2: On-device Gemma 4 (E2B/E4B) — offline fallback. Reached when
+    // Cloud has no key, the device is offline, or Cloud failed above.
     // Route rumour-check queries through a dedicated prompt that asks
     // the model to verify the claim against the corpus.
-    final isRumour = isRumourQuery(userQuery);
+    final isRumour = await isRumourQuery(userQuery, locale: locale?.languageCode);
     final prompt = isRumour
-        ? buildRumourCheckPrompt(query: userQuery, hits: hits, history: history)
-        : buildPrompt(query: userQuery, hits: hits, history: history);
+        ? buildRumourCheckPrompt(
+            query: userQuery, hits: hits, history: history, locale: localeCode)
+        : buildPrompt(
+            query: userQuery,
+            hits: hits,
+            history: history,
+            persona: persona,
+            localeCode: localeCode,
+          );
 
     // Adaptive thinking mode — classify urgency before generation.
     // Critical emergencies get thinking OFF (reflex, max speed); complex
@@ -114,10 +164,10 @@ class ChatRepository {
       // Tagged logging for runtime triage — `debugPrint` is filtered out
       // in release by default; consumers can enable `-v` or wire
       // `debugPrint` into a file logger to read these on a phone.
-      debugPrint('[ChatRepo/Tier1] entered for q="${userQuery.substring(0, userQuery.length.clamp(0, 40))}…" isReady=${model!.isReady}');
+      debugPrint('[ChatRepo/Tier2] entered for q="${userQuery.substring(0, userQuery.length.clamp(0, 40))}…" isReady=${model!.isReady}');
       try {
         final shouldTryDevice = model!.isReady || await model!.isAnyOnDisk();
-        debugPrint('[ChatRepo/Tier1] shouldTryDevice=$shouldTryDevice');
+        debugPrint('[ChatRepo/Tier2] shouldTryDevice=$shouldTryDevice');
         if (shouldTryDevice) {
           final rawAnswer = await model!.generate(prompt);
           // Post-process: the SDK has no stopStrings API on the
@@ -133,61 +183,45 @@ class ChatRepository {
           // answer is strictly better than empty.
           if (answer.trim().isEmpty) {
             debugPrint(
-                '[ChatRepo/Tier1] device path produced no usable text '
+                '[ChatRepo/Tier2] device path produced no usable text '
                 '(raw ${rawAnswer.length} chars, all control tokens) '
                 '— falling through to corpus');
           } else {
-            debugPrint('[ChatRepo/Tier1] device path success len=${answer.length} (raw ${rawAnswer.length})');
+            debugPrint('[ChatRepo/Tier2] device path success len=${answer.length} (raw ${rawAnswer.length})');
             if (onPath != null) onPath(GenerationPath.device);
             return answer;
           }
         }
       } catch (e, st) {
-        debugPrint('[ChatRepo/Tier1] device path FAILED: $e');
-        debugPrint('[ChatRepo/Tier1] stack: $st');
-        // Fall through to the cloud tier, then the corpus. Silently
-        // degrading is better UX than a hard error bubble — the user gets
-        // *something* useful and can retry or call 999.
-      }
-    }
-
-    // TIER 2: Cloud AI — fallback only, reached when the on-device model is
-    // absent, still downloading, or produced nothing usable.
-    if (cloudAi != null) {
-      final isOnline = await cloudAi!.isOnline;
-      if (isOnline) {
-        try {
-          final userMessage = buildUserMessage(query: userQuery, hits: hits);
-          final answer = await cloudAi!.generateWithHistory(
-            userMessage: userMessage,
-            history: history,
-          );
-          if (onPath != null) onPath(GenerationPath.cloud);
-          return answer;
-        } catch (e) {
-          debugPrint('Tier 2 Cloud AI failed entirely: $e');
-          // Silent fallthrough to the corpus.
-        }
+        debugPrint('[ChatRepo/Tier2] device path FAILED: $e');
+        debugPrint('[ChatRepo/Tier2] stack: $st');
+        // Fall through to the corpus tier. Silently degrading is better
+        // UX than a hard error bubble — the user gets *something* useful
+        // and can retry or call 999.
       }
     }
 
     // TIER 3: RAG corpus (always available)
     if (hits.isNotEmpty) {
       if (onPath != null) onPath(GenerationPath.corpus);
-      return hits.first.chunk.text;
+      return hits.first.chunk.displayText(localeCode);
     }
 
-    // Absolute fallback
+    // Absolute fallback — localized via ARB.
     if (onPath != null) onPath(GenerationPath.canned);
-    return 'আমার কাছে এই প্রশ্নের উত্তর নেই। ৯৯৯ এ কল করুন।';
+    final code = locale?.languageCode ?? 'bn';
+    final l10n = await AppLocalizations.delegate.load(Locale(code));
+    return l10n.chatNoAnswer;
   }
 
   /// Retrieve relevant chunks: semantic-first when an embedder is wired,
   /// keyword fallback otherwise (and on any embedding failure — a broken
   /// embedder must never take the corpus path down with it).
-  Future<List<RetrievalHit>> _retrieve(String query) async {
+  Future<List<RetrievalHit>> _retrieve(String query, {String localeCode = 'bn'}) async {
     final semantic = embedding;
-    if (semantic != null) {
+    // The on-device embedding index is bn-only; only the keyword retriever
+    // is locale-aware today. Skip the embedding path in en mode.
+    if (semantic != null && localeCode != 'en') {
       try {
         if (await semantic.ensureIndex()) {
           final hits = await semantic.topK(query, k: 3);
@@ -198,7 +232,8 @@ class ChatRepository {
             '[ChatRepo/Embedding] semantic retrieval failed, falling back to keywords: $e');
       }
     }
-    final keywordHits = kb.keywordRetriever.topK(query, k: 5);
+    final keywordHits =
+        kb.keywordRetriever.topK(query, k: 5, localeCode: localeCode);
     return keywordHits.take(3).toList();
   }
 
@@ -225,7 +260,7 @@ class ChatRepository {
   /// query directly, in microseconds, and cannot fail to produce an answer.
   /// The tool schema stays exported for the model-facing paths that still
   /// use it and for the dispatcher's envelope tests.
-  Future<String?> _tryShelterToolPath(String userQuery) async {
+  Future<String?> _tryShelterToolPath(String userQuery, {Locale? locale}) async {
     final pos = await userLocationProvider!();
     if (pos == null) return null;
     final shelters = shelterProvider!();
@@ -239,7 +274,10 @@ class ChatRepository {
       shelters: shelters,
     );
     if (ranked.isEmpty) return null;
-    return ShelterToolResultFormatter.toBanglaMessage(ranked);
+    return ShelterToolResultFormatter.toMessage(
+      ranked,
+      localeCode: locale?.languageCode ?? 'bn',
+    );
   }
 
   /// Clean the raw model output of internal-control tokens that should

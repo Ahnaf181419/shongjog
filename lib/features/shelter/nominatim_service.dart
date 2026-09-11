@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import '../../core/locale_controller.dart';
 
 /// Nominatim geocoding client (free, key-less, OSM).
 ///
@@ -20,12 +21,14 @@ class NominatimService {
     bool isOnline = true,
   }) async {
     if (!isOnline || query.trim().isEmpty) return null;
+    final localeCode = localeController.languageCode;
+    final acceptLang = localeCode == 'en' ? 'en' : 'bn,en';
     final uri = Uri.parse(
       'https://nominatim.openstreetmap.org/search'
       '?q=${Uri.encodeQueryComponent(query)}'
       '&format=json'
       '&limit=$limit'
-      '&accept-language=bn,en',
+      '&accept-language=$acceptLang',
     );
     try {
       final res = await http.get(

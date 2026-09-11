@@ -7,6 +7,7 @@ import 'package:shongjog/features/shelter/shelter_map_screen.dart';
 import 'package:shongjog/features/tools/tools_screen.dart';
 import 'package:shongjog/features/weather/weather_card.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
+import 'package:shongjog/features/quick_cards/cards_data.dart';
 
 /// Widget tests for the floating-nav pill tap pipeline.
 ///
@@ -20,6 +21,14 @@ import 'package:shongjog/l10n/app_localizations.dart';
 /// service + call service use lazy `StreamController.broadcast()` so
 /// their `initState` subscriptions never error in unit tests.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    final cards = await loadQuickCards('bn');
+    debugSetCardsForTest(cards);
+  });
+
+  TestWidgetsFlutterBinding.ensureInitialized();
   Widget wrapShell() {
     return MaterialApp(
       locale: const Locale('bn'),

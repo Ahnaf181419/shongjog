@@ -26,6 +26,7 @@ Widget _splash({VoidCallback? onComplete, bool reducedMotion = false}) {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('SplashScreen composition', () {
     testWidgets('shows the wordmark and tagline from the ARB, not literals',
         (tester) async {

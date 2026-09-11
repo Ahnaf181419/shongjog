@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
+import '../../core/bangla_numerals.dart';
 
 import '../../app/theme.dart';
 import '../../core/model_manager.dart';
@@ -558,9 +559,10 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                 ),
               const SizedBox(height: 16),
               if (km != null)
-                _row(l10n.shelterDistLabel, '${km.toStringAsFixed(1)} ${l10n.shelterKm}'),
+                _row(l10n.shelterDistLabel, '${digitsForLocale(km.toStringAsFixed(1), l10n.localeName)} ${l10n.shelterKm}'),
               if (s.capacity != null)
-                _row(l10n.shelterCapacityLabel, '${s.capacity} ${l10n.shelterPeopleUnit}'),
+                _row(l10n.shelterCapacityLabel,
+                    '${numberForLocale(s.capacity!, l10n.localeName)} ${l10n.shelterPeopleUnit}'),
               _row(l10n.shelterSource, s.source),
               _row('GPS',
                   '${s.lat.toStringAsFixed(4)}, ${s.lon.toStringAsFixed(4)}'),

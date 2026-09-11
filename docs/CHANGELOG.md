@@ -9,7 +9,34 @@ work completed during a build phase or significant milestone.
 
 ---
 
-## [Unreleased] — Docs, license & submission assets
+## [Unreleased] - 2026-09-09
+
+### Changed
+- **i18n foundation:** Every user-facing string now lives in one of three sources of truth:
+  `lib/l10n/app_*.arb`, `assets/data/*.json`, or `assets/prompts/*.json`.
+  Quick cards, districts, emergency directory, RAG corpus, planner/kit/risk/rumour/
+  situation-summary/shelter/damage-scan prompts all extracted to bilingual JSON.
+  `lib/rag/urgency_classifier.dart` `labelBn` field removed; surfaces via `AppLocalizations`.
+  `ChatRepository` `ask(Locale?, …)`; `PersonaBundle` drives the system prompt.
+
+### Added
+- `lib/core/text_loader.dart` shared async JSON loader with parsed-result cache
+  keyed by `(path, locale)` so bn and en blocks coexist.
+- `assets/prompts/{persona,planner,kit,risk,rumour,situation_summary,shelter,damage_scan}.json`.
+- `assets/data/{cards,districts,emergency_directory,corpus}.json`.
+- `test/lint/no_scattered_bangla_test.dart` enforcing bn/en parity + ARB key parity
+  + legacy Bangla-literal file budget ≤ 60.
+
+### Removed
+- `assets/emergency/directory.json` (relocated to `assets/data/emergency_directory.json`).
+- `assets/kb/corpus.json` (relocated to `assets/data/corpus.json`).
+- `lib/features/planner/{planner,kit,risk}_prompt_builder.dart` inline Bangla strings
+  (now sourced from JSON loaders).
+- `lib/features/intelligence/situation_summary_service.dart` inline Bangla strings.
+- `lib/features/emergency/directory_loader.dart` old asset path.
+- `lib/features/quick_cards/cards_data.dart` giant constant (replaced by JSON loader).
+
+## [Unreleased - prior] — Docs, license & submission assets
 
 ### Added
 
@@ -29,6 +56,14 @@ work completed during a build phase or significant milestone.
 
 ### Changed
 
+- **Chat tier order flipped: Cloud AI is now tried first when online.** `ChatRepository`
+  chain is now `Cloud AI → On-device Gemma 4 → RAG corpus → canned "৯৯৯"`, gated on
+  `connectivityProvider.isOnline`. Cloud AI (Gemini 3.1 Flash Lite) answers in ~2.5s vs.
+  ~5-10s cold-start plus 30-90s per generation for on-device Gemma. The on-device model
+  is now the offline primary — reached when the network is down, when no API key is
+  configured, or when Cloud AI fails (quota spent, key blocked, request times out).
+  `docs/prd.md` §13 updated to match. The previous Tier-1-on-device ordering remains
+  the documented behavior for v0.8.0.
 - **Bangla spelling corrected** to `সংযোগ` across active docs (`CONTRIBUTING.md`, `design.md`, `kaggle-writeup.md`).
 - **`CONTRIBUTING.md`** — test count (878), bilingual red-line, Firestore key-delivery pointer, corrected file paths.
 - **`docs/README.md`** — rebuilt index to reflect current flat `docs/` structure.

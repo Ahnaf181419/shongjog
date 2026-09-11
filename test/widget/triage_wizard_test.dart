@@ -4,6 +4,7 @@ import 'package:shongjog/app/router.dart';
 import 'package:shongjog/features/emergency/sos_composer_screen.dart';
 import 'package:shongjog/features/quick_cards/quick_card_detail_screen.dart';
 import 'package:shongjog/features/triage/triage_tts.dart';
+import 'package:shongjog/features/quick_cards/cards_data.dart';
 import 'package:shongjog/features/triage/triage_wizard_screen.dart';
 
 import 'fake_triage_tts.dart';
@@ -11,6 +12,14 @@ import 'fake_url_launcher.dart';
 import 'test_app.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    final cards = await loadQuickCards('bn');
+    debugSetCardsForTest(cards);
+  });
+
+  TestWidgetsFlutterBinding.ensureInitialized();
   testWidgets('renders the first question and big yes/no buttons',
       (tester) async {
     await tester.pumpWidget(

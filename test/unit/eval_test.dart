@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// Reads from the filesystem (not rootBundle) because eval/ is not a
 /// Flutter asset — it's a dev/CI tool.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   // Walk up from test/unit/ to find eval/test_set.json.
   final testSetPath = '${Directory.current.path}/eval/test_set.json';
 

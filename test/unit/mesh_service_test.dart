@@ -7,6 +7,7 @@ import 'package:shongjog/features/mesh_comm/mesh_models.dart';
 import 'package:shongjog/features/mesh_comm/mesh_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('MeshMessage', () {
     test('stores senderId and text', () {
       final msg = MeshMessage(

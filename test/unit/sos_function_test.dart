@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/emergency/sos_function_schema.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('sosReportTool Tool', () {
     test('name is submit_sos_report', () {
       expect(sosReportTool.name, 'submit_sos_report');

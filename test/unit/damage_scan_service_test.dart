@@ -1,9 +1,19 @@
 import 'dart:convert';
+import 'package:flutter/widgets.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/damage_scanner/damage_scan_service.dart';
+import 'package:shongjog/features/damage_scanner/damage_scan_strings_loader.dart';
+import 'package:shongjog/l10n/app_localizations.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  late DamageScanStrings bnStrings;
+  setUpAll(() async {
+    bnStrings = await loadDamageScanStrings('bn');
+  });
+
   group('DamageScanResult.fromJson', () {
     test('parses a complete JSON envelope', () {
       final json = jsonEncode({
@@ -54,10 +64,18 @@ void main() {
     });
   });
 
-  group('DamageType.labelBn + severityColor', () {
-    test('every damage type has a Bangla label', () {
+  group('DamageType.label + severityColor', () {
+    test('every damage type has a localized label (bn)', () async {
+      final l10n = await AppLocalizations.delegate.load(const Locale('bn'));
       for (final t in DamageType.values) {
-        expect(t.labelBn, isNotEmpty);
+        expect(t.label(l10n), isNotEmpty);
+      }
+    });
+
+    test('every damage type has a localized label (en)', () async {
+      final l10n = await AppLocalizations.delegate.load(const Locale('en'));
+      for (final t in DamageType.values) {
+        expect(t.label(l10n), isNotEmpty);
       }
     });
 
@@ -69,7 +87,7 @@ void main() {
 
   group('DamageScanService.buildPrompt', () {
     test('contains structured-JSON instruction', () {
-      final prompt = DamageScanService.buildPrompt();
+      final prompt = DamageScanService.buildPrompt(s: bnStrings);
       expect(prompt, contains('JSON'));
       expect(prompt, contains('damageType'));
       expect(prompt, contains('severity'));
@@ -78,7 +96,7 @@ void main() {
   });
 
   group('DamageScanResult.toBanglaFallback', () {
-    test('falls back to Bangla when service throws', () {
+    test('falls back to Bangla when service throws', () async {
       const result = DamageScanResult(
         damageType: DamageType.collapsedBuilding,
         severity: Severity.high,
@@ -86,8 +104,9 @@ void main() {
         recommendation: 'Evacuate area.',
         description: 'Structural damage visible.',
       );
-      expect(result.toBanglaType, 'ধসে পড়া ভবন');
-      expect(result.toBanglaSeverity, 'উচ্চ');
+      final l10n = await AppLocalizations.delegate.load(const Locale('bn'));
+      expect(result.damageType.label(l10n), 'ধসে পড়া ভবন');
+      expect(result.severity.label(l10n), 'উচ্চ');
     });
   });
 }

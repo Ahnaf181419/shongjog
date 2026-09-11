@@ -8,6 +8,7 @@ import 'package:shongjog/features/damage_scanner/damage_scan_service.dart';
 /// These pin the two knobs that decide how long a scan takes, both of which
 /// were missing and neither of which is visible at the call site.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   final bytes = Uint8List.fromList(List<int>.filled(64, 7));
 
   test('thinking is suppressed', () {

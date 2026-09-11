@@ -16,6 +16,7 @@ import 'package:shongjog/core/model_manager.dart';
 ///    only exposes temperature/topK/topP/loraPath/enableThinking/...).
 ///    Compensating with tighter sampling + smaller cap is the only knob.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   _samplerContracts();
   group('Gen config (size cap, topP, temperature)', () {
     test('max output tokens is at most 256 (not the legacy 512)', () {

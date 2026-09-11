@@ -6,6 +6,7 @@ import 'package:shongjog/features/shelter/shelter_model.dart';
 import 'package:shongjog/features/shelter/shelter_repository.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('ShelterRepository.parseGeoJson', () {
     test('parses a canonical GeoJSON FeatureCollection', () {
       // Mimics the real assets/shelter/cyclone_shelters.geojson layout:

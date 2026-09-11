@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Shongjog — Project Exhibition</title>
+<style>
+/* ─────────────────────────────────────────────────────────────
+   Shongjog — exhibition deck
+   Palette, type and shape are lifted from the product's own
+   design system (lib/app/theme.dart, docs/design.md §5), so the
+   deck reads as the same artefact as the app on the phone.
+   ───────────────────────────────────────────────────────────── */
+
+@font-face {
+  font-family: 'Manrope';
+  src: url('../../assets/fonts/Manrope.ttf') format('truetype');
+  font-weight: 200 800;
+}
+@font-face {
+  font-family: 'AnekBangla';
+  src: url('../../assets/fonts/AnekBangla.ttf') format('truetype');
+  font-weight: 300 800;
+}
+
+:root {
+  --slate:    #0F172A;  /* dark ground — the app's dark scaffold */
+  --slate-2:  #172033;
+  --ocean:    #0369A1;  /* primary, sky-700 */
+  --sky:      #38BDF8;  /* accent, sky-400 — the splash mark */
+  --paper:    #F8FAFC;  /* light ground, slate-50 */
+  --white:    #FFFFFF;
+  --hairline: #E2E8F0;
+  --ink:      #0F172A;
+  --ink-2:    #475569;
+  --ink-3:    #94A3B8;
+  --alert:    #DC2626;
+  --success:  #16A34A;
+  --amber:    #B45309;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+@page { size: 1600px 900px; margin: 0; }
+
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+body {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-variant-ligatures: none;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+/* Bangla always routes to AnekBangla; Latin inside a Bangla run
+   falls back to Manrope, exactly as the app's fontFamilyFallback
+   chain does on the phone. */
+.bn { font-family: 'AnekBangla', 'Manrope', sans-serif; }
+
+.s {
+  position: relative;
+  width: 1600px;
+  height: 900px;
+  overflow: hidden;
+  page-break-after: always;
+  background: var(--paper);
+  padding: 54px 88px 72px;
+}
+.s:last-child { page-break-after: auto; }
+
+.s.dark { background: var(--slate); color: var(--paper); }
+.s.dark .lead  { color: #CBD5E1; }
+.s.dark .cap   { color: #64748B; }
+.s.dark .rule  { background: #334155; }
+.s.dark .card  { background: var(--slate-2); border-color: #334155; }
+.s.dark h1     { color: var(--white); }
+
+/* ── slide chrome ───────────────────────────────────────────── */
+.chrome {
+  position: absolute; top: 32px; left: 88px; right: 88px;
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 14px; letter-spacing: .01em; color: var(--ink-3);
+}
+.s.dark .chrome { color: #475569; }
+.chrome b { font-weight: 700; color: var(--ocean); }
+.s.dark .chrome b { color: var(--sky); }
+
+.foot {
+  position: absolute; left: 88px; right: 88px; bottom: 30px;
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 13px; color: var(--ink-3);
+  border-top: 1px solid var(--hairline); padding-top: 14px;
+}
+.s.dark .foot { color: #475569; border-color: #1E293B; }
+
+/* ── the horizon: the deck's one repeated device ─────────────
+   A 1px sky rule. Wherever it appears it means the same thing —
+   the line where the network stops. Content above it depends on
+   connectivity; content below it does not. ─────────────────── */
+.horizon {
+  position: absolute; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%, var(--sky) 12%, var(--sky) 88%, transparent 100%);
+  opacity: .55;
+}
+
+/* ── type scale ─────────────────────────────────────────────── */
+h1 {
+  font-size: 47px; line-height: 1.07; letter-spacing: -.022em;
+  font-weight: 800; max-width: 20ch;
+}
+h1.wide { max-width: 30ch; }
+h2 {
+  font-size: 21px; font-weight: 700; letter-spacing: -.01em;
+  margin-bottom: 8px;
+}
+.lead {
+  font-size: 24px; line-height: 1.42; color: var(--ink-2);
+  max-width: 62ch; font-weight: 400;
+}
+p, li { font-size: 17.5px; line-height: 1.48; color: var(--ink-2); }
+.s.dark p, .s.dark li { color: #CBD5E1; }
+.cap { font-size: 14px; line-height: 1.45; color: var(--ink-3); }
+strong { font-weight: 700; color: var(--ink); }
+.s.dark strong { color: var(--white); }
+
+.mt8  { margin-top: 8px; }  .mt16 { margin-top: 16px; }
+.mt24 { margin-top: 24px; } .mt32 { margin-top: 32px; }
+.mt40 { margin-top: 36px; } .mt56 { margin-top: 44px; }
+
+/* ── surfaces: hairline cards, no shadows — the app's own
+      cardDecoration, not a generic card kit ─────────────────── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  padding: 20px 24px;
+}
+.card.sm { border-radius: 12px; padding: 18px 20px; }
+
+.grid { display: grid; gap: 16px; }
+.g2 { grid-template-columns: 1fr 1fr; }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+.g4 { grid-template-columns: repeat(4, 1fr); }
+.g5 { grid-template-columns: repeat(5, 1fr); }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+.split-w { display: grid; grid-template-columns: 1.25fr 1fr; gap: 56px; align-items: start; }
+
+/* ── data ───────────────────────────────────────────────────── */
+.num {
+  font-size: 46px; font-weight: 800; letter-spacing: -.03em;
+  color: var(--ocean); line-height: 1;
+}
+.s.dark .num { color: var(--sky); }
+.num.sm { font-size: 34px; }
+.num-label { font-size: 14px; color: var(--ink-3); margin-top: 8px; line-height: 1.3; }
+
+table { border-collapse: collapse; width: 100%; }
+th {
+  text-align: left; font-size: 13px; font-weight: 700; color: var(--ink-3);
+  padding: 0 14px 10px 0; border-bottom: 1px solid var(--hairline);
+}
+td {
+  font-size: 16.5px; color: var(--ink-2); padding: 11px 14px 11px 0;
+  border-bottom: 1px solid var(--hairline); vertical-align: top;
+}
+td.k { color: var(--ink); font-weight: 600; white-space: nowrap; }
+.s.dark th { color: #64748B; border-color: #1E293B; }
+.s.dark td { color: #CBD5E1; border-color: #1E293B; }
+.s.dark td.k { color: var(--white); }
+
+/* ── small semantic marks ───────────────────────────────────── */
+.pill {
+  display: inline-block; font-size: 13px; font-weight: 700;
+  padding: 4px 11px; border-radius: 12px;
+  background: rgba(3,105,161,.09); color: var(--ocean);
+}
+.pill.off { background: rgba(22,163,74,.12); color: #166534; }
+.pill.on  { background: rgba(180,83,9,.12);  color: #92400E; }
+.pill.red { background: rgba(220,38,38,.10); color: #991B1B; }
+.s.dark .pill { background: rgba(56,189,248,.14); color: var(--sky); }
+
+.badge {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: rgba(3,105,161,.09);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 19px; font-weight: 800; color: var(--ocean);
+}
+.s.dark .badge { background: rgba(56,189,248,.14); color: var(--sky); }
+
+ul { list-style: none; }
+ul.dash li { position: relative; padding-left: 20px; margin-bottom: 9px; }
+ul.dash li::before {
+  content: ''; position: absolute; left: 0; top: 12px;
+  width: 9px; height: 1.5px; background: var(--ink-3);
+}
+ul.tight li { margin-bottom: 6px; }
+
+/* ── phone frames ───────────────────────────────────────────── */
+.phone {
+  border: 7px solid var(--slate); border-radius: 26px;
+  overflow: hidden; background: var(--slate); line-height: 0;
+}
+.s.dark .phone { border-color: #334155; }
+.phone img { width: 100%; display: block; }
+/* A 720×1600 handset screenshot is 2.2× as tall as it is wide, so four of
+   them side by side push everything else off a 16:9 slide. Cropping to the
+   top of the screen keeps the part that identifies the feature. */
+.phone.crop img { height: 264px; object-fit: cover; object-position: top center; }
+
+/* ── cover ──────────────────────────────────────────────────── */
+.cover { display: flex; flex-direction: column; justify-content: center; height: 100%; }
+.wordmark { font-size: 96px; font-weight: 700; line-height: 1; color: var(--white); }
+.latinmark {
+  font-size: 26px; font-weight: 300; letter-spacing: .34em;
+  color: var(--sky); margin-top: 20px;
+}
+
+/* ── cascade (a real sequence, so it is numbered) ───────────── */
+.tier { display: grid; grid-template-columns: 52px 1fr; gap: 18px; align-items: start; }
+.tier + .tier { margin-top: 14px; }
+.tier-n {
+  width: 52px; height: 52px; border-radius: 14px;
+  background: var(--slate); color: var(--sky);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 800;
+}
+.tier-n.tool { background: var(--ocean); color: var(--white); }
+.tier-n.last { background: var(--alert); color: var(--white); }
+
+/* ── architecture columns ───────────────────────────────────── */
+.layer {
+  border: 1px solid var(--hairline); border-radius: 12px;
+  padding: 16px 18px; background: var(--white);
+}
+.layer.pure { border-color: var(--ocean); border-width: 1.5px; background: rgba(3,105,161,.045); }
+.layer h3 { font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+.layer p  { font-size: 14px; line-height: 1.45; }
+</style>
+</head>
+<body>
+
+<!-- ══ 1 · COVER ══════════════════════════════════════════════ -->
+<section class="s dark">
+  <div class="horizon" style="top:342px;"></div>
+  <div class="cover" style="align-items:center; text-align:center;">
+    <img src="mark-sky.png" alt="" style="width:190px; height:190px; position:relative; z-index:2;">
+    <div class="wordmark bn" style="margin-top:22px;">সংযোগ</div>
+    <div class="latinmark">SHONGJOG</div>
+    <div style="font-size:31px; font-weight:300; color:#E2E8F0; margin-top:44px; letter-spacing:-.01em;">
+      It works when the internet doesn't.
+    </div>
+    <div class="cap" style="margin-top:18px; max-width:70ch; font-size:17px; line-height:1.5; color:#64748B;">
+      An offline-first, Bangla, voice-first emergency companion for Bangladesh.<br>
+      Gemma 4 runs entirely on the phone, over a corpus verified against named health authorities.
+    </div>
+  </div>
+  <div class="foot" style="justify-content:center; gap:10px;">
+    <span>AUST CSE Carnival 8.0 · Project Exhibition</span>
+  </div>
+</section>
+
+<!-- ══ 2 · THE PROBLEM ════════════════════════════════════════ -->
+<section class="s">
+  <div class="chrome"><span>The problem</span><span><b>02</b></span></div>
+  <h1 class="wide mt40">The tools that answer emergency questions all stop working<br>at the moment the emergency starts.</h1>
+  <div class="lead mt24">
+    Every year floods and cyclones displace millions of people across Bangladesh. Cellular data,
+    broadband and grid power are the first things to go — for hours, sometimes days.
+  </div>
+
+  <!-- The horizon sits between the two states, so the device means here what
+       it means everywhere else in the deck: above the line the network is up,
+       below it the network is gone. -->
+  <div class="mt32">
+    <span class="pill on">While the network holds</span>
+    <div class="grid g3 mt16" style="gap:40px;">
+      <p>Chatbots, translation apps and web helplines answer.</p>
+      <p>Hotlines connect and alerts arrive by SMS.</p>
+      <p>Someone with a signal can look things up for you.</p>
+    </div>
+  </div>
+
+  <div style="position:relative; height:2px; margin:26px -88px;">
+    <div class="horizon" style="top:0; opacity:1; height:2px;"></div>
+  </div>
+
+  <div>
+    <span class="pill red">After it fails</span>
+    <div class="grid g3 mt16" style="gap:40px;">
+      <p>Every cloud assistant goes dark at the same moment.</p>
+      <p>A leaflet or a broadcast SMS cannot answer <em>your</em> situation.</p>
+      <p>The window before responders arrive is exactly when first-aid and
+        safe-water decisions save lives.</p>
+    </div>
+  </div>
+
+  <div class="card mt32" style="border-left:3px solid var(--alert);">
+    <h2>And the people most exposed are the least served</h2>
+    <p>Official guidance is English or dense Bangla text — unreadable at speed by rural, elderly
+      and low-literacy users under stress. Meanwhile dangerous folk myths persist and actively
+      harm: cut a snakebite, drink untreated flood water, stop drinking when you have cholera.</p>
+  </div>
+
+  <div class="foot"><span>Shongjog · <span class="bn">সংযোগ</span></span><span>AUST CSE Carnival 8.0</span></div>
+</section>
+
+<!-- ══ 3 · WHY EXISTING SOLUTIONS FALL SHORT ═════════════════ -->
+<section class="s">
+  <div class="chrome"><span>Why existing tools fall short</span><span><b>03</b></span></div>
+  <h1 class="mt40">Three failures, and the one design decision each of them forces.</h1>
+
+  <div class="grid g3 mt56" style="gap:24px;">
+    <div class="card">
+      <div class="badge">1</div>
+      <h2 class="mt16">They assume a live connection</h2>
+      <p>Chatbots, translation apps and helplines are all network-bound. They fail together,
+         at the worst moment, for the same reason.</p>
+      <div class="mt24" style="border-top:1px solid var(--hairline); padding-top:16px;">
+        <div class="cap">So Shongjog</div>
+        <p style="color:var(--ink); font-weight:600; margin-top:4px;">runs the model on the phone.
+          Airplane mode is the design target, not a degraded mode.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="badge">2</div>
+      <h2 class="mt16">Static guidance can't answer a person</h2>
+      <p>A leaflet or a broadcast SMS says the same thing to everyone. It cannot take
+         "my child has diarrhoea and the water is dirty" and return the next step.</p>
+      <div class="mt24" style="border-top:1px solid var(--hairline); padding-top:16px;">
+        <div class="cap">So Shongjog</div>
+        <p style="color:var(--ink); font-weight:600; margin-top:4px;">answers the specific question,
+          by voice, in Bangla — and reads the answer back aloud.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="badge">3</div>
+      <h2 class="mt16">A general LLM will invent medicine</h2>
+      <p>An ungrounded model hallucinates dosages and diagnoses. In first aid that is not a
+         quality problem, it is a safety problem.</p>
+      <div class="mt24" style="border-top:1px solid var(--hairline); padding-top:16px;">
+        <div class="cap">So Shongjog</div>
+        <p style="color:var(--ink); font-weight:600; margin-top:4px;">answers only from a verified
+          corpus, and never diagnoses or prescribes.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Shongjog · <span class="bn">সংযোগ</span></span><span>AUST CSE Carnival 8.0</span></div>
+</section>
+
+<!-- ══ 4 · WHAT IT IS ═════════════════════════════════════════ -->
+<section class="s dark">
+  <div class="chrome"><span>What we built</span><span><b>04</b></span></div>
+  <h1 class="wide mt40">A Flutter app for Android with a 2.47 GB language model living inside it.</h1>
+  <div class="lead mt24" style="color:#CBD5E1;">
+    You ask an emergency question in Bangla — by voice or text. The phone understands it,
+    retrieves verified guidance from a corpus stored on the device, generates a grounded
+    step-by-step answer with Gemma 4, and reads it back aloud. No server is involved at any point.
+  </div>
+
+  <div class="grid g4 mt56" style="gap:20px;">
+    <div class="card sm">
+      <div class="num">48</div>
+      <div class="num-label">verified Bangla corpus chunks<br>across 22 topics</div>
+    </div>
+    <div class="card sm">
+      <div class="num">263</div>
+      <div class="num-label">cyclone shelters bundled<br>with GPS ranking</div>
+    </div>
+    <div class="card sm">
+      <div class="num">948</div>
+      <div class="num-label">automated tests<br>passing, 0 failing</div>
+    </div>
+    <div class="card sm">
+      <div class="num">~44K</div>
+      <div class="num-label">lines of Dart<br>across 156 files</div>
+    </div>
+  </div>
+
+  <div class="mt40" style="position:relative;">
+    <div class="horizon" style="top:-20px; left:-88px; right:-88px; opacity:1; height:1.5px;"></div>
+    <div class="grid g3" style="gap:24px; margin-top:26px;">
+      <div>
+        <span class="pill">Fully offline</span>
+        <p class="mt16">Chat, family disaster planner, emergency-kit generator, risk assessment,
+          situation summary, shelter brief, triage wizard, 26 quick cards, shelter map,
+          emergency directory.</p>
+      </div>
+      <div>
+        <span class="pill">Better when online</span>
+        <p class="mt16">Live hazard feeds from GDACS, NASA EONET and USGS; Open-Meteo weather,
+          marine surge and air quality; OSRM routing; Nominatim and Overpass search.
+          Every one fails soft.</p>
+      </div>
+      <div>
+        <span class="pill">No network at all</span>
+        <p class="mt16">Phones form a mesh among themselves — text, photos, video, voice notes
+          and full-duplex voice calls, plus a multi-hop SOS relay.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Shongjog · <span class="bn">সংযোগ</span></span><span>AUST CSE Carnival 8.0</span></div>
+</section>
+
+<!-- ══ 5 · PROOF ══════════════════════════════════════════════ -->
+<section class="s dark" style="padding:0;">
+  <div style="display:grid; grid-template-columns:1fr 640px; height:100%;">
+    <div style="padding:64px 0 76px 88px; display:flex; flex-direction:column; justify-content:center;">
+      <div class="chrome" style="left:88px; right:auto;"><span>What it actually returns</span></div>
+      <h1 style="max-width:16ch;">A real answer, generated on the phone, in airplane mode.</h1>
+      <div class="lead mt24" style="color:#CBD5E1; max-width:44ch;">
+        Asked in English — <em>"What to do if bitten by a snake?"</em> — and answered in Bangla,
+        because that is the language the person in the emergency reads.
+      </div>
+      <ul class="dash mt32" style="max-width:46ch;">
+        <li>Numbered, ordered steps — not a paragraph to parse under stress.</li>
+        <li>Step 1 is <span class="bn">৯৯৯</span>. The app routes to human help first, always.</li>
+        <li>Grounded in the corpus chunk for snakebite, which cites WHO and BDRCS.</li>
+        <li>It contradicts the folk myth directly: keep still, do not cut, do not tourniquet.</li>
+        <li>A tap on <span class="bn">পড়ুন</span> reads it aloud for a user who cannot read it.</li>
+      </ul>
+      <div class="cap mt32" style="color:#64748B;">Bangla numerals throughout — ৯৯৯, not 999.
+        Mixing digit systems inside one phrase is a defect in this product.</div>
+    </div>
+    <div style="background:var(--slate-2); display:flex; align-items:center; justify-content:center;">
+      <div class="phone" style="width:330px; border-color:#334155;">
+        <img src="../screenshots/2.jpeg" alt="Shongjog AI chat answering a snakebite question in Bangla">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 6 · THE CASCADE ════════════════════════════════════════ -->
+<section class="s">
+  <div class="chrome"><span>How an answer is produced</span><span><b>06</b></span></div>
+  <h1 class="wide mt40">Four ways to answer, tried in order. The user always gets something.</h1>
+  <div class="lead mt16" style="font-size:21px;">
+    Each tier is cheaper and more certain than the one above it. A failure at any level falls
+    through silently rather than showing an error.
+  </div>
+
+  <div class="split-w mt24">
+    <div>
+      <div class="tier">
+        <div class="tier-n tool">0</div>
+        <div>
+          <h2>Shelter lookup — no model at all</h2>
+          <p>"Where is the nearest shelter?" is answered by pure Dart: haversine distance over the
+            263 bundled shelters. It runs <em>before</em> every other tier — the fastest path serves
+            the most time-critical question.</p>
+        </div>
+      </div>
+      <div class="tier">
+        <div class="tier-n">1</div>
+        <div>
+          <h2>Gemma 4 E2B on the device</h2>
+          <p>Retrieved corpus chunks and the question go to the local model through LiteRT-LM —
+            the normal path, and the only one that works in airplane mode.</p>
+        </div>
+      </div>
+      <div class="tier">
+        <div class="tier-n">2</div>
+        <div>
+          <h2>Cloud Gemini — only if reachable</h2>
+          <p>If the device is online and the local model is still downloading or has failed, the
+            same grounded prompt goes to Gemini, with key rotation and model fallback.</p>
+        </div>
+      </div>
+      <div class="tier">
+        <div class="tier-n">3</div>
+        <div>
+          <h2>The corpus chunk, verbatim</h2>
+          <p>No generation at all: the human-verified passage is shown as written. Less fluent,
+            and impossible to hallucinate.</p>
+        </div>
+      </div>
+      <div class="tier">
+        <div class="tier-n last">4</div>
+        <div>
+          <h2 style="color:var(--alert);">Call <span class="bn">৯৯৯</span></h2>
+          <p>If nothing above produced an answer, the app says so plainly and offers the
+            national emergency number. It never shows a blank bubble or a stack trace.</p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="border-left:3px solid var(--ocean);">
+        <h2>Why the shelter path has no model in it</h2>
+        <p>It used to run a full inference just to extract one integer — how many shelters the user
+          asked for — and on a miss it ran a <em>second</em> one. That was 30–50 seconds on mid-range
+          hardware for the single most urgent question the app answers. It is now a parser and a
+          distance sort: milliseconds, and it cannot hallucinate a shelter that does not exist.</p>
+      </div>
+      <div class="card mt24">
+        <h2>Latency is a safety property</h2>
+        <p>A classifier reads the question first. For a choking or bleeding query, extended
+          reasoning is switched <strong>off</strong> — a correct answer in 40 s is worse than a good
+          answer in 8 s. Generation is capped at 90 seconds with a fresh session per query, so a
+          wedged model degrades into Tier 3 rather than hanging the screen.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Shongjog · <span class="bn">সংযোগ</span></span><span>AUST CSE Carnival 8.0</span></div>
+</section>
+
+<!-- ══ 7 · GROUNDING ══════════════════════════════════════════ -->
+<section class="s">
+  <div class="chrome"><span>Grounding</span><span><b>07</b></span></div>
+  <h1 class="wide mt40">No standard governs LLM-generated first aid. So we wrote the governance ourselves.</h1>
+
+  <div class="split mt40">
+    <div>
+      <div class="grid g3" style="gap:16px;">
+        <div class="card sm"><div class="num sm">48</div><div class="num-label">verified chunks</div></div>
+        <div class="card sm"><div class="num sm">22</div><div class="num-label">topics</div></div>
+        <div class="card sm"><div class="num sm">34</div><div class="num-label">cited documents</div></div>
+      </div>
+
+      <h2 class="mt32">Every chunk is traceable to a named authority</h2>
+      <p>A seven-organisation source whitelist: WHO, BDRCS, IFRC, CDC, UNICEF, MoDMR and BMD.
+         Nothing enters the corpus from the open web, and every passage carries the document it
+         came from — so a reviewer can check any answer against its origin.</p>
+
+      <h2 class="mt32">Three rules the app cannot break</h2>
+      <ul class="dash mt8">
+        <li>It answers only from the corpus — it does not answer from the model's own memory.</li>
+        <li>It never diagnoses and never prescribes a dose.</li>
+        <li>It routes to <span class="bn">৯৯৯</span> or the nearest hospital for anything beyond first aid.</li>
+      </ul>
+    </div>
+
+    <div>
+      <h2>The 22 topics</h2>
+      <div class="card mt16" style="padding:20px 22px;">
+        <p style="font-size:16px; line-height:2.05; color:var(--ink-2);">
+          ORS · diarrhoea · water · hygiene · fever · bleeding · CPR · drowning · snakebite ·
+          animal bite · respiratory · electrical · heat · cold · cyclone · food · infant ·
+          pregnancy · elderly · livestock · emotional support · documents
+        </p>
+      </div>
+      <div class="card mt24" style="border-left:3px solid var(--amber);">
+        <h2>Correcting myths is a first-class job</h2>
+        <p>Ten of the fifty evaluation queries are myths phrased as questions — "you should cut a
+          snakebite, right?" The corpus contains the correction, and the answer contradicts the
+          premise instead of politely working around it.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Shongjog · <span class="bn">সংযোগ</span></span><span>AUST CSE Carnival 8.0</span></div>
+</section>
+
+<!-- ══ 8 · THE STACK ══════════════════════════════════════════ -->
+<section class="s dark">
+  <div class="chrome"><span>On-device AI</span><span><b>08</b></span></div>
+  <h1 class="wide mt40">Two models on the handset, and a hard constraint that shapes everything.</h1>
+
+  <div class="grid g2 mt40" style="gap:24px;">
+    <div class="card">
+      <span class="pill">Generation</span>
+      <h2 class="mt16">Gemma 4 E2B — 2.47 GB</h2>
+      <p>Quantised <code>.litertlm</code>, executed by LiteRT-LM through <code>flutter_gemma</code>.
+        1024-token context, 256-token output ceiling, temperature 0.3.</p>
+      <p class="mt16">A fresh session is opened per query and closed in a <code>finally</code> block.
+        Sharing one session across queries leaked KV-cache memory until the app was killed by
+        the OS mid-answer.</p>
+    </div>
+    <div class="card">
+      <span class="pill">Retrieval</span>
+      <h2 class="mt16">EmbeddingGemma 300M — 179 MB</h2>
+      <p>A <code>.tflite</code> embedder with its SentencePiece tokenizer, for true semantic search
+        over the corpus.</p>
+      <p class="mt16">The bundled vectors were built offline with a different model, and a query
+        vector from one model is not cosine-comparable with a document vector from another. So on
+        first run the app re-embeds all 48 chunks with the same on-device embedder and caches the
+        index; later launches load it in about a millisecond.</p>
+    </div>
+  </div>
+
+  <div class="mt40" style="position:relative;">
+    <div class="horizon" style="top:-20px; left:-88px; right:-88px; opacity:1; height:1.5px;"></div>
+    <div class="grid g3" style="gap:24px; margin-top:26px;">
+      <div>
+        <h2>arm64-v8a only</h2>
+        <p>The inference engine ships native libraries for arm64 alone. A universal APK would still
+          install on other ABIs with no engine at all — and fail in a way that looks exactly like a
+          bug. Restricting the ABI makes that impossible and drops about 36 MB.</p>
+      </div>
+      <div>
+        <h2>The key is never in the binary</h2>
+        <p>A <code>--dart-define</code> value is a plaintext literal in the shipped library.
+          The cloud key is fetched at runtime from Firestore into the Android Keystore instead —
+          out of the binary, and revocable without a new release.</p>
+      </div>
+      <div>
+        <h2>Voice on both ends</h2>
+        <p>Bangla speech-to-text prefers a fully offline Vosk model and falls back to the platform
+          recogniser; Bangla text-to-speech targets bn-BD with a bn-IN fallback, with opt-in
+          auto-read for users who cannot read the screen.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Shongjog · <span class="bn">সংযোগ</span></span><span>AUST CSE Carnival 8.0</span></div>
+</section>
+
+<!-- ══ 9 · MESH ═══════════════════════════════════════════════ -->
+<section class="s">
+  <div class="chrome"><span>When there is no network at all</span><span><b>09</b></span></div>
+  <h1 class="wide mt40">If the towers are down, the phones become the network.</h1>
+  <div class="lead mt16" style="font-size:21px;">
+    Nearby handsets discover each other directly and carry messages between people who have
+    no carrier, no Wi-Fi and no internet.
+  </div>
+
+  <div class="grid g4 mt40" style="gap:20px;">
+    <div class="card">
+      <h2>What it carries</h2>
+      <p>Text, photos, video and voice notes — plus full-duplex 8 kHz voice calls between two
+        phones with no cellular service at all.</p>
+    </div>
+    <div class="card">
+      <h2>How it connects</h2>
+      <p><code>nearby_connections</code> in P2P_CLUSTER mode, whose transport is Wi-Fi Direct.
+        Bluetooth is used only to advertise and scan.</p>
+    </div>
+    <div class="card">
+      <h2>When Google services are missing</h2>
+      <p>Many phones sold in this market ship without GMS, which Nearby requires. A GMS-free
+        Wi-Fi Direct implementation takes over on those devices.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--alert);">
+      <h2>The SOS relay</h2>
+      <p>A distress message is re-broadcast by every phone that receives it — an LRU dedup over
+        256 message ids, a 5-hop ceiling and a 1-hour lifetime, so it spreads outward without
+        looping forever.</p>
+    </div>
+  </div>
+
+  <div class="card mt40" style="background:rgba(3,105,161,.045); border-color:var(--ocean);">
+    <div class="split" style="gap:40px; align-items:center;">
+      <div>
+        <h2>This is the part judges should ask us to break</h2>
+        <p>We will hand you two phones, put both in airplane mode with Wi-Fi on, and send a message
+          between them in front of you. Nothing in the room is involved — no venue Wi-Fi, no
+          hotspot, no server.</p>
+      </div>
+      <div>
+        <h2>An honest limit</h2>
+        <p>Range is line-of-sight Wi-Fi Direct — tens of metres, not kilometres. The mesh is for a
+          shelter, a village cluster or a rescue team, not a district. We are not claiming
+          otherwise.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Shongjog · <span class="bn">সংযোগ</span></span><span>AUST CSE Carnival 8.0</span></div>
+</section>
+
+<!-- ══ 10 · THE SURFACE ═══════════════════════════════════════ -->
+<section class="s">
+  <div class="chrome"><span>The product</span><span><b>10</b></span></div>
+  <h1 class="mt40">Bangla first, everywhere — not an English app with a translation layer.</h1>
+
+  <div class="grid g4 mt32" style="gap:22px; align-items:start;">
+    <div>
+      <div class="phone crop"><img src="../screenshots/1.jpeg" alt="Home screen"></div>
+      <h2 class="mt16">Home</h2>
+      <p style="font-size:15px;">Live weather, hazards and air quality when online; one tap to
+        the triage wizard.</p>
+    </div>
+    <div>
+      <div class="phone crop"><img src="../screenshots/5.jpeg" alt="Quick cards"></div>
+      <h2 class="mt16">26 quick cards</h2>
+      <p style="font-size:15px;">Searchable, offline, no model needed. A red badge means
+        life-threatening.</p>
+    </div>
+    <div>
+      <div class="phone crop"><img src="../screenshots/8.jpeg" alt="AI family disaster planner"></div>
+      <h2 class="mt16">Family planner</h2>
+      <p style="font-size:15px;">Household details in, a plan for that family out — written by
+        Gemma on the device.</p>
+    </div>
+    <div>
+      <div class="phone crop"><img src="../screenshots/13.jpeg" alt="Nearest shelter finder"></div>
+      <h2 class="mt16">Shelter finder</h2>
+      <p style="font-size:15px;">263 shelters ranked by GPS distance, with capacity and listing
+        agency.</p>
+    </div>
+  </div>
+
+  <div class="card mt24">
+    <div class="grid g3" style="gap:32px;">
+      <div>
+        <h2>Voice-first by default</h2>
+        <p style="font-size:15.5px;">The microphone is the primary input, not a secondary one, and
+          answers can be read aloud — because the user we designed for may not read fluently.</p>
+      </div>
+      <div>
+        <h2>799 strings in each language</h2>
+        <p style="font-size:15.5px;">A complete English locale sits behind a toggle. Bangla is the
+          default and the design language; English is the accommodation.</p>
+      </div>
+      <div>
+        <h2>Type sized for stress</h2>
+        <p style="font-size:15.5px;">Body text floors at 17sp, not Material's 14sp, and tap targets
+          at 48dp — the app is read outdoors, at night, by frightened people.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Shongjog · <span class="bn">সংযোগ</span></span><span>AUST CSE Carnival 8.0</span></div>
+</section>
+
+<!-- ══ 11 · COORDINATOR ═══════════════════════════════════════ -->
+<section class="s">
+  <div class="chrome"><span>The other side of the app</span><span><b>11</b></span></div>
+  <h1 class="wide mt40">Survivors are not the only user. Someone has to coordinate them.</h1>
+
+  <div class="split-w mt32" style="gap:48px;">
+    <div>
+      <div class="lead" style="font-size:19px;">
+        A coordinator panel, gated behind a login, shows the live picture: who has marked themselves
+        safe, who has reported danger and where, which campaigns await approval, and how many
+        devices are reachable.
+      </div>
+
+      <div class="grid g2 mt24" style="gap:16px;">
+        <div class="card sm">
+          <h2>Live safety roll</h2>
+          <p style="font-size:15px;">Counts sync through Firestore as people tap their status.
+            Each danger row carries name, phone, type, time and a maps link.</p>
+        </div>
+        <div class="card sm">
+          <h2>Campaign approval</h2>
+          <p style="font-size:15px;">A resident requests a relief or rescue campaign; an approved
+            one appears on every nearby user's map.</p>
+        </div>
+        <div class="card sm">
+          <h2>Broadcast</h2>
+          <p style="font-size:15px;">One message becomes a notification on every install — the
+            highest-consequence control in the product.</p>
+        </div>
+        <div class="card sm">
+          <h2>Device roster</h2>
+          <p style="font-size:15px;">Every install that has ever had a connection, with last-seen
+            time, and a marker for those reachable over the mesh right now.</p>
+        </div>
+      </div>
+
+      <div class="card mt16" style="border-left:3px solid var(--alert);">
+        <h2>We wrote down the risk we could not remove</h2>
+        <p>Our Firestore rules file says in its own header that the admin gate is client-asserted
+          and non-cryptographic, and that granting it unlocks a channel pushing notifications to
+          every device — <em>"a misinformation channel, not merely a settings panel."</em> Naming it
+          in the code is the honest answer available to a team with no trusted server.</p>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:center; padding-top:8px;">
+      <div class="phone" style="width:268px;">
+        <img src="../screenshots/17.jpeg" alt="Coordinator panel">
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Shongjog · <span class="bn">সংযোগ</span></span><span>AUST CSE Carnival 8.0</span></div>
+</section>
+
+<!-- ══ 12 · ARCHITECTURE ══════════════════════════════════════ -->
+<section class="s">
+  <div class="chrome"><span>Architecture</span><span><b>12</b></span></div>
+  <h1 class="wide mt40">One rule holds 156 files together: the parts that must be correct never touch the framework.</h1>
+
+  <div class="grid g3 mt40" style="gap:22px; align-items:start;">
+    <div>
+      <div class="cap" style="font-weight:700; color:var(--ink);">Presentation</div>
+      <div class="layer mt8">
+        <h3>features/ — 26 modules</h3>
+        <p>chat · shelter · mesh_comm · triage · planner · emergency · voice · admin · hazards ·
+           weather · safe_beacon · damage_scanner · quick_cards · onboarding · settings …</p>
+      </div>
+      <div class="layer mt16">
+        <h3>app/ — shell &amp; theme</h3>
+        <p>Routing, the five-tab shell, and one design system: colour tokens, a 17sp body floor,
+          12/16 dp radii, semantic tones.</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="cap" style="font-weight:700; color:var(--ink);">Platform edge</div>
+      <div class="layer mt8">
+        <h3>core/ — services</h3>
+        <p>model_manager · embedder_service · remote_key_service · device_registry ·
+           local_notification_service · sms_channel · firebase_auth · connectivity</p>
+      </div>
+      <div class="layer mt16">
+        <h3>Native &amp; cloud</h3>
+        <p>LiteRT-LM · Nearby Connections · Wi-Fi Direct · Firestore · 10 keyless public data
+          services · Gemini.</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="cap" style="font-weight:700; color:var(--ocean);">Correctness core</div>
+      <div class="layer pure mt8">
+        <h3>rag/ · knowledge/</h3>
+        <p>Retrieval, prompt construction, urgency classification, repetition detection, rumour
+          checking, the triage decision tree, shelter ranking.</p>
+        <p class="mt16" style="font-weight:700; color:var(--ocean);">Pure Dart. Zero Flutter
+          imports, zero plugin imports.</p>
+      </div>
+      <div class="card sm mt16">
+        <p style="font-size:15px;">Because this layer imports nothing from the framework, the logic
+          that decides what a person in an emergency is told can be tested exhaustively on a laptop,
+          with no device and no emulator. That is why the suite can be this large and this fast.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt32">
+    <div class="grid g4" style="gap:32px;">
+      <div><h2>Offline by construction</h2><p style="font-size:15px;">Every network call has a
+        deterministic fallback. There is no code path where a dead network produces an error screen.</p></div>
+      <div><h2>Deterministic where it counts</h2><p style="font-size:15px;">The triage wizard is a
+        decision tree with eight terminal routes and no model in it. It cannot hallucinate.</p></div>
+      <div><h2>Fails soft, loudly logged</h2><p style="font-size:15px;">Ten public data services can
+        each go down without the user seeing anything worse than a missing card.</p></div>
+      <div><h2>Bilingual to the edges</h2><p style="font-size:15px;">Numerals, relative times and
+        error copy all localise — a Bangla screen never shows Latin digits.</p></div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Shongjog · <span class="bn">সংযোগ</span></span><span>AUST CSE Carnival 8.0</span></div>
+</section>
+
+<!-- ══ NEW · REQUEST PATH DIAGRAM ════════════════════════════ -->
+<section class="s">
+  <div class="chrome"><span>Architecture — the request path</span><span><b>13</b></span></div>
+  <h1 class="wide" style="margin-top:20px;">One question, end to end — and exactly where the network line falls.</h1>
+
+  <svg viewBox="0 0 1424 612" style="width:100%; height:auto; display:block; margin-top:16px;"
+       font-family="Manrope, sans-serif">
+    <defs>
+      <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5"
+              markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,1 L9,5 L0,9 z" fill="#475569"/>
+      </marker>
+      <marker id="ahd" viewBox="0 0 10 10" refX="9" refY="5"
+              markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,1 L9,5 L0,9 z" fill="#94A3B8"/>
+      </marker>
+      <linearGradient id="hz" x1="0" x2="1">
+        <stop offset="0"    stop-color="#38BDF8" stop-opacity="0"/>
+        <stop offset="0.07" stop-color="#38BDF8"/>
+        <stop offset="0.93" stop-color="#38BDF8"/>
+        <stop offset="1"    stop-color="#38BDF8" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+
+    <!-- ── above the line: everything that needs a network ── -->
+    <text x="0" y="15" font-size="14" fill="#94A3B8">Off the device — reachable only when there is a network</text>
+
+    <rect x="0" y="30" width="560" height="68" rx="12"
+          fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="6 5"/>
+    <text x="20" y="59" font-size="16.5" font-weight="700" fill="#475569">Live hazard, weather and map services</text>
+    <text x="20" y="81" font-size="13.5" fill="#94A3B8">GDACS · NASA EONET · USGS · Open-Meteo · OSRM · Nominatim</text>
+
+    <rect x="600" y="30" width="356" height="68" rx="12"
+          fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="6 5"/>
+    <text x="620" y="59" font-size="16.5" font-weight="700" fill="#475569">Tier 2 · Cloud Gemini</text>
+    <text x="620" y="81" font-size="13.5" fill="#94A3B8">only if the on-device model is unavailable</text>
+
+    <rect x="996" y="30" width="294" height="68" rx="12"
+          fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="6 5"/>
+    <text x="1016" y="59" font-size="16.5" font-weight="700" fill="#475569">Firestore</text>
+    <text x="1016" y="81" font-size="13.5" fill="#94A3B8">coordinator sync · key delivery</text>
+
+    <!-- ── the line itself ── -->
+    <path d="M778,98 V168" fill="none" stroke="#94A3B8" stroke-width="1.5"
+          stroke-dasharray="6 5" marker-end="url(#ahd)"/>
+    <text x="792" y="122" font-size="12.5" fill="#94A3B8">the one path that crosses it</text>
+
+    <rect x="0" y="133" width="1424" height="2" fill="url(#hz)"/>
+    <text x="1424" y="126" text-anchor="end" font-size="13" fill="#94A3B8">the network line</text>
+    <text x="0" y="158" font-size="15" font-weight="700" fill="#0369A1">Everything below this line runs with the radio off</text>
+
+    <!-- ── row 1: understanding the question ── -->
+    <rect x="0"    y="182" width="226" height="92" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+    <text x="18" y="214" font-size="17" font-weight="700" fill="#0F172A">Question</text>
+    <text x="18" y="238" font-size="13" fill="#475569">spoken or typed,</text>
+    <text x="18" y="256" font-size="13" fill="#475569">in Bangla</text>
+
+    <rect x="266"  y="182" width="226" height="92" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+    <text x="284" y="214" font-size="17" font-weight="700" fill="#0F172A">Speech to text</text>
+    <text x="284" y="238" font-size="13" fill="#475569">Vosk on-device, with</text>
+    <text x="284" y="256" font-size="13" fill="#475569">a platform fallback</text>
+
+    <rect x="532"  y="182" width="226" height="92" rx="12" fill="#E0F2FE" stroke="#0369A1" stroke-width="1.5"/>
+    <text x="550" y="214" font-size="17" font-weight="700" fill="#0F172A">Urgency classifier</text>
+    <text x="550" y="238" font-size="13" fill="#475569">sets the reasoning</text>
+    <text x="550" y="256" font-size="13" fill="#475569">budget for this query</text>
+
+    <rect x="798"  y="182" width="226" height="92" rx="12" fill="#E0F2FE" stroke="#0369A1" stroke-width="1.5"/>
+    <text x="816" y="214" font-size="17" font-weight="700" fill="#0F172A">Retrieval</text>
+    <text x="816" y="238" font-size="13" fill="#475569">keyword + cosine over</text>
+    <text x="816" y="256" font-size="13" fill="#475569">48 verified chunks</text>
+
+    <rect x="1064" y="182" width="226" height="92" rx="12" fill="#E0F2FE" stroke="#0369A1" stroke-width="1.5"/>
+    <text x="1082" y="214" font-size="17" font-weight="700" fill="#0F172A">Prompt builder</text>
+    <text x="1082" y="238" font-size="13" fill="#475569">rules + chunks +</text>
+    <text x="1082" y="256" font-size="13" fill="#475569">recent turns</text>
+
+    <path d="M230,228 H262"   stroke="#475569" stroke-width="1.5" marker-end="url(#ah)"/>
+    <path d="M496,228 H528"   stroke="#475569" stroke-width="1.5" marker-end="url(#ah)"/>
+    <path d="M762,228 H794"   stroke="#475569" stroke-width="1.5" marker-end="url(#ah)"/>
+    <path d="M1028,228 H1060" stroke="#475569" stroke-width="1.5" marker-end="url(#ah)"/>
+
+    <!-- wrap back to the second row -->
+    <path d="M1177,274 V310 H190 V352" fill="none" stroke="#475569"
+          stroke-width="1.5" marker-end="url(#ah)"/>
+
+    <!-- ── row 2: producing and delivering the answer ── -->
+    <rect x="0"   y="360" width="380" height="92" rx="12" fill="#0F172A"/>
+    <text x="22"  y="392" font-size="17" font-weight="700" fill="#FFFFFF">Gemma 4 E2B</text>
+    <text x="22"  y="416" font-size="13" fill="#94A3B8">LiteRT-LM runtime · 2.47 GB on disk</text>
+    <text x="22"  y="434" font-size="13" fill="#94A3B8">fresh session per query · 90 s ceiling</text>
+
+    <rect x="455" y="360" width="380" height="92" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+    <text x="477" y="392" font-size="17" font-weight="700" fill="#0F172A">Grounded answer</text>
+    <text x="477" y="416" font-size="13" fill="#475569">numbered steps in Bangla, taken from</text>
+    <text x="477" y="434" font-size="13" fill="#475569">the retrieved chunks — not from memory</text>
+
+    <rect x="910" y="360" width="380" height="92" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+    <text x="932" y="392" font-size="17" font-weight="700" fill="#0F172A">Shown and read aloud</text>
+    <text x="932" y="416" font-size="13" fill="#475569">Bangla text-to-speech, bn-BD with a</text>
+    <text x="932" y="434" font-size="13" fill="#475569">bn-IN fallback · optional auto-read</text>
+
+    <path d="M384,406 H451" stroke="#475569" stroke-width="1.5" marker-end="url(#ah)"/>
+    <path d="M839,406 H906" stroke="#475569" stroke-width="1.5" marker-end="url(#ah)"/>
+
+    <!-- if the model produces nothing usable -->
+    <path d="M645,452 V474" fill="none" stroke="#DC2626" stroke-width="1.5"
+          stroke-dasharray="5 4"/>
+    <text x="658" y="472" font-size="12.5" fill="#DC2626">empty or failed → the verbatim chunk, then ৯৯৯</text>
+
+    <!-- ── what the pipeline reads: everything already on the handset ── -->
+    <text x="0" y="516" font-size="14" fill="#94A3B8">Read from local storage — shipped in the APK, or downloaded once</text>
+
+    <rect x="0"    y="530" width="264" height="58" rx="10" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1.5"/>
+    <text x="16"  y="553" font-size="14.5" font-weight="700" fill="#0F172A">corpus.json</text>
+    <text x="16"  y="573" font-size="13" fill="#475569">48 verified chunks, 22 topics</text>
+
+    <rect x="290"  y="530" width="264" height="58" rx="10" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1.5"/>
+    <text x="306" y="553" font-size="14.5" font-weight="700" fill="#0F172A">vectors.bin</text>
+    <text x="306" y="573" font-size="13" fill="#475569">768-dim, L2-normalised</text>
+
+    <rect x="580"  y="530" width="264" height="58" rx="10" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1.5"/>
+    <text x="596" y="553" font-size="14.5" font-weight="700" fill="#0F172A">gemma-4-E2B.litertlm</text>
+    <text x="596" y="573" font-size="13" fill="#475569">2.47 GB, fetched on first run</text>
+
+    <rect x="870"  y="530" width="264" height="58" rx="10" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1.5"/>
+    <text x="886" y="553" font-size="14.5" font-weight="700" fill="#0F172A">EmbeddingGemma</text>
+    <text x="886" y="573" font-size="13" fill="#475569">300M .tflite, 179 MB</text>
+
+    <rect x="1160" y="530" width="264" height="58" rx="10" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1.5"/>
+    <text x="1176" y="553" font-size="14.5" font-weight="700" fill="#0F172A">cyclone_shelters</text>
+    <text x="1176" y="573" font-size="13" fill="#475569">263 locations, GeoJSON</text>
+
+    <!-- ── legend ── -->
+    <rect x="1064" y="478" width="18" height="14" rx="3" fill="#E0F2FE" stroke="#0369A1" stroke-width="1.5"/>
+    <text x="1090" y="490" font-size="13" fill="#475569">Pure Dart</text>
+    <rect x="1180" y="478" width="18" height="14" rx="3" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+    <text x="1206" y="490" font-size="13" fill="#475569">Platform</text>
+    <rect x="1296" y="478" width="18" height="14" rx="3" fill="#0F172A"/>
+    <text x="1322" y="490" font-size="13" fill="#475569">Native</text>
+  </svg>
+
+  <div class="foot"><span>Shongjog · <span class="bn">সংযোগ</span></span><span>AUST CSE Carnival 8.0</span></div>
+</section>
+
+<!-- ══ 13 · EVIDENCE ══════════════════════════════════════════ -->
+<section class="s dark">
+  <div class="chrome"><span>Evidence</span><span><b>14</b></span></div>
+  <h1 class="wide mt40">Everything on this slide was re-run today, on this branch.</h1>
+
+  <div class="grid g4 mt40" style="gap:20px;">
+    <div class="card"><div class="num">948</div><div class="num-label">tests passing<br>0 failing, 0 skipped</div></div>
+    <div class="card"><div class="num">0</div><div class="num-label">analyzer issues<br>across the whole project</div></div>
+    <div class="card"><div class="num">117</div><div class="num-label">test files<br>~14,000 lines</div></div>
+    <div class="card"><div class="num">12</div><div class="num-label">release checks<br>run against the built APK</div></div>
+  </div>
+
+  <div class="split mt40" style="gap:48px;">
+    <div>
+      <h2>The release gate exists because green tests were not enough</h2>
+      <p class="mt8">Both times the offline model broke, <code>flutter analyze</code>, <code>flutter
+        test</code> and <code>flutter run</code> were all clean — the failure only appeared in an
+        installed release APK. So the build script now inspects the artefact itself and refuses to
+        ship if any check fails.</p>
+      <ul class="dash mt16">
+        <li>The inference engine's native libraries are present for arm64.</li>
+        <li>No other ABI is packaged, so Android cannot install an engineless build.</li>
+        <li>No API key of any shape appears in the compiled Dart library.</li>
+        <li>The notification icon survived resource shrinking.</li>
+        <li>The <code>&lt;queries&gt;</code> intents for speech, camera and file-picking are declared —
+          the same omission has silently broken four separate features on Android 11+.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Retrieval quality — measured, and not yet where we want it</h2>
+      <p class="mt8">A 50-query evaluation set across five categories, scored automatically.</p>
+      <table class="mt16">
+        <tr><th>Metric</th><th>Baseline</th><th>Current</th></tr>
+        <tr><td class="k">Recall@1</td><td>46%</td><td>46%</td></tr>
+        <tr><td class="k">Recall@3</td><td>60%</td><td>62%</td></tr>
+        <tr><td class="k">Retrieval rate</td><td>98%</td><td>98%</td></tr>
+        <tr><td class="k">Out-of-scope</td><td colspan="2">0% by design — correctly retrieves nothing</td></tr>
+      </table>
+      <p class="mt16" style="font-size:16px;">We are reporting the number that does not flatter us.
+        Recall@1 is the weakest part of the system, the corpus tripled without it moving, and
+        semantic retrieval with the on-device embedder is the work aimed squarely at it.</p>
+    </div>
+  </div>
+
+  <div class="foot"><span>Shongjog · <span class="bn">সংযোগ</span></span><span>AUST CSE Carnival 8.0</span></div>
+</section>
+
+<!-- ══ 14 · SDG ═══════════════════════════════════════════════ -->
+<section class="s">
+  <div class="chrome"><span>Sustainable Development Goals</span><span><b>15</b></span></div>
+  <h1 class="wide mt40">Three targets the app addresses directly, and three it supports.</h1>
+
+  <table class="mt32">
+    <tr><th style="width:210px;">Goal</th><th style="width:280px;">Target</th><th>What in Shongjog serves it</th></tr>
+    <tr>
+      <td class="k">11 · Sustainable Cities</td>
+      <td><strong>11.5</strong> — reduce deaths and the number of people affected by disasters</td>
+      <td>263 bundled cyclone shelters with offline GPS ranking and routing; multi-hop SOS relay;
+        slide-to-confirm 999 dialer; SOS SMS with coordinates formatted for the operator.</td>
+    </tr>
+    <tr>
+      <td class="k">13 · Climate Action</td>
+      <td><strong>13.1</strong> — strengthen resilience and adaptive capacity to climate hazards</td>
+      <td>Twelve hazard types; live GDACS, NASA EONET, USGS and Open-Meteo feeds; cyclone, flood,
+        heat and cold guidance that keeps working after the feeds go dark.</td>
+    </tr>
+    <tr>
+      <td class="k">3 · Good Health</td>
+      <td><strong>3.d</strong> — strengthen capacity for early warning and risk management</td>
+      <td>48 chunks cited to WHO, BDRCS, IFRC, CDC and UNICEF; a triage wizard with eight
+        terminal routes; ORS, CPR and bleeding guidance available with no network.</td>
+    </tr>
+    <tr>
+      <td class="k">10 · Reduced Inequalities</td>
+      <td><strong>10.2</strong> — empower and include everyone, irrespective of status</td>
+      <td>Bangla-first and voice-first for low-literacy users; runs on a ৳15,000 phone;
+        no account, no subscription, no data plan required.</td>
+    </tr>
+    <tr>
+      <td class="k">6 · Clean Water</td>
+      <td><strong>6.1</strong> — safe and affordable drinking water for all</td>
+      <td>Dedicated water and hygiene topics: purification methods, post-flood contamination,
+        and the myth corrections that surround them.</td>
+    </tr>
+    <tr>
+      <td class="k">9 · Infrastructure</td>
+      <td><strong>9.1</strong> — reliable and resilient infrastructure</td>
+      <td>The mesh is functioning communications infrastructure at exactly the moment the
+        carrier infrastructure has failed.</td>
+    </tr>
+  </table>
+
+  <div class="foot"><span>Shongjog · <span class="bn">সংযোগ</span></span><span>AUST CSE Carnival 8.0</span></div>
+</section>
+
+<!-- ══ 15 · CEP ═══════════════════════════════════════════════ -->
+<section class="s">
+  <div class="chrome"><span>Complex Engineering Problem</span><span><b>16</b></span></div>
+  <h1 class="wide mt40">All seven attributes, each with something in the repository to point at.</h1>
+
+  <table class="mt24">
+    <tr><th style="width:60px;"></th><th style="width:280px;">Attribute</th><th>Where it appears in this project</th></tr>
+    <tr>
+      <td class="k" style="color:var(--ocean);">P1</td>
+      <td class="k">Depth of knowledge</td>
+      <td>Quantised on-device inference and KV-cache lifetime management; 768-dimension embeddings
+        with cosine retrieval; haversine geodesy; controlled-flood routing with dedup, TTL and a hop
+        budget; 8 kHz full-duplex audio; Android ABI targeting and R8 shrinking. A 50-query
+        evaluation harness reporting Recall@1 and @3.</td>
+    </tr>
+    <tr>
+      <td class="k" style="color:var(--ocean);">P2</td>
+      <td class="k">Conflicting requirements</td>
+      <td>Offline capability against a 2.47 GB model. Latency against reasoning quality. Key
+        security against serverless availability. Memory safety against per-query setup cost.
+        Trustworthiness against helpfulness. Broadcast utility against its potential for misuse.</td>
+    </tr>
+    <tr>
+      <td class="k" style="color:var(--ocean);">P3</td>
+      <td class="k">Depth of analysis</td>
+      <td>The four-tier cascade is our own formulation. So is removing the model from the shelter
+        path — the counter-intuitive decision that made the most urgent question 100× faster.</td>
+    </tr>
+    <tr>
+      <td class="k" style="color:var(--ocean);">P4</td>
+      <td class="k">Infrequently encountered issues</td>
+      <td>Running a 2.47 GB LLM on a mid-range handset; a GMS-free Wi-Fi Direct fallback for phones
+        sold without Google services; Android 11 package visibility silently disabling four features
+        until the intents were declared.</td>
+    </tr>
+    <tr>
+      <td class="k" style="color:var(--ocean);">P5</td>
+      <td class="k">Outside standards and codes</td>
+      <td>No engineering standard governs LLM-generated first aid. We built the governance: a
+        seven-organisation source whitelist, an authoring checklist, a two-person review sign-off,
+        corpus-only grounding, and a hard no-diagnosis rule.</td>
+    </tr>
+    <tr>
+      <td class="k" style="color:var(--ocean);">P6</td>
+      <td class="k">Diverse stakeholders</td>
+      <td>Survivors under stress and possibly one-handed; 999 operators, for whom the SOS SMS is
+        formatted; coordinators who need aggregates; medical reviewers who need traceability;
+        and the privacy of everyone whose location is transmitted.</td>
+    </tr>
+    <tr>
+      <td class="k" style="color:var(--ocean);">P7</td>
+      <td class="k">Interdependence</td>
+      <td>156 Dart files and eight interoperating subsystems, held together by a dependency rule
+        that keeps the correctness core free of the framework.</td>
+    </tr>
+  </table>
+
+  <div class="foot"><span>Shongjog · <span class="bn">সংযোগ</span></span><span>AUST CSE Carnival 8.0</span></div>
+</section>
+
+<!-- ══ 17 · LIMITS ════════════════════════════════════════════ -->
+<section class="s">
+  <div class="chrome"><span>What we are not claiming</span><span><b>17</b></span></div>
+  <h1 class="wide mt40">The honest list. Please test us on these.</h1>
+
+  <div class="grid g2 mt40" style="gap:24px 48px;">
+    <div class="card">
+      <h2>Retrieval is our weakest link</h2>
+      <p>Recall@1 sits at 46%. The corpus grew from 23 chunks to 48 without moving it, which tells
+        us the retriever — not the corpus — is the bottleneck. On-device semantic search is the
+        current work aimed at it.</p>
+    </div>
+    <div class="card">
+      <h2>The corpus is small</h2>
+      <p>48 chunks across 22 topics is a demonstration corpus, not national coverage. It is
+        deliberately small because every chunk is manually verified against a cited source, and that
+        review is the slow step.</p>
+    </div>
+    <div class="card">
+      <h2>The mesh is short-range</h2>
+      <p>Wi-Fi Direct reaches tens of metres. Useful inside a shelter or a village cluster; not a
+        replacement for a cellular network across a district.</p>
+    </div>
+    <div class="card">
+      <h2>The admin gate is not real authentication</h2>
+      <p>It is a client-asserted check. The meaningful boundary is in the Firestore rules, and a
+        determined attacker with the APK can get past the client side. We know, and we wrote it down.</p>
+    </div>
+    <div class="card">
+      <h2>It is Android-only, and arm64-only</h2>
+      <p>The inference engine has native libraries for one architecture. No iOS build, and no
+        emulator demo — the model genuinely will not run there.</p>
+    </div>
+    <div class="card">
+      <h2>Bangla evaluation is machine-scored</h2>
+      <p>The generation test set is marked <code>pending_bn_review</code>: the gold answers have not
+        yet been signed off by a Bangla-speaking medical reviewer. Until they are, we quote
+        retrieval numbers and not answer-quality numbers.</p>
+    </div>
+  </div>
+
+  <div class="foot"><span>Shongjog · <span class="bn">সংযোগ</span></span><span>AUST CSE Carnival 8.0</span></div>
+</section>
+
+<!-- ══ 18 · DEMO ══════════════════════════════════════════════ -->
+<section class="s">
+  <div class="chrome"><span>The live demonstration</span><span><b>18</b></span></div>
+  <h1 class="wide mt40">Four minutes, on our own hardware, with the room's network switched off.</h1>
+
+  <div class="split-w mt32" style="gap:48px;">
+    <div>
+      <table>
+        <tr><th style="width:90px;">Time</th><th>What you will see</th></tr>
+        <tr><td class="k">0:00</td><td>We put the phone into airplane mode and show you the status bar.
+          Everything after this happens with no network of any kind.</td></tr>
+        <tr><td class="k">0:20</td><td>Ask a first-aid question aloud, in Bangla. Speech recognition,
+          retrieval, generation and speech synthesis all run on the handset.</td></tr>
+        <tr><td class="k">1:30</td><td>Ask a myth as a question — "should I cut a snakebite?" — and
+          watch the answer contradict it rather than agree.</td></tr>
+        <tr><td class="k">2:10</td><td>Find the nearest cyclone shelter. Instant, because there is no
+          model in that path.</td></tr>
+        <tr><td class="k">2:40</td><td>Wi-Fi back on, cellular still off. A second phone appears
+          as a mesh peer; we send a message and an SOS between them.</td></tr>
+        <tr><td class="k">3:30</td><td>The coordinator panel on a third device shows the danger
+          report arriving in the live list.</td></tr>
+      </table>
+
+      <div class="card mt24" style="border-left:3px solid var(--ocean);">
+        <h2>Why the venue's Wi-Fi cannot break this demo</h2>
+        <p>The model, the corpus, the shelter database and the mesh are all on the phones we bring.
+          There is no exhibition network dependency to fail.</p>
+      </div>
+    </div>
+
+    <div>
+      <h2>Ask us anything on this list</h2>
+      <ul class="dash mt16">
+        <li>Turn off the network yourself, at any point, without warning us.</li>
+        <li>Ask it something outside its scope and check that it declines instead of inventing.</li>
+        <li>Ask where a specific answer came from — every chunk names its source document.</li>
+        <li>Ask why a feature does <em>not</em> use AI. Several deliberately don't.</li>
+        <li>Ask what breaks first at scale — the answer is retrieval.</li>
+      </ul>
+
+      <div class="card mt24">
+        <h2>What we bring</h2>
+        <p>Three arm64 Android phones with the model already downloaded and permissions granted,
+          a power bank, a screen-mirror adapter, and a recorded fallback clip we hope not to use.</p>
+      </div>
+
+      <div class="card mt16" style="background:rgba(3,105,161,.045); border-color:var(--ocean);">
+        <h2>One number to remember</h2>
+        <p style="color:var(--ink); font-weight:600;">2.47 GB of language model, answering
+          questions in Bangla, on a phone in airplane mode, with nothing else in the room
+          switched on.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Shongjog · <span class="bn">সংযোগ</span></span><span>AUST CSE Carnival 8.0</span></div>
+</section>
+
+<!-- ══ 19 · CLOSE ═════════════════════════════════════════════ -->
+<section class="s dark">
+  <div class="horizon" style="top:430px;"></div>
+  <div class="cover" style="align-items:center; text-align:center;">
+    <img src="mark-sky.png" alt="" style="width:110px; height:110px; position:relative; z-index:2;">
+    <div class="wordmark bn" style="font-size:62px; margin-top:20px;">সংযোগ</div>
+    <div style="font-size:30px; font-weight:300; color:#E2E8F0; margin-top:34px; max-width:34ch; line-height:1.35;">
+      Guidance that stays reachable after everything else stops.
+    </div>
+    <div class="cap mt32" style="font-size:16px; color:#64748B; max-width:74ch; line-height:1.6;">
+      Next: a broader reviewed corpus, a fine-tuned Bangla adapter, offline speech recognition on
+      every device, and partnerships with the agencies whose guidance the app already cites.
+    </div>
+    <div style="margin-top:52px; display:flex; gap:14px;">
+      <span class="pill">948 tests passing</span>
+      <span class="pill">0 analyzer issues</span>
+      <span class="pill">Runs in airplane mode</span>
+    </div>
+  </div>
+  <div class="foot" style="justify-content:center;">
+    <span>AUST CSE Carnival 8.0 · Project Exhibition · github.com/Ahnaf181419/shongjog</span>
+  </div>
+</section>
+
+</body>
+</html>

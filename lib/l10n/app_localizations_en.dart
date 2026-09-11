@@ -1843,9 +1843,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String triageSummarySos(
     String route,
     String time,
-    int count,
-    int yes,
-    int no,
+    String count,
+    String yes,
+    String no,
   ) {
     return 'Triage: $route\nTime: $time\nQuestions: $count (Yes $yes / No $no)';
   }
@@ -1854,9 +1854,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String triageShareableSos(
     String route,
     String time,
-    int count,
-    int yes,
-    int no,
+    String count,
+    String yes,
+    String no,
   ) {
     return 'Triage: $route\nTime: $time\nQuestions: $count (Yes $yes / No $no)';
   }
@@ -2008,7 +2008,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hazardsNearbyBadge => 'Across the border';
 
   @override
-  String hazardsShowMore(int count) {
+  String hazardsShowMore(String count) {
     return 'Show $count more';
   }
 
@@ -2366,17 +2366,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get riskTimeJustNow => 'Just now';
 
   @override
-  String riskTimeMinutesAgo(int count) {
+  String riskTimeMinutesAgo(String count) {
     return '$count minutes ago';
   }
 
   @override
-  String riskTimeHoursAgo(int count) {
+  String riskTimeHoursAgo(String count) {
     return '$count hours ago';
   }
 
   @override
-  String riskTimeDaysAgo(int count) {
+  String riskTimeDaysAgo(String count) {
     return '$count days ago';
   }
 
@@ -2402,17 +2402,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get kitMoreOptions => 'More options';
 
   @override
-  String kitSummaryMembers(int size) {
+  String kitSummaryMembers(String size) {
     return '$size members';
   }
 
   @override
-  String kitSummaryChildren(int count) {
+  String kitSummaryChildren(String count) {
     return '$count children';
   }
 
   @override
-  String kitSummaryElderly(int count) {
+  String kitSummaryElderly(String count) {
     return '$count elderly';
   }
 
@@ -2566,4 +2566,129 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get modelInfoRamE4b => '~5 GB';
+
+  @override
+  String get demoSeedQ1Question => 'How do I make ORS?';
+
+  @override
+  String get demoSeedQ1Answer =>
+      'Mix 6 teaspoons of sugar and half a teaspoon of salt into 1 litre of clean water. Stir well and drink within 24 hours. Feed children small spoonfuls often.';
+
+  @override
+  String get demoSeedQ2Question => 'Where is the nearest shelter?';
+
+  @override
+  String get demoSeedQ2Answer =>
+      'Open the Shelter map (Home → Shelter) to see the nearest cyclone shelters. With GPS permission on, you get a sorted list by distance.';
+
+  @override
+  String get demoSeedQ3Question => 'What do I do for a snakebite?';
+
+  @override
+  String get demoSeedQ3Answer =>
+      'Keep the patient calm. Don\'t cut, suck, or use a tourniquet. Immobilize the bitten limb and get to the nearest hospital quickly.';
+
+  @override
+  String get insightCycloneTitle => 'Cyclone preparation';
+
+  @override
+  String get insightCycloneBody =>
+      'Check your nearest shelter on the map before the storm arrives.';
+
+  @override
+  String get insightFloodTitle => 'Flood alert';
+
+  @override
+  String get insightFloodBody => 'Learn the steps for purifying water safely.';
+
+  @override
+  String get insightMedicalTitle => 'Medical help';
+
+  @override
+  String get insightMedicalBody =>
+      'Keep an ORS recipe and emergency contacts ready.';
+
+  @override
+  String get insightOfflineTitle => 'Offline AI ready';
+
+  @override
+  String get insightOfflineBody =>
+      'Shongjog can answer your questions even without the internet.';
+
+  @override
+  String proximityAlertTitle(String type) {
+    return 'Nearby $type';
+  }
+
+  @override
+  String proximityAlertBody(String type, String address, String distance) {
+    return '$type ongoing: $address ($distance km away)';
+  }
+
+  @override
+  String get commonLoading => 'Loading…';
+
+  @override
+  String get riskHomeMaterial => 'Home Material';
+
+  @override
+  String get riskHomeMaterialTinShed => 'Tin shed';
+
+  @override
+  String get riskHomeMaterialHalfPucka => 'Half-pucka';
+
+  @override
+  String get riskHomeMaterialPucka => 'Pucka';
+
+  @override
+  String get riskHomeMaterialApartment => 'Apartment';
+
+  @override
+  String get riskFloodHistoryNone => 'Never';
+
+  @override
+  String get riskFloodHistoryMinor => 'Minor';
+
+  @override
+  String get riskFloodHistoryMajor => 'Major';
+
+  @override
+  String get riskElevationLow => 'Low';
+
+  @override
+  String get riskElevationMid => 'Middle';
+
+  @override
+  String get riskElevationHigh => 'High';
+
+  @override
+  String get damageCameraPermanentDenied =>
+      'Camera permission permanently denied. Please enable it in Settings.';
+
+  @override
+  String get damageCameraDenied => 'Camera permission denied.';
+
+  @override
+  String get chatFallback999 => 'For emergency help, call 999.';
+
+  @override
+  String get meshTransportNearby => 'Nearby';
+
+  @override
+  String get beaconAnonymousReporter => 'A user';
+
+  @override
+  String adminRequestApproved(String type) {
+    return '$type approved';
+  }
+
+  @override
+  String adminRequestRejected(String type) {
+    return '$type rejected';
+  }
+
+  @override
+  String emergencyGpsFallbackNotice(String warning, String phone) {
+    return '$warning — call $phone';
+  }
 }

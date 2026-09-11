@@ -670,15 +670,20 @@ class _ProfileRow extends StatelessWidget {
                             : cs.onSurfaceVariant,
                       ),
                     ),
-                    if (profile.district != null) ...[
+                    if (profile.districtId != null) ...[
                       const SizedBox(height: 2),
-                      Text(
-                        profile.district!,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: ShongjogTheme.fontFamily,
-                          fontFamilyFallback: ShongjogTheme.fontFallback,
-                          color: cs.onSurfaceVariant,
+                      FutureBuilder<String?>(
+                        future: profile.displayDistrictName(
+                            AppLocalizations.of(context).localeName),
+                        builder: (context, snap) => Text(
+                          snap.data ??
+                              AppLocalizations.of(context).commonLoading,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontFamily: ShongjogTheme.fontFamily,
+                            fontFamilyFallback: ShongjogTheme.fontFallback,
+                            color: cs.onSurfaceVariant,
+                          ),
                         ),
                       ),
                     ],

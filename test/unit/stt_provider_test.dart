@@ -3,6 +3,7 @@ import 'package:shongjog/features/voice/stt_provider.dart';
 import 'package:shongjog/features/voice/vosk_stt_provider.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('SttProvider interface', () {
     test('VoskSttProvider is offline', () {
       final vosk = VoskSttProvider();

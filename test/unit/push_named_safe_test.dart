@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/app/router.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   // Audit F9 (2026-09-08): sweep raw Navigator.pushNamed sites onto
   // pushNamedSafe so rapid double-taps don't stack duplicate routes,
   // AND callers can still await the route's future for refresh-on-return

@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:ui' show PlatformDispatcher;
 
 import 'package:firebase_core/firebase_core.dart';
+import 'core/locale_controller.dart';
+import 'core/prompt_cache_warmer.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 import 'package:flutter/material.dart';
@@ -31,6 +33,14 @@ final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Restore the persisted locale before any locale-dependent warm-up so
+  // the first frame already renders in the user's chosen language.
+  await localeController.ensureLoaded();
+
+  // Prime every locale-dependent asset cache (quick cards, districts,
+  // and the six prompt-string bundles) and listen for language switches.
+  await PromptCacheWarmer(localeController).start();
 
   // Global error handlers — capture uncaught errors in release mode where
   // debugPrint is a no-op. Without this, errors vanish silently on a

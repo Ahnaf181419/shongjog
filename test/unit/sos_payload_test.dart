@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/mesh_comm/sos_payload.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   test('encode then decode round-trips all fields', () {
     final p = SosPayload(
       id: 'abc-123',

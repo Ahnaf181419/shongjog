@@ -26,13 +26,20 @@ class EmergencyEntry {
         division: j['division'] as String? ?? 'all',
         type: j['type'] as String? ?? 'other',
       );
+
+  /// Locale-appropriate name: Bangla in bn mode, English in en mode.
+  String displayName(String localeCode) {
+    final isBangla = localeCode.toLowerCase().startsWith('bn');
+    if (isBangla) return nameBn.isNotEmpty ? nameBn : name;
+    return name.isNotEmpty ? name : nameBn;
+  }
 }
 
 /// Loads and parses the offline emergency directory from
 /// `assets/emergency/directory.json`. Cached in memory after the
 /// first read.
 class DirectoryLoader {
-  static const _assetPath = 'assets/emergency/directory.json';
+  static const _assetPath = 'assets/data/emergency_directory.json';
   static List<EmergencyEntry>? _cache;
 
   static Future<List<EmergencyEntry>> loadAll() async {

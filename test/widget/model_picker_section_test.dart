@@ -6,6 +6,7 @@ import 'package:shongjog/l10n/app_localizations.dart';
 
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   // These tests MUST use the real ShongjogTheme. Under a bare MaterialApp the
   // picker renders fine, which is exactly why the layout crash below shipped:
   // the app theme's filledButtonTheme sets minimumSize: Size.fromHeight(52)

@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../../app/theme.dart';
+import '../../core/locale_controller.dart';
 import 'cards_data.dart';
 import '../../core/bangla_numerals.dart';
 
-/// Quick cards screen — 8 static Bangla emergency cards.
-/// Works with no model loaded (safety net, docs/prd.md M4).
-/// Per design.md §7.2: ExpansionTile, numbered Bangla steps, 12dp spacing.
+/// Quick cards screen — 25 static emergency cards (bn+en).
+/// Source of truth for card copy: assets/data/cards.json (see Phase 2.1
+/// of docs/superpowers/plans/2026-09-09-text-consolidation.md).
+///
+/// Cards are loaded per-build via [FutureBuilder] from [loadQuickCards]
+/// using the live locale. TextLoader caches per-locale so this is
+/// essentially free after the first call, and locale switches refresh
+/// the list immediately because the whole MaterialApp rebuilds.
 class QuickCardsScreen extends StatefulWidget {
   final void Function(String prompt) onRequestAiChat;
 
@@ -20,6 +26,7 @@ class QuickCardsScreen extends StatefulWidget {
 class _QuickCardsScreenState extends State<QuickCardsScreen> {
   final _searchController = TextEditingController();
   String _query = '';
+  String _cardsLocale = localeController.languageCode;
 
   @override
   void dispose() {
@@ -27,19 +34,15 @@ class _QuickCardsScreenState extends State<QuickCardsScreen> {
     super.dispose();
   }
 
-  List<QuickCard> get _filteredCards {
-    if (_query.isEmpty) return kQuickCards;
-    final q = _query.toLowerCase();
-    // Search matches the CURRENT locale's text (bn or en) — the Cards
-    // tab is bilingual since 2026-09-09.
-    final isBn = AppLocalizations.of(context).localeName.startsWith('bn');
-    return kQuickCards.where((card) {
-      final titleMatch =
-          (isBn ? card.titleBn : card.titleEn).toLowerCase().contains(q);
-      final stepsMatch = (isBn ? card.stepsBn : card.stepsEn)
-          .any((s) => s.toLowerCase().contains(q));
-      return titleMatch || stepsMatch;
-    }).toList();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Rebuild the FutureBuilder when the locale changes so the card list
+    // refreshes without the user leaving the screen.
+    final current = AppLocalizations.of(context).localeName;
+    if (current != _cardsLocale) {
+      _cardsLocale = current;
+    }
   }
 
   @override
@@ -90,14 +93,39 @@ class _QuickCardsScreenState extends State<QuickCardsScreen> {
             ),
           ),
           Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              itemCount: _filteredCards.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 12),
-              itemBuilder: (_, i) => _CardTile(
-                card: _filteredCards[i],
-                onRequestAiChat: widget.onRequestAiChat,
-              ),
+            child: FutureBuilder<List<QuickCardEntry>>(
+              key: ValueKey(_cardsLocale),
+              future: loadQuickCards(_cardsLocale),
+              builder: (context, snap) {
+                if (snap.connectionState != ConnectionState.done) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        l10n.commonLoading,
+                        style: TextStyle(color: ShongjogTheme.bodySecondary(context)),
+                      ),
+                    ),
+                  );
+                }
+                final cards = snap.data ?? const <QuickCardEntry>[];
+                final filtered = _query.isEmpty
+                    ? cards
+                    : cards.where((c) {
+                        final q = _query.toLowerCase();
+                        return c.title.toLowerCase().contains(q) ||
+                            c.steps.any((s) => s.toLowerCase().contains(q));
+                      }).toList();
+                return ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  itemCount: filtered.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
+                  itemBuilder: (_, i) => _CardTile(
+                    card: filtered[i],
+                    onRequestAiChat: widget.onRequestAiChat,
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -107,13 +135,14 @@ class _QuickCardsScreenState extends State<QuickCardsScreen> {
 }
 
 class _CardTile extends StatelessWidget {
-  final QuickCard card;
+  final QuickCardEntry card;
   final void Function(String prompt) onRequestAiChat;
 
   const _CardTile({required this.card, required this.onRequestAiChat});
 
   @override
   Widget build(BuildContext context) {
+    final localeName = AppLocalizations.of(context).localeName;
     return Container(
       decoration: BoxDecoration(
         color: ShongjogTheme.cardSurface(context),
@@ -136,7 +165,7 @@ class _CardTile extends StatelessWidget {
             child: Icon(card.icon, color: card.color, size: 24),
           ),
           title: Text(
-            card.title(context),
+            card.title,
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
@@ -147,7 +176,7 @@ class _CardTile extends StatelessWidget {
           collapsedIconColor: ShongjogTheme.bodySecondary(context),
           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           children: [
-            ...card.steps(context).asMap().entries.map((e) => Padding(
+            ...card.steps.asMap().entries.map((e) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 6),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,8 +191,7 @@ class _CardTile extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                          numberForLocale(e.key + 1,
-                              AppLocalizations.of(context).localeName),
+                            numberForLocale(e.key + 1, localeName),
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -197,11 +225,10 @@ class _CardTile extends StatelessWidget {
                 backgroundColor: card.color.withValues(alpha: 0.08),
                 side: BorderSide(color: card.color.withValues(alpha: 0.3)),
                 onPressed: () {
-                  // The AI handoff stays Bangla by design — the on-device
-                  // model is instructed to answer in Bangla (AGENTS.md).
                   final firstStep =
-                      card.stepsBn.isNotEmpty ? card.stepsBn.first : '';
-                  onRequestAiChat('${card.titleBn}। $firstStep');
+                      card.steps.isNotEmpty ? card.steps.first : '';
+                  final sep = localeController.isBangla ? '। ' : '. ';
+                  onRequestAiChat('${card.title}$sep$firstStep');
                 },
               ),
             ),
@@ -210,5 +237,4 @@ class _CardTile extends StatelessWidget {
       ),
     );
   }
-
 }

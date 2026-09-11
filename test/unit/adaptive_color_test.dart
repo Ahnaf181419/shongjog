@@ -20,6 +20,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// written — the token sweep fixed the existing call sites but nothing stopped
 /// the next one.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   /// Files allowed to name a brightness-specific token directly, with why.
   const colorExempt = <String, String>{
     'lib/app/theme.dart': 'defines the tokens',

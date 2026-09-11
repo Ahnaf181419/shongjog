@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import 'family_profile.dart';
 import 'form_widgets.dart';
 import 'kit_service.dart';
+import '../../core/bangla_numerals.dart';
 
 /// AI Emergency Kit Generator screen (Module B).
 ///
@@ -262,11 +263,17 @@ class _KitScreenState extends State<KitScreen> {
               runSpacing: 8,
               alignment: WrapAlignment.center,
               children: [
-                _SummaryChip(l10n.kitSummaryMembers(p.familySize)),
+                _SummaryChip(l10n.kitSummaryMembers(
+                  numberForLocale(p.familySize, l10n.localeName),
+                )),
                 if (p.childrenCount > 0)
-                  _SummaryChip(l10n.kitSummaryChildren(p.childrenCount)),
+                  _SummaryChip(l10n.kitSummaryChildren(
+                    numberForLocale(p.childrenCount, l10n.localeName),
+                  )),
                 if (p.elderlyCount > 0)
-                  _SummaryChip(l10n.kitSummaryElderly(p.elderlyCount)),
+                  _SummaryChip(l10n.kitSummaryElderly(
+                    numberForLocale(p.elderlyCount, l10n.localeName),
+                  )),
               ],
             ),
             const SizedBox(height: 16),

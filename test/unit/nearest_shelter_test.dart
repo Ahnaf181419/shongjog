@@ -3,6 +3,7 @@ import 'package:shongjog/features/shelter/nearest_shelter.dart';
 import 'package:shongjog/features/shelter/shelter_model.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('nearestShelters', () {
     test('returns closest shelter by haversine distance', () {
       final s = [

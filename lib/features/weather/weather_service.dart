@@ -160,25 +160,7 @@ class WeatherSnapshot {
     );
   }
 
-  /// WMO weather code → Bangla label for unit-test compatibility.
-  /// Prefer [conditionLabel] in UI code (uses AppLocalizations).
-  String get conditionBn {
-    switch (weatherCode) {
-      case 0: return 'পরিষ্কার';
-      case 1: case 2: return 'হালকা মেঘলা';
-      case 3: return 'মেঘাচ্ছন্ন';
-      case 45: case 48: return 'কুয়াশা';
-      case 51: case 53: case 55: return 'গুঁড়ি গুঁড়ি বৃষ্টি';
-      case 61: case 63: return 'বৃষ্টি';
-      case 65: return 'ভারী বৃষ্টি';
-      case 71: case 73: case 75: return 'তুষারপাত';
-      case 80: case 81: return 'বৃষ্টির ঝাপটা';
-      case 82: return 'ভারী বর্ষণ';
-      case 95: return 'ঝড়ো হাওয়া';
-      case 96: case 99: return 'বজ্রসহ ঝড়';
-      default: return 'অজানা';
-    }
-  }
+  // Use [conditionLabel(l10n)] in UI code — AppLocalizations has all 12 codes.
 
   /// WMO weather code → Bangla label. Codes per Open-Meteo docs.
   /// https://open-meteo.com/en/docs (WMO Weather interpretation codes)

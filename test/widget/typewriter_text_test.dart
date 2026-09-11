@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/chat/typewriter_text.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('TypewriterText', () {
     testWidgets('shows full text immediately when animate is false', (tester) async {
       await tester.pumpWidget(

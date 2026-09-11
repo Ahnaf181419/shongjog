@@ -819,20 +819,9 @@
   "damageRecommendLabel": "সুপারিশ",
   "damageScanAnother": "আরেকটি ছবি স্ক্যান করুন",
   "damageTryAgain": "আবার চেষ্টা করুন",
-  "damageTypeFlood": "বন্যা",
-  "damageTypeFire": "আগুন",
   "damageTypeBuildingCollapse": "ধসে পড়া ভবন",
-  "damageTypeFallenTree": "পড়ে যাওয়া গাছ",
-  "damageTypeBlockedRoad": "অবরুদ্ধ রাস্তা",
   "damageTypeElectricalHazard": "বৈদ্যুতিক বিপদ",
-  "damageTypeSmoke": "ধোঁয়া",
-  "damageTypeOther": "অন্যান্য",
-  "damageTypeUnknown": "অজানা",
-  "damageSeverityLow": "নিম্ন",
-  "damageSeverityMedium": "মাঝারি",
-  "damageSeverityHigh": "উচ্চ",
   "damageSeverityVeryHigh": "অত্যন্ত উচ্চ",
-  "damageSeverityUnknown": "অজানা",
   "damageDefaultRecommendation": "অতিরিক্ত তথ্যের জন্য আশ্রয় ট্যাব ব্যবহার করুন।",
   "damageParseFailure": "ছবি বিশ্লেষণ করা যায়নি।",
   "plannerTitle": "AI দুর্যোগ পরিকল্পনা",
@@ -888,7 +877,7 @@
   "@kitSummaryMembers": {
     "placeholders": {
       "size": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -896,7 +885,7 @@
   "@kitSummaryChildren": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -904,7 +893,7 @@
   "@kitSummaryElderly": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -951,13 +940,13 @@
         "type": "String"
       },
       "count": {
-        "type": "int"
+        "type": "String"
       },
       "yes": {
-        "type": "int"
+        "type": "String"
       },
       "no": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -970,13 +959,13 @@
         "type": "String"
       },
       "count": {
-        "type": "int"
+        "type": "String"
       },
       "yes": {
-        "type": "int"
+        "type": "String"
       },
       "no": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -1014,7 +1003,7 @@
   "@hazardsShowMore": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -1035,28 +1024,21 @@
   "@riskTimeMinutesAgo": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
   "@riskTimeHoursAgo": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
   "@riskTimeDaysAgo": {
     "placeholders": {
       "count": {
-        "type": "int"
-      }
-    }
-  },
-  "@kitGenerateForFamily": {
-    "placeholders": {
-      "size": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -1120,6 +1102,92 @@
   "@embedderInstallFailed": {
     "placeholders": {
       "error": {
+        "type": "String"
+      }
+    }
+  },
+  "demoSeedQ1Question": "ওআরএস কীভাবে বানাবো?",
+  "demoSeedQ1Answer": "১ লিটার পরিষ্কার পানিতে ৬ চা চামচ চিনি ও আধা চা চামচ লবণ মেশান। ভালো করে নাড়ুন এবং ২৪ ঘণ্টার মধ্যে খেয়ে ফেলুন। শিশুদের বারবার চামচ দিয়ে খাওয়ান।",
+  "demoSeedQ2Question": "নিকটস্থ আশ্রয়কেন্দ্র কোথায়?",
+  "demoSeedQ2Answer": "আশ্রয় মানচিত্রে (হোম → আশ্রয়) নিকটস্থ ঘূর্ণিঝড় আশ্রয়কেন্দ্র দেখুন। GPS অনুমতি দিলে দূরত্ব অনুযায়ী সাজানো তালিকা পাবেন।",
+  "demoSeedQ3Question": "সাপে কামড়ালে কী করবো?",
+  "demoSeedQ3Answer": "রোগীকে শান্ত রাখুন। কাটা, চুষা বা টর্নিকেট ব্যবহার করবেন না। আক্রান্ত স্থান নড়াচলা বন্ধ রাখুন এবং দ্রুত নিকটস্থ হাসপাতালে নিন。",
+  "insightCycloneTitle": "ঘূর্ণিঝড় প্রস্তুতি",
+  "insightCycloneBody": "আপনার নিকটবর্তী আশ্রয়কেন্দ্র আগে থেকেই ম্যাপে দেখে রাখুন।",
+  "insightFloodTitle": "বন্যা সতর্কতা",
+  "insightFloodBody": "পানি বিশুদ্ধ করার নিয়মগুলো জেনে নিন।",
+  "insightMedicalTitle": "চিকিৎসা সহায়তা",
+  "insightMedicalBody": "ORS তৈরির নিয়ম এবং জরুরি যোগাযোগ প্রস্তুত রাখুন।",
+  "insightOfflineTitle": "অফলাইন AI প্রস্তুত",
+  "insightOfflineBody": "ইন্টারনেট ছাড়াই শঙ্গ্যোগ আপনার প্রশ্নের উত্তর দিতে পারে।",
+  "@insightMedicalTitle": {
+    "description": "Proactive notification when medical interest detected"
+  },
+  "@insightOfflineBody": {
+    "description": "Default insight body for offline AI"
+  },
+  "proximityAlertTitle": "নিকটস্থ {type}",
+  "@proximityAlertTitle": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "proximityAlertBody": "{type} চলছে: {address} ({distance} কিমি দূরত্বে)",
+  "@proximityAlertBody": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "address": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "commonLoading": "লোড হচ্ছে…",
+  "riskHomeMaterial": "ঘরের ধরন",
+  "riskHomeMaterialTinShed": "টিনের ঘর",
+  "riskHomeMaterialHalfPucka": "আধা পাকা",
+  "riskHomeMaterialPucka": "পাকা",
+  "riskHomeMaterialApartment": "অ্যাপার্টমেন্ট",
+  "riskFloodHistoryNone": "কখনো না",
+  "riskFloodHistoryMinor": "মাঝারি",
+  "riskFloodHistoryMajor": "প্রধান",
+  "riskElevationLow": "নিচু",
+  "riskElevationMid": "মাঝারি",
+  "riskElevationHigh": "উঁচু",
+  "damageCameraPermanentDenied": "ক্যামেরার অনুমতি স্থায়ীভাবে প্রত্যাখ্যান করা হয়েছে। অনুগ্রহ করে সেটিংসে গিয়ে অনুমতি দিন।",
+  "damageCameraDenied": "ক্যামেরার অনুমতি প্রত্যাখ্যান করা হয়েছে।",
+  "chatFallback999": "জরুরি সাহায্যের জন্য ৯৯৯ এ কল করুন।",
+  "meshTransportNearby": "কাছেই",
+  "beaconAnonymousReporter": "একজন ব্যবহারকারী",
+  "adminRequestApproved": "{type} অনুমোদিত হয়েছে",
+  "@adminRequestApproved": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "adminRequestRejected": "{type} প্রত্যাখ্যান করা হয়েছে",
+  "@adminRequestRejected": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "emergencyGpsFallbackNotice": "{warning} — {phone} নম্বরে কল করুন",
+  "@emergencyGpsFallbackNotice": {
+    "placeholders": {
+      "warning": {
+        "type": "String"
+      },
+      "phone": {
         "type": "String"
       }
     }

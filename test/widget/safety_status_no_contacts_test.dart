@@ -6,6 +6,7 @@ import 'package:shongjog/features/safe_beacon/safety_status_screen.dart';
 import 'test_app.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   // Independent-review suggestions (post-audit polish, 2026-09-09):
   // 2. _sendSafe() showed "willNotifyOnReconnect(0)" when no contacts
   //    were configured — misleading UX. Add an explicit "no contacts"

@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/shelter/semantic_search_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('SemanticSearchService.classify', () {
     test('shelter keywords → shelterFilter intent', () {
       expect(

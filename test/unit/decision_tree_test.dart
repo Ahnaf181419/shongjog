@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/triage/decision_tree.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('TriageTree.walk', () {
     test('unconscious + not breathing -> cpr', () {
       // conscious=no, breathing=no -> cpr.

@@ -78,7 +78,9 @@ Everything below runs on the Android emulator and in `flutter test`:
 - **Voice prefs** consumed by ChatScreen and Settings:
   - `pref_auto_read` → auto TTS after render
   - `pref_voice_input` → blocks mic when off
-- **Cloud AI fallback** chain (Gemini 2.5-flash → 2.0-flash-lite) when online.
+- **Cloud AI tier** (Gemini 3.1 Flash Lite primary; preview-channel fallback; last-resort
+  Gemma 4 26B-A4B) tried first when the device is online. On-device Gemma 4 is the offline
+  fallback. See `docs/prd.md` §13.
 
 ### Emergency
 - **Slide-to-confirm dialer** for 999 — single GestureDetector, real GPS, real user
@@ -306,7 +308,7 @@ lib/
 │   │                                  #          chat_store (JSON persistence), message_bubble,
 │   │                                  #          typewriter_text (char-by-char reveal)
 │   ├── contacts/                      # 3 files: emergency contacts (add/list/call)
-│   ├── cloud_ai/cloud_ai_service.dart # Gemini fallback chain
+│   ├── cloud_ai/cloud_ai_service.dart # Gemini 3.1 Flash Lite primary (online tier)
 │   ├── emergency/                     # 3 files: emergency_sheet (slide-to-confirm),
 │   │                                  #          emergency_actions, sos_sms_template
 │   ├── home/home_screen.dart          # home tab bento grid

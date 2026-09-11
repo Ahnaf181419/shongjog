@@ -3,6 +3,7 @@ import 'package:shongjog/features/shelter/shelter_model.dart';
 import 'package:shongjog/features/shelter/shelter_tool_dispatcher.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   // Three shelters at known distances from the reference point (0, 0).
   // We use small synthetic coordinates so distances are easy to reason
   // about; the haversine formula is exercised for real.

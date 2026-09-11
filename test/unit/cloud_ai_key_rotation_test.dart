@@ -12,6 +12,7 @@ import 'package:shongjog/features/cloud_ai/cloud_ai_service.dart';
 /// outgoing request, so they prove the *service* rotates — not just that the
 /// ring can count.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => connectivityProvider.debugSetOnline(true));
   tearDown(() => connectivityProvider.debugSetOnline(false));
 

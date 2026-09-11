@@ -5,6 +5,7 @@ import 'package:shongjog/features/shelter/widgets/gps_banner.dart';
 import 'test_app.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('GpsBanner', () {
     testWidgets('shows generic message when no error', (tester) async {
       await tester.pumpWidget(localizedApp(

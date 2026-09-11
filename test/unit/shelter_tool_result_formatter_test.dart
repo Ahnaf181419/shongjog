@@ -2,11 +2,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/shelter/shelter_model.dart';
 import 'package:shongjog/features/shelter/nearest_shelter.dart';
 import 'package:shongjog/features/shelter/shelter_tool_result_formatter.dart';
+import 'package:shongjog/features/shelter/shelter_strings_loader.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  late ShelterStrings bnShelterStrings;
+  setUpAll(() async {
+    bnShelterStrings = await loadShelterStrings('bn');
+  });
+
   group('ShelterToolResultFormatter.toBanglaMessage', () {
     test('empty list returns a helpful fallback', () {
-      final msg = ShelterToolResultFormatter.toBanglaMessage(const []);
+      final msg = ShelterToolResultFormatter.toBanglaMessage(const [], s: bnShelterStrings);
       expect(msg, contains('কোনো শেল্টার'));
       expect(msg, contains('৯৯৯'));
     });
@@ -25,7 +33,7 @@ void main() {
           3.4,
         ),
       ];
-      final msg = ShelterToolResultFormatter.toBanglaMessage(ranked);
+      final msg = ShelterToolResultFormatter.toBanglaMessage(ranked, s: bnShelterStrings);
       // Bangla name present.
       expect(msg, contains('টেস্ট শেল্টার'));
       // Distance rounded to 1 decimal + Bengali km suffix.
@@ -48,7 +56,7 @@ void main() {
           2.5,
         ),
       ];
-      final msg = ShelterToolResultFormatter.toBanglaMessage(ranked);
+      final msg = ShelterToolResultFormatter.toBanglaMessage(ranked, s: bnShelterStrings);
       // Bengali digits ১. and ২. as list markers.
       expect(msg, contains('১.'));
       expect(msg, contains('২.'));
@@ -65,7 +73,7 @@ void main() {
           5.0,
         ),
       ];
-      final msg = ShelterToolResultFormatter.toBanglaMessage(ranked);
+      final msg = ShelterToolResultFormatter.toBanglaMessage(ranked, s: bnShelterStrings);
       expect(msg, contains('এক্স'));
       expect(msg, contains('৫.০'));
       // Should NOT contain the capacity line at all.
@@ -80,7 +88,7 @@ void main() {
           1.0,
         ),
       ];
-      final msg = ShelterToolResultFormatter.toBanglaMessage(ranked);
+      final msg = ShelterToolResultFormatter.toBanglaMessage(ranked, s: bnShelterStrings);
       expect(msg.toLowerCase(), contains('মানচিত্র'));
     });
   });

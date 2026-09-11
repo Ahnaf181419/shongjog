@@ -530,7 +530,7 @@ class _VoicePlayerBubbleState extends State<_VoicePlayerBubble>
   StreamSubscription? _posSub;
   StreamSubscription? _durSub;
 
-  // Bangla digit map
+  // Bangla digit map — only used when the locale requires it.
   static const _bn = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
 
   @override
@@ -601,14 +601,18 @@ class _VoicePlayerBubbleState extends State<_VoicePlayerBubble>
     await _player.seek(target);
   }
 
-  // Converts a Duration to Bangla ০:০০ format
-  String _bnTime(Duration d) {
+  /// Formats a Duration as `m:ss` in either Bangla digits (bn mode) or
+  /// Latin (en mode), zero-padded to keep the layout width stable.
+  String formatTime(Duration d, String localeCode) {
     final m = d.inMinutes.remainder(60);
     final s = d.inSeconds.remainder(60);
-    String toStr(int n) =>
-        n.toString().split('').map((c) => _bn[int.parse(c)]).join();
+    final isBangla = localeCode == 'bn';
+    String toStr(int n) {
+      if (!isBangla) return n.toString().padLeft(2, '0');
+      return n.toString().split('').map((c) => _bn[int.parse(c)]).join();
+    }
     final mm = toStr(m);
-    final ss = s < 10 ? '${_bn[0]}${toStr(s)}' : toStr(s);
+    final ss = toStr(s);
     return '$mm:$ss';
   }
 
@@ -696,7 +700,8 @@ class _VoicePlayerBubbleState extends State<_VoicePlayerBubble>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        _bnTime(_position),
+                        formatTime(_position,
+                            AppLocalizations.of(context).localeName),
                         style: TextStyle(
                           fontSize: 14,
                           color: onColorDim,
@@ -704,7 +709,8 @@ class _VoicePlayerBubbleState extends State<_VoicePlayerBubble>
                         ),
                       ),
                       Text(
-                        _bnTime(_duration),
+                        formatTime(_duration,
+                            AppLocalizations.of(context).localeName),
                         style: TextStyle(
                           fontSize: 14,
                           color: onColorDim,

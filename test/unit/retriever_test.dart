@@ -7,6 +7,7 @@ import 'package:shongjog/rag/types.dart';
 Float32List _vec(List<double> v) => Float32List.fromList(v);
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('BruteForceRetriever', () {
     test('topK returns chunks ordered by cosine similarity, above floor', () {
       final chunks = [

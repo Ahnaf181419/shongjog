@@ -36,6 +36,11 @@ class SafeBeaconPayload {
   /// Convert to a [SosPayload] for wire compatibility. The SOS
   /// relay engine doesn't care about the message text — it
   /// de-dupes by [id].
+  ///
+  /// `message` should be localized at the call site. The default here
+  /// is Bangla as a back-compat fallback for tests and direct callers
+  /// that don't pass l10n; production paths should pass the localized
+  /// string (see `safety_status_screen.dart`).
   SosPayload toSosPayload({String message = 'নিরাপদ — আমি ভালো আছি'}) {
     return SosPayload(
       id: id,

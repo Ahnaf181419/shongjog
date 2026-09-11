@@ -30,17 +30,11 @@ class UrgencyResult {
   final UrgencyLevel level;
   final bool enableThinking;
 
-  /// Human-readable Bangla label for the urgency badge.
-  final String labelBn;
+  const UrgencyResult._(this.level, this.enableThinking);
 
-  const UrgencyResult._(this.level, this.enableThinking, this.labelBn);
-
-  static const critical =
-      UrgencyResult._(UrgencyLevel.critical, false, 'জরুরি');
-  static const urgent =
-      UrgencyResult._(UrgencyLevel.urgent, true, 'তাগিদপূর্ণ');
-  static const routine =
-      UrgencyResult._(UrgencyLevel.routine, true, 'সাধারণ');
+  static const critical = UrgencyResult._(UrgencyLevel.critical, false);
+  static const urgent = UrgencyResult._(UrgencyLevel.urgent, true);
+  static const routine = UrgencyResult._(UrgencyLevel.routine, true);
 }
 
 extension UrgencyLevelLabel on UrgencyLevel {

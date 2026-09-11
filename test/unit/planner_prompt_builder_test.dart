@@ -1,11 +1,19 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/planner/family_profile.dart';
 import 'package:shongjog/features/planner/planner_prompt_builder.dart';
+import 'package:shongjog/features/planner/planner_strings_loader.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  late PlannerStrings bnStrings;
+  setUpAll(() async {
+    bnStrings = await loadPlannerStrings('bn');
+  });
+
   group('PlannerPromptBuilder.buildPlan', () {
     test('returns null for an empty profile', () {
-      expect(PlannerPromptBuilder.buildPlan(FamilyProfile.empty), isNull);
+      expect(PlannerPromptBuilder.buildPlan(FamilyProfile.empty, s: bnStrings), isNull);
     });
 
     test('includes family size + home type + vulnerable members', () {
@@ -17,13 +25,13 @@ void main() {
         homeType: HomeType.tinShed,
         nearbyRiver: true,
       );
-      final prompt = PlannerPromptBuilder.buildPlan(profile);
+      final prompt = PlannerPromptBuilder.buildPlan(profile, s: bnStrings);
       expect(prompt, isNotNull);
       // Bangla instruction.
       expect(prompt!, contains('বাংলা'));
       // Structured data is in the prompt.
       expect(prompt, contains('5'));
-      expect(prompt, contains('tinShed'));
+      expect(prompt, contains('টিনশেড'));
       expect(prompt, contains('নদী'));
     });
 
@@ -32,7 +40,7 @@ void main() {
         familySize: 3,
         medicalConditions: ['ডায়াবেটিস'],
       );
-      final prompt = PlannerPromptBuilder.buildPlan(profile);
+      final prompt = PlannerPromptBuilder.buildPlan(profile, s: bnStrings);
       expect(prompt, isNotNull);
       expect(prompt!, contains('ডায়াবেটিস'));
     });
@@ -42,7 +50,7 @@ void main() {
         familySize: 2,
         nearbyCoast: true,
       );
-      final prompt = PlannerPromptBuilder.buildPlan(profile);
+      final prompt = PlannerPromptBuilder.buildPlan(profile, s: bnStrings);
       expect(prompt, isNotNull);
       expect(prompt!, contains('সমুদ্র'));
     });
@@ -53,17 +61,17 @@ void main() {
         homeType: HomeType.apartment,
         floorNumber: 5,
       );
-      final prompt = PlannerPromptBuilder.buildPlan(profile);
+      final prompt = PlannerPromptBuilder.buildPlan(profile, s: bnStrings);
       expect(prompt, isNotNull);
       expect(prompt!, contains('5'));
-      expect(prompt, contains('apartment'));
+      expect(prompt, contains('ফ্ল্যাট'));
     });
   });
 
   group('PlannerPromptBuilder.fallbackPlan', () {
     test('returns a useful generic plan for any profile', () {
       const profile = FamilyProfile(familySize: 4);
-      final plan = PlannerPromptBuilder.fallbackPlan(profile);
+      final plan = PlannerPromptBuilder.fallbackPlan(profile, s: bnStrings);
       expect(plan, isNotEmpty);
       expect(plan, contains('শূন্যস্থান'));
       expect(plan, contains('৯৯৯'));
@@ -71,13 +79,13 @@ void main() {
 
     test('includes children-specific advice when children present', () {
       const profile = FamilyProfile(familySize: 3, childrenCount: 2);
-      final plan = PlannerPromptBuilder.fallbackPlan(profile);
+      final plan = PlannerPromptBuilder.fallbackPlan(profile, s: bnStrings);
       expect(plan, contains('শিশু'));
     });
 
     test('includes elderly-specific advice when elderly present', () {
       const profile = FamilyProfile(familySize: 3, elderlyCount: 1);
-      final plan = PlannerPromptBuilder.fallbackPlan(profile);
+      final plan = PlannerPromptBuilder.fallbackPlan(profile, s: bnStrings);
       expect(plan, contains('প্রবীণ'));
     });
   });

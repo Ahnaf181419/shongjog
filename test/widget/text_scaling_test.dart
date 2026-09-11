@@ -5,6 +5,7 @@ import 'package:shongjog/app/theme.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
 import 'package:shongjog/features/quick_cards/quick_cards_screen.dart';
 import 'package:shongjog/features/planner/kit_screen.dart';
+import 'package:shongjog/features/quick_cards/cards_data.dart';
 
 /// Text-scaling guards.
 ///
@@ -56,6 +57,14 @@ Future<void> pumpAtScale(
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    final cards = await loadQuickCards('bn');
+    debugSetCardsForTest(cards);
+  });
+
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('the clamp itself', () {
     test('caps at a value that is a real accessibility gain, not a token one',
         () {

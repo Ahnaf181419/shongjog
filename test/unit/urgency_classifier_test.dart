@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/rag/urgency_classifier.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('UrgencyClassifier', () {
     group('critical (thinking OFF)', () {
       test('শ্বাসকষ্ট → critical', () {
@@ -69,18 +70,6 @@ void main() {
       });
     });
 
-    group('labels', () {
-      test('critical label is জরুরি', () {
-        expect(UrgencyResult.critical.labelBn, 'জরুরি');
-      });
-
-      test('urgent label is তাগিদপূর্ণ', () {
-        expect(UrgencyResult.urgent.labelBn, 'তাগিদপূর্ণ');
-      });
-
-      test('routine label is সাধারণ', () {
-        expect(UrgencyResult.routine.labelBn, 'সাধারণ');
-      });
-    });
+    // labels moved to AppLocalizations.urgencyCritical / urgencyUrgent / urgencyNormal.
   });
 }

@@ -10,6 +10,7 @@ import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../shelter/cached_tile_provider.dart';
 import '../../app/theme.dart';
+import '../../core/locale_controller.dart';
 
 /// Full-screen interactive map where the user can search by area,
 /// tap to drop a pin, use zoom controls, and confirm coordinates.
@@ -109,9 +110,10 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
     setState(() => _searching = true);
 
     try {
+      final acceptLang = localeController.languageCode == 'en' ? 'en' : 'bn,en';
       final uri = Uri.parse(
         'https://nominatim.openstreetmap.org/search'
-        '?q=${Uri.encodeComponent(query)}&format=json&limit=5&accept-language=bn',
+        '?q=${Uri.encodeComponent(query)}&format=json&limit=5&accept-language=$acceptLang',
       );
       final response = await http.get(uri, headers: {
         'User-Agent': 'com.shongjog.app/1.0',

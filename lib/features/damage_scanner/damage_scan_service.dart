@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
+import 'damage_scan_strings_loader.dart';
 
 /// Damage category detected by the AI Damage Scanner (Module D).
 enum DamageType {
@@ -16,20 +18,7 @@ enum DamageType {
   other,
   unknown;
 
-  String get labelBn => switch (this) {
-        DamageType.flood => 'বন্যা',
-        DamageType.fire => 'আগুন',
-        DamageType.collapsedBuilding => 'ধসে পড়া ভবন',
-        DamageType.fallenTree => 'পড়ে যাওয়া গাছ',
-        DamageType.blockedRoad => 'অবরুদ্ধ রাস্তা',
-        DamageType.electricHazard => 'বৈদ্যুতিক বিপদ',
-        DamageType.smoke => 'ধোঁয়া',
-        DamageType.other => 'অন্যান্য',
-        DamageType.unknown => 'অজানা',
-      };
 
-  /// Locale-aware label for UI (English mode showed Bangla chips —
-  /// user-reported 2026-09-09). [labelBn] stays for AI prompts.
   String label(AppLocalizations l10n) => switch (this) {
         DamageType.flood => l10n.damageTypeFlood,
         DamageType.fire => l10n.damageTypeFire,
@@ -41,16 +30,9 @@ enum DamageType {
         DamageType.other => l10n.damageTypeOther,
         DamageType.unknown => l10n.damageTypeUnknown,
       };
-
-  static DamageType fromString(String s) {
-    final lower = s.toLowerCase();
-    for (final t in values) {
-      if (lower.contains(t.name.toLowerCase())) return t;
-    }
-    return DamageType.unknown;
-  }
 }
 
+/// Severity bands the scanner emits.
 enum Severity {
   low,
   medium,
@@ -58,24 +40,7 @@ enum Severity {
   critical,
   unknown;
 
-  /// Color used by the UI gauge (red ≥high, orange medium, green low).
-  int get color => switch (this) {
-        Severity.low => 0xFF66BB6A,      // green
-        Severity.medium => 0xFFFFA726,   // orange
-        Severity.high => 0xFFEF5350,     // red
-        Severity.critical => 0xFFB71C1C, // dark red
-        Severity.unknown => 0xFF9E9E9E,  // grey
-      };
 
-  String get labelBn => switch (this) {
-        Severity.low => 'নিম্ন',
-        Severity.medium => 'মাঝারি',
-        Severity.high => 'উচ্চ',
-        Severity.critical => 'অত্যন্ত উচ্চ',
-        Severity.unknown => 'অজানা',
-      };
-
-  /// Locale-aware label for UI (English mode showed Bangla chips).
   String label(AppLocalizations l10n) => switch (this) {
         Severity.low => l10n.damageSeverityLow,
         Severity.medium => l10n.damageSeverityMedium,
@@ -84,23 +49,20 @@ enum Severity {
         Severity.unknown => l10n.damageSeverityUnknown,
       };
 
-  static Severity fromString(String s) {
-    final lower = s.toLowerCase();
-    if (lower.contains('critical')) return Severity.critical;
-    if (lower.contains('high')) return Severity.high;
-    if (lower.contains('medium') || lower.contains('med')) {
-      return Severity.medium;
-    }
-    if (lower.contains('low')) return Severity.low;
-    return Severity.unknown;
-  }
+  Color get color => switch (this) {
+        Severity.low => const Color(0xFF4CAF50),
+        Severity.medium => const Color(0xFFFFA726),
+        Severity.high => const Color(0xFFEF5350),
+        Severity.critical => const Color(0xFFB71C1C),
+        Severity.unknown => const Color(0xFF9E9E9E),
+      };
 }
 
-/// Structured result from a damage scan.
+/// Structured result of one damage-scan call.
 class DamageScanResult {
   final DamageType damageType;
   final Severity severity;
-  final double confidence; // 0.0 - 1.0
+  final double confidence; // 0.0 – 1.0
   final String recommendation;
   final String description;
 
@@ -112,68 +74,72 @@ class DamageScanResult {
     required this.description,
   });
 
-  /// Bangla display strings.
-  String get toBanglaType => damageType.labelBn;
-  String get toBanglaSeverity => severity.labelBn;
+// fromJson defined later in this file.
 
-  /// Parses the model's JSON response. Tolerant of extra wrapping
-  /// (e.g. markdown fences, prose around the JSON) — extracts the
-  /// first JSON object from the string.
-  static DamageScanResult fromJson(Map<String, dynamic> json) {
+  /// Empty / placeholder result when the model fails to analyse the image.
+  factory DamageScanResult.unanalysable({DamageScanStrings? s}) {
+    final strings = s ?? cachedDamageScan;
     return DamageScanResult(
-      damageType: DamageType.fromString(
-          json['damageType']?.toString() ?? 'unknown'),
-      severity:
-          Severity.fromString(json['severity']?.toString() ?? 'unknown'),
-      confidence: _parseDouble(json['confidence']),
-      recommendation: json['recommendation']?.toString() ??
-          'অতিরিক্ত তথ্যের জন্য আশ্রয় ট্যাব ব্যবহার করুন।',
-      description: json['description']?.toString() ?? '',
-    );
-  }
-
-  /// Parse a JSON string. Extracts the first JSON object and parses it.
-  static DamageScanResult fromJsonString(String raw) {
-    final cleaned = _extractJson(raw);
-    if (cleaned == null) {
-      return const DamageScanResult(
-        damageType: DamageType.unknown,
-        severity: Severity.unknown,
-        confidence: 0.0,
-        recommendation: 'ছবি বিশ্লেষণ করা যায়নি।',
-        description: '',
-      );
-    }
-    try {
-      final m = jsonDecode(cleaned);
-      if (m is Map<String, dynamic>) return fromJson(m);
-      if (m is List && m.isNotEmpty && m.first is Map<String, dynamic>) {
-        return fromJson((m.first as Map).cast<String, dynamic>());
-      }
-    } catch (e) {
-      debugPrint('[DamageScan] JSON parse failed: $e');
-    }
-    return const DamageScanResult(
       damageType: DamageType.unknown,
       severity: Severity.unknown,
       confidence: 0.0,
-      recommendation: 'ছবি বিশ্লেষণ করা যায়নি।',
-      description: '',
+      recommendation: strings.unanalysable,
+      description: strings.unanalysable,
     );
   }
 
-  static double _parseDouble(Object? v) {
-    if (v is num) return v.toDouble();
-    if (v is String) return double.tryParse(v) ?? 0.0;
-    return 0.0;
+  /// Parse a parsed JSON map into a [DamageScanResult].
+  factory DamageScanResult.fromJson(Map<String, dynamic> j, {DamageScanStrings? s}) =>
+      DamageScanResult(
+        damageType: _parseDamageType(j['damageType'] as String?),
+        severity: _parseSeverity(j['severity'] as String?),
+        confidence: (j['confidence'] as num? ?? 0.0).toDouble(),
+        recommendation: j['recommendation'] as String? ?? '',
+        description: j['description'] as String? ?? '',
+      );
+
+  /// Parse a raw JSON string into a [DamageScanResult].
+  static DamageScanResult fromJsonString(String raw, {DamageScanStrings? s}) {
+    try {
+      final m = jsonDecode(raw) as Map<String, dynamic>;
+      return DamageScanResult.fromJson(m, s: s);
+    } catch (_) {
+      return DamageScanResult.unanalysable(s: s);
+    }
   }
 
-  /// Extract the first JSON object substring from [raw]. Strips
-  /// markdown fences + surrounding prose.
-  static String? _extractJson(String raw) {
-    final m = RegExp(r'\{[\s\S]*\}').firstMatch(raw);
-    return m?.group(0);
+  static DamageType _parseDamageType(String? raw) {
+    if (raw == null) return DamageType.unknown;
+    final norm = raw.toLowerCase().replaceAll('_', '');
+    for (final t in DamageType.values) {
+      if (t.name.toLowerCase() == norm) return t;
+    }
+    return DamageType.unknown;
   }
+
+  static Severity _parseSeverity(String? raw) {
+    if (raw == null) return Severity.unknown;
+    final norm = raw.toLowerCase();
+    for (final s in Severity.values) {
+      if (s.name.toLowerCase() == norm) return s;
+    }
+    return Severity.unknown;
+  }
+}
+
+/// Build the structured-JSON prompt for the vision model. The
+/// model returns JSON matching [DamageScanResult.fromJson].
+String buildDamageScanPrompt({DamageScanStrings? s}) {
+  final strings = s ?? cachedDamageScan;
+  return '''${strings.systemRole}
+
+${strings.instruction}
+{
+  "damageType": "flood | fire | collapsedBuilding | fallenTree | blockedRoad | electricHazard | smoke | other | unknown",
+  "severity": "low | medium | high | critical | unknown",
+  "confidence": 0.0,
+${strings.schemaHint}
+}''';
 }
 
 /// AI Damage Scanner service (Module D in docs/AI-FIRST-FEATURES.md).
@@ -182,34 +148,18 @@ class DamageScanResult {
 /// no vision on-device, but Gemini has vision. The service accepts
 /// the image bytes + a base64-encoded inline_data payload and parses
 /// the structured JSON response.
-///
-/// Returns null on offline / failure / invalid key — the UI then shows
-/// a clear "needs internet + API key" message rather than a spinner.
 class DamageScanService {
-  /// Build the structured-JSON prompt for the vision model. The
-  /// model returns JSON matching [DamageScanResult.fromJson].
-  static String buildPrompt() {
-    return '''তুমি একটি দুর্যোগ ক্ষয়ক্ষতি বিশ্লেষক। ছবিতে দেখা ক্ষয়ক্ষতির ধরন ও তীব্রতা মূল্যায়ন করো।
+  /// Build the structured-JSON prompt for the vision model.
+  static String buildPrompt({DamageScanStrings? s}) => buildDamageScanPrompt(s: s);
 
-ফলাফল শুধুমাত্র নিচের JSON ফরম্যাটে দাও, অন্য কিছু না:
-{
-  "damageType": "flood | fire | collapsedBuilding | fallenTree | blockedRoad | electricHazard | smoke | other | unknown",
-  "severity": "low | medium | high | critical | unknown",
-  "confidence": 0.0,
-  "recommendation": "বাংলায় সুপারিশ",
-  "description": "বাংলায় সংক্ষিপ্ত বর্ণনা"
-}''';
-  }
-
-  /// Build the Gemini multimodal request body. Pure helper so we can
-  /// unit-test the wire format without making a real HTTP call.
-  static Map<String, dynamic> buildRequestBody(Uint8List imageBytes) {
+  /// Build the Gemini multimodal request body.
+  static Map<String, dynamic> buildRequestBody(Uint8List imageBytes, {DamageScanStrings? s}) {
     return {
       'contents': [
         {
           'role': 'user',
           'parts': [
-            {'text': buildPrompt()},
+            {'text': buildPrompt(s: s)},
             {
               'inline_data': {
                 'mime_type': 'image/jpeg',
@@ -222,22 +172,35 @@ class DamageScanService {
       'generationConfig': {
         'temperature': 0.2,
         'maxOutputTokens': 1024,
-        // Same suppression the chat tier uses. Without it the model spends
-        // seconds of latency (and output budget) on chain-of-thought before
-        // it starts emitting the JSON — for a classification task where the
-        // answer is five short fields and the reasoning is never shown.
         'thinkingConfig': {'thinkingBudget': 0},
-        // Ask for JSON rather than hoping for it. `_extractJson` still
-        // salvages a fenced or prose-wrapped object, but that is a fallback
-        // now, not the primary contract.
         'responseMimeType': 'application/json',
       },
     };
   }
 
+  /// Parse a JSON string into a [DamageScanResult]. Convenience for callers
+  /// that already have a string (e.g. raw HTTP response body).
+  static DamageScanResult fromJsonString(String raw, {DamageScanStrings? s}) =>
+      parseResponse(raw, s: s);
+
   /// Parse a Gemini response JSON into a [DamageScanResult]. Tolerant
   /// of the model wrapping its JSON in markdown fences.
-  static DamageScanResult parseResponse(String rawJson) {
-    return DamageScanResult.fromJsonString(rawJson);
+  static DamageScanResult parseResponse(String raw, {DamageScanStrings? s}) {
+    final json = _extractJson(raw);
+    if (json == null) return DamageScanResult.unanalysable(s: s);
+    try {
+      final m = jsonDecode(json) as Map<String, dynamic>;
+      return DamageScanResult.fromJson(m);
+    } catch (e, st) {
+      debugPrint('[DamageScan] parse failed: $e\n$st');
+      return DamageScanResult.unanalysable(s: s);
+    }
+  }
+
+  /// Extract the first JSON object substring from [raw].
+  static String? _extractJson(String raw) {
+    final m = RegExp(r'\{[\s\S]*\}').firstMatch(raw);
+    return m?.group(0);
   }
 }
+

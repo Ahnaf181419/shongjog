@@ -1,5 +1,13 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_gemma/core/tool.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
+import 'package:shongjog/core/connectivity_provider.dart';
+import 'package:shongjog/features/cloud_ai/api_key_ring.dart';
+import 'package:shongjog/features/cloud_ai/cloud_ai_service.dart';
 import 'package:shongjog/features/chat/chat_repository.dart';
 import 'package:shongjog/features/chat/local_llm.dart';
 import 'package:shongjog/rag/embedder.dart';
@@ -7,7 +15,6 @@ import 'package:shongjog/rag/embedding_retriever.dart';
 import 'package:shongjog/rag/keyword_retriever.dart';
 import 'package:shongjog/rag/types.dart';
 import 'package:shongjog/knowledge/kb_loader.dart';
-import 'dart:typed_data';
 
 /// Minimal LocalLlm impl for unit tests. Three members, no side effects.
 /// Exists because ModelManager (the production type) can't be subclassed
@@ -51,6 +58,7 @@ class _FakeLlm implements LocalLlm {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late KnowledgeBase testKb;
 
   setUp(() {
@@ -86,20 +94,20 @@ void main() {
   group('ChatRepository fallback path (no model, no cloud)', () {
     test('returns retrieved chunk text when no model available', () async {
       final repo = ChatRepository(kb: testKb);
-      final answer = await repo.ask('ORS কিভাবে বানাবো');
+      final answer = await repo.ask(null, 'ORS কিভাবে বানাবো');
       expect(answer, contains('ORS'));
       expect(answer, contains('পানি'));
     });
 
     test('returns snakebite text for snake query', () async {
       final repo = ChatRepository(kb: testKb);
-      final answer = await repo.ask('সাপে কামড়েছে');
+      final answer = await repo.ask(null, 'সাপে কামড়েছে');
       expect(answer, contains('সাপ'));
     });
 
     test('returns water text for water query', () async {
       final repo = ChatRepository(kb: testKb);
-      final answer = await repo.ask('বিশুদ্ধ পানি কিভাবে বানাবো');
+      final answer = await repo.ask(null, 'বিশুদ্ধ পানি কিভাবে বানাবো');
       expect(answer, contains('পানি'));
       expect(answer, contains('ফুটিয়ে'));
     });
@@ -107,7 +115,7 @@ void main() {
     test('returns "no answer" message when retrieval finds nothing',
         () async {
       final repo = ChatRepository(kb: testKb);
-      final answer = await repo.ask('আবহাওয়া কেমন');
+      final answer = await repo.ask(null, 'আবহাওয়া কেমন');
       expect(answer, contains('৯৯৯'));
     });
   });
@@ -119,7 +127,7 @@ void main() {
         keywordRetriever: KeywordRetriever(chunks: []),
       );
       final repo = ChatRepository(kb: emptyKb);
-      final answer = await repo.ask('কিছু জিজ্ঞাসা');
+      final answer = await repo.ask(null, 'কিছু জিজ্ঞাসা');
       expect(answer, contains('৯৯৯'));
     });
   });
@@ -130,16 +138,18 @@ void main() {
   //  OOM during load), ChatRepository MUST surface that failure via
   //  onPath — NOT silently fall through to the corpus chunk.
   //
-  //  Before this fix, Tier-2 was wrapped in a try/catch with `debugPrint`
-  //  and the bubble chip reported `কোরপাস` ("answer came from RAG lookup")
-  //  when in fact the answer came from a corpus chunk because the local
-  //  model crashed. The user saw a misleading corpus answer and assumed
-  //  the device model was broken.
+  //  Before the original fix, the on-device tier (now Tier-2; was Tier-1
+  //  before the cloud-first flip) was wrapped in a try/catch with
+  //  `debugPrint` and the bubble chip reported `কোরপাস` ("answer came
+  //  from RAG lookup") when in fact the answer came from a corpus chunk
+  //  because the local model crashed. The user saw a misleading corpus
+  //  answer and assumed the device model was broken.
   //
-  //  These tests pin the expected behavior so we can watch the test
-  //  fail RED, then write the fix (GREEN), then refactor.
+  //  None of these tests configure a `cloudAi`, so with the cloud-first
+  //  ordering the Cloud tier is skipped and the device tier runs as
+  //  before. The assertions below pin that behavior.
   // ════════════════════════════════════════════════════════════════
-  group('ChatRepository Tier-2 surface-on-failure', () {
+  group('ChatRepository device-failure surfaces via corpus fallback', () {
     test(
         'reports device path when local model generates successfully '
         '(regression guard for GREEN)', () async {
@@ -152,7 +162,7 @@ void main() {
         ),
       );
       final answer = await repo.ask(
-        'ORS কিভাবে বানাবো',
+        null, 'ORS কিভাবে বানাবো',
         onPath: paths.add,
       );
       expect(answer, 'device answer');
@@ -161,7 +171,7 @@ void main() {
 
     test(
         'when the local model says it is ready but generate() throws, '
-        'ChatRepository falls through to Tier-3 corpus instead of '
+        'ChatRepository falls through to the corpus tier instead of '
         'showing an error bubble', () async {
       final paths = <GenerationPath>[];
       final repo = ChatRepository(
@@ -172,7 +182,7 @@ void main() {
           generateError: StateError('Gemma runtime died'),
         ),
       );
-      final answer = await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+      final answer = await repo.ask(null, 'ORS কিভাবে বানাবো', onPath: paths.add);
       // Falls through to corpus — the ORS chunk text.
       expect(answer, contains('ORS'));
       expect(paths, [GenerationPath.corpus]);
@@ -184,16 +194,16 @@ void main() {
     //  When the engine leaks its thought channel, the raw output starts
     //  with `<|channel|>` at index 0. truncateAtTurnMarker correctly cuts
     //  everything from the first marker onward — which for that input is
-    //  the ENTIRE string. Tier-2 used to return that empty string as a
-    //  successful device answer, rendering a blank bubble that looks
-    //  exactly like a crash.
+    //  the ENTIRE string. The on-device tier (Tier-2 after the cloud-first
+    //  flip) used to return that empty string as a successful device
+    //  answer, rendering a blank bubble that looks exactly like a crash.
     //
     //  Correct behavior: treat "cleaned to nothing" as no answer and fall
     //  through to the corpus.
     // ══════════════════════════════════════════════════════════════
     test(
-        'when the model emits only control tokens, Tier-2 falls through to '
-        'corpus instead of returning a blank bubble', () async {
+        'when the model emits only control tokens, the device tier falls '
+        'through to corpus instead of returning a blank bubble', () async {
       final paths = <GenerationPath>[];
       final repo = ChatRepository(
         kb: testKb,
@@ -205,7 +215,7 @@ void main() {
               '<|channel|>thought\n Process<channel|>',
         ),
       );
-      final answer = await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+      final answer = await repo.ask(null, 'ORS কিভাবে বানাবো', onPath: paths.add);
       expect(answer.trim(), isNotEmpty,
           reason: 'a blank bubble must never reach the user');
       expect(answer, contains('ORS'));
@@ -225,7 +235,7 @@ void main() {
               'ORS বানাতে ১ লিটার পানি নিন।\n<|channel|>thought leak',
         ),
       );
-      final answer = await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+      final answer = await repo.ask(null, 'ORS কিভাবে বানাবো', onPath: paths.add);
       expect(answer, 'ORS বানাতে ১ লিটার পানি নিন।');
       expect(paths, [GenerationPath.device]);
     });
@@ -244,6 +254,7 @@ void main() {
         ),
       );
       await repo.ask(
+        null,
         'আবার বলো',
         history: const [
           ChatTurn(text: 'তোমার নাম কি', isUser: true),
@@ -279,7 +290,7 @@ void main() {
           onGenerate: (p) => capturedPrompt = p,
         ),
       );
-      final answer = await repo.ask('ডায়রিয়ায় কী করবো');
+      final answer = await repo.ask(null, 'ডায়রিয়ায় কী করবো');
       expect(answer, 'semantic answer');
       // The ORS chunk (nearest to the fake query vector) is the context.
       expect(capturedPrompt, contains('[Source: WHO] ORS তৈরির সহজ উপায়'));
@@ -294,7 +305,7 @@ void main() {
       final repo = ChatRepository(kb: testKb, embedding: embedding);
       // No model: with the embedder dead, the keyword path must still
       // retrieve the ORS chunk and answer from the corpus tier.
-      final answer = await repo.ask('ORS কিভাবে বানাবো');
+      final answer = await repo.ask(null, 'ORS কিভাবে বানাবো');
       expect(answer, contains('ORS'));
     });
 
@@ -308,8 +319,157 @@ void main() {
         floor: 1.2,
       );
       final repo = ChatRepository(kb: testKb, embedding: embedding);
-      final answer = await repo.ask('ORS কিভাবে বানাবো');
+      final answer = await repo.ask(null, 'ORS কিভাবে বানাবো');
       expect(answer, contains('ORS'));
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════════
+  //  Cloud-first tier order
+  //
+  //  After the flip, the chain is Cloud → Device → Corpus → Canned, gated
+  //  on `connectivityProvider.isOnline`. These tests drive a real
+  //  CloudAiService through a MockClient and assert both the answer and
+  //  the GenerationPath reported via onPath.
+  //
+  //  Connectivity is set in setUp (online) and reset in tearDown
+  //  (offline) — the same pattern as cloud_ai_key_rotation_test.dart —
+  //  so a failing assertion cannot leak online state into the next group.
+  // ════════════════════════════════════════════════════════════════
+  group('ChatRepository tier order — Cloud first when online', () {
+    setUp(() => connectivityProvider.debugSetOnline(true));
+    tearDown(() => connectivityProvider.debugSetOnline(false));
+
+    test(
+        'online + cloud configured → Cloud is tried first, on-device model '
+        'is never invoked, no cloud failure surfaces', () async {
+      final cloud = cloudAiWithAnswer('cloud answer');
+      final paths = <GenerationPath>[];
+      final repo = ChatRepository(
+        kb: testKb,
+        cloudAi: cloud.service,
+        model: _FakeLlm(
+          // If the device is ever called in this scenario the test must
+          // fail — generateResult is intentionally set so a successful
+          // device call would surface as 'device answer' below.
+          ready: true,
+          onDisk: true,
+          generateResult: 'device answer',
+        ),
+      );
+      final answer =
+          await repo.ask(null, 'ORS কিভাবে বানাবো', onPath: paths.add);
+      expect(answer, 'cloud answer');
+      expect(paths, [GenerationPath.cloud]);
+      expect(cloud.requestCount(), 1,
+          reason: 'online + key configured → exactly one Cloud request');
+    });
+
+    test(
+        'online + cloud throws → falls through to on-device when device '
+        'is ready', () async {
+      final cloud = cloudAiThrowingWithError();
+      final paths = <GenerationPath>[];
+      final repo = ChatRepository(
+        kb: testKb,
+        cloudAi: cloud,
+        model: _FakeLlm(
+          ready: true,
+          onDisk: true,
+          generateResult: 'device answer',
+        ),
+      );
+      final answer =
+          await repo.ask(null, 'ORS কিভাবে বানাবো', onPath: paths.add);
+      expect(answer, 'device answer');
+      expect(paths, [GenerationPath.device]);
+    });
+
+    test(
+        'online + cloud throws + device not ready → falls through to '
+        'corpus', () async {
+      final cloud = cloudAiThrowingWithError();
+      final paths = <GenerationPath>[];
+      final repo = ChatRepository(
+        kb: testKb,
+        cloudAi: cloud,
+        // No model — Tier 2 skipped.
+      );
+      final answer =
+          await repo.ask(null, 'ORS কিভাবে বানাবো', onPath: paths.add);
+      expect(answer, contains('ORS'));
+      expect(paths, [GenerationPath.corpus]);
+    });
+
+    test(
+        'offline + device ready → on-device is used, cloud is NEVER called '
+        '(no wasted network request on an airplane-mode phone)', () async {
+      connectivityProvider.debugSetOnline(false);
+      final cloud = cloudAiWithAnswer('cloud answer');
+      final paths = <GenerationPath>[];
+      final repo = ChatRepository(
+        kb: testKb,
+        cloudAi: cloud.service,
+        model: _FakeLlm(
+          ready: true,
+          onDisk: true,
+          generateResult: 'device answer',
+        ),
+      );
+      final answer =
+          await repo.ask(null, 'ORS কিভাবে বানাবো', onPath: paths.add);
+      expect(answer, 'device answer');
+      expect(paths, [GenerationPath.device]);
+      expect(cloud.requestCount(), 0,
+          reason: 'offline devices must not waste a Cloud request');
+    });
+
+    test(
+        'offline + cloud configured + device not ready → corpus, no '
+        'network call', () async {
+      connectivityProvider.debugSetOnline(false);
+      final cloud = cloudAiWithAnswer('cloud answer');
+      final paths = <GenerationPath>[];
+      final repo = ChatRepository(
+        kb: testKb,
+        cloudAi: cloud.service,
+        // No model.
+      );
+      final answer =
+          await repo.ask(null, 'ORS কিভাবে বানাবো', onPath: paths.add);
+      expect(answer, contains('ORS'));
+      expect(paths, [GenerationPath.corpus]);
+      expect(cloud.requestCount(), 0);
+    });
+
+    test(
+        'online + no cloudAi configured → falls straight to on-device', () async {
+      final paths = <GenerationPath>[];
+      final repo = ChatRepository(
+        kb: testKb,
+        // No cloudAi.
+        model: _FakeLlm(
+          ready: true,
+          onDisk: true,
+          generateResult: 'device answer',
+        ),
+      );
+      final answer =
+          await repo.ask(null, 'ORS কিভাবে বানাবো', onPath: paths.add);
+      expect(answer, 'device answer');
+      expect(paths, [GenerationPath.device]);
+    });
+
+    test(
+        'offline + no cloudAi + no device → corpus (the existing no-model '
+        'baseline must still work)', () async {
+      connectivityProvider.debugSetOnline(false);
+      final paths = <GenerationPath>[];
+      final repo = ChatRepository(kb: testKb);
+      final answer =
+          await repo.ask(null, 'ORS কিভাবে বানাবো', onPath: paths.add);
+      expect(answer, contains('ORS'));
+      expect(paths, [GenerationPath.corpus]);
     });
   });
 }
@@ -334,4 +494,60 @@ class _SemanticFakeEmbedder implements Embedder {
     if (text.startsWith('Topic: ors')) return Float32List.fromList([1, 0]);
     return Float32List.fromList([0, 1]);
   }
+}
+
+/// Build a real [CloudAiService] wired to a [MockClient] that responds to
+/// any `generateContent` request with [cloudAnswer]. Returns the service and
+/// a request-counting function so the tier-order tests can assert exactly
+/// how many HTTP calls the repository made through this fake.
+///
+/// Uses `http.Response.bytes` with utf-8 encoding so Bangla text survives
+/// the mock boundary (the `String` constructor encodes as latin1, which
+/// cannot represent Bangla and throws "Contains invalid characters").
+({CloudAiService service, int Function() requestCount}) cloudAiWithAnswer(
+  String cloudAnswer,
+) {
+  var count = 0;
+  final client = MockClient((req) async {
+    count++;
+    final body = utf8.encode(jsonEncode({
+      'candidates': [
+        {
+          'content': {
+            'parts': [
+              {'text': cloudAnswer},
+            ],
+          },
+        },
+      ],
+    }));
+    return http.Response.bytes(body, 200,
+        headers: {'content-type': 'application/json; charset=utf-8'});
+  });
+  return (
+    service: CloudAiService(
+      keys: ApiKeyRing.single('test-key'),
+      httpClient: client,
+    ),
+    requestCount: () => count,
+  );
+}
+
+/// Build a real [CloudAiService] whose transport always returns HTTP 500,
+/// forcing the Cloud tier to throw and exercise the on-device fallthrough.
+/// 500 (not a key-fatal 429/403) keeps the key ring out of the picture — the
+/// goal is to prove the repository's own catch-and-fallthrough behavior, not
+/// the rotation policy.
+CloudAiService cloudAiThrowingWithError() {
+  final client = MockClient((req) async {
+    return http.Response.bytes(
+      utf8.encode('{"error":{"code":500,"message":"boom"}}'),
+      500,
+      headers: {'content-type': 'application/json; charset=utf-8'},
+    );
+  });
+  return CloudAiService(
+    keys: ApiKeyRing.single('test-key'),
+    httpClient: client,
+  );
 }

@@ -47,4 +47,12 @@ String banglaNumber(int n) => toBanglaDigits(n.toString());
 /// Takes a language code rather than a `BuildContext` so this file stays
 /// Flutter-free, like the rest of `core/`.
 String numberForLocale(int n, String languageCode) =>
-    languageCode == 'bn' ? banglaNumber(n) : n.toString();
+    languageCode.toLowerCase().startsWith('bn')
+        ? banglaNumber(n)
+        : n.toString();
+
+/// Renders a pre-formatted number string (e.g. `"12.5"`, `"45%"`) in the
+/// numeral system for [languageCode]. Bangla in bn mode, Latin elsewhere.
+/// Decimal separators and any non-digit characters pass through.
+String digitsForLocale(String s, String languageCode) =>
+    languageCode.toLowerCase().startsWith('bn') ? toBanglaDigits(s) : s;

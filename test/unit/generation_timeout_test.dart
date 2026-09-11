@@ -14,6 +14,7 @@ import 'package:shongjog/core/model_manager.dart';
 /// These tests pin the timing contract rather than the plugin, which cannot
 /// be instantiated in a unit test.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   test('the generation budget is finite and generous', () {
     // Finite is the whole point. Generous because a healthy E4B run on a
     // low-end phone can legitimately take 30-40s, and timing out a working

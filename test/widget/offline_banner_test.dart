@@ -5,6 +5,7 @@ import 'package:shongjog/features/shelter/widgets/offline_banner.dart';
 import 'test_app.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('OfflineBanner', () {
     testWidgets('renders the offline notice in Bangla', (tester) async {
       await tester.pumpWidget(localizedApp(

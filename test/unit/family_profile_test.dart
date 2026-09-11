@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shongjog/features/planner/family_profile.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   // SharedPreferences uses a mock in test mode automatically.
   setUp(() {
     SharedPreferences.setMockInitialValues({});

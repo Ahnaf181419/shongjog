@@ -8,6 +8,7 @@ import 'package:shongjog/core/bangla_numerals.dart';
 /// It previously existed in five places, twice in the same file with two
 /// different implementations. These tests cover the one that survived.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('toBanglaDigits', () {
     test('converts ASCII digits', () {
       expect(toBanglaDigits('3.4'), '৩.৪');

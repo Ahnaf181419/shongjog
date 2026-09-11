@@ -1,30 +1,38 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shongjog/features/planner/family_profile.dart';
 import 'package:shongjog/features/planner/kit_prompt_builder.dart';
+import 'package:shongjog/features/planner/kit_strings_loader.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  late KitStrings bnKitStrings;
+  setUpAll(() async {
+    bnKitStrings = await loadKitStrings('bn');
+  });
+
   group('KitPromptBuilder.buildPrompt', () {
     test('returns null for empty profile', () {
-      expect(KitPromptBuilder.buildPrompt(FamilyProfile.empty), isNull);
+      expect(KitPromptBuilder.buildPrompt(FamilyProfile.empty, s: bnKitStrings), isNull);
     });
 
     test('includes infant formula suggestion when children present', () {
       const p = FamilyProfile(familySize: 3, childrenCount: 2);
-      final prompt = KitPromptBuilder.buildPrompt(p);
+      final prompt = KitPromptBuilder.buildPrompt(p, s: bnKitStrings);
       expect(prompt, isNotNull);
       expect(prompt!, contains('শিশু'));
     });
 
     test('includes elderly medicine reminder when elderly present', () {
       const p = FamilyProfile(familySize: 3, elderlyCount: 1);
-      final prompt = KitPromptBuilder.buildPrompt(p);
+      final prompt = KitPromptBuilder.buildPrompt(p, s: bnKitStrings);
       expect(prompt, isNotNull);
       expect(prompt!, contains('প্রবীণ'));
     });
 
     test('includes pet supplies when hasPets', () {
       const p = FamilyProfile(familySize: 2, hasPets: true);
-      final prompt = KitPromptBuilder.buildPrompt(p);
+      final prompt = KitPromptBuilder.buildPrompt(p, s: bnKitStrings);
       expect(prompt, isNotNull);
       expect(prompt!, contains('পোষা'));
     });
@@ -32,7 +40,7 @@ void main() {
     test('includes diabetes supply hint when medical condition', () {
       const p = FamilyProfile(
           familySize: 2, medicalConditions: ['ডায়াবেটিস']);
-      final prompt = KitPromptBuilder.buildPrompt(p);
+      final prompt = KitPromptBuilder.buildPrompt(p, s: bnKitStrings);
       expect(prompt, isNotNull);
       expect(prompt!, contains('ডায়াবেটিস'));
     });
@@ -41,7 +49,7 @@ void main() {
   group('KitPromptBuilder.fallbackKit', () {
     test('returns a useful generic kit for any profile', () {
       const p = FamilyProfile(familySize: 2);
-      final kit = KitPromptBuilder.fallbackKit(p);
+      final kit = KitPromptBuilder.fallbackKit(p, s: bnKitStrings);
       expect(kit, contains('পানি'));
       expect(kit, contains('খাবার'));
       expect(kit, contains('ফ্ল্যাশলাইট'));
@@ -49,14 +57,14 @@ void main() {
 
     test('scales water quantity with family size', () {
       const p = FamilyProfile(familySize: 6);
-      final kit = KitPromptBuilder.fallbackKit(p);
+      final kit = KitPromptBuilder.fallbackKit(p, s: bnKitStrings);
       // 6 × 3 = 18 litres/day.
       expect(kit, contains('১৮'));
     });
 
     test('adds pet food line when pets present', () {
       const p = FamilyProfile(familySize: 2, hasPets: true);
-      final kit = KitPromptBuilder.fallbackKit(p);
+      final kit = KitPromptBuilder.fallbackKit(p, s: bnKitStrings);
       expect(kit, contains('পোষা'));
     });
   });

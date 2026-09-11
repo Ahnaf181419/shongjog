@@ -6,6 +6,7 @@ import 'package:shongjog/core/admin_broadcast_service.dart';
 import 'package:shongjog/core/local_notification_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late Directory tempDir;
   late AdminBroadcastService service;
 

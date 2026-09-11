@@ -7,7 +7,7 @@ import '../rag/types.dart';
 
 /// In-memory handle to the loaded on-device knowledge base.
 ///
-/// Loads `assets/kb/corpus.json` (the verified Bangla chunks) and
+/// Loads `assets/data/corpus.json` (the verified Bangla chunks) and
 /// `assets/kb/vectors.bin` (the float32 [N, 768] L2-normalized embeddings
 /// produced by `tools/build_kb.py`). Both ship inside the APK so the KB is
 /// present in airplane mode with no first-run network step
@@ -31,7 +31,7 @@ class KnowledgeBase {
   /// If vectors.bin is missing or fails to load, only the keyword retriever
   /// is available (graceful degradation).
   static Future<KnowledgeBase> load() async {
-    final jsonStr = await rootBundle.loadString('assets/kb/corpus.json');
+    final jsonStr = await rootBundle.loadString('assets/data/corpus.json');
     final chunks = parseCorpus(jsonStr);
 
     BruteForceRetriever? cosine;
