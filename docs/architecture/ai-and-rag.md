@@ -14,12 +14,13 @@ Shongjog runs **Google Gemma 4** locally on-device using the `flutter_gemma` (v1
 | **Output Token Cap** | `256` tokens | Enforces concise, rapid, life-critical emergency responses. |
 | **Session Lifecycle** | Ephemeral (one session per query) | Sessions allocate native Key-Value (KV) cache memory. Leaking sessions will exhaust memory. Must be closed in `finally`. |
 | **Initialization** | `FlutterGemma.initialize(inferenceEngines: [LiteRtLmEngine()])` | Must be called explicitly during startup before any model invocation. |
+| **Memory Tiering** | RAM-based auto selection | ≤8 GB RAM: Gemma 4 E2B (~2.47 GB download). >8 GB RAM: Gemma 4 E4B. Overridable in Settings. |
 
 ---
 
 ## 2. 4-Tier Generation Hierarchy
 
-Shongjog does not treat AI as a brittle single point of failure. It employs a strict 4-tier fallback chain:
+Shongjog does not treat AI as a brittle single point of failure. It employs a strict 4-tier fallback chain implemented in [`lib/features/chat/chat_repository.dart`](file:///home/frostflux/Ahnaf_Shafin/Hackathon/shongjog/lib/features/chat/chat_repository.dart):
 
 ```
                             [ User Query Received ]
@@ -28,22 +29,22 @@ Shongjog does not treat AI as a brittle single point of failure. It employs a st
                                   ├──► YES ──► Pure-Dart Haversine Ranker (Microseconds, 0 Model)
                                   │
                                   ▼ NO
-                     [ TIER 1: On-Device Gemma 4 ]
-                         (Runs first, offline or online)
-                         (90-second execution ceiling)
+                     [ TIER 1: Cloud AI Service ]
+              (Online only: gemini-3.1-flash-lite ──► preview ──► gemma-4-26b-a4b-it)
+              (Delivers instant sub-second responses when connected)
                                   │
                        Did Tier 1 succeed?
-                                  ├──► YES ──► Return Grounded Local AI Response
-                                  │
-                                  ▼ NO (Model not downloaded, timeout, or OOM)
-                     [ TIER 2: Cloud AI Fallback ]
-                       (Only if network is available)
-                       gemini-3.1-flash-lite ──► preview ──► gemma-4-26b-a4b-it
-                                  │
-                       Did Tier 2 succeed?
                                   ├──► YES ──► Return Cloud AI Response
                                   │
-                                  ▼ NO (Offline or API quota error)
+                                  ▼ NO (Device offline, network timeout, or API quota error)
+                     [ TIER 2: On-Device Gemma 4 ]
+                         (Runs fully offline via LiteRT-LM)
+                         (90-second execution ceiling)
+                                  │
+                       Did Tier 2 succeed?
+                                  ├──► YES ──► Return Grounded Local AI Response
+                                  │
+                                  ▼ NO (Model not downloaded, hardware OOM, or inference error)
                      [ TIER 3: Verified Corpus Chunk ]
                    (Verbatim citation from local RAG database)
                                   │
@@ -61,6 +62,7 @@ Shongjog does not treat AI as a brittle single point of failure. It employs a st
 
 ### The Corpus (`assets/kb/corpus.json`)
 - **Size**: 48 verified Bangla text chunks covering 22 hazard and first-aid categories.
+- **Bilingual Coverage**: Every chunk contains both `text` (Bangla) and `textEn` (English), with corresponding `keywords` and `keywordsEn`.
 - **Vetted Source Whitelist**: Strict medical and institutional provenance:
   - World Health Organization (WHO)
   - Bangladesh Red Crescent Society (BDRCS)
@@ -75,7 +77,7 @@ Shongjog does not treat AI as a brittle single point of failure. It employs a st
    - BM25-lite / TF-IDF hybrid scoring.
    - Handles Bangla morphological variations, transliterations, and emergency abbreviations.
    - Primary high-speed offline retrieval track.
-2. **Vector Retriever (`lib/rag/vector_retriever.dart`)**:
+2. **Vector Retriever (`lib/rag/embedding_retriever.dart`)**:
    - 768-dimensional L2-normalized float32 embedding vectors bundled in `assets/kb/vectors.bin`.
    - Embeddings generated via Google's `EmbeddingGemma`.
    - Pure-Dart cosine similarity calculation against user query embeddings.
@@ -89,14 +91,17 @@ The Prompt Builder ([`lib/rag/prompt_builder.dart`](file:///home/frostflux/Ahnaf
 ```
 +-----------------------------------------------------------------------+
 | SYSTEM PROMPT INVARIANTS:                                             |
-| 1. Grounding: Answer ONLY using the provided Bangla context chunk.    |
+| 1. Grounding: Answer ONLY using the provided context chunk.           |
 | 2. No Diagnosis / Prescription: Never prescribe prescription drugs    |
 |    or attempt clinical diagnostic conclusions.                         |
 | 3. Mandatory 999 Notice: Always append advice to call 999 in critical  |
 |    emergencies.                                                       |
 | 4. Low-Confidence Fallback: If the context does not answer the        |
-|    question, reply with "আমি নিশ্চিত নই, জরুরি সেবায় যোগাযোগ করুন"   |
-|    (I am not sure, please contact emergency services).                |
+|    question, reply with "আমি নিশ্চিত নই, দরকার হলে ৯৯৯ এ কল করুন।"   |
+|    (In English: "I'm not certain. Call 999 for emergencies.").        |
+| 5. Myth Refutation: If user asks about a dangerous myth (e.g.         |
+|    slashing a snakebite wound), explicitly open with "না, এটি ভুল"    |
+|    (In English: "No, that's wrong").                                  |
 +-----------------------------------------------------------------------+
 ```
 

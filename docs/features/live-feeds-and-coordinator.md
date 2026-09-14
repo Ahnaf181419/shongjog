@@ -45,32 +45,69 @@ The Admin & Coordinator Module ([`lib/features/admin/`](file:///home/frostflux/A
 
 ## 3. Firestore Security Model (`firestore.rules`)
 
-Citizen safety reports carry sensitive personal data (names, mobile numbers, precise live GPS coordinates). To prevent scraping or unauthorized tampering, Shongjog enforces strict access control rules defined in [`firestore.rules`](file:///home/frostflux/Ahnaf_Shafin/Hackathon/shongjog/firestore.rules):
+Citizen safety reports carry sensitive personal data (names, mobile numbers, precise live GPS coordinates). Shongjog enforces strict access control rules defined in [`firestore.rules`](file:///home/frostflux/Ahnaf_Shafin/Hackathon/shongjog/firestore.rules):
 
+### Scope & Structure
+The backend explicitly scopes rules across **4 collections**:
+1. `safety_reports`: Citizen distress/safe reports.
+2. `campaigns`: Disaster relief coordination campaigns.
+3. `broadcasts`: Official emergency alerts dispatched to all devices.
+4. `users/{uid}`: Per-user account documents tracking claimed roles (`admin` vs standard).
+
+### Rule Excerpt & Logic
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Safety Status Reports: User can only read and write their own record
-    match /safety_reports/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+    function isSignedIn() {
+      return request.auth != null;
     }
-    
-    // Coordinator Access: Only verified coordinators can read aggregate reports
-    match /coordinator_metrics/{metricId} {
-      allow read: if request.auth != null && request.auth.token.role == 'coordinator';
-      allow write: if false; // System / Cloud Function generated only
+
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
-    
-    // Cloud AI Configuration: Readable by all authenticated users, writable by none
-    match /config/cloud_ai {
-      allow read: if request.auth != null;
-      allow write: if false;
+
+    // Ownership verification using ownerUid (stamped by withOwnerUid() in core)
+    function ownsIncoming() {
+      return isSignedIn() && request.resource.data.ownerUid == request.auth.uid;
+    }
+
+    function ownsExisting() {
+      return isSignedIn() && resource.data.ownerUid == request.auth.uid;
+    }
+
+    // Safety Reports: Created/updated only by owner; read access restricted to admins
+    match /safety_reports/{reportId} {
+      allow create: if ownsIncoming();
+      allow update: if ownsExisting() && ownsIncoming();
+      allow read: if isAdmin() || ownsExisting();
+      allow delete: if isAdmin() || ownsExisting();
+    }
+
+    // Broadcasts: Dispatched strictly by admins; readable by any signed-in user
+    match /broadcasts/{broadcastId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Campaigns: Created by signed-in users, but approved/managed by admins
+    match /campaigns/{campaignId} {
+      allow read: if isSignedIn();
+      allow create: if ownsIncoming();
+      allow update, delete: if isAdmin() || ownsExisting();
+    }
+
+    // User Documents: Users manage their own doc
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == userId;
     }
   }
 }
 ```
 
-> **Crucial Deployment Note:**  
-> Firestore rules in the repository serve as the source of truth, but they take effect **only after being deployed or pasted into the Firebase Console**. Committing the file locally does not automatically update cloud enforcement.
+### Security Considerations & Known Limitations
+- **Anonymous Auth Model**: Devices authenticate anonymously with Firebase Auth without requiring SMS OTP during a crisis.
+- **Client-Asserted Admin Gate**: In the current hackathon milestone, the admin role is claimed by the device after entering a local PIN screen. For production deployments, role assignment must transition to server-side issuance (e.g. Cloud Function or Firebase Custom Claims) to prevent unauthorized broadcasts.
