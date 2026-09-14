@@ -23,9 +23,9 @@ In major disasters (e.g. Cyclone Remal, severe coastal storm surges), terrestria
 
 ## 3. Full-Duplex Mesh Voice Calling
 
-Shongjog implements real-time voice calling using a custom audio streaming pipeline ([`lib/core/audio_call_service.dart`](file:///home/frostflux/Ahnaf_Shafin/Hackathon/shongjog/lib/core/audio_call_service.dart)):
+Shongjog implements real-time voice calling using a custom audio streaming pipeline ([`lib/features/mesh_comm/mesh_call_service.dart`](file:///home/frostflux/Ahnaf_Shafin/Hackathon/shongjog/lib/features/mesh_comm/mesh_call_service.dart)):
 
-1. **Audio Sampling**: Audio input is captured via `record` or platform audio streams at **8,000 Hz, 16-bit Mono PCM** (optimized for human voice intelligibility while keeping bandwidth under 16 KB/sec).
+1. **Audio Sampling**: Audio input is captured at **8,000 Hz, 16-bit Mono PCM** (optimized for human voice intelligibility while keeping bandwidth under 16 KB/sec).
 2. **Packetization**: Audio frames are chunked into 20ms–40ms buffers with sequence headers to detect packet loss.
 3. **Transport**: Streamed via Nearby Connections byte payloads.
 4. **Playback**: Decoded and rendered via low-latency audio track buffers.
