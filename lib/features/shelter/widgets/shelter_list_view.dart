@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
+import '../../../core/bangla_numerals.dart';
 
 import '../../../app/theme.dart';
 import '../nearest_shelter.dart';
@@ -50,14 +51,14 @@ class ShelterListView extends StatelessWidget {
               child: const Icon(Icons.shield_outlined, size: 22),
             ),
             title: Text(
-              s.nameBn.isNotEmpty ? s.nameBn : s.name,
+              s.displayName(l10n.localeName),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             subtitle: Text(
               [
-                if (r.km > 0) '${r.km.toStringAsFixed(1)} ${l10n.shelterKm}',
-                if (s.capacity != null) l10n.shelterCapacityCount('${s.capacity}'),
+                if (r.km > 0) '${digitsForLocale(r.km.toStringAsFixed(1), l10n.localeName)} ${l10n.shelterKm}',
+                if (s.capacity != null) l10n.shelterCapacityCount(numberForLocale(s.capacity!, l10n.localeName)),
                 if (r.km == 0 && s.capacity == null) s.source,
               ].join(' • '),
             ),

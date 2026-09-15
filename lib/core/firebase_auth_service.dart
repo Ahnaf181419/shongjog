@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'connectivity_provider.dart';
+
 /// Anonymous-auth identity for the Firestore-backed admin panel.
 ///
 /// No SMS/OTP, no SHA-1 registration — every device gets a stable Firestore
@@ -74,10 +76,11 @@ class FirebaseAuthService {
   /// Sign in anonymously if this device hasn't already. Swallows all
   /// failures (e.g. no network on first launch, Firebase project
   /// unreachable) — the app must still boot and work fully offline.
-  Future<void> ensureSignedIn() async {
+  Future<void> ensureSignedIn({bool force = false}) async {
     try {
       if (_auth.currentUser != null) return;
-      await _auth.signInAnonymously();
+      if (!force && _injectedAuth == null && !connectivityProvider.isOnline) return;
+      await _auth.signInAnonymously().timeout(const Duration(seconds: 3));
     } catch (e) {
       debugPrint('FirebaseAuthService: ensureSignedIn failed: $e');
     }

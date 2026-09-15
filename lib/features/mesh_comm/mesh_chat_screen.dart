@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../core/haptics.dart';
@@ -55,12 +57,9 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
     super.initState();
     _currentPeer = widget.peer;
     _loadPersistedMessages();
-    // 1-on-1 view: only this device's messages and this peer's. Without the
-    // filter, every connected peer's traffic appears in every open chat.
-    _msgSub = meshService.messages
-        .where((m) => m.belongsToChatWith(widget.peer.endpointId))
-        .listen((m) {
-      if (mounted) {
+    // 1-on-1 view: only this device's messages and this peer's.
+    _msgSub = meshService.messages.listen((m) {
+      if (m.belongsToChatWith(_currentPeer.endpointId) && mounted) {
         setState(() => _messages.add(m));
         _scrollToBottom();
         _persistMessages();
@@ -69,7 +68,9 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
     // Track live peer status so AppBar updates without needing to pop/re-enter.
     _peerSub = meshService.peers.listen((peers) {
       if (!mounted) return;
-      final match = peers.where((p) => p.endpointId == widget.peer.endpointId);
+      final match = peers.where((p) =>
+          p.endpointId == _currentPeer.endpointId ||
+          p.displayName == _currentPeer.displayName);
       if (match.isNotEmpty && match.first != _currentPeer) {
         setState(() => _currentPeer = match.first);
       }
@@ -167,8 +168,41 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
     final text = _msgCtrl.text.trim();
     if (text.isEmpty) return;
     HapticService.lightTap();
-    final ok = meshService.sendMessage(text, targetEndpointId: widget.peer.endpointId);
     _msgCtrl.clear();
+
+    final selfName = meshService.userName.startsWith(kMeshPeerPrefix)
+        ? meshService.userName.substring(kMeshPeerPrefix.length)
+        : meshService.userName;
+
+    final optMsg = MeshMessage(
+      senderId: kMeshSelfId,
+      senderName: selfName,
+      text: text,
+      type: MessageType.text,
+      deliveryStatus: MessageDeliveryStatus.sending,
+    );
+
+    setState(() {
+      _messages.add(optMsg);
+    });
+    _scrollToBottom();
+
+    final ok = meshService.sendMessage(
+      text,
+      targetEndpointId: _currentPeer.endpointId,
+      echoSelf: false,
+    );
+
+    final idx = _messages.indexOf(optMsg);
+    if (idx != -1 && mounted) {
+      setState(() {
+        _messages[idx] = optMsg.copyWith(
+          deliveryStatus: ok ? MessageDeliveryStatus.delivered : MessageDeliveryStatus.failed,
+        );
+      });
+      if (ok) _persistMessages();
+    }
+
     if (!ok && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -197,7 +231,7 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
       final result = await meshService.sendMediaMessage(
         file.path,
         type: type,
-        targetEndpointId: widget.peer.endpointId,
+        targetEndpointId: _currentPeer.endpointId,
       );
       if (mounted && result == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -211,11 +245,37 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
     }
   }
 
+  Future<void> _pickAndSendFile() async {
+    if (_sendingMedia) return;
+    try {
+      final file = await FilePicker.pickFile();
+      if (file == null || file.path == null) return;
+      final path = file.path!;
+      if (!mounted) return;
+      setState(() => _sendingMedia = true);
+      final res = await meshService.sendFileMessage(
+        path,
+        targetEndpointId: _currentPeer.endpointId,
+      );
+      if (mounted && res == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context).meshSendMediaFailed),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error picking file: $e');
+    } finally {
+      if (mounted) setState(() => _sendingMedia = false);
+    }
+  }
+
   Future<void> _toggleRecording() async {
     HapticService.lightTap();
     if (_recording) {
       await meshVoiceService.stopRecordingAndSend(
-        targetEndpointId: widget.peer.endpointId,
+        targetEndpointId: _currentPeer.endpointId,
       );
       if (mounted) setState(() => _recording = false);
     } else {
@@ -323,6 +383,19 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
       ),
       body: Column(
         children: [
+          if (_currentPeer.status != PeerStatus.connected)
+            Container(
+              width: double.infinity,
+              color: cs.errorContainer,
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Text(
+                _currentPeer.status == PeerStatus.reconnecting
+                    ? 'Reconnecting...'
+                    : 'Disconnected',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: cs.onErrorContainer, fontSize: 12),
+              ),
+            ),
           Expanded(
             child: _messages.isEmpty
                 ? Center(
@@ -348,6 +421,18 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
                     },
                   ),
           ),
+          StreamBuilder<FileTransferProgress>(
+            stream: meshService.transferProgress.where((p) =>
+                p.endpointId == _currentPeer.endpointId),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData ||
+                  snapshot.data!.isComplete ||
+                  snapshot.data!.isFailed) {
+                return const SizedBox.shrink();
+              }
+              return _TransferProgressOverlay(progress: snapshot.data!);
+            },
+          ),
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -355,17 +440,24 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
                 children: [
                   // ── Attachment picker
                   _AttachmentButton(
-                    onPickImage: () => _pickAndSendMedia(isVideo: false),
-                    onPickVideo: () => _pickAndSendMedia(isVideo: true),
+                    onPickImage: _currentPeer.status == PeerStatus.connected
+                        ? () => _pickAndSendMedia(isVideo: false)
+                        : null,
+                    onPickVideo: _currentPeer.status == PeerStatus.connected
+                        ? () => _pickAndSendMedia(isVideo: true)
+                        : null,
+                    onPickFile: _currentPeer.status == PeerStatus.connected
+                        ? _pickAndSendFile
+                        : null,
                     sending: _sendingMedia,
                   ),
                   const SizedBox(width: 4),
                   IconButton.filled(
-                    onPressed: _toggleRecording,
+                    onPressed: _currentPeer.status == PeerStatus.connected
+                        ? _toggleRecording
+                        : null,
                     icon: Icon(
                       _recording ? Icons.stop_rounded : Icons.mic_rounded,
-                      // Foreground follows whichever fill is active, so the
-                      // icon stays legible in both themes.
                       color: _recording ? cs.onError : cs.onPrimary,
                     ),
                     style: IconButton.styleFrom(
@@ -376,18 +468,21 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
                   Expanded(
                     child: TextField(
                       controller: _msgCtrl,
+                      enabled: _currentPeer.status == PeerStatus.connected,
                       decoration: InputDecoration(
                         hintText: l10n.meshInputHint,
                         border: const OutlineInputBorder(),
                         contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16),
+                            const EdgeInsets.symmetric(horizontal: 16),
                       ),
                       onSubmitted: (_) => _sendText(),
                     ),
                   ),
                   const SizedBox(width: 8),
                   IconButton.filled(
-                    onPressed: _sendText,
+                    onPressed: _currentPeer.status == PeerStatus.connected
+                        ? _sendText
+                        : null,
                     icon: const Icon(Icons.send_rounded),
                     style: IconButton.styleFrom(
                       backgroundColor: cs.primary,
@@ -444,7 +539,9 @@ class _MessageBubble extends StatelessWidget {
                 ? _ImageBubble(filePath: message.filePath, isMe: isMe)
                 : message.type == MessageType.video
                     ? _VideoBubble(filePath: message.filePath, isMe: isMe)
-                    : _TextBubbleContent(message: message, isMe: isMe),
+                    : message.type == MessageType.file
+                        ? _FileBubble(message: message, isMe: isMe)
+                        : _TextBubbleContent(message: message, isMe: isMe),
       ),
     );
   }
@@ -489,6 +586,24 @@ class _TextBubbleContent extends StatelessWidget {
                     color: cs.onErrorContainer,
                     fontWeight: FontWeight.w600,
                   ),
+                ),
+              ),
+            ),
+          if (isMe)
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Icon(
+                  message.deliveryStatus == MessageDeliveryStatus.sending
+                      ? Icons.access_time_rounded
+                      : message.deliveryStatus == MessageDeliveryStatus.delivered
+                          ? Icons.done_all_rounded
+                          : message.deliveryStatus == MessageDeliveryStatus.failed
+                              ? Icons.error_outline_rounded
+                              : Icons.done_rounded,
+                  size: 13,
+                  color: cs.onPrimary.withValues(alpha: 0.75),
                 ),
               ),
             ),
@@ -793,13 +908,15 @@ class _WaveformBars extends StatelessWidget {
 //  Attachment picker button — popup menu for image / video
 // ─────────────────────────────────────────────────────────────────────────────
 class _AttachmentButton extends StatelessWidget {
-  final VoidCallback onPickImage;
-  final VoidCallback onPickVideo;
+  final VoidCallback? onPickImage;
+  final VoidCallback? onPickVideo;
+  final VoidCallback? onPickFile;
   final bool sending;
 
   const _AttachmentButton({
-    required this.onPickImage,
-    required this.onPickVideo,
+    this.onPickImage,
+    this.onPickVideo,
+    this.onPickFile,
     required this.sending,
   });
 
@@ -807,11 +924,14 @@ class _AttachmentButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
+    final canPick = !sending &&
+        (onPickImage != null || onPickVideo != null || onPickFile != null);
     return PopupMenuButton<String>(
-      enabled: !sending,
+      enabled: canPick,
       onSelected: (value) {
-        if (value == 'image') onPickImage();
-        if (value == 'video') onPickVideo();
+        if (value == 'image') onPickImage?.call();
+        if (value == 'video') onPickVideo?.call();
+        if (value == 'file') onPickFile?.call();
       },
       itemBuilder: (_) => [
         PopupMenuItem(
@@ -828,6 +948,15 @@ class _AttachmentButton extends StatelessWidget {
           child: ListTile(
             leading: const Icon(Icons.videocam_rounded),
             title: Text(l10n.meshSendVideo),
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
+        PopupMenuItem(
+          value: 'file',
+          child: ListTile(
+            leading: const Icon(Icons.insert_drive_file_rounded),
+            title: Text(l10n.meshSendFile),
             dense: true,
             contentPadding: EdgeInsets.zero,
           ),
@@ -851,6 +980,107 @@ class _AttachmentButton extends StatelessWidget {
                 ),
               )
             : Icon(Icons.add_circle_outline_rounded, color: cs.onSurfaceVariant),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  File bubble — displays document/file attachment with tap-to-open
+// ─────────────────────────────────────────────────────────────────────────────
+class _FileBubble extends StatelessWidget {
+  final MeshMessage message;
+  final bool isMe;
+
+  const _FileBubble({required this.message, required this.isMe});
+
+  String _fileSizeStr(String? path) {
+    if (path == null) return '';
+    try {
+      final file = File(path);
+      if (!file.existsSync()) return '';
+      final bytes = file.lengthSync();
+      if (bytes < 1024) return '$bytes B';
+      if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final onColor = isMe ? cs.onPrimary : cs.onSurface;
+    final onColorDim = onColor.withValues(alpha: 0.7);
+    final fileName = message.text.isNotEmpty
+        ? message.text
+        : (message.filePath != null
+            ? message.filePath!.split(RegExp(r'[/\\]')).last
+            : 'Attachment');
+    final size = _fileSizeStr(message.filePath);
+
+    return InkWell(
+      onTap: () async {
+        if (message.filePath != null && File(message.filePath!).existsSync()) {
+          HapticService.lightTap();
+          try {
+            await OpenFilex.open(message.filePath!);
+          } catch (e) {
+            debugPrint('Could not open file: $e');
+          }
+        }
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: onColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                Icons.insert_drive_file_rounded,
+                color: onColor,
+                size: 26,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    fileName,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: onColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                  if (size.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      size,
+                      style: TextStyle(
+                        color: onColorDim,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1140,6 +1370,79 @@ class _MissingMediaBubble extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(color: cs.onErrorContainer, fontSize: 14),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Transfer Progress Overlay — displays upload/download % for media/files
+// ─────────────────────────────────────────────────────────────────────────────
+class _TransferProgressOverlay extends StatelessWidget {
+  final FileTransferProgress progress;
+
+  const _TransferProgressOverlay({required this.progress});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isSending = progress.isSending;
+
+    // User requested specifically 2 decimal points: XX.XX%
+    final percentStr = '${progress.percent.toStringAsFixed(2)}%';
+    final label = isSending ? 'Sending File...' : 'Receiving File...';
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            isSending ? Icons.upload_rounded : Icons.download_rounded,
+            color: cs.primary,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                    Text(
+                      percentStr,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: cs.primary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                LinearProgressIndicator(
+                  value: progress.percent / 100,
+                  backgroundColor: cs.surface,
+                  color: cs.primary,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -73,6 +73,18 @@ class OverpassPoi {
     required this.amenity,
   });
 
+  /// Locale-appropriate display name. Overpass often returns no Bengali
+  /// tag at all (many POIs only have `name:en`), so prefer whichever is
+  /// populated for the requested language.
+  String displayName(String localeCode) {
+    final isBangla = localeCode.toLowerCase().startsWith('bn');
+    if (isBangla) {
+      final bn = nameBn;
+      if (bn != null && bn.isNotEmpty) return bn;
+    }
+    return name;
+  }
+
   static OverpassPoi? tryParse(Map<String, dynamic> json) {
     final tags = json['tags'] as Map<String, dynamic>?;
     if (tags == null) return null;

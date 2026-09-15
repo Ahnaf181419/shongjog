@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_gemma/core/tool.dart';
 import 'package:shongjog/features/chat/chat_repository.dart';
 import 'package:shongjog/features/chat/local_llm.dart';
+import 'package:shongjog/features/cloud_ai/cloud_ai_service.dart';
 import 'package:shongjog/rag/keyword_retriever.dart';
 import 'package:shongjog/rag/types.dart';
 import 'package:shongjog/knowledge/kb_loader.dart';
@@ -48,6 +49,7 @@ class _FakeLlm implements LocalLlm {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late KnowledgeBase testKb;
 
   setUp(() {
@@ -252,4 +254,76 @@ void main() {
       expect(capturedPrompt, contains('User: আবার বলো'));
     });
   });
+
+  group('ChatRepository 3-tier intelligence ordering', () {
+    test('Tier 1: uses Cloud AI when online', () async {
+      final paths = <GenerationPath>[];
+      final repo = ChatRepository(
+        kb: testKb,
+        model: _FakeLlm(ready: true, onDisk: true, generateResult: 'device answer'),
+        cloudAi: _FakeCloudAi(online: true, result: 'cloud answer'),
+      );
+      final answer = await repo.ask('বন্যা হলে কি করব', onPath: paths.add);
+      expect(answer, 'cloud answer');
+      expect(paths, [GenerationPath.cloud]);
+    });
+
+    test('Tier 2 fallback: falls back to on-device model when Cloud AI errors / rate-limits', () async {
+      final paths = <GenerationPath>[];
+      final repo = ChatRepository(
+        kb: testKb,
+        model: _FakeLlm(ready: true, onDisk: true, generateResult: 'device fallback answer'),
+        cloudAi: _FakeCloudAi(online: true, error: Exception('429 Resource Exhausted / Rate limit')),
+      );
+      final answer = await repo.ask('বন্যা হলে কি করব', onPath: paths.add);
+      expect(answer, 'device fallback answer');
+      expect(paths, [GenerationPath.device]);
+    });
+
+    test('Tier 2 fallback: falls back to on-device model when device is offline', () async {
+      final paths = <GenerationPath>[];
+      final repo = ChatRepository(
+        kb: testKb,
+        model: _FakeLlm(ready: true, onDisk: true, generateResult: 'device offline answer'),
+        cloudAi: _FakeCloudAi(online: false, result: 'cloud answer'),
+      );
+      final answer = await repo.ask('বন্যা হলে কি করব', onPath: paths.add);
+      expect(answer, 'device offline answer');
+      expect(paths, [GenerationPath.device]);
+    });
+
+    test('Tier 3 fallback: falls back to corpus when cloud fails and on-device model fails', () async {
+      final paths = <GenerationPath>[];
+      final repo = ChatRepository(
+        kb: testKb,
+        model: _FakeLlm(ready: true, onDisk: true, generateError: Exception('Model crash')),
+        cloudAi: _FakeCloudAi(online: true, error: Exception('Cloud 503 Service Unavailable')),
+      );
+      final answer = await repo.ask('ORS কিভাবে বানাবো', onPath: paths.add);
+      expect(answer, contains('ORS'));
+      expect(paths, [GenerationPath.corpus]);
+    });
+  });
 }
+
+class _FakeCloudAi extends CloudAiService {
+  final bool online;
+  final String? result;
+  final Exception? error;
+
+  _FakeCloudAi({this.online = true, this.result, this.error})
+      : super.singleKey('dummy_test_key');
+
+  @override
+  Future<bool> get isOnline async => online;
+
+  @override
+  Future<String> generateWithHistory({
+    required String userMessage,
+    required List<ChatTurn> history,
+  }) async {
+    if (error != null) throw error!;
+    return result ?? 'cloud answer';
+  }
+}
+

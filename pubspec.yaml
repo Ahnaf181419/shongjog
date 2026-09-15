@@ -38,6 +38,9 @@ dependencies:
   latlong2: ^0.9.1
   http: ^1.2.0
 
+  # SHA-256 for the admin credential gate.
+  crypto: ^3.0.6
+
   # Actions (tel: on the cellular voice channel, sms: via method channel)
   url_launcher: ^6.3.0
 
@@ -84,6 +87,8 @@ dependencies:
   firebase_auth: ^5.3.4
   cloud_firestore: ^5.6.0
   flutter_local_notifications: ^22.2.0
+  file_picker: ^13.1.0
+  open_filex: ^4.7.0
 
 dev_dependencies:
   flutter_test:
@@ -95,6 +100,7 @@ dev_dependencies:
   flutter_native_splash: ^2.4.0
   fake_cloud_firestore: ^3.1.0
   firebase_auth_mocks: ^0.14.1
+  url_launcher_platform_interface: ^2.3.0
 
 flutter:
   generate: true
@@ -105,6 +111,8 @@ flutter:
     - assets/sound/chime.wav
     - assets/sound/knock.wav
     - assets/emergency/
+    - assets/data/
+    - assets/prompts/
     - assets/icon_foreground.png
   fonts:
     - family: AnekBangla

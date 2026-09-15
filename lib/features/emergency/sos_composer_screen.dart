@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/model_manager.dart';
 import '../../l10n/app_localizations.dart';
+import 'emergency_actions.dart';
 import 'sos_function_schema.dart';
 
 /// SOS composer — takes panicked voice/text input, passes it through
@@ -315,8 +316,35 @@ class _SosComposerScreenState extends State<SosComposerScreen> {
     );
   }
 
-  void _sendSos() {
-    // Return the composed SOS body to the caller (emergency_sheet.dart).
-    Navigator.of(context).pop(_smsPreview);
+  Future<void> _sendSos() async {
+    // Audit F2 (2026-09-08): this used to be `Navigator.pop(_smsPreview)`
+    // — the button sent NOTHING anywhere, and the only caller (triage
+    // handoff) dropped the popped value. The composed report must actually
+    // reach 999: silent SMS via SmsManager (same channel EmergencySheet
+    // uses), with typed user feedback either way. The screen stays open so
+    // the operator can retry or fall back to a voice call; on success the
+    // report has been delivered and popping back is safe.
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    final l10n = AppLocalizations.of(context);
+
+    final ok = await EmergencyActions.sendSos(_smsPreview);
+    if (!mounted) return;
+
+    if (ok) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.sosSentOk)),
+      );
+      navigator.pop();
+    } else {
+      // Delivery failed — the report did NOT go out. Say so, loudly, and
+      // keep the composer open so the user can call 999 instead.
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.sosSendFailed),
+          duration: const Duration(seconds: 5),
+        ),
+      );
+    }
   }
 }

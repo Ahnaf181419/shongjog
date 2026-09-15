@@ -164,7 +164,7 @@ class DeviceRegistryService extends ChangeNotifier {
         'uid': uid,
         'name': name,
         'lastSeen': DateTime.now().toUtc().toIso8601String(),
-      }, SetOptions(merge: true));
+      }, SetOptions(merge: true)).timeout(const Duration(seconds: 3));
     } catch (e) {
       debugPrint('DeviceRegistryService: registerSelf failed: $e');
     }

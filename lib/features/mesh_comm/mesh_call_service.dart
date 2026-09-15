@@ -88,12 +88,29 @@ class MeshCallService {
 
   StreamSubscription? _msgSub;
   StreamSubscription? _micSub;
+  StreamSubscription? _peerSub;
 
   Future<void> initialize() async {
     // Listen for signalling messages coming in from mesh peers.
     _msgSub = meshService.messages.listen(_onMeshMessage);
+    
+    // 🔴 FIX 6.1: Monitor link state and drop call if peer disconnects.
+    _peerSub = meshService.peers.listen((peers) {
+      if (_state != CallState.idle && _remotePeerId != null) {
+        final peer = peers.firstWhere(
+            (p) => p.endpointId == _remotePeerId,
+            orElse: () => MeshPeer(endpointId: '', name: '', status: PeerStatus.disconnected));
+        if (peer.status == PeerStatus.disconnected) {
+          debugPrint('MeshCallService: peer disconnected, ending call');
+          _endCallLocally();
+        }
+      }
+    });
+    
     debugPrint('MeshCallService: initialized');
   }
+
+  Timer? _ringingTimer;
 
   void _onMeshMessage(MeshMessage msg) {
     if (msg.isMe) return;
@@ -120,24 +137,43 @@ class MeshCallService {
           _remotePeerId = senderEndpointId;
           _remoteName = sig.fromName;
           _setState(CallState.ringing);
+          _startRingingTimer();
           _incomingCallController.add(sig);
+        } else if (_state == CallState.ringing && _remotePeerId == senderEndpointId) {
+          // 🔴 FIX 6.1: Glare Tie-breaker. Both called at the exact same time.
+          // The peer with the lexicographically larger endpoint ID wins the tie
+          // and auto-accepts the call to merge them.
+          if (meshService.userName.compareTo(senderEndpointId) > 0) {
+            _ringingTimer?.cancel();
+            _setState(CallState.active);
+            await _startAudio();
+          }
         } else {
           _sendSignal(CallSignal.reject, senderEndpointId);
         }
         break;
       case CallSignal.accept:
         if (_state == CallState.ringing) {
+          _ringingTimer?.cancel();
           _setState(CallState.active);
           await _startAudio();
         }
         break;
       case CallSignal.reject:
-        _endCallLocally();
-        break;
       case CallSignal.hangup:
         _endCallLocally();
         break;
     }
+  }
+
+  void _startRingingTimer() {
+    _ringingTimer?.cancel();
+    _ringingTimer = Timer(const Duration(seconds: 30), () {
+      if (_state == CallState.ringing) {
+        debugPrint('MeshCallService: call ringing timed out');
+        hangUp();
+      }
+    });
   }
 
   /// Initiate a call to [peer].
@@ -209,7 +245,7 @@ class MeshCallService {
 
     // Default to speaker for mesh calls (user holds phone in front, not at ear).
     try {
-      await _audioChannel.invokeMethod('setSpeaker', {'on': true});
+      await _audioChannel.invokeMethod('setSpeaker', {'on': _speakerOn});
     } catch (_) {}
 
     // Start recording and stream mic PCM chunks to the peer.
@@ -221,10 +257,11 @@ class MeshCallService {
           numChannels: 1,
           echoCancel: true,
           noiseSuppress: true,
-          androidConfig: const AndroidRecordConfig(
+          autoGain: true,
+          androidConfig: AndroidRecordConfig(
             audioSource: AndroidAudioSource.voiceCommunication,
             audioManagerMode: AudioManagerMode.modeInCommunication,
-            speakerphone: true,
+            speakerphone: _speakerOn,
           ),
         ),
       );
@@ -260,12 +297,14 @@ class MeshCallService {
     );
   }
 
+  static final _audioPrefixBytes = utf8.encode(_audioPrefix);
+
   void _sendAudioChunk(Uint8List data) {
     try {
-      final prefix = utf8.encode(_audioPrefix);
-      final packet = Uint8List(prefix.length + data.length);
-      packet.setAll(0, prefix);
-      packet.setAll(prefix.length, data);
+      // 🔴 FIX 6.3: Avoid utf8.encode on every single audio chunk.
+      final packet = Uint8List(_audioPrefixBytes.length + data.length);
+      packet.setAll(0, _audioPrefixBytes);
+      packet.setAll(_audioPrefixBytes.length, data);
       meshService.sendBytesToPeer(_remotePeerId!, packet);
     } catch (e) {
       debugPrint('MeshCallService: audio send error $e');
@@ -274,6 +313,7 @@ class MeshCallService {
 
   Future<void> _endCallLocally() async {
     _setState(CallState.ended);
+    _ringingTimer?.cancel();
     _audioStarted = false;
     await _micSub?.cancel();
     _micSub = null;
@@ -297,6 +337,7 @@ class MeshCallService {
   }
 
   Future<void> dispose() async {
+    _peerSub?.cancel();
     _msgSub?.cancel();
     _micSub?.cancel();
     _stateController.close();

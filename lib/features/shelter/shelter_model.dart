@@ -69,4 +69,15 @@ class Shelter {
       'Shelter(name: $name, nameBn: $nameBn, lat: $lat, lon: $lon, '
       'capacity: $capacity, source: $source, id: $id, division: $division, '
       'district: $district, type: $type)';
+
+  /// Locale-appropriate display name: English in en mode, Bangla in bn mode.
+  /// Falls back to whichever name is populated so legacy/empty records
+  /// still render something readable.
+  String displayName(String localeCode) {
+    final isBangla = localeCode.toLowerCase().startsWith('bn');
+    if (isBangla) {
+      return nameBn.isNotEmpty ? nameBn : name;
+    }
+    return name.isNotEmpty ? name : nameBn;
+  }
 }

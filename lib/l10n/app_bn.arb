@@ -223,11 +223,6 @@
   "allDivisions": "সব",
   "noNumbersInDivision": "এই বিভাগে কোনো নম্বর পাওয়া যায়নি",
   "callTooltip": "কল করুন",
-  "safeBeaconTitle": "আমি নিরাপদ",
-  "safeBeaconDesc": "আপনার পরিবার ও সংযুক্ত মানুষদের জানান আপনি ভালো আছেন",
-  "safeBeaconButton": "আমি নিরাপদ আছি",
-  "lastSent": "শেষ পাঠানো: {count}টি",
-  "pendingWait": "{count}টি অপেক্ষমান — সংযোগ ফিরলে পাঠানো হবে",
   "beaconSentPending": "বীকন পাঠানো হয়েছে। {count}টি অপেক্ষমান।",
   "smsSent": "{count}টি এসএমএস পাঠানো হয়েছে।",
   "willNotifyOnReconnect": "{count}জনকে জানানো হবে সংযোগ ফিরলে।",
@@ -369,6 +364,9 @@
   "shelterFindingRoute": "রুট খুঁজছি...",
   "shelterDetails": "বিস্তারিত",
   "shelterNoData": "কোনো আশ্রয়কেন্দ্রের তথ্য নেই",
+  "shelterBriefLoading": "এই শেল্টারের তথ্য লোড হচ্ছে।",
+  "shelterBriefDistance": "{name} আপনার অবস্থান থেকে {dist} কিমি দূরে।",
+  "shelterBriefCapacity": " ধারণক্ষমতা {count} জন।",
   "shelterKm": "কিমি",
   "shelterSearchHint": "আশ্রয়কেন্দ্র খুঁজুন...",
   "shelterSelectDistrict": "জেলা নির্বাচন করুন",
@@ -416,6 +414,7 @@
   },
   "meshSendImage": "ছবি পাঠান",
   "meshSendVideo": "ভিডিও পাঠান",
+  "meshSendFile": "ফাইল পাঠান",
   "meshImageMissing": "ছবি পাওয়া যায়নি",
   "meshImageLoadError": "ছবি লোড হয়নি",
   "meshVideoMissing": "ভিডিও পাওয়া যায়নি",
@@ -463,6 +462,8 @@
   "sosModelNotReady": "মডেল লোড করা নেই — নিজে পূরণ করুন।",
   "sosAiFailed": "AI গঠন করতে পারেনি — নিজে পূরণ করুন।",
   "sosAiSuccess": "AI দিয়ে গঠন সম্পন্ন — যাচাই করুন।",
+  "sosSentOk": "SOS রিপোর্ট ৯৯৯ পাঠানো হয়েছে।",
+  "sosSendFailed": "SOS পাঠানো যায়নি — এখনই ৯৯৯ কল করুন।",
   "hazardsAllAlerts": "সকল সতর্কতা",
   "quickCardsTitle": "জরুরি সহায়তা কার্ড",
   "quickCardsSearchHint": "খুঁজুন: অরএস, সাপের কামড়, বন্যা...",
@@ -579,6 +580,24 @@
   "hazardCyclone": "ঘূর্ণিঝড়",
   "hazardFlood": "বন্যা",
   "hazardEarthquake": "ভূমিকম্প",
+  "hazardEarthquakeMag": "ভূমিকম্প M{mag}",
+  "damageTypeFlood": "বন্যা",
+  "damageTypeFire": "আগুন",
+  "damageTypeCollapsedBuilding": "ধসে পড়া ভবন",
+  "damageTypeFallenTree": "পড়ে যাওয়া গাছ",
+  "damageTypeBlockedRoad": "অবরুদ্ধ রাস্তা",
+  "damageTypeElectricHazard": "বৈদ্যুতিক বিপদ",
+  "damageTypeSmoke": "ধোঁয়া",
+  "damageTypeOther": "অন্যান্য",
+  "damageTypeUnknown": "অজানা",
+  "damageSeverityLow": "নিম্ন",
+  "damageSeverityMedium": "মাঝারি",
+  "damageSeverityHigh": "উচ্চ",
+  "damageSeverityCritical": "অত্যন্ত উচ্চ",
+  "damageSeverityUnknown": "অজানা",
+  "meshCallTitle": "মেশ কল",
+  "meshCallIncoming": "{name} আপনাকে কল করছে",
+  "homePromoCardsSubtitle": "১০+ ধরনের জরুরি অবস্থায় প্রাথমিক চিকিৎসা",
   "hazardWildfire": "দাবানল",
   "hazardVolcano": "আগ্নেয়গিরি",
   "hazardLandslide": "ভূমিধস",
@@ -626,6 +645,9 @@
   "safetyStatusDesc": "আপনার বর্তমান অবস্থা জানান। বন্ধুবান্ধব ও জরুরি পরিষেবাকে অবহিত করুন।",
   "safetySafeButton": "আমি নিরাপদ",
   "safetyDangerButton": "আমি বিপদে আছি",
+  "safetyNoContacts": "কোনো জরুরি যোগাযোগ সেট করা নেই। সেটিংস → জরুরি নম্বর থেকে যোগ করুন।",
+  "dangerSmsSummary": "{sent}টি এসএমএস পাঠানো হয়েছে, {pending}টি অপেক্ষমান।",
+  "safetyDangerSent": "বিপদ সংকেত পাঠানো হয়েছে।",
   "safetyStatusSent": "নিরাপদ বার্তা পাঠানো হয়েছে",
   "dangerAlertSent": "বিপদ সংকেত পাঠানো হয়েছে — সাহায্য আসছে",
   "safetyStatusNone": "কোনো অবস্থা জানানো হয়নি",
@@ -691,6 +713,18 @@
   "modelTierMedium": "মাঝারি",
   "modelTierPowerful": "শক্তিশালী",
   "modelStorageUsed": "ডাউনলোড করা: {size}",
+  "modelSemanticTitle": "সেমান্টিক সার্চ (EmbeddingGemma)",
+  "modelSemanticActive": "চালু",
+  "modelSemanticAbsent": "বন্ধ — কীওয়ার্ড সার্চ চলছে",
+  "embedderInstallButton": "ইনস্টল",
+  "embedderInstallTitle": "সেমান্টিক সার্চ ইনস্টল করুন",
+  "embedderInstallBody": "EmbeddingGemma-এর HuggingFace রিপোজিটরি লাইসেন্স-গেটেড। google/embeddinggemma-300m অ্যাক্সেস দেওয়া একটি HF টোকেন পেস্ট করুন — তাহলে স্মার্ট মাল্টিলিংগুয়াল সার্চ চালু হবে।",
+  "embedderTokenLabel": "HF অ্যাক্সেস টোকেন",
+  "embedderTokenHint": "hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "embedderInstallCancel": "বাতিল",
+  "embedderInstallProgress": "এমবেডার মডেল ডাউনলোড হচ্ছে…",
+  "embedderInstallSuccess": "সেমান্টিক সার্চ এখন চালু।",
+  "embedderInstallFailed": "ইনস্টল ব্যর্থ: {error}",
   "modelBadgeExpected": "✅ প্রত্যাশিত",
   "modelBadgeAdvanced": "⚠️ উন্নত",
   "modelBadgeHeavy": "⚠️ ভারী",
@@ -786,20 +820,9 @@
   "damageRecommendLabel": "সুপারিশ",
   "damageScanAnother": "আরেকটি ছবি স্ক্যান করুন",
   "damageTryAgain": "আবার চেষ্টা করুন",
-  "damageTypeFlood": "বন্যা",
-  "damageTypeFire": "আগুন",
   "damageTypeBuildingCollapse": "ধসে পড়া ভবন",
-  "damageTypeFallenTree": "পড়ে যাওয়া গাছ",
-  "damageTypeBlockedRoad": "অবরুদ্ধ রাস্তা",
   "damageTypeElectricalHazard": "বৈদ্যুতিক বিপদ",
-  "damageTypeSmoke": "ধোঁয়া",
-  "damageTypeOther": "অন্যান্য",
-  "damageTypeUnknown": "অজানা",
-  "damageSeverityLow": "নিম্ন",
-  "damageSeverityMedium": "মাঝারি",
-  "damageSeverityHigh": "উচ্চ",
   "damageSeverityVeryHigh": "অত্যন্ত উচ্চ",
-  "damageSeverityUnknown": "অজানা",
   "damageDefaultRecommendation": "অতিরিক্ত তথ্যের জন্য আশ্রয় ট্যাব ব্যবহার করুন।",
   "damageParseFailure": "ছবি বিশ্লেষণ করা যায়নি।",
   "plannerTitle": "AI দুর্যোগ পরিকল্পনা",
@@ -855,7 +878,7 @@
   "@kitSummaryMembers": {
     "placeholders": {
       "size": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -863,7 +886,7 @@
   "@kitSummaryChildren": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -871,7 +894,7 @@
   "@kitSummaryElderly": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -884,6 +907,21 @@
   "adminTimeMinutesAgo": "{count} মিনিট আগে",
   "adminTimeHoursAgo": "{count} ঘণ্টা আগে",
   "adminTimeDaysAgo": "{count} দিন আগে",
+  "adminBroadcastConfirmTitle": "সবার কাছে পাঠাবেন?",
+  "adminBroadcastConfirmBody": "{count}টি নিবন্ধিত ডিভাইসে এটি নোটিফিকেশন হিসেবে পৌঁছাবে। পাঠানো বার্তা আর ফেরানো যাবে না।",
+  "adminBroadcastConfirmAction": "এখনই পাঠান",
+  "adminBroadcastCounter": "{used}/{max}",
+  "adminBroadcastRecent": "সদ্য পাঠানো",
+  "adminBroadcastNoneSent": "এখনো কিছু পাঠানো হয়নি।",
+  "adminReject": "বাতিল করুন",
+  "adminRejected": "বাতিল করা হয়েছে",
+  "adminConfirmApproveTitle": "অনুরোধটি অনুমোদন করবেন?",
+  "adminConfirmApproveBody": "অনুমোদিত অনুরোধ আশপাশের ব্যবহারকারীদের ম্যাপে দেখা যাবে।",
+  "adminConfirmRejectTitle": "অনুরোধটি বাতিল করবেন?",
+  "adminConfirmRejectBody": "অনুরোধটি তালিকায় থাকবে, বাতিল হিসেবে চিহ্নিত হয়ে।",
+  "adminPasswordShow": "পাসওয়ার্ড দেখান",
+  "adminPasswordHide": "পাসওয়ার্ড লুকান",
+  "adminSigningIn": "সাইন ইন হচ্ছে…",
   "adminWriteMessage": "বার্তা লিখুন…",
   "adminDetailsLink": "বিস্তারিত",
   "adminSystemSummary": "সিস্টেম সারসংক্ষেপ",
@@ -903,13 +941,13 @@
         "type": "String"
       },
       "count": {
-        "type": "int"
+        "type": "String"
       },
       "yes": {
-        "type": "int"
+        "type": "String"
       },
       "no": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -922,13 +960,13 @@
         "type": "String"
       },
       "count": {
-        "type": "int"
+        "type": "String"
       },
       "yes": {
-        "type": "int"
+        "type": "String"
       },
       "no": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -966,7 +1004,7 @@
   "@hazardsShowMore": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -987,49 +1025,59 @@
   "@riskTimeMinutesAgo": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
   "@riskTimeHoursAgo": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
   "@riskTimeDaysAgo": {
     "placeholders": {
       "count": {
-        "type": "int"
-      }
-    }
-  },
-  "@kitGenerateForFamily": {
-    "placeholders": {
-      "size": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
   "@adminTimeMinutesAgo": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
   "@adminTimeHoursAgo": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
   "@adminTimeDaysAgo": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
+      }
+    }
+  },
+  "@adminBroadcastConfirmBody": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@adminBroadcastCounter": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
       }
     }
   },
@@ -1051,5 +1099,98 @@
   "modelInfoParamsE2b": "২ বিলিয়ন",
   "modelInfoParamsE4b": "৪ বিলিয়ন",
   "modelInfoRamE2b": "~২.৫ GB",
-  "modelInfoRamE4b": "~৫ GB"
+  "modelInfoRamE4b": "~৫ GB",
+  "@embedderInstallFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "demoSeedQ1Question": "ওআরএস কীভাবে বানাবো?",
+  "demoSeedQ1Answer": "১ লিটার পরিষ্কার পানিতে ৬ চা চামচ চিনি ও আধা চা চামচ লবণ মেশান। ভালো করে নাড়ুন এবং ২৪ ঘণ্টার মধ্যে খেয়ে ফেলুন। শিশুদের বারবার চামচ দিয়ে খাওয়ান।",
+  "demoSeedQ2Question": "নিকটস্থ আশ্রয়কেন্দ্র কোথায়?",
+  "demoSeedQ2Answer": "আশ্রয় মানচিত্রে (হোম → আশ্রয়) নিকটস্থ ঘূর্ণিঝড় আশ্রয়কেন্দ্র দেখুন। GPS অনুমতি দিলে দূরত্ব অনুযায়ী সাজানো তালিকা পাবেন।",
+  "demoSeedQ3Question": "সাপে কামড়ালে কী করবো?",
+  "demoSeedQ3Answer": "রোগীকে শান্ত রাখুন। কাটা, চুষা বা টর্নিকেট ব্যবহার করবেন না। আক্রান্ত স্থান নড়াচলা বন্ধ রাখুন এবং দ্রুত নিকটস্থ হাসপাতালে নিন。",
+  "insightCycloneTitle": "ঘূর্ণিঝড় প্রস্তুতি",
+  "insightCycloneBody": "আপনার নিকটবর্তী আশ্রয়কেন্দ্র আগে থেকেই ম্যাপে দেখে রাখুন।",
+  "insightFloodTitle": "বন্যা সতর্কতা",
+  "insightFloodBody": "পানি বিশুদ্ধ করার নিয়মগুলো জেনে নিন।",
+  "insightMedicalTitle": "চিকিৎসা সহায়তা",
+  "insightMedicalBody": "ORS তৈরির নিয়ম এবং জরুরি যোগাযোগ প্রস্তুত রাখুন।",
+  "insightOfflineTitle": "অফলাইন AI প্রস্তুত",
+  "insightOfflineBody": "ইন্টারনেট ছাড়াই শঙ্গ্যোগ আপনার প্রশ্নের উত্তর দিতে পারে।",
+  "@insightMedicalTitle": {
+    "description": "Proactive notification when medical interest detected"
+  },
+  "@insightOfflineBody": {
+    "description": "Default insight body for offline AI"
+  },
+  "proximityAlertTitle": "নিকটস্থ {type}",
+  "@proximityAlertTitle": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "proximityAlertBody": "{type} চলছে: {address} ({distance} কিমি দূরত্বে)",
+  "@proximityAlertBody": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "address": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "commonLoading": "লোড হচ্ছে…",
+  "riskHomeMaterial": "ঘরের ধরন",
+  "riskHomeMaterialTinShed": "টিনের ঘর",
+  "riskHomeMaterialHalfPucka": "আধা পাকা",
+  "riskHomeMaterialPucka": "পাকা",
+  "riskHomeMaterialApartment": "অ্যাপার্টমেন্ট",
+  "riskFloodHistoryNone": "কখনো না",
+  "riskFloodHistoryMinor": "মাঝারি",
+  "riskFloodHistoryMajor": "প্রধান",
+  "riskElevationLow": "নিচু",
+  "riskElevationMid": "মাঝারি",
+  "riskElevationHigh": "উঁচু",
+  "damageCameraPermanentDenied": "ক্যামেরার অনুমতি স্থায়ীভাবে প্রত্যাখ্যান করা হয়েছে। অনুগ্রহ করে সেটিংসে গিয়ে অনুমতি দিন।",
+  "damageCameraDenied": "ক্যামেরার অনুমতি প্রত্যাখ্যান করা হয়েছে।",
+  "chatFallback999": "জরুরি সাহায্যের জন্য ৯৯৯ এ কল করুন।",
+  "meshTransportNearby": "কাছেই",
+  "beaconAnonymousReporter": "একজন ব্যবহারকারী",
+  "adminRequestApproved": "{type} অনুমোদিত হয়েছে",
+  "@adminRequestApproved": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "adminRequestRejected": "{type} প্রত্যাখ্যান করা হয়েছে",
+  "@adminRequestRejected": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "emergencyGpsFallbackNotice": "{warning} — {phone} নম্বরে কল করুন",
+  "@emergencyGpsFallbackNotice": {
+    "placeholders": {
+      "warning": {
+        "type": "String"
+      },
+      "phone": {
+        "type": "String"
+      }
+    }
+  }
 }

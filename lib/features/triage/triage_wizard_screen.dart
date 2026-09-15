@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/router.dart';
 import '../../l10n/app_localizations.dart';
+import '../emergency/emergency_actions.dart';
 import '../quick_cards/cards_data.dart';
 import 'decision_tree.dart';
 import 'triage_state.dart';
@@ -98,7 +99,8 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
         title: Text(AppLocalizations.of(context).triageTitle),
         actions: [
           if (_state.answers.isNotEmpty) ...[
-            if (_state.elapsedBn().isNotEmpty)
+            if (_state.elapsedFor(AppLocalizations.of(context).localeName)
+                .isNotEmpty)
               Padding(
                 padding: const EdgeInsetsDirectional.only(end: 4),
                 child: Center(
@@ -113,7 +115,8 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
                             size: 14, color: cs.onSurfaceVariant),
                         const SizedBox(width: 4),
                         Text(
-                          _state.elapsedBn(),
+                          _state.elapsedFor(
+                              AppLocalizations.of(context).localeName),
                           style: TextStyle(
                             color: cs.onSurfaceVariant,
                             fontSize: 14,
@@ -177,8 +180,10 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
           const SizedBox(height: 32),
           Text(
             AppLocalizations.of(context).triageQuestion(
-              banglaNumber(_answers.length + 1),
-              banglaNumber(TriageTree.questions.length),
+              numberForLocale(_answers.length + 1,
+                  AppLocalizations.of(context).localeName),
+              numberForLocale(TriageTree.questions.length,
+                  AppLocalizations.of(context).localeName),
             ),
             style: TextStyle(
               fontSize: 14,
@@ -307,17 +312,25 @@ class _TriageWizardScreenState extends State<TriageWizardScreen> {
     );
   }
 
-  void _call999(BuildContext context) {
-    // The dialer lives in the emergency feature; we just show a
-    // snackbar hint. Linking the actual dialer would require a
-    // shared callback wired from the route — defer to the host
-    // navigation stack.
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(AppLocalizations.of(context).triageCalling999),
-        duration: const Duration(seconds: 3),
-      ),
-    );
+  Future<void> _call999(BuildContext context) async {
+    // Audit F1 (2026-09-08): this used to only show a snackbar claiming
+    // "dialing in phone app" while dialing nothing — the single worst
+    // life-safety defect in the app. It now opens the real dialer at
+    // tel:999 (same path as EmergencySheet) and only surfaces a message
+    // when the dialer genuinely cannot be launched.
+    final messenger = ScaffoldMessenger.of(context);
+    final ok = await EmergencyActions.dial(EmergencyActions.police);
+    if (!mounted) return;
+    if (!ok) {
+      messenger.showSnackBar(
+        SnackBar(
+          // AppLocalizations reads the State's own context after the
+          // mounted check above — the guard the lint accepts.
+          content: Text(AppLocalizations.of(this.context).triageCalling999),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
   }
 
   /// Maps a [TriageRoute] to a [QuickCard] id and pushes the
@@ -505,8 +518,31 @@ class _InlineSteps extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
-    final card = _findCard(cardId, l10n);
-    final steps = card.stepsBn.take(3).toList();
+    return FutureBuilder<List<QuickCardEntry>>(
+      future: loadQuickCards(l10n.localeName),
+      builder: (context, snap) {
+        final card = _InlineStepsLookup._findCard(cardId, snap.data, l10n);
+        final steps = card.steps.take(3).toList();
+        return _InlineStepsBody(steps: steps, card: card, l10n: l10n, cs: cs);
+      },
+    );
+  }
+}
+
+class _InlineStepsBody extends StatelessWidget {
+  final List<String> steps;
+  final QuickCardEntry card;
+  final AppLocalizations l10n;
+  final ColorScheme cs;
+  const _InlineStepsBody({
+    required this.steps,
+    required this.card,
+    required this.l10n,
+    required this.cs,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
@@ -542,7 +578,7 @@ class _InlineSteps extends StatelessWidget {
                   SizedBox(
                     width: 18,
                     child: Text(
-                      '${banglaNumber(entry.key + 1)}.',
+                      '${numberForLocale(entry.key + 1, l10n.localeName)}.',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -568,17 +604,22 @@ class _InlineSteps extends StatelessWidget {
       ),
     );
   }
+}
 
-  static QuickCard _findCard(String id, AppLocalizations l10n) {
-    for (final c in kQuickCards) {
-      if (c.id == id) return c;
+class _InlineStepsLookup {
+  static QuickCardEntry _findCard(
+      String id, List<QuickCardEntry>? cards, AppLocalizations l10n) {
+    if (cards != null) {
+      for (final c in cards) {
+        if (c.id == id) return c;
+      }
     }
-    return QuickCard(
+    return QuickCardEntry(
       id: '__missing__',
-      titleBn: l10n.triageCardNotFound,
+      title: l10n.triageCardNotFound,
       icon: Icons.help_outline_rounded,
       color: Colors.grey,
-      stepsBn: const [],
+      steps: const [],
     );
   }
 }

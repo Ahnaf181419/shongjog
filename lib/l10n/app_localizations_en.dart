@@ -526,25 +526,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get callTooltip => 'Call';
 
   @override
-  String get safeBeaconTitle => 'I\'m Safe';
-
-  @override
-  String get safeBeaconDesc => 'Let your family and contacts know you\'re okay';
-
-  @override
-  String get safeBeaconButton => 'I\'m Safe';
-
-  @override
-  String lastSent(Object count) {
-    return 'Last sent: $count';
-  }
-
-  @override
-  String pendingWait(Object count) {
-    return '$count pending — will send when connected';
-  }
-
-  @override
   String beaconSentPending(Object count) {
     return 'Beacon sent. $count pending.';
   }
@@ -919,6 +900,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shelterNoData => 'No shelter information';
 
   @override
+  String get shelterBriefLoading => 'Loading shelter information.';
+
+  @override
+  String shelterBriefDistance(Object dist, Object name) {
+    return '$name is $dist km from your location.';
+  }
+
+  @override
+  String shelterBriefCapacity(Object count) {
+    return ' Capacity $count people.';
+  }
+
+  @override
   String get shelterKm => 'km';
 
   @override
@@ -1003,6 +997,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get meshSendVideo => 'Send Video';
+
+  @override
+  String get meshSendFile => 'Send File';
 
   @override
   String get meshImageMissing => 'Image not available';
@@ -1145,6 +1142,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sosAiSuccess => 'AI generated — please review.';
+
+  @override
+  String get sosSentOk => 'SOS report sent to 999.';
+
+  @override
+  String get sosSendFailed => 'SOS could not be sent — call 999 now.';
 
   @override
   String get hazardsAllAlerts => 'All Alerts';
@@ -1457,6 +1460,64 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hazardEarthquake => 'Earthquake';
 
   @override
+  String hazardEarthquakeMag(Object mag) {
+    return 'Earthquake M$mag';
+  }
+
+  @override
+  String get damageTypeFlood => 'Flood';
+
+  @override
+  String get damageTypeFire => 'Fire';
+
+  @override
+  String get damageTypeCollapsedBuilding => 'Collapsed building';
+
+  @override
+  String get damageTypeFallenTree => 'Fallen tree';
+
+  @override
+  String get damageTypeBlockedRoad => 'Blocked road';
+
+  @override
+  String get damageTypeElectricHazard => 'Electrical hazard';
+
+  @override
+  String get damageTypeSmoke => 'Smoke';
+
+  @override
+  String get damageTypeOther => 'Other';
+
+  @override
+  String get damageTypeUnknown => 'Unknown';
+
+  @override
+  String get damageSeverityLow => 'Low';
+
+  @override
+  String get damageSeverityMedium => 'Medium';
+
+  @override
+  String get damageSeverityHigh => 'High';
+
+  @override
+  String get damageSeverityCritical => 'Critical';
+
+  @override
+  String get damageSeverityUnknown => 'Unknown';
+
+  @override
+  String get meshCallTitle => 'Mesh call';
+
+  @override
+  String meshCallIncoming(Object name) {
+    return '$name is calling you';
+  }
+
+  @override
+  String get homePromoCardsSubtitle => 'First aid for 10+ emergency conditions';
+
+  @override
   String get hazardWildfire => 'Wildfire';
 
   @override
@@ -1597,7 +1658,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get safetySafeButton => 'I\'m Safe';
 
   @override
-  String get safetyDangerButton => 'I\'m in Danger';
+  String get safetyDangerButton => 'I\'m in danger';
+
+  @override
+  String get safetyNoContacts =>
+      'No emergency contacts configured. Add one in Settings → Emergency Numbers.';
+
+  @override
+  String dangerSmsSummary(Object pending, Object sent) {
+    return '$sent SMS sent, $pending pending.';
+  }
+
+  @override
+  String get safetyDangerSent => 'Danger alert sent.';
 
   @override
   String get safetyStatusSent => 'Safe status sent';
@@ -1773,9 +1846,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String triageSummarySos(
     String route,
     String time,
-    int count,
-    int yes,
-    int no,
+    String count,
+    String yes,
+    String no,
   ) {
     return 'Triage: $route\nTime: $time\nQuestions: $count (Yes $yes / No $no)';
   }
@@ -1784,9 +1857,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String triageShareableSos(
     String route,
     String time,
-    int count,
-    int yes,
-    int no,
+    String count,
+    String yes,
+    String no,
   ) {
     return 'Triage: $route\nTime: $time\nQuestions: $count (Yes $yes / No $no)';
   }
@@ -1817,6 +1890,45 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String modelStorageUsed(String size) {
     return 'Downloaded: $size';
+  }
+
+  @override
+  String get modelSemanticTitle => 'Semantic search (EmbeddingGemma)';
+
+  @override
+  String get modelSemanticActive => 'Active';
+
+  @override
+  String get modelSemanticAbsent => 'Off — using keyword search';
+
+  @override
+  String get embedderInstallButton => 'Install';
+
+  @override
+  String get embedderInstallTitle => 'Install semantic search';
+
+  @override
+  String get embedderInstallBody =>
+      'EmbeddingGemma\'s HuggingFace repo is license-gated. Paste an HF access token that has been granted access to google/embeddinggemma-300m to enable smart, multilingual retrieval.';
+
+  @override
+  String get embedderTokenLabel => 'HF access token';
+
+  @override
+  String get embedderTokenHint => 'hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+
+  @override
+  String get embedderInstallCancel => 'Cancel';
+
+  @override
+  String get embedderInstallProgress => 'Downloading embedder model…';
+
+  @override
+  String get embedderInstallSuccess => 'Semantic search is now active.';
+
+  @override
+  String embedderInstallFailed(String error) {
+    return 'Install failed: $error';
   }
 
   @override
@@ -1899,7 +2011,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hazardsNearbyBadge => 'Across the border';
 
   @override
-  String hazardsShowMore(int count) {
+  String hazardsShowMore(String count) {
     return 'Show $count more';
   }
 
@@ -2123,46 +2235,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get damageTryAgain => 'Try again';
 
   @override
-  String get damageTypeFlood => 'Flood';
-
-  @override
-  String get damageTypeFire => 'Fire';
-
-  @override
   String get damageTypeBuildingCollapse => 'Collapsed building';
-
-  @override
-  String get damageTypeFallenTree => 'Fallen tree';
-
-  @override
-  String get damageTypeBlockedRoad => 'Blocked road';
 
   @override
   String get damageTypeElectricalHazard => 'Electrical hazard';
 
   @override
-  String get damageTypeSmoke => 'Smoke';
-
-  @override
-  String get damageTypeOther => 'Other';
-
-  @override
-  String get damageTypeUnknown => 'Unknown';
-
-  @override
-  String get damageSeverityLow => 'Low';
-
-  @override
-  String get damageSeverityMedium => 'Medium';
-
-  @override
-  String get damageSeverityHigh => 'High';
-
-  @override
   String get damageSeverityVeryHigh => 'Very High';
-
-  @override
-  String get damageSeverityUnknown => 'Unknown';
 
   @override
   String get damageDefaultRecommendation =>
@@ -2290,17 +2369,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get riskTimeJustNow => 'Just now';
 
   @override
-  String riskTimeMinutesAgo(int count) {
+  String riskTimeMinutesAgo(String count) {
     return '$count minutes ago';
   }
 
   @override
-  String riskTimeHoursAgo(int count) {
+  String riskTimeHoursAgo(String count) {
     return '$count hours ago';
   }
 
   @override
-  String riskTimeDaysAgo(int count) {
+  String riskTimeDaysAgo(String count) {
     return '$count days ago';
   }
 
@@ -2326,17 +2405,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get kitMoreOptions => 'More options';
 
   @override
-  String kitSummaryMembers(int size) {
+  String kitSummaryMembers(String size) {
     return '$size members';
   }
 
   @override
-  String kitSummaryChildren(int count) {
+  String kitSummaryChildren(String count) {
     return '$count children';
   }
 
   @override
-  String kitSummaryElderly(int count) {
+  String kitSummaryElderly(String count) {
     return '$count elderly';
   }
 
@@ -2359,19 +2438,70 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminTimeJustNow => 'Just now';
 
   @override
-  String adminTimeMinutesAgo(int count) {
+  String adminTimeMinutesAgo(String count) {
     return '$count minutes ago';
   }
 
   @override
-  String adminTimeHoursAgo(int count) {
+  String adminTimeHoursAgo(String count) {
     return '$count hours ago';
   }
 
   @override
-  String adminTimeDaysAgo(int count) {
+  String adminTimeDaysAgo(String count) {
     return '$count days ago';
   }
+
+  @override
+  String get adminBroadcastConfirmTitle => 'Send to everyone?';
+
+  @override
+  String adminBroadcastConfirmBody(String count) {
+    return '$count registered devices receive this as a notification. A sent message cannot be recalled.';
+  }
+
+  @override
+  String get adminBroadcastConfirmAction => 'Send now';
+
+  @override
+  String adminBroadcastCounter(String used, String max) {
+    return '$used/$max';
+  }
+
+  @override
+  String get adminBroadcastRecent => 'Recently sent';
+
+  @override
+  String get adminBroadcastNoneSent => 'Nothing sent yet.';
+
+  @override
+  String get adminReject => 'Reject';
+
+  @override
+  String get adminRejected => 'Rejected';
+
+  @override
+  String get adminConfirmApproveTitle => 'Approve this request?';
+
+  @override
+  String get adminConfirmApproveBody =>
+      'Approved requests appear on the map for nearby users.';
+
+  @override
+  String get adminConfirmRejectTitle => 'Reject this request?';
+
+  @override
+  String get adminConfirmRejectBody =>
+      'The request stays in the list, marked rejected.';
+
+  @override
+  String get adminPasswordShow => 'Show password';
+
+  @override
+  String get adminPasswordHide => 'Hide password';
+
+  @override
+  String get adminSigningIn => 'Signing in…';
 
   @override
   String get adminWriteMessage => 'Write a message...';
@@ -2439,4 +2569,129 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get modelInfoRamE4b => '~5 GB';
+
+  @override
+  String get demoSeedQ1Question => 'How do I make ORS?';
+
+  @override
+  String get demoSeedQ1Answer =>
+      'Mix 6 teaspoons of sugar and half a teaspoon of salt into 1 litre of clean water. Stir well and drink within 24 hours. Feed children small spoonfuls often.';
+
+  @override
+  String get demoSeedQ2Question => 'Where is the nearest shelter?';
+
+  @override
+  String get demoSeedQ2Answer =>
+      'Open the Shelter map (Home → Shelter) to see the nearest cyclone shelters. With GPS permission on, you get a sorted list by distance.';
+
+  @override
+  String get demoSeedQ3Question => 'What do I do for a snakebite?';
+
+  @override
+  String get demoSeedQ3Answer =>
+      'Keep the patient calm. Don\'t cut, suck, or use a tourniquet. Immobilize the bitten limb and get to the nearest hospital quickly.';
+
+  @override
+  String get insightCycloneTitle => 'Cyclone preparation';
+
+  @override
+  String get insightCycloneBody =>
+      'Check your nearest shelter on the map before the storm arrives.';
+
+  @override
+  String get insightFloodTitle => 'Flood alert';
+
+  @override
+  String get insightFloodBody => 'Learn the steps for purifying water safely.';
+
+  @override
+  String get insightMedicalTitle => 'Medical help';
+
+  @override
+  String get insightMedicalBody =>
+      'Keep an ORS recipe and emergency contacts ready.';
+
+  @override
+  String get insightOfflineTitle => 'Offline AI ready';
+
+  @override
+  String get insightOfflineBody =>
+      'Shongjog can answer your questions even without the internet.';
+
+  @override
+  String proximityAlertTitle(String type) {
+    return 'Nearby $type';
+  }
+
+  @override
+  String proximityAlertBody(String type, String address, String distance) {
+    return '$type ongoing: $address ($distance km away)';
+  }
+
+  @override
+  String get commonLoading => 'Loading…';
+
+  @override
+  String get riskHomeMaterial => 'Home Material';
+
+  @override
+  String get riskHomeMaterialTinShed => 'Tin shed';
+
+  @override
+  String get riskHomeMaterialHalfPucka => 'Half-pucka';
+
+  @override
+  String get riskHomeMaterialPucka => 'Pucka';
+
+  @override
+  String get riskHomeMaterialApartment => 'Apartment';
+
+  @override
+  String get riskFloodHistoryNone => 'Never';
+
+  @override
+  String get riskFloodHistoryMinor => 'Minor';
+
+  @override
+  String get riskFloodHistoryMajor => 'Major';
+
+  @override
+  String get riskElevationLow => 'Low';
+
+  @override
+  String get riskElevationMid => 'Middle';
+
+  @override
+  String get riskElevationHigh => 'High';
+
+  @override
+  String get damageCameraPermanentDenied =>
+      'Camera permission permanently denied. Please enable it in Settings.';
+
+  @override
+  String get damageCameraDenied => 'Camera permission denied.';
+
+  @override
+  String get chatFallback999 => 'For emergency help, call 999.';
+
+  @override
+  String get meshTransportNearby => 'Nearby';
+
+  @override
+  String get beaconAnonymousReporter => 'A user';
+
+  @override
+  String adminRequestApproved(String type) {
+    return '$type approved';
+  }
+
+  @override
+  String adminRequestRejected(String type) {
+    return '$type rejected';
+  }
+
+  @override
+  String emergencyGpsFallbackNotice(String warning, String phone) {
+    return '$warning — call $phone';
+  }
 }

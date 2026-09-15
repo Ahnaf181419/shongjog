@@ -69,7 +69,18 @@ class WifiDirectTransport implements MeshTransport {
       final clientInst = FlutterP2pClient();
       await clientInst.initialize();
 
-      final foundHost = await _scanForHost(clientInst);
+      var foundHost = await _scanForHost(clientInst);
+
+      if (foundHost == null) {
+        // Phase 2.4 FIX: Dual-host race condition.
+        // If both devices launch at the same exact time, both see no host,
+        // and both become hosts, fracturing the mesh. 
+        // We add a randomized backoff (0-3s) and try one more scan.
+        final randomDelay = (1000 + (DateTime.now().millisecondsSinceEpoch % 2000));
+        debugPrint('WifiDirectTransport: no host found, backoff for $randomDelay ms');
+        await Future.delayed(Duration(milliseconds: randomDelay));
+        foundHost = await _scanForHost(clientInst);
+      }
 
       if (foundHost != null) {
         _client = clientInst;
@@ -78,7 +89,7 @@ class WifiDirectTransport implements MeshTransport {
         _listenAsClient(clientInst);
         debugPrint('WifiDirectTransport: joined as Client');
       } else {
-        // No host found — become the host.
+        // Still no host found — safe to become the host.
         await clientInst.dispose();
         final hostInst = FlutterP2pHost();
         await hostInst.initialize();
@@ -236,11 +247,31 @@ class WifiDirectTransport implements MeshTransport {
     // flutter_p2p_connection auto-accepts; nothing to do here.
   }
 
+  bool _isRestartingDiscovery = false;
+
   @override
   Future<void> restartDiscovery() async {
-    if (!_running || _isHost) return;
-    // Clients re-scan BLE for new hosts if disconnected.
-    debugPrint('WifiDirectTransport: restartDiscovery no-op for client in connected state');
+    if (!_running || _isHost || _isRestartingDiscovery) return;
+    if (_peerMap.isNotEmpty) {
+      debugPrint('WifiDirectTransport: restartDiscovery skipped (already connected)');
+      return;
+    }
+
+    _isRestartingDiscovery = true;
+    try {
+      debugPrint('WifiDirectTransport: restarting discovery scan for host...');
+      final client = _client ??= FlutterP2pClient();
+      final foundHost = await _scanForHost(client);
+      if (foundHost != null && _running) {
+        await client.connectWithDevice(foundHost);
+        _listenAsClient(client);
+        debugPrint('WifiDirectTransport: re-connected to host');
+      }
+    } catch (e) {
+      debugPrint('WifiDirectTransport.restartDiscovery failed: $e');
+    } finally {
+      _isRestartingDiscovery = false;
+    }
   }
 
   @override

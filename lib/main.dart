@@ -17,7 +17,9 @@ import 'core/connectivity_provider.dart';
 import 'core/device_registry_service.dart';
 import 'core/firebase_auth_service.dart';
 import 'core/local_notification_service.dart';
+import 'core/locale_controller.dart';
 import 'core/model_manager.dart';
+import 'core/prompt_cache_warmer.dart';
 import 'core/remote_key_service.dart';
 import 'features/admin/campaign_request.dart';
 import 'features/safe_beacon/safety_status_service.dart';
@@ -30,6 +32,14 @@ final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Restore the persisted locale before any locale-dependent warm-up so
+  // the first frame already renders in the user's chosen language.
+  await localeController.ensureLoaded();
+
+  // Prime every locale-dependent asset cache (quick cards, districts,
+  // and the six prompt-string bundles) and listen for language switches.
+  await PromptCacheWarmer(localeController).start();
 
   // Global error handlers — capture uncaught errors in release mode where
   // debugPrint is a no-op. Without this, errors vanish silently on a
@@ -75,60 +85,25 @@ Future<void> main() async {
   } catch (e) {
     debugPrint('Connectivity init failed: $e');
   }
-  // Firestore backend for the admin panel (campaigns, broadcasts, safety
-  // reports) — cross-device sync so an admin on one phone can see data
-  // submitted on another. Anonymous auth only, no PII beyond what the
-  // existing local services already store. Non-fatal: the app must still
-  // boot and work fully offline if Firebase is unreachable (no network on
-  // first launch, or no Firebase project configured at all).
-  //
-  // No explicit `options:` — this is an Android-only build, and the
-  // `com.google.gms.google-services` Gradle plugin (android/app/build.gradle.kts)
-  // reads android/app/google-services.json at build time and wires the
-  // native config automatically. That's also why there's no
-  // `firebase_options.dart` / `flutterfire configure` step for this project.
-  try {
-    await Firebase.initializeApp();
-    await firebaseAuthService.ensureSignedIn();
-    // Before any service subscribes: the admin flag decides WHICH Firestore
-    // query they issue, and a non-admin device must not send one the rules
-    // will reject wholesale.
-    await firebaseAuthService.loadAdminFlag();
-  } catch (e) {
-    debugPrint('Firebase init failed: $e');
-  }
-  // Pull the cloud-AI key from Firestore into the device's secure store, so
-  // the published APK can ship with NO key compiled into it (a --dart-define
-  // key is a plaintext literal in libapp.so — one `grep` recovers it from a
-  // public download). Awaited, not fire-and-forget: ChatScreen reads the
-  // stored key when it builds, and on a first launch that happens seconds
-  // from now. One small doc read, served from Firestore's offline cache on
-  // every launch after the first.
-  try {
-    await remoteKeyService.syncOrRevoke();
-  } catch (e) {
-    debugPrint('RemoteKeyService sync failed: $e');
-  }
-  // Must precede adminBroadcastService.initialize(): that subscribes to the
-  // broadcast stream, and the first inbound broadcast raises a tray
-  // notification through this service.
+  // Local notification service: fast, purely on-device plugin initialization.
   try {
     await localNotificationService.initialize();
   } catch (e) {
     debugPrint('LocalNotificationService init failed: $e');
   }
+
+  // Load admin role flag from SharedPreferences (purely local, instant).
+  try {
+    await firebaseAuthService.loadAdminFlag();
+  } catch (e) {
+    debugPrint('FirebaseAuthService loadAdminFlag failed: $e');
+  }
+
+  // Load local JSON caches for admin broadcasts and campaigns.
   try {
     await adminBroadcastService.initialize();
   } catch (e) {
     debugPrint('AdminBroadcastService init failed: $e');
-  }
-  // Registers this device in `users/{uid}` and starts its heartbeat, so the
-  // admin panel's Users page and stat row reflect every device running the
-  // app — not just the Bluetooth peers within mesh range of the admin.
-  try {
-    await deviceRegistryService.initialize();
-  } catch (e) {
-    debugPrint('DeviceRegistryService init failed: $e');
   }
   try {
     await campaignRequestService.initialize();
@@ -140,6 +115,10 @@ Future<void> main() async {
   } catch (e) {
     debugPrint('SafetyStatusService init failed: $e');
   }
+
+  // Cloud / Firebase backend sync (non-fatal, runs asynchronously so the
+  // app boots instantly on frame 1 even with NO internet connection).
+  unawaited(_initCloudServices());
   try {
     await modelManager.autoSelectBestModel();
   } catch (e) {
@@ -188,3 +167,33 @@ Future<void> main() async {
   }
   runApp(const ShongjogApp());
 }
+
+/// Initializes Firebase and remote sync in the background.
+///
+/// Must NEVER block `runApp()` or app boot: if the phone has no internet
+/// connection (or is in airplane mode / disaster scenario), this must fail
+/// gracefully or register a listener to sync once back online, without
+/// delaying the first frame or freezing on the OS splash screen.
+Future<void> _initCloudServices() async {
+  try {
+    await Firebase.initializeApp().timeout(const Duration(seconds: 3));
+    if (connectivityProvider.isOnline) {
+      await firebaseAuthService.ensureSignedIn();
+      await remoteKeyService.syncOrRevoke();
+      await deviceRegistryService.initialize();
+    } else {
+      // Offline at startup: attach listener to sync once internet is restored
+      late void Function() connListener;
+      connListener = () {
+        if (connectivityProvider.isOnline) {
+          connectivityProvider.removeListener(connListener);
+          _initCloudServices();
+        }
+      };
+      connectivityProvider.addListener(connListener);
+    }
+  } catch (e) {
+    debugPrint('Cloud services init failed (non-fatal): $e');
+  }
+}
+

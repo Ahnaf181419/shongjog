@@ -1,0 +1,163 @@
+{
+  "version": 1,
+  "bn": {
+    "ঢাকা": [
+      "ঢাকা",
+      "গাজীপুর",
+      "নারায়ণগঞ্জ",
+      "মানিকগঞ্জ",
+      "মুন্সিগঞ্জ",
+      "রাজবাড়ী",
+      "ফরিদপুর",
+      "গোপালগঞ্জ",
+      "মাদারীপুর",
+      "শরীয়তপুর",
+      "কিশোরগঞ্জ",
+      "নেত্রকোণা",
+      "টঙ্গী",
+      "কুমিল্লা",
+      "চাঁদপুর",
+      "লক্ষ্মীপুর"
+    ],
+    "চট্টগ্রাম": [
+      "চট্টগ্রাম",
+      "কক্সবাজার",
+      "রাঙ্গামাটি",
+      "বান্দরবান",
+      "খাগড়াছড়ি",
+      "ফেনী",
+      "নোয়াখালী",
+      "লক্ষ্মীপুর"
+    ],
+    "রাজশাহী": [
+      "রাজশাহী",
+      "বগুড়া",
+      "পাবনা",
+      "নাটোর",
+      "সিরাজগঞ্জ",
+      "চাঁপাইনবাবগঞ্জ",
+      "নওগাঁ",
+      "জয়পুরহাট"
+    ],
+    "খুলনা": [
+      "খুলনা",
+      "বাগেরহাট",
+      "সাতক্ষীরা",
+      "যশোর",
+      "ঝিনাইদহ",
+      "মাগুরা",
+      "নড়াইল",
+      "কুষ্টিয়া",
+      "মেহেরপুর"
+    ],
+    "বরিশাল": [
+      "বরিশাল",
+      "পটুয়াখালী",
+      "পিরোজপুর",
+      "ভোলা",
+      "বরগুনা"
+    ],
+    "সিলেট": [
+      "সিলেট",
+      "মৌলভীবাজার",
+      "হবিগঞ্জ",
+      "সুনামগঞ্জ"
+    ],
+    "রংপুর": [
+      "রংপুর",
+      "দিনাজপুর",
+      "কুড়িগ্রাম",
+      "লালমনিরহাট",
+      "নীলফামারী",
+      "পঞ্চগড়",
+      "ঠাকুরগাঁও"
+    ],
+    "ময়মনসিংহ": [
+      "ময়মনসিংহ",
+      "জামালপুর",
+      "শেরপুর",
+      "নেত্রকোণা",
+      "টাঙ্গাইল"
+    ]
+  },
+  "en": {
+    "Dhaka": [
+      "Dhaka",
+      "Gazipur",
+      "Narayanganj",
+      "Manikganj",
+      "Munshiganj",
+      "Rajbari",
+      "Faridpur",
+      "Gopalganj",
+      "Madaripur",
+      "Shariatpur",
+      "Kishoreganj",
+      "Netrokona",
+      "Tongi",
+      "Cumilla",
+      "Chandpur",
+      "Lakshmipur"
+    ],
+    "Chattogram": [
+      "Chattogram",
+      "Cox's Bazar",
+      "Rangamati",
+      "Bandarban",
+      "Khagrachhari",
+      "Feni",
+      "Noakhali",
+      "Lakshmipur"
+    ],
+    "Rajshahi": [
+      "Rajshahi",
+      "Bogura",
+      "Pabna",
+      "Natore",
+      "Sirajganj",
+      "Chapainawabganj",
+      "Naogaon",
+      "Joypurhat"
+    ],
+    "Khulna": [
+      "Khulna",
+      "Bagerhat",
+      "Satkhira",
+      "Jashore",
+      "Jhenaidah",
+      "Magura",
+      "Narail",
+      "Kushtia",
+      "Meherpur"
+    ],
+    "Barishal": [
+      "Barishal",
+      "Patuakhali",
+      "Pirojpur",
+      "Bhola",
+      "Barguna"
+    ],
+    "Sylhet": [
+      "Sylhet",
+      "Moulvibazar",
+      "Habiganj",
+      "Sunamganj"
+    ],
+    "Rangpur": [
+      "Rangpur",
+      "Dinajpur",
+      "Kurigram",
+      "Lalmonirhat",
+      "Nilphamari",
+      "Panchagarh",
+      "Thakurgaon"
+    ],
+    "Mymensingh": [
+      "Mymensingh",
+      "Jamalpur",
+      "Sherpur",
+      "Netrokona",
+      "Tangail"
+    ]
+  }
+}

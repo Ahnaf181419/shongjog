@@ -129,8 +129,12 @@ class _DirectoryScreenState extends State<DirectoryScreen> {
                               foregroundColor: cs.onPrimaryContainer,
                               child: Icon(_iconFor(e.type)),
                             ),
-                            title: Text(e.nameBn),
-                            subtitle: Text(toBanglaDigits(e.phone)),
+                            title: Text(e.displayName(AppLocalizations.of(context).localeName)),
+                            subtitle: Text(
+                              AppLocalizations.of(context).localeName == 'bn'
+                                  ? toBanglaDigits(e.phone)
+                                  : e.phone,
+                            ),
                             trailing: IconButton(
                               tooltip: AppLocalizations.of(context).callTooltip,
                               icon: const Icon(Icons.call_rounded),

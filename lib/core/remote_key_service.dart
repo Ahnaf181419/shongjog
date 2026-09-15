@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 import 'api_key_store.dart';
+import 'connectivity_provider.dart';
 
 /// Delivers the Gemini API key to installed apps without shipping it inside
 /// the APK.
@@ -94,10 +95,14 @@ class RemoteKeyService {
 
   /// [syncKey], plus honouring a deliberate revocation: an empty (or
   /// removed) key field clears the device's cached ring.
-  Future<void> syncOrRevoke() async {
+  Future<void> syncOrRevoke({bool force = false}) async {
     try {
-      final snap =
-          await _firestore.collection(collection).doc(document).get();
+      if (!force && _injectedFirestore == null && !connectivityProvider.isOnline) return;
+      final snap = await _firestore
+          .collection(collection)
+          .doc(document)
+          .get()
+          .timeout(const Duration(seconds: 3));
       if (!snap.exists) return; // doc missing — leave the cache alone
       final remote = _parseKeys(snap.data());
       if (remote.isNotEmpty) {

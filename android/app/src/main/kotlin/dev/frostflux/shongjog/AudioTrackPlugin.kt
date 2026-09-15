@@ -1,9 +1,11 @@
 package dev.frostflux.shongjog
 
 import android.media.AudioAttributes
+import android.media.AudioDeviceInfo
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioTrack
+import android.os.Build
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
@@ -34,8 +36,21 @@ class AudioTrackPlugin(private val activity: MainActivity) : MethodChannel.Metho
             "setSpeaker" -> {
                 val on = call.argument<Boolean>("on") ?: false
                 val am = activity.getSystemService(AudioManager::class.java)
-                @Suppress("DEPRECATION")
-                am.isSpeakerphoneOn = on
+                am.mode = AudioManager.MODE_IN_COMMUNICATION
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val devices = am.availableCommunicationDevices
+                    val targetType = if (on) AudioDeviceInfo.TYPE_BUILTIN_SPEAKER else AudioDeviceInfo.TYPE_BUILTIN_EARPIECE
+                    val targetDevice = devices.find { it.type == targetType }
+                    if (targetDevice != null) {
+                        am.setCommunicationDevice(targetDevice)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        am.isSpeakerphoneOn = on
+                    }
+                } else {
+                    @Suppress("DEPRECATION")
+                    am.isSpeakerphoneOn = on
+                }
                 result.success(null)
             }
             else -> result.notImplemented()
@@ -79,6 +94,9 @@ class AudioTrackPlugin(private val activity: MainActivity) : MethodChannel.Metho
         audioTrack?.release()
         audioTrack = null
         val am = activity.getSystemService(AudioManager::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            am.clearCommunicationDevice()
+        }
         am.mode = AudioManager.MODE_NORMAL
     }
 

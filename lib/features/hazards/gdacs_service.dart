@@ -248,11 +248,14 @@ GdacsSeverity parseGdacsSeverity(String block) {
 }
 
 extension GdacsSeverityLabel on GdacsSeverity {
-  String label(BuildContext context) => switch (this) {
-        GdacsSeverity.green => AppLocalizations.of(context).severityGreen,
-        GdacsSeverity.orange => AppLocalizations.of(context).severityOrange,
-        GdacsSeverity.red => AppLocalizations.of(context).severityRed,
-        GdacsSeverity.unknown => AppLocalizations.of(context).severityUnknown,
+  String label(BuildContext context) => labelL10n(AppLocalizations.of(context));
+
+  /// Localized label against an explicit [AppLocalizations].
+  String labelL10n(AppLocalizations l10n) => switch (this) {
+        GdacsSeverity.green => l10n.severityGreen,
+        GdacsSeverity.orange => l10n.severityOrange,
+        GdacsSeverity.red => l10n.severityRed,
+        GdacsSeverity.unknown => l10n.severityUnknown,
       };
 }
 

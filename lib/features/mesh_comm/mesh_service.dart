@@ -90,8 +90,15 @@ class MeshService {
   // Map to hold files that are currently downloading
   final Map<int, String> _incomingFiles = {};
 
+  /// Set of payload IDs that are voice clips — excluded from file transfer progress UI.
+  final Set<int> _voicePayloadIds = {};
+
   /// Timers for cleaning up disconnected peers after a TTL.
   final Map<String, Timer> _disconnectTimers = {};
+
+  /// Names learned during connection initiation, used as fallback in
+  /// [_onConnectionResult] when no prior discovery provided a name.
+  final Map<String, String> _pendingConnectionNames = {};
 
   /// How long a disconnected peer stays in the list before removal.
   static const _disconnectTtl = Duration(seconds: 30);
@@ -101,6 +108,15 @@ class MeshService {
   /// when the user navigated away, breaking peer discovery for both devices.
   Timer? _discoveryTimer;
   static const _discoveryInterval = Duration(seconds: 15);
+
+  /// 🔴 FIX 8.5: Message retry queue for offline/reconnecting peers.
+  final List<_QueuedMessage> _retryQueue = [];
+  Timer? _retryTimer;
+
+  /// 🔴 FIX 8.6: Smart discovery throttling state.
+  int _emptyDiscoveryTicks = 0;
+  DateTime? _lastRestartDiscoveryTime;
+  DateTime? _lastRestartAdvertisingTime;
 
   /// Multi-hop SOS relay engine. Wired lazily — the listener is
   /// attached to the messages stream on first [start]().
@@ -157,7 +173,10 @@ class MeshService {
   }
 
   Future<MeshStartResult> start() async {
-    if (_running) return MeshStartResult.success;
+    if (_running) {
+      ensureDiscoverable(force: true);
+      return MeshStartResult.success;
+    }
 
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -175,8 +194,7 @@ class MeshService {
 
     final wifiOn = await _wifiRadioAvailable();
     if (!wifiOn) {
-      debugPrint('MeshService: Wi-Fi radio off — cannot start any transport');
-      return MeshStartResult.fail('wifi_off', wifiOn: false);
+      debugPrint('MeshService: Wi-Fi radio off — proceeding with Bluetooth-only transport');
     }
 
     // ── Dual-Stack Transport Selection ───────────────────────────────────
@@ -217,6 +235,7 @@ class MeshService {
       debugPrint('MeshService: using Nearby Connections (GMS detected)');
       _running = true;
       _startDiscoveryTimer();
+      _startRetryTimer();
       _peersController.add(peerList);
       return MeshStartResult(
         ok: true,
@@ -261,6 +280,7 @@ class MeshService {
 
     _running = true;
     _startDiscoveryTimer();
+    _startRetryTimer();
     _peersController.add(peerList);
     return MeshStartResult(
       ok: true,
@@ -313,14 +333,47 @@ class MeshService {
     _discoveryTimer?.cancel();
     _discoveryTimer = Timer.periodic(_discoveryInterval, (_) {
       if (!_running) return;
-      if (hasLiveLink) return;
+      if (hasLiveLink) {
+        _emptyDiscoveryTicks = 0;
+        // Heartbeat: keep sockets open & alive across both radios
+        for (final p in _peers.values) {
+          if (p.status == PeerStatus.connected) {
+            sendMessage('PING', targetEndpointId: p.endpointId, echoSelf: false, enqueueOnFailure: false);
+          }
+        }
+        return;
+      }
+
+      // 🔴 FIX 8.6: Smart discovery throttling when alone
+      if (_peers.isEmpty) {
+        _emptyDiscoveryTicks++;
+        // Throttle: skip ticks to extend interval from 15s -> 30s -> 60s
+        if (_emptyDiscoveryTicks > 8 && _emptyDiscoveryTicks % 4 != 0) {
+          return; // 60s cadence
+        } else if (_emptyDiscoveryTicks > 4 && _emptyDiscoveryTicks % 2 != 0) {
+          return; // 30s cadence
+        }
+      } else {
+        _emptyDiscoveryTicks = 0;
+      }
+
       restartDiscovery();
       restartAdvertising();
     });
   }
 
-  Future<void> restartDiscovery() async {
+  Future<void> restartDiscovery({bool force = false}) async {
     if (!_running) return;
+    final now = DateTime.now();
+    // 🔴 FIX 8.6: Debounce rapid consecutive calls unless forced
+    if (!force && _lastRestartDiscoveryTime != null) {
+      if (now.difference(_lastRestartDiscoveryTime!) < const Duration(seconds: 2)) {
+        return;
+      }
+    }
+    _lastRestartDiscoveryTime = now;
+    _emptyDiscoveryTicks = 0;
+
     if (activeTransport == MeshTransportType.wifiDirect) {
       await _wifiDirectTransport?.restartDiscovery();
       return;
@@ -342,8 +395,16 @@ class MeshService {
 
   /// Restart advertising so the username is always broadcast to nearby peers.
   /// If advertising was dropped by the OS, this re-establishes it.
-  Future<void> restartAdvertising() async {
+  Future<void> restartAdvertising({bool force = false}) async {
     if (!_running) return;
+    final now = DateTime.now();
+    if (!force && _lastRestartAdvertisingTime != null) {
+      if (now.difference(_lastRestartAdvertisingTime!) < const Duration(seconds: 2)) {
+        return;
+      }
+    }
+    _lastRestartAdvertisingTime = now;
+
     if (activeTransport == MeshTransportType.wifiDirect) return;
     try {
       await Nearby().stopAdvertising();
@@ -360,10 +421,77 @@ class MeshService {
     }
   }
 
+  /// Forces both advertising (so others can discover this device) and
+  /// discovery (so this device finds others) to be active.
+  ///
+  /// Safe to call on screen entry or navigation return.
+  Future<void> ensureDiscoverable({bool force = false}) async {
+    if (!_running) {
+      await start();
+      return;
+    }
+    await restartAdvertising(force: force);
+    if (!hasLiveLink || force) {
+      await restartDiscovery(force: force);
+    }
+  }
+
+  /// 🔴 FIX 8.5: Background timer to flush pending message retry queue.
+  void _startRetryTimer() {
+    _retryTimer?.cancel();
+    _retryTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      if (!_running || _retryQueue.isEmpty) return;
+      _flushRetryQueue();
+    });
+  }
+
+  /// Flush pending queued messages for connected peers.
+  void _flushRetryQueue({String? targetEndpointId}) {
+    if (_retryQueue.isEmpty) return;
+    final now = DateTime.now();
+    _retryQueue.removeWhere((q) {
+      if (now.difference(q.createdAt) > const Duration(seconds: 25)) return true;
+      if (q.retries >= 3) return true;
+      if (targetEndpointId != null && q.targetEndpointId != targetEndpointId) {
+        return false;
+      }
+      final peer = _peers[q.targetEndpointId];
+      if (peer != null && peer.status == PeerStatus.connected) {
+        q.retries++;
+        final ok = sendMessage(
+          q.text,
+          targetEndpointId: q.targetEndpointId,
+          echoSelf: false,
+          enqueueOnFailure: false,
+        );
+        return ok;
+      }
+      return false;
+    });
+  }
+
+  /// Update the local user's profile display name, re-advertise if idle,
+  /// and announce to any connected peers over the live link.
+  Future<void> updateUserName(String newName) async {
+    final trimmed = newName.trim();
+    if (trimmed.isEmpty) return;
+    userName = '$kMeshPeerPrefix$trimmed';
+    if (_running) {
+      if (!hasLiveLink) {
+        await restartAdvertising();
+      } else {
+        sendMessage('NAME_UPDATE:$trimmed', echoSelf: false);
+      }
+    }
+  }
+
   Future<void> stop() async {
     _running = false;
     _discoveryTimer?.cancel();
     _discoveryTimer = null;
+    _retryTimer?.cancel();
+    _retryTimer = null;
+    _retryQueue.clear();
     _wdPeerSub?.cancel();
     _wdMsgSub?.cancel();
     if (activeTransport == MeshTransportType.wifiDirect) {
@@ -379,12 +507,21 @@ class MeshService {
     _disconnectTimers.clear();
     _peers.clear();
     _incomingFiles.clear();
+    _outgoingFiles.clear();
+    _voicePayloadIds.clear();
     _peersController.add(peerList);
   }
 
   void dispose() {
-    _peersController.close();
-    _messagesController.close();
+    // 🔴 FIX 1.3: MeshService is a global singleton (see bottom of file).
+    // Closing broadcast StreamControllers here means ANY subsequent call
+    // to _peersController.add() throws a StateError, bricking discovery
+    // until the app is force-stopped and the singleton is recreated.
+    // These controllers MUST live for the app's entire lifetime.
+    //
+    // _peersController.close();
+    // _messagesController.close();
+    // _connectionRequestsController.close();
   }
 
   void _onEndpointFound(String id, String name, String serviceId) {
@@ -423,6 +560,12 @@ class MeshService {
     );
     _peersController.add(peerList);
 
+    // Mutual discovery kick: announce ourselves back immediately so
+    // the newly found peer's radar sees us right away!
+    if (!hasLiveLink) {
+      restartAdvertising();
+    }
+
     // Auto-reconnect if this peer was previously connected or reconnecting
     // (i.e. we had an active session that dropped). This avoids requiring
     // the user to manually tap to reconnect every time discovery finds the
@@ -456,6 +599,13 @@ class MeshService {
     if (id == null) return;
     final peer = _peers[id];
     if (peer == null) return;
+    // 🔴 FIX 1.1: Nearby fires onEndpointLost when advertising rotates
+    // (battery saving), NOT when the TCP/Wi-Fi Direct link drops. The
+    // actual disconnection lifecycle is governed by onDisconnected().
+    // Overwriting connected → reconnecting here was the #1 cause of
+    // "connection drops after 1 text message".
+    if (peer.status == PeerStatus.connected) return;
+
     _peers[id] = peer.copyWith(status: PeerStatus.reconnecting);
     _peersController.add(peerList);
 
@@ -469,6 +619,18 @@ class MeshService {
   }
 
   void _onConnectionInitiated(String id, ConnectionInfo info) {
+    // 🔴 FIX 1.2: Add the peer immediately so hasLiveLink is true during
+    // the handshake. Previously the peer wasn't in _peers yet, so the
+    // 15s discovery timer would fire restartDiscovery/restartAdvertising
+    // and tear down the radio mid-negotiation.
+    _pendingConnectionNames[id] = info.endpointName;
+    _peers[id] = MeshPeer(
+      endpointId: id,
+      name: info.endpointName,
+      status: PeerStatus.reconnecting, // "negotiating" — protects hasLiveLink
+    );
+    _peersController.add(peerList);
+
     if (info.isIncomingConnection) {
       _connectionRequestsController.add(ConnectionRequestEvent(id, info.endpointName));
     } else {
@@ -492,14 +654,20 @@ class MeshService {
     if (status == Status.CONNECTED) {
       _disconnectTimers.remove(id)?.cancel();
       final existing = _peers[id];
+      // 🔴 FIX 3.1: Use the name from discovery or connection initiation,
+      // not the raw endpoint ID. Previously when existing was null (direct
+      // incoming connection without prior discovery), the peer's name was
+      // set to the endpoint ID, displaying gibberish instead of the user name.
       _peers[id] = MeshPeer(
         endpointId: id,
-        name: existing?.name ?? id,
+        name: existing?.name ?? _pendingConnectionNames.remove(id) ?? id,
         status: PeerStatus.connected,
       );
       _peersController.add(peerList);
+      _flushRetryQueue(targetEndpointId: id);
     } else {
       _peers.remove(id);
+      _pendingConnectionNames.remove(id);
       _disconnectTimers.remove(id)?.cancel();
       _peersController.add(peerList);
     }
@@ -570,6 +738,17 @@ class MeshService {
   /// rather than being honoured, so no peer input reaches the path at all.
   @visibleForTesting
   static String safeExtensionFor(String hint, MessageType type) {
+    if (type == MessageType.file) {
+      final lastSegment = hint.split(RegExp(r'[/\\]')).last;
+      final dot = lastSegment.lastIndexOf('.');
+      if (dot >= 0 && dot < lastSegment.length - 1) {
+        final ext = lastSegment.substring(dot + 1).toLowerCase();
+        if (RegExp(r'^[a-z0-9]{1,10}$').hasMatch(ext)) {
+          return ext;
+        }
+      }
+      return 'bin';
+    }
     final fallback = _defaultExtensions[type] ?? 'bin';
     final allowed = _allowedExtensions[type];
     if (allowed == null) return fallback;
@@ -613,7 +792,22 @@ class MeshService {
         final parts = text.split(':');
         if (parts.length >= 3) {
           final id = int.tryParse(parts[1]);
-          if (id != null) _incomingFilenames[id] = parts[2];
+          if (id != null) {
+            _incomingFilenames[id] = parts[2];
+            _voicePayloadIds.add(id);
+          }
+        }
+        return;
+      }
+      // General file filename hint: "file:<payloadId>:<basename>"
+      if (text.startsWith('file:')) {
+        final parts = text.split(':');
+        if (parts.length >= 3) {
+          final id = int.tryParse(parts[1]);
+          if (id != null) {
+            final basename = parts.sublist(2).join(':');
+            _incomingFilenames[id] = '$basename|file';
+          }
         }
         return;
       }
@@ -634,6 +828,22 @@ class MeshService {
           text.substring('CALL_SIG:'.length),
           endpointId,
         );
+        return;
+      }
+      if (text.startsWith('NAME_UPDATE:')) {
+        final newDisplayName = text.substring('NAME_UPDATE:'.length);
+        final peer = _peers[endpointId];
+        if (peer != null) {
+          _peers[endpointId] = peer.copyWith(name: '$kMeshPeerPrefix$newDisplayName');
+          _peersController.add(peerList);
+        }
+        return;
+      }
+      if (text == 'PING') {
+        sendMessage('PONG', targetEndpointId: endpointId, echoSelf: false);
+        return;
+      }
+      if (text == 'PONG') {
         return;
       }
       // Safety-status intercept: feed into SafetyStatusService so the
@@ -690,13 +900,17 @@ class MeshService {
       final dir = await getApplicationDocumentsDirectory();
       final hint = _incomingFilenames.remove(payloadId) ?? '';
 
-      // hint format: "basename" (voice) or "basename|type" (media)
+      // hint format: "basename" (voice) or "basename|type" (media / file)
       String rawName;
       MessageType msgType;
       if (hint.contains('|')) {
         final parts = hint.split('|');
         rawName = parts[0];
-        msgType = parts[1] == 'video' ? MessageType.video : MessageType.image;
+        msgType = parts[1] == 'video'
+            ? MessageType.video
+            : parts[1] == 'file'
+                ? MessageType.file
+                : MessageType.image;
       } else {
         rawName = hint;
         msgType = MessageType.voice;
@@ -707,7 +921,9 @@ class MeshService {
       // own basename used to land in this path verbatim, which let a
       // connected device overwrite the on-device model weights.
       final ext = safeExtensionFor(rawName, msgType);
-      final dest = '${dir.path}/mesh_${msgType.name}_$payloadId.$ext';
+      final dest = msgType == MessageType.file
+          ? '${dir.path}/mesh_file_${payloadId}_${_sanitizeFilename(rawName)}'
+          : '${dir.path}/mesh_${msgType.name}_$payloadId.$ext';
       await Nearby().copyFileAndDeleteOriginal(sourceUri, dest);
 
       // Copy images/videos into the device gallery — but only with standing
@@ -737,48 +953,143 @@ class MeshService {
     }
   }
 
-  // 🔴 FIX 1: Only pass the file to the UI when download completes
+  static String _sanitizeFilename(String name) {
+    final clean = name.replaceAll(RegExp(r'[^\w\.\-]'), '_');
+    return clean.isNotEmpty ? clean : 'attachment.bin';
+  }
+
+  final _transferProgressController =
+      StreamController<FileTransferProgress>.broadcast();
+  Stream<FileTransferProgress> get transferProgress =>
+      _transferProgressController.stream;
+
+  /// Track outgoing file payloads for progress reporting.
+  final Map<int, String> _outgoingFiles = {};
+
+  /// 🔴 FIX 5.4: Deferred files — FILE payload completed before the
+  /// bytes hint arrived. Holds the source URI until the hint comes in.
+  final Map<int, _DeferredFile> _deferredFiles = {};
+
+  // 🔴 FIX 1 + 5.1 + 5.4: Emit progress on every update, not just terminal
+  // states. Deferred materialization for the hint race condition.
   void _onPayloadTransferUpdate(String endpointId, PayloadTransferUpdate update) {
+    // 🔴 FIX: Voice clips do not show a file transfer progress bar
+    final isVoice = _voicePayloadIds.contains(update.id);
+    if (isVoice) {
+      if (update.status == PayloadStatus.SUCCESS ||
+          update.status == PayloadStatus.FAILURE ||
+          update.status == PayloadStatus.CANCELED) {
+        _voicePayloadIds.remove(update.id);
+      }
+    } else {
+      // Emit progress for in-flight transfers (both incoming and outgoing).
+      final isIncoming = _incomingFiles.containsKey(update.id);
+      final isOutgoing = _outgoingFiles.containsKey(update.id);
+      if (isIncoming || isOutgoing) {
+        _transferProgressController.add(FileTransferProgress(
+          payloadId: update.id,
+          endpointId: endpointId,
+          bytesTransferred: update.bytesTransferred,
+          totalBytes: update.totalBytes,
+          isSending: isOutgoing,
+          isComplete: update.status == PayloadStatus.SUCCESS,
+          isFailed: update.status == PayloadStatus.FAILURE ||
+              update.status == PayloadStatus.CANCELED,
+        ));
+      }
+    }
+
     if (update.status == PayloadStatus.SUCCESS) {
+      _outgoingFiles.remove(update.id);
       final sourceUri = _incomingFiles.remove(update.id);
       if (sourceUri == null) return;
-      // Copy the content:// URI into real storage asynchronously; emit the
-      // message once the copy completes. If the copy fails we surface a
-      // text-fallback so the chat bubble is never a silent dead tap.
-      _materializeFile(update.id, sourceUri).then((result) {
-        if (result == null) return;
-        final peerName = _peers[endpointId]?.name ?? endpointId;
-        _messagesController.add(MeshMessage(
-          senderId: endpointId,
-          senderName: peerName,
-          text: '',
-          type: result.type,
-          filePath: result.path,
-        ));
-      });
-    } else if (update.status == PayloadStatus.FAILURE || update.status == PayloadStatus.CANCELED) {
+
+      // 🔴 FIX 5.4: Check if the bytes hint has already arrived.
+      if (_incomingFilenames.containsKey(update.id)) {
+        // Hint is here — materialize immediately.
+        _materializeAndEmit(update.id, sourceUri, endpointId);
+      } else {
+        // Hint hasn't arrived yet — defer materialization.
+        _deferredFiles[update.id] = _DeferredFile(sourceUri, endpointId);
+        Timer(const Duration(seconds: 10), () {
+          // Timeout: if hint still hasn't arrived, materialize with defaults.
+          final deferred = _deferredFiles.remove(update.id);
+          if (deferred != null) {
+            _materializeAndEmit(update.id, deferred.uri, deferred.endpointId);
+          }
+        });
+      }
+    } else if (update.status == PayloadStatus.FAILURE ||
+        update.status == PayloadStatus.CANCELED) {
       _incomingFiles.remove(update.id);
       _incomingFilenames.remove(update.id);
+      _outgoingFiles.remove(update.id);
+      _voicePayloadIds.remove(update.id);
     }
   }
 
+  /// Materialize a completed file transfer and emit a MeshMessage.
+  void _materializeAndEmit(int payloadId, String sourceUri, String endpointId) {
+    _materializeFile(payloadId, sourceUri).then((result) {
+      if (result == null) return;
+      final peerName = _peers[endpointId]?.name ?? endpointId;
+      final text = result.type == MessageType.file
+          ? result.path.split(RegExp(r'[/\\]')).last.replaceFirst('mesh_file_${payloadId}_', '')
+          : '';
+      _messagesController.add(MeshMessage(
+        senderId: endpointId,
+        senderName: peerName,
+        text: text,
+        type: result.type,
+        filePath: result.path,
+      ));
+    });
+  }
+
   /// Returns true if at least one peer received the message.
-  bool sendMessage(String text, {String? targetEndpointId, bool echoSelf = true}) {
-    if (_peers.isEmpty) return false;
-    final bytes = Uint8List.fromList(utf8.encode(text));
+  bool sendMessage(
+    String text, {
+    String? targetEndpointId,
+    bool echoSelf = true,
+    bool enqueueOnFailure = true,
+  }) {
     var delivered = false;
-    for (final peer in _peers.values) {
-      if (peer.status == PeerStatus.connected) {
-        if (targetEndpointId == null || peer.endpointId == targetEndpointId) {
-          try {
-            Nearby().sendBytesPayload(peer.endpointId, bytes);
-            delivered = true;
-          } catch (e) {
-            debugPrint('MeshService: sendBytes failed to ${peer.name}: $e');
+    if (_peers.isNotEmpty) {
+      for (final peer in _peers.values) {
+        if (peer.status == PeerStatus.connected) {
+          if (targetEndpointId == null || peer.endpointId == targetEndpointId) {
+            // 🔴 FIX 2.3: Route through the active transport instead of
+            // hardcoding Nearby(). On GMS-free devices using WifiDirect,
+            // Nearby().sendBytesPayload() crashes or silently fails.
+            if (activeTransport == MeshTransportType.wifiDirect) {
+              final ok = _wifiDirectTransport?.sendTextToPeer(
+                      peer.endpointId, text) ??
+                  false;
+              if (ok) delivered = true;
+            } else {
+              try {
+                final bytes = Uint8List.fromList(utf8.encode(text));
+                Nearby().sendBytesPayload(peer.endpointId, bytes);
+                delivered = true;
+              } catch (e) {
+                debugPrint('MeshService: sendBytes failed to ${peer.name}: $e');
+              }
+            }
           }
         }
       }
     }
+
+    // 🔴 FIX 8.5: Enqueue user message if delivery failed (e.g. peer is
+    // temporarily disconnected or reconnecting), so it will automatically
+    // retry when the peer is back online.
+    if (!delivered && enqueueOnFailure && targetEndpointId != null && _isUserMessage(text)) {
+      _retryQueue.add(_QueuedMessage(
+        text: text,
+        targetEndpointId: targetEndpointId,
+      ));
+    }
+
     // H7 FIX: only add to chat when at least one peer confirmed delivery.
     // Previously the self-bubble was unconditional so the user saw "sent"
     // even when no peers were connected.
@@ -798,6 +1109,19 @@ class MeshService {
     return delivered;
   }
 
+  static bool _isUserMessage(String text) {
+    if (text == 'PING' || text == 'PONG') return false;
+    if (text.startsWith('CALL_SIG:') ||
+        text.startsWith('NAME_UPDATE:') ||
+        text.startsWith('voice:') ||
+        text.startsWith(_kMediaHintPrefix) ||
+        text.startsWith('GRP_') ||
+        text.startsWith('SOS_')) {
+      return false;
+    }
+    return true;
+  }
+
   /// Lazily wire the SOS relay engine. Idempotent — call from app
   /// startup. Returns the same listener on subsequent calls.
   SosRelayListener ensureRelayEngine() {
@@ -813,10 +1137,15 @@ class MeshService {
   void sendBytesToAll(Uint8List bytes) {
     if (_peers.isEmpty) return;
     for (final peer in _peers.values) {
-      try {
-        Nearby().sendBytesPayload(peer.endpointId, bytes);
-      } catch (e) {
-        debugPrint('MeshService: failed to send bytes to ${peer.name}: $e');
+      // Route through the active transport.
+      if (activeTransport == MeshTransportType.wifiDirect) {
+        _wifiDirectTransport?.sendBytes(peer.endpointId, bytes);
+      } else {
+        try {
+          Nearby().sendBytesPayload(peer.endpointId, bytes);
+        } catch (e) {
+          debugPrint('MeshService: failed to send bytes to ${peer.name}: $e');
+        }
       }
     }
   }
@@ -893,17 +1222,24 @@ class MeshService {
     for (final peer in _peers.values) {
       if (peer.status == PeerStatus.connected) {
         if (targetEndpointId == null || peer.endpointId == targetEndpointId) {
-          try {
-            final filePayloadId =
-                Nearby().sendFilePayload(peer.endpointId, sendPath);
-            filePayloadId.then((payloadId) {
-              final hint = utf8.encode('voice:$payloadId:$basename');
-              Nearby().sendBytesPayload(
-                peer.endpointId,
-                Uint8List.fromList(hint),
-              );
-            }).catchError((_) {});
-          } catch (e) { debugPrint("[Catch] mesh_service: $e"); }
+          // 🔴 FIX 2.3: Route file payloads through the active transport.
+          if (activeTransport == MeshTransportType.wifiDirect) {
+            _wifiDirectTransport?.sendFile(sendPath,
+                targetPeerId: peer.endpointId);
+          } else {
+            try {
+              final filePayloadId =
+                  Nearby().sendFilePayload(peer.endpointId, sendPath);
+              filePayloadId.then((payloadId) {
+                _voicePayloadIds.add(payloadId);
+                final hint = utf8.encode('voice:$payloadId:$basename');
+                Nearby().sendBytesPayload(
+                  peer.endpointId,
+                  Uint8List.fromList(hint),
+                );
+              }).catchError((_) {});
+            } catch (e) { debugPrint("[Catch] mesh_service: $e"); }
+          }
         }
       }
     }
@@ -962,20 +1298,27 @@ class MeshService {
     for (final peer in _peers.values) {
       if (peer.status == PeerStatus.connected) {
         if (targetEndpointId == null || peer.endpointId == targetEndpointId) {
-          try {
-            final filePayloadId =
-                Nearby().sendFilePayload(peer.endpointId, sendPath);
-            filePayloadId.then((payloadId) {
-              // hint: "media:<id>:<basename>:<type>"
-              final hint = utf8.encode(
-                  '$_kMediaHintPrefix$payloadId:$basename:$typeTag');
-              Nearby().sendBytesPayload(
-                peer.endpointId,
-                Uint8List.fromList(hint),
-              );
-            }).catchError((_) {});
-          } catch (e) {
-            debugPrint('MeshService: sendMediaMessage failed: $e');
+          // 🔴 FIX 2.3: Route file payloads through the active transport.
+          if (activeTransport == MeshTransportType.wifiDirect) {
+            _wifiDirectTransport?.sendFile(sendPath,
+                targetPeerId: peer.endpointId);
+          } else {
+            try {
+              final filePayloadId =
+                  Nearby().sendFilePayload(peer.endpointId, sendPath);
+              filePayloadId.then((payloadId) {
+                _outgoingFiles[payloadId] = sendPath;
+                // hint: "media:<id>:<basename>:<type>"
+                final hint = utf8.encode(
+                    '$_kMediaHintPrefix$payloadId:$basename:$typeTag');
+                Nearby().sendBytesPayload(
+                  peer.endpointId,
+                  Uint8List.fromList(hint),
+                );
+              }).catchError((_) {});
+            } catch (e) {
+              debugPrint('MeshService: sendMediaMessage failed: $e');
+            }
           }
         }
       }
@@ -993,6 +1336,98 @@ class MeshService {
     ));
     return sendPath;
   }
+
+  /// Send a general file (documents, archives, etc.) to a peer over the mesh.
+  Future<String?> sendFileMessage(
+    String filePath, {
+    String? targetEndpointId,
+  }) async {
+    if (_peers.isEmpty) return null;
+    final basename = filePath.split(RegExp(r'[/\\]')).last;
+
+    // Persist into app-private storage so sender retains a copy
+    String? localPath;
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final dest = '${dir.path}/mesh_file_${DateTime.now().millisecondsSinceEpoch}_${_sanitizeFilename(basename)}';
+      final src = File(filePath);
+      if (await src.exists()) {
+        await src.copy(dest);
+        localPath = dest;
+      }
+    } catch (e) {
+      debugPrint('MeshService: failed to persist sender file: $e');
+      localPath = filePath;
+    }
+
+    final sendPath = localPath ?? filePath;
+    for (final peer in _peers.values) {
+      if (peer.status == PeerStatus.connected) {
+        if (targetEndpointId == null || peer.endpointId == targetEndpointId) {
+          if (activeTransport == MeshTransportType.wifiDirect) {
+            _wifiDirectTransport?.sendFile(sendPath,
+                targetPeerId: peer.endpointId);
+          } else {
+            try {
+              final filePayloadId =
+                  Nearby().sendFilePayload(peer.endpointId, sendPath);
+              filePayloadId.then((payloadId) {
+                _outgoingFiles[payloadId] = sendPath;
+                // hint: "file:<id>:<basename>"
+                final hint = utf8.encode('file:$payloadId:$basename');
+                Nearby().sendBytesPayload(
+                  peer.endpointId,
+                  Uint8List.fromList(hint),
+                );
+              }).catchError((_) {});
+            } catch (e) {
+              debugPrint('MeshService: sendFileMessage failed: $e');
+            }
+          }
+        }
+      }
+    }
+
+    final selfName = userName.startsWith(kMeshPeerPrefix)
+        ? userName.substring(kMeshPeerPrefix.length)
+        : userName;
+    _messagesController.add(MeshMessage(
+      senderId: kMeshSelfId,
+      senderName: selfName,
+      text: basename,
+      type: MessageType.file,
+      filePath: sendPath,
+    ));
+    return sendPath;
+  }
+}
+
+class _DeferredFile {
+  final String uri;
+  final String endpointId;
+  _DeferredFile(this.uri, this.endpointId);
+}
+
+class FileTransferProgress {
+  final int payloadId;
+  final String? endpointId;
+  final int bytesTransferred;
+  final int totalBytes;
+  final bool isSending;
+  final bool isComplete;
+  final bool isFailed;
+
+  FileTransferProgress({
+    required this.payloadId,
+    this.endpointId,
+    required this.bytesTransferred,
+    required this.totalBytes,
+    required this.isSending,
+    required this.isComplete,
+    required this.isFailed,
+  });
+
+  double get percent => totalBytes > 0 ? (bytesTransferred / totalBytes * 100) : 0.0;
 }
 
 /// Result of materializing a received FILE payload.
@@ -1000,6 +1435,19 @@ class _MaterializedFile {
   final String path;
   final MessageType type;
   const _MaterializedFile(this.path, this.type);
+}
+
+/// Pending outgoing message for offline/reconnecting peer with retry count.
+class _QueuedMessage {
+  final String text;
+  final String targetEndpointId;
+  int retries = 0;
+  final DateTime createdAt;
+  _QueuedMessage({
+    required this.text,
+    required this.targetEndpointId,
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime.now();
 }
 
 final meshService = MeshService._(

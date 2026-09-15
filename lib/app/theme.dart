@@ -86,6 +86,12 @@ class ShongjogTheme {
   /// Info ink. Deliberately a step darker than [ocean]: the brand primary is
   /// 5.93:1 flat but only 4.37:1 once it sits on a 15% tint of itself, so it
   /// cannot double as its own chip label. Same locked hue (~205°).
+  /// Tonal-button container. sky-100 / sky-900 — the quietest surface that
+  /// still reads as "this is an action", with [infoInk] / [infoInkDark] on
+  /// top measuring 8.6:1 and 9.1:1.
+  static const Color tonalFill = Color(0xFFE0F2FE); // sky-100
+  static const Color tonalFillDark = Color(0xFF0C4A6E); // sky-900
+
   static const Color infoInk = Color(0xFF075985); // sky-800
   static const Color infoInkDark = Color(0xFF7DD3FC); // sky-300
 
@@ -344,6 +350,21 @@ class ShongjogTheme {
 
   /// Adaptive hairline border color (slate-200 in light, surfaceContainerHighest
   /// outline in dark).
+  /// Style for a button in an [AlertDialog] action row.
+  ///
+  /// `filledButtonTheme` uses `Size.fromHeight(52)`, whose minimum WIDTH is
+  /// infinity — right for a full-bleed CTA, fatal in a dialog: `OverflowBar`
+  /// cannot fit an infinitely-wide child beside anything, so it gives up on
+  /// the row and stacks. Every confirm dialog in the app rendered as a small
+  /// 40dp "Cancel" on one line and a full-width 52dp confirm button on the
+  /// next, which reads as two unrelated controls rather than a choice.
+  ///
+  /// Applied to both buttons in a row, this puts them side by side at equal
+  /// height.
+  static ButtonStyle dialogAction() => const ButtonStyle(
+        minimumSize: WidgetStatePropertyAll(Size(88, 52)),
+      );
+
   static Color hairline(BuildContext c) =>
       Theme.of(c).colorScheme.outlineVariant;
 
@@ -380,6 +401,13 @@ class ShongjogTheme {
       onPrimary: onPrimaryColor,
       secondary: primaryColor,
       onSecondary: onPrimaryColor,
+      // FilledButton.tonal is a real emphasis level between filled and text,
+      // and it was unusable: `secondaryContainer` was never set, so it fell
+      // back to `secondary` — the brand hue — and every tonal button rendered
+      // byte-identical to a primary filled one. A tinted container plus ink
+      // dark enough to read on it restores the middle step.
+      secondaryContainer: isLight ? tonalFill : tonalFillDark,
+      onSecondaryContainer: isLight ? infoInk : infoInkDark,
       surface: surfaceColor,
       onSurface: textPrimary,
       surfaceContainerHighest: isLight ? surfaceDim : surfaceDimDark,
@@ -506,11 +534,50 @@ class ShongjogTheme {
           color: textSecondary,
         ),
       ),
+      // `styleFrom(backgroundColor:)` here applied to FilledButton AND
+      // FilledButton.tonal alike, overriding the tonal variant's own colours.
+      // Dropped: the Material defaults already resolve to
+      // colorScheme.primary / onPrimary for the plain variant, so the filled
+      // button is unchanged and the tonal one starts working.
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: primaryColor,
-          foregroundColor: onPrimaryColor,
           minimumSize: const Size.fromHeight(52),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(radius)),
+          textStyle: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+            fontFamily: fontFamily,
+            fontFamilyFallback: fontFallback,
+          ),
+        ),
+      ),
+      // TextButton and OutlinedButton had no theme entry, so they kept
+      // Material's 40dp default while every FilledButton was 52dp. Wherever
+      // the two sit together — every dialog action row, every approve/reject
+      // pair — they were visibly a different size. 40dp also sits under the
+      // 48dp tap-target floor §6 sets, which made this an accessibility bug
+      // as well as a cosmetic one.
+      //
+      // `Size(64, 52)`, not `Size.fromHeight(52)`: fromHeight sets the
+      // minimum WIDTH to infinity, which is what the filled button wants for
+      // a full-bleed CTA but is wrong for a button that shares a row.
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          minimumSize: const Size(64, 52),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(radius)),
+          textStyle: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+            fontFamily: fontFamily,
+            fontFamilyFallback: fontFallback,
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(64, 52),
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(radius)),
           textStyle: TextStyle(

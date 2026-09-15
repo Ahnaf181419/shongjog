@@ -525,26 +525,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get callTooltip => 'কল করুন';
 
   @override
-  String get safeBeaconTitle => 'আমি নিরাপদ';
-
-  @override
-  String get safeBeaconDesc =>
-      'আপনার পরিবার ও সংযুক্ত মানুষদের জানান আপনি ভালো আছেন';
-
-  @override
-  String get safeBeaconButton => 'আমি নিরাপদ আছি';
-
-  @override
-  String lastSent(Object count) {
-    return 'শেষ পাঠানো: $countটি';
-  }
-
-  @override
-  String pendingWait(Object count) {
-    return '$countটি অপেক্ষমান — সংযোগ ফিরলে পাঠানো হবে';
-  }
-
-  @override
   String beaconSentPending(Object count) {
     return 'বীকন পাঠানো হয়েছে। $countটি অপেক্ষমান।';
   }
@@ -918,6 +898,19 @@ class AppLocalizationsBn extends AppLocalizations {
   String get shelterNoData => 'কোনো আশ্রয়কেন্দ্রের তথ্য নেই';
 
   @override
+  String get shelterBriefLoading => 'এই শেল্টারের তথ্য লোড হচ্ছে।';
+
+  @override
+  String shelterBriefDistance(Object dist, Object name) {
+    return '$name আপনার অবস্থান থেকে $dist কিমি দূরে।';
+  }
+
+  @override
+  String shelterBriefCapacity(Object count) {
+    return ' ধারণক্ষমতা $count জন।';
+  }
+
+  @override
   String get shelterKm => 'কিমি';
 
   @override
@@ -1003,6 +996,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get meshSendVideo => 'ভিডিও পাঠান';
+
+  @override
+  String get meshSendFile => 'ফাইল পাঠান';
 
   @override
   String get meshImageMissing => 'ছবি পাওয়া যায়নি';
@@ -1147,6 +1143,12 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get sosAiSuccess => 'AI দিয়ে গঠন সম্পন্ন — যাচাই করুন।';
+
+  @override
+  String get sosSentOk => 'SOS রিপোর্ট ৯৯৯ পাঠানো হয়েছে।';
+
+  @override
+  String get sosSendFailed => 'SOS পাঠানো যায়নি — এখনই ৯৯৯ কল করুন।';
 
   @override
   String get hazardsAllAlerts => 'সকল সতর্কতা';
@@ -1462,6 +1464,65 @@ class AppLocalizationsBn extends AppLocalizations {
   String get hazardEarthquake => 'ভূমিকম্প';
 
   @override
+  String hazardEarthquakeMag(Object mag) {
+    return 'ভূমিকম্প M$mag';
+  }
+
+  @override
+  String get damageTypeFlood => 'বন্যা';
+
+  @override
+  String get damageTypeFire => 'আগুন';
+
+  @override
+  String get damageTypeCollapsedBuilding => 'ধসে পড়া ভবন';
+
+  @override
+  String get damageTypeFallenTree => 'পড়ে যাওয়া গাছ';
+
+  @override
+  String get damageTypeBlockedRoad => 'অবরুদ্ধ রাস্তা';
+
+  @override
+  String get damageTypeElectricHazard => 'বৈদ্যুতিক বিপদ';
+
+  @override
+  String get damageTypeSmoke => 'ধোঁয়া';
+
+  @override
+  String get damageTypeOther => 'অন্যান্য';
+
+  @override
+  String get damageTypeUnknown => 'অজানা';
+
+  @override
+  String get damageSeverityLow => 'নিম্ন';
+
+  @override
+  String get damageSeverityMedium => 'মাঝারি';
+
+  @override
+  String get damageSeverityHigh => 'উচ্চ';
+
+  @override
+  String get damageSeverityCritical => 'অত্যন্ত উচ্চ';
+
+  @override
+  String get damageSeverityUnknown => 'অজানা';
+
+  @override
+  String get meshCallTitle => 'মেশ কল';
+
+  @override
+  String meshCallIncoming(Object name) {
+    return '$name আপনাকে কল করছে';
+  }
+
+  @override
+  String get homePromoCardsSubtitle =>
+      '১০+ ধরনের জরুরি অবস্থায় প্রাথমিক চিকিৎসা';
+
+  @override
   String get hazardWildfire => 'দাবানল';
 
   @override
@@ -1603,6 +1664,18 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get safetyDangerButton => 'আমি বিপদে আছি';
+
+  @override
+  String get safetyNoContacts =>
+      'কোনো জরুরি যোগাযোগ সেট করা নেই। সেটিংস → জরুরি নম্বর থেকে যোগ করুন।';
+
+  @override
+  String dangerSmsSummary(Object pending, Object sent) {
+    return '$sentটি এসএমএস পাঠানো হয়েছে, $pendingটি অপেক্ষমান।';
+  }
+
+  @override
+  String get safetyDangerSent => 'বিপদ সংকেত পাঠানো হয়েছে।';
 
   @override
   String get safetyStatusSent => 'নিরাপদ বার্তা পাঠানো হয়েছে';
@@ -1777,9 +1850,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String triageSummarySos(
     String route,
     String time,
-    int count,
-    int yes,
-    int no,
+    String count,
+    String yes,
+    String no,
   ) {
     return 'ট্রায়াজ: $route\nসময়: $time\nপ্রশ্ন: $count (হ্যাঁ $yes / না $no)';
   }
@@ -1788,9 +1861,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String triageShareableSos(
     String route,
     String time,
-    int count,
-    int yes,
-    int no,
+    String count,
+    String yes,
+    String no,
   ) {
     return 'ট্রায়াজ: $route\nসময়: $time\nপ্রশ্ন: $count (হ্যাঁ $yes / না $no)';
   }
@@ -1821,6 +1894,45 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String modelStorageUsed(String size) {
     return 'ডাউনলোড করা: $size';
+  }
+
+  @override
+  String get modelSemanticTitle => 'সেমান্টিক সার্চ (EmbeddingGemma)';
+
+  @override
+  String get modelSemanticActive => 'চালু';
+
+  @override
+  String get modelSemanticAbsent => 'বন্ধ — কীওয়ার্ড সার্চ চলছে';
+
+  @override
+  String get embedderInstallButton => 'ইনস্টল';
+
+  @override
+  String get embedderInstallTitle => 'সেমান্টিক সার্চ ইনস্টল করুন';
+
+  @override
+  String get embedderInstallBody =>
+      'EmbeddingGemma-এর HuggingFace রিপোজিটরি লাইসেন্স-গেটেড। google/embeddinggemma-300m অ্যাক্সেস দেওয়া একটি HF টোকেন পেস্ট করুন — তাহলে স্মার্ট মাল্টিলিংগুয়াল সার্চ চালু হবে।';
+
+  @override
+  String get embedderTokenLabel => 'HF অ্যাক্সেস টোকেন';
+
+  @override
+  String get embedderTokenHint => 'hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+
+  @override
+  String get embedderInstallCancel => 'বাতিল';
+
+  @override
+  String get embedderInstallProgress => 'এমবেডার মডেল ডাউনলোড হচ্ছে…';
+
+  @override
+  String get embedderInstallSuccess => 'সেমান্টিক সার্চ এখন চালু।';
+
+  @override
+  String embedderInstallFailed(String error) {
+    return 'ইনস্টল ব্যর্থ: $error';
   }
 
   @override
@@ -1903,7 +2015,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get hazardsNearbyBadge => 'সীমান্তের ওপারে';
 
   @override
-  String hazardsShowMore(int count) {
+  String hazardsShowMore(String count) {
     return 'আরও $countটি দেখুন';
   }
 
@@ -2127,46 +2239,13 @@ class AppLocalizationsBn extends AppLocalizations {
   String get damageTryAgain => 'আবার চেষ্টা করুন';
 
   @override
-  String get damageTypeFlood => 'বন্যা';
-
-  @override
-  String get damageTypeFire => 'আগুন';
-
-  @override
   String get damageTypeBuildingCollapse => 'ধসে পড়া ভবন';
-
-  @override
-  String get damageTypeFallenTree => 'পড়ে যাওয়া গাছ';
-
-  @override
-  String get damageTypeBlockedRoad => 'অবরুদ্ধ রাস্তা';
 
   @override
   String get damageTypeElectricalHazard => 'বৈদ্যুতিক বিপদ';
 
   @override
-  String get damageTypeSmoke => 'ধোঁয়া';
-
-  @override
-  String get damageTypeOther => 'অন্যান্য';
-
-  @override
-  String get damageTypeUnknown => 'অজানা';
-
-  @override
-  String get damageSeverityLow => 'নিম্ন';
-
-  @override
-  String get damageSeverityMedium => 'মাঝারি';
-
-  @override
-  String get damageSeverityHigh => 'উচ্চ';
-
-  @override
   String get damageSeverityVeryHigh => 'অত্যন্ত উচ্চ';
-
-  @override
-  String get damageSeverityUnknown => 'অজানা';
 
   @override
   String get damageDefaultRecommendation =>
@@ -2294,17 +2373,17 @@ class AppLocalizationsBn extends AppLocalizations {
   String get riskTimeJustNow => 'এইমাত্র';
 
   @override
-  String riskTimeMinutesAgo(int count) {
+  String riskTimeMinutesAgo(String count) {
     return '$count মিনিট আগে';
   }
 
   @override
-  String riskTimeHoursAgo(int count) {
+  String riskTimeHoursAgo(String count) {
     return '$count ঘণ্টা আগে';
   }
 
   @override
-  String riskTimeDaysAgo(int count) {
+  String riskTimeDaysAgo(String count) {
     return '$count দিন আগে';
   }
 
@@ -2330,17 +2409,17 @@ class AppLocalizationsBn extends AppLocalizations {
   String get kitMoreOptions => 'আরও অপশন';
 
   @override
-  String kitSummaryMembers(int size) {
+  String kitSummaryMembers(String size) {
     return '$size জন';
   }
 
   @override
-  String kitSummaryChildren(int count) {
+  String kitSummaryChildren(String count) {
     return '$count শিশু';
   }
 
   @override
-  String kitSummaryElderly(int count) {
+  String kitSummaryElderly(String count) {
     return '$count প্রবীণ';
   }
 
@@ -2363,19 +2442,70 @@ class AppLocalizationsBn extends AppLocalizations {
   String get adminTimeJustNow => 'এইমাত্র';
 
   @override
-  String adminTimeMinutesAgo(int count) {
+  String adminTimeMinutesAgo(String count) {
     return '$count মিনিট আগে';
   }
 
   @override
-  String adminTimeHoursAgo(int count) {
+  String adminTimeHoursAgo(String count) {
     return '$count ঘণ্টা আগে';
   }
 
   @override
-  String adminTimeDaysAgo(int count) {
+  String adminTimeDaysAgo(String count) {
     return '$count দিন আগে';
   }
+
+  @override
+  String get adminBroadcastConfirmTitle => 'সবার কাছে পাঠাবেন?';
+
+  @override
+  String adminBroadcastConfirmBody(String count) {
+    return '$countটি নিবন্ধিত ডিভাইসে এটি নোটিফিকেশন হিসেবে পৌঁছাবে। পাঠানো বার্তা আর ফেরানো যাবে না।';
+  }
+
+  @override
+  String get adminBroadcastConfirmAction => 'এখনই পাঠান';
+
+  @override
+  String adminBroadcastCounter(String used, String max) {
+    return '$used/$max';
+  }
+
+  @override
+  String get adminBroadcastRecent => 'সদ্য পাঠানো';
+
+  @override
+  String get adminBroadcastNoneSent => 'এখনো কিছু পাঠানো হয়নি।';
+
+  @override
+  String get adminReject => 'বাতিল করুন';
+
+  @override
+  String get adminRejected => 'বাতিল করা হয়েছে';
+
+  @override
+  String get adminConfirmApproveTitle => 'অনুরোধটি অনুমোদন করবেন?';
+
+  @override
+  String get adminConfirmApproveBody =>
+      'অনুমোদিত অনুরোধ আশপাশের ব্যবহারকারীদের ম্যাপে দেখা যাবে।';
+
+  @override
+  String get adminConfirmRejectTitle => 'অনুরোধটি বাতিল করবেন?';
+
+  @override
+  String get adminConfirmRejectBody =>
+      'অনুরোধটি তালিকায় থাকবে, বাতিল হিসেবে চিহ্নিত হয়ে।';
+
+  @override
+  String get adminPasswordShow => 'পাসওয়ার্ড দেখান';
+
+  @override
+  String get adminPasswordHide => 'পাসওয়ার্ড লুকান';
+
+  @override
+  String get adminSigningIn => 'সাইন ইন হচ্ছে…';
 
   @override
   String get adminWriteMessage => 'বার্তা লিখুন…';
@@ -2442,4 +2572,129 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get modelInfoRamE4b => '~৫ GB';
+
+  @override
+  String get demoSeedQ1Question => 'ওআরএস কীভাবে বানাবো?';
+
+  @override
+  String get demoSeedQ1Answer =>
+      '১ লিটার পরিষ্কার পানিতে ৬ চা চামচ চিনি ও আধা চা চামচ লবণ মেশান। ভালো করে নাড়ুন এবং ২৪ ঘণ্টার মধ্যে খেয়ে ফেলুন। শিশুদের বারবার চামচ দিয়ে খাওয়ান।';
+
+  @override
+  String get demoSeedQ2Question => 'নিকটস্থ আশ্রয়কেন্দ্র কোথায়?';
+
+  @override
+  String get demoSeedQ2Answer =>
+      'আশ্রয় মানচিত্রে (হোম → আশ্রয়) নিকটস্থ ঘূর্ণিঝড় আশ্রয়কেন্দ্র দেখুন। GPS অনুমতি দিলে দূরত্ব অনুযায়ী সাজানো তালিকা পাবেন।';
+
+  @override
+  String get demoSeedQ3Question => 'সাপে কামড়ালে কী করবো?';
+
+  @override
+  String get demoSeedQ3Answer =>
+      'রোগীকে শান্ত রাখুন। কাটা, চুষা বা টর্নিকেট ব্যবহার করবেন না। আক্রান্ত স্থান নড়াচলা বন্ধ রাখুন এবং দ্রুত নিকটস্থ হাসপাতালে নিন。';
+
+  @override
+  String get insightCycloneTitle => 'ঘূর্ণিঝড় প্রস্তুতি';
+
+  @override
+  String get insightCycloneBody =>
+      'আপনার নিকটবর্তী আশ্রয়কেন্দ্র আগে থেকেই ম্যাপে দেখে রাখুন।';
+
+  @override
+  String get insightFloodTitle => 'বন্যা সতর্কতা';
+
+  @override
+  String get insightFloodBody => 'পানি বিশুদ্ধ করার নিয়মগুলো জেনে নিন।';
+
+  @override
+  String get insightMedicalTitle => 'চিকিৎসা সহায়তা';
+
+  @override
+  String get insightMedicalBody =>
+      'ORS তৈরির নিয়ম এবং জরুরি যোগাযোগ প্রস্তুত রাখুন।';
+
+  @override
+  String get insightOfflineTitle => 'অফলাইন AI প্রস্তুত';
+
+  @override
+  String get insightOfflineBody =>
+      'ইন্টারনেট ছাড়াই শঙ্গ্যোগ আপনার প্রশ্নের উত্তর দিতে পারে।';
+
+  @override
+  String proximityAlertTitle(String type) {
+    return 'নিকটস্থ $type';
+  }
+
+  @override
+  String proximityAlertBody(String type, String address, String distance) {
+    return '$type চলছে: $address ($distance কিমি দূরত্বে)';
+  }
+
+  @override
+  String get commonLoading => 'লোড হচ্ছে…';
+
+  @override
+  String get riskHomeMaterial => 'ঘরের ধরন';
+
+  @override
+  String get riskHomeMaterialTinShed => 'টিনের ঘর';
+
+  @override
+  String get riskHomeMaterialHalfPucka => 'আধা পাকা';
+
+  @override
+  String get riskHomeMaterialPucka => 'পাকা';
+
+  @override
+  String get riskHomeMaterialApartment => 'অ্যাপার্টমেন্ট';
+
+  @override
+  String get riskFloodHistoryNone => 'কখনো না';
+
+  @override
+  String get riskFloodHistoryMinor => 'মাঝারি';
+
+  @override
+  String get riskFloodHistoryMajor => 'প্রধান';
+
+  @override
+  String get riskElevationLow => 'নিচু';
+
+  @override
+  String get riskElevationMid => 'মাঝারি';
+
+  @override
+  String get riskElevationHigh => 'উঁচু';
+
+  @override
+  String get damageCameraPermanentDenied =>
+      'ক্যামেরার অনুমতি স্থায়ীভাবে প্রত্যাখ্যান করা হয়েছে। অনুগ্রহ করে সেটিংসে গিয়ে অনুমতি দিন।';
+
+  @override
+  String get damageCameraDenied => 'ক্যামেরার অনুমতি প্রত্যাখ্যান করা হয়েছে।';
+
+  @override
+  String get chatFallback999 => 'জরুরি সাহায্যের জন্য ৯৯৯ এ কল করুন।';
+
+  @override
+  String get meshTransportNearby => 'কাছেই';
+
+  @override
+  String get beaconAnonymousReporter => 'একজন ব্যবহারকারী';
+
+  @override
+  String adminRequestApproved(String type) {
+    return '$type অনুমোদিত হয়েছে';
+  }
+
+  @override
+  String adminRequestRejected(String type) {
+    return '$type প্রত্যাখ্যান করা হয়েছে';
+  }
+
+  @override
+  String emergencyGpsFallbackNotice(String warning, String phone) {
+    return '$warning — $phone নম্বরে কল করুন';
+  }
 }

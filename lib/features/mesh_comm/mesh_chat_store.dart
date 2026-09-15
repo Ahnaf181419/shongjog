@@ -72,7 +72,8 @@ class MeshChatStore {
   static const _dirName = 'mesh_chat';
 
   /// Sanitize a string for use as a filename.
-  String _sanitize(String id) => id.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
+  String _sanitize(String id) =>
+      id.replaceAll(RegExp(r'[^\p{L}\p{N}_-]', unicode: true), '_');
 
   Future<Directory> _dir() async {
     final dir = await getApplicationDocumentsDirectory();

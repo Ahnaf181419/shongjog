@@ -7,6 +7,7 @@ import '../../core/connectivity_provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../environment/marine_service.dart';
 import '../../app/theme.dart';
+import '../../core/bangla_numerals.dart';
 
 /// Marine wave-forecast card — coast-aware.
 ///
@@ -289,7 +290,7 @@ class _MarineCardState extends State<MarineCard> {
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
-                        today.waveHeightMaxM.toStringAsFixed(1),
+                        digitsForLocale(today.waveHeightMaxM.toStringAsFixed(1), AppLocalizations.of(context).localeName),
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w700,
@@ -363,7 +364,7 @@ class _MarineDayCell extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            '${day.waveHeightMaxM.toStringAsFixed(1)} ${AppLocalizations.of(context).meterShort}',
+            '${digitsForLocale(day.waveHeightMaxM.toStringAsFixed(1), AppLocalizations.of(context).localeName)} ${AppLocalizations.of(context).meterShort}',
             style: TextStyle(
               fontSize: 14,
               color: cs.onSurfaceVariant,

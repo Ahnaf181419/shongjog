@@ -11,6 +11,9 @@ import 'mesh_models.dart';
 import 'mesh_service.dart';
 import 'mesh_transport.dart';
 import 'mesh_voice_service.dart';
+import 'mesh_group.dart';
+import 'mesh_group_service.dart';
+import 'mesh_group_screen.dart';
 import '../../app/theme.dart';
 
 class MeshRadarScreen extends StatefulWidget {
@@ -26,9 +29,11 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
   final TextEditingController _msgCtrl = TextEditingController();
   StreamSubscription? _peerSub;
   List<MeshPeer> _peers = [];
+  List<MeshGroup> _groups = [];
   bool _started = false;
   bool _recording = false;
   List<String> _savedContacts = [];
+  StreamSubscription? _groupSub;
 
   @override
   void initState() {
@@ -110,6 +115,8 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
         );
         return;
       }
+    } else {
+      meshService.ensureDiscoverable(force: true);
     }
 
     if (!mounted) return;
@@ -119,23 +126,20 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
       if (mounted) setState(() => _peers = peers);
     });
 
-    // Kick off a fresh scan immediately on (re-)entry so the peer list
-    // populates without waiting for the first periodic tick.
-    // The app-wide discovery timer in MeshService handles ongoing scans.
-    //
-    // Skipped while a link is live: re-entering this screen mid-conversation
-    // would otherwise bounce the radio the connection is riding on, and the
-    // peer you are already talking to is by definition already found. The
-    // refresh button in the app bar remains for an explicit rescan.
-    if (!meshService.hasLiveLink) {
-      meshService.restartDiscovery();
-    }
+    _groups = meshGroupService.groups;
+    _groupSub = meshGroupService.groupsStream.listen((groups) {
+      if (mounted) setState(() => _groups = groups);
+    });
+
+    // Kick off a fresh scan immediately on (re-)entry
+    meshService.ensureDiscoverable(force: true);
   }
 
   @override
   void dispose() {
     _msgCtrl.dispose();
     _peerSub?.cancel();
+    _groupSub?.cancel();
     _radarAnim.dispose();
     // NOTE: Do NOT call meshService.stop() — it runs at app level.
     super.dispose();
@@ -179,44 +183,100 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
               ),
             ),
             const SizedBox(width: 8),
-            if (_started)
+            if (_started) ...[
+              // Wi-Fi Radio badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                decoration: ShongjogTheme.toneChip(
-                    context,
-                    meshService.activeTransport == MeshTransportType.wifiDirect
-                        ? SemanticTone.warning
-                        : SemanticTone.success),
-                child: Text(
-                  meshService.activeTransport == MeshTransportType.wifiDirect
-                      ? 'Wi-Fi Direct'
-                      : 'Nearby',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: ShongjogTheme.toneInk(
-                        context,
-                        meshService.activeTransport ==
-                                MeshTransportType.wifiDirect
-                            ? SemanticTone.warning
-                            : SemanticTone.success),
-                  ),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: ShongjogTheme.toneChip(context, SemanticTone.success),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.wifi_rounded,
+                      size: 13,
+                      color: ShongjogTheme.toneInk(context, SemanticTone.success),
+                    ),
+                    const SizedBox(width: 3),
+                    Text(
+                      meshService.activeTransport == MeshTransportType.wifiDirect
+                          ? 'Wi-Fi Direct'
+                          : 'Wi-Fi',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: ShongjogTheme.toneInk(context, SemanticTone.success),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(width: 4),
+              // Bluetooth Radio badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: ShongjogTheme.toneChip(
+                  context,
+                  meshService.activeTransport == MeshTransportType.wifiDirect
+                      ? SemanticTone.info
+                      : SemanticTone.success,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.bluetooth_rounded,
+                      size: 13,
+                      color: ShongjogTheme.toneInk(
+                        context,
+                        meshService.activeTransport == MeshTransportType.wifiDirect
+                            ? SemanticTone.info
+                            : SemanticTone.success,
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    Text(
+                      'BT',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: ShongjogTheme.toneInk(
+                          context,
+                          meshService.activeTransport == MeshTransportType.wifiDirect
+                              ? SemanticTone.info
+                              : SemanticTone.success,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
         actions: [
+          if (_started)
+            IconButton(
+              icon: const Icon(Icons.group_add_rounded),
+              tooltip: 'Create Group',
+              onPressed: () {
+                HapticService.lightTap();
+                showDialog(
+                  context: context,
+                  builder: (_) => _CreateGroupDialog(peers: _peers),
+                );
+              },
+            ),
           if (_started)
             IconButton(
               icon: const Icon(Icons.refresh_rounded),
               tooltip: AppLocalizations.of(context).meshRescanTooltip,
               onPressed: () {
                 HapticService.lightTap();
-                meshService.restartDiscovery();
+                meshService.ensureDiscoverable(force: true);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(AppLocalizations.of(context).meshRescanning),
-                    duration: Duration(seconds: 2),
+                    duration: const Duration(seconds: 2),
                   ),
                 );
               },
@@ -297,48 +357,81 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
               ),
             ),
 
-          if (_started && _getCombinedPeers().isNotEmpty)
+          if (_started && (_getCombinedPeers().isNotEmpty || _groups.isNotEmpty))
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: _getCombinedPeers().length,
-                itemBuilder: (context, index) {
-                  final peer = _getCombinedPeers()[index];
-                  return _PeerTile(
-                    peer: peer,
-                    isSaved: _savedContacts.contains(peer.displayName),
-                    onToggleSave: () => _toggleSavedContact(peer.displayName),
-                    onTap: () async {
-                      if (peer.status != PeerStatus.connected) {
-                        HapticService.lightTap();
-                        if (!context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(AppLocalizations.of(context).meshConnectingStatus),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                        final ok = await meshService.connectToEndpoint(peer.endpointId);
-                        if (!ok) {
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  HapticService.lightTap();
+                  await meshService.ensureDiscoverable(force: true);
+                  await Future.delayed(const Duration(milliseconds: 600));
+                },
+                child: ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  itemCount: _groups.length + _getCombinedPeers().length,
+                  itemBuilder: (context, index) {
+                    if (index < _groups.length) {
+                      final group = _groups[index];
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: cs.secondaryContainer,
+                          child: Icon(Icons.group_rounded, color: cs.onSecondaryContainer),
+                        ),
+                        title: Text(group.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: Text('${group.memberCount} members'),
+                        onTap: () {
+                          HapticService.lightTap();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => MeshGroupScreen(group: group),
+                            ),
+                          );
+                        },
+                      );
+                    }
+
+                    final peerIndex = index - _groups.length;
+                    final peer = _getCombinedPeers()[peerIndex];
+                    return _PeerTile(
+                      peer: peer,
+                      isSaved: _savedContacts.contains(peer.displayName),
+                      onToggleSave: () => _toggleSavedContact(peer.displayName),
+                      onTap: () async {
+                        if (peer.status != PeerStatus.connected) {
+                          HapticService.lightTap();
                           if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(AppLocalizations.of(context).meshConnectFailed),
+                              content: Text(AppLocalizations.of(context).meshConnectingStatus),
+                              duration: Duration(seconds: 2),
                             ),
                           );
-                          return;
+                          final ok = await meshService.connectToEndpoint(peer.endpointId);
+                          if (!ok) {
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(AppLocalizations.of(context).meshConnectFailed),
+                              ),
+                            );
+                            return;
+                          }
                         }
-                      }
-                      if (!context.mounted) return;
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => MeshChatScreen(peer: peer),
-                        ),
-                      );
-                    },
-                  );
-                },
+                        if (!context.mounted) return;
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => MeshChatScreen(peer: peer),
+                          ),
+                        );
+                        if (context.mounted) {
+                          meshService.ensureDiscoverable(force: true);
+                        }
+                      },
+                    );
+                  },
+                ),
               ),
             ),
 
@@ -444,6 +537,85 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
             ),
         ],
       ),
+    );
+  }
+}
+
+class _CreateGroupDialog extends StatefulWidget {
+  final List<MeshPeer> peers;
+
+  const _CreateGroupDialog({required this.peers});
+
+  @override
+  State<_CreateGroupDialog> createState() => _CreateGroupDialogState();
+}
+
+class _CreateGroupDialogState extends State<_CreateGroupDialog> {
+  final _nameCtrl = TextEditingController();
+  final _selectedPeers = <String>{};
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Create Group'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _nameCtrl,
+              decoration: const InputDecoration(
+                labelText: 'Group Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text('Select Members:'),
+            const SizedBox(height: 8),
+            if (widget.peers.isEmpty)
+              const Text('No peers found.'),
+            for (final p in widget.peers)
+              CheckboxListTile(
+                value: _selectedPeers.contains(p.endpointId),
+                title: Text(p.displayName),
+                onChanged: (val) {
+                  setState(() {
+                    if (val == true) {
+                      _selectedPeers.add(p.endpointId);
+                    } else {
+                      _selectedPeers.remove(p.endpointId);
+                    }
+                  });
+                },
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: _selectedPeers.isEmpty || _nameCtrl.text.trim().isEmpty
+              ? null
+              : () async {
+                  final name = _nameCtrl.text.trim();
+                  final members = widget.peers
+                      .where((p) => _selectedPeers.contains(p.endpointId))
+                      .toList();
+                  await meshGroupService.createGroup(name, members);
+                  if (context.mounted) Navigator.pop(context);
+                },
+          child: const Text('Create'),
+        ),
+      ],
     );
   }
 }
@@ -561,9 +733,10 @@ class _RadarPainter extends CustomPainter {
     // Draw peer dots.
     if (peerCount > 0) {
       final dotPaint = Paint()..color = color;
-      for (int i = 0; i < peerCount && i < 8; i++) {
-        final angle = (i / (peerCount < 1 ? 1 : peerCount)) * 2 * pi;
-        final radius = maxRadius * 0.5 + (i % 3) * maxRadius * 0.15;
+      final maxDots = min(peerCount, 32);
+      for (int i = 0; i < maxDots; i++) {
+        final angle = (i / maxDots) * 2 * pi;
+        final radius = maxRadius * 0.35 + ((i * 7) % 5) * maxRadius * 0.12;
         canvas.drawCircle(
           Offset(
             center.dx + radius * cos(angle),

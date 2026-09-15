@@ -10,6 +10,7 @@ import 'package:shongjog/l10n/app_localizations.dart';
 
 import '../shelter/cached_tile_provider.dart';
 import '../../app/theme.dart';
+import '../../core/locale_controller.dart';
 
 /// Full-screen interactive map where the user can search by area,
 /// tap to drop a pin, use zoom controls, and confirm coordinates.
@@ -109,9 +110,10 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
     setState(() => _searching = true);
 
     try {
+      final acceptLang = localeController.languageCode == 'en' ? 'en' : 'bn,en';
       final uri = Uri.parse(
         'https://nominatim.openstreetmap.org/search'
-        '?q=${Uri.encodeComponent(query)}&format=json&limit=5&accept-language=bn',
+        '?q=${Uri.encodeComponent(query)}&format=json&limit=5&accept-language=$acceptLang',
       );
       final response = await http.get(uri, headers: {
         'User-Agent': 'com.shongjog.app/1.0',
@@ -177,16 +179,15 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: cs.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius:
+                        BorderRadius.circular(ShongjogTheme.radiusSm),
                   ),
                   child: Text(
                     '${_selectedPoint!.latitude.toStringAsFixed(4)}, ${_selectedPoint!.longitude.toStringAsFixed(4)}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'monospace',
-                      color: cs.primary,
-                    ),
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          fontFamily: 'monospace',
+                          color: cs.primary,
+                        ),
                   ),
                 ),
               ),
@@ -277,7 +278,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                 Container(
                   decoration: BoxDecoration(
                     color: cs.surface.withValues(alpha: 0.97),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(ShongjogTheme.radius),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.12),
@@ -357,16 +358,17 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                             shortName,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 14),
+                            style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           subtitle: displayName != shortName
                               ? Text(
                                   displayName,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      color: cs.onSurfaceVariant),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(color: cs.onSurfaceVariant),
                                 )
                               : null,
                           onTap: () => _selectSearchResult(result),
@@ -427,15 +429,14 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                 child: Row(
                   children: [
                     Icon(Icons.touch_app_rounded, color: cs.primary, size: 20),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         AppLocalizations.of(context).mapPickerInstruction,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: cs.onSurface,
-                        ),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(color: cs.onSurface),
                       ),
                     ),
                   ],
@@ -453,9 +454,6 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                 onPressed: _confirm,
                 icon: const Icon(Icons.check_rounded),
                 label: Text(AppLocalizations.of(context).mapPickerConfirm),
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size.fromHeight(52),
-                ),
               ),
             ),
         ],

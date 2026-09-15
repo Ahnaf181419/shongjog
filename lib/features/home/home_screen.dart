@@ -885,9 +885,11 @@ class _ModelDownloadBanner extends StatelessWidget {
   const _ModelDownloadBanner();
 
 
-  String _bnPct(double? progress) {
+  String _localePct(BuildContext context, double? progress) {
     if (progress == null) return '';
-    return '${banglaNumber((progress * 100).round())}%';
+    final pctInt = (progress * 100).round();
+    final locale = AppLocalizations.of(context).localeName;
+    return '${numberForLocale(pctInt, locale)}%';
   }
 
   @override
@@ -921,7 +923,7 @@ class _ModelDownloadBanner extends StatelessWidget {
                     Icon(Icons.download_rounded, size: 14, color: cs.primary),
                     const SizedBox(width: 6),
                     Text(
-                      AppLocalizations.of(context).modelDownloadProgress(_bnPct(progress)),
+                      AppLocalizations.of(context).modelDownloadProgress(_localePct(context, progress)),
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,

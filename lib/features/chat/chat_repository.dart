@@ -15,16 +15,14 @@ import '../shelter/shelter_tool_result_formatter.dart';
 import 'local_llm.dart';
 
 /// Orchestrates a single RAG query via 3-Tier intelligence:
-/// TIER 1: On-device Gemma 4 (E2B/E4B) — the primary model, always tried first
-/// TIER 2: Cloud AI (online fallback only)
-/// TIER 3: RAG corpus
+/// TIER 1: Online Cloud AI (Gemini 3.1 Flash Lite) — primary whenever online
+/// TIER 2: On-device Gemma 4 (E2B/E4B via LiteRT-LM) — offline primary & online rate-limit fallback
+/// TIER 3: Grounded RAG corpus — instant zero-AI safety net
 ///
-/// On-device Gemma runs **first, even when the device is online**. Cloud was
-/// tier 1 previously, which meant a connected phone never executed Gemma at
-/// all — the opposite of this app's premise (`docs/prd.md` §13: "Gemma 4 is
-/// the primary and only LLM powering the app's generative AI") and of the
-/// offline thesis the whole product rests on. Cloud is now strictly a safety
-/// net for when the on-device model is missing, still downloading, or fails.
+/// When the device is online and Cloud AI is configured, queries route to
+/// Gemini 3.1 Flash Lite. If offline, or if Cloud AI hits rate limits, server
+/// errors, or quota exhaustion, it falls back seamlessly to on-device Gemma 4,
+/// and finally to the grounded RAG corpus.
 class ChatRepository {
   final KnowledgeBase kb;
 
@@ -94,78 +92,62 @@ class ChatRepository {
 
     final hits = _retrieve(userQuery);
 
-    // TIER 1: On-device Gemma 4 (E2B/E4B) — the primary model.
-    // Route rumour-check queries through a dedicated prompt that asks
-    // the model to verify the claim against the corpus.
-    final isRumour = isRumourQuery(userQuery);
-    final prompt = isRumour
-        ? buildRumourCheckPrompt(query: userQuery, hits: hits, history: history)
-        : buildPrompt(query: userQuery, hits: hits, history: history);
-
-    // Adaptive thinking mode — classify urgency before generation.
-    // Critical emergencies get thinking OFF (reflex, max speed); complex
-    // queries get thinking ON (deliberation).
-    final urgency = UrgencyClassifier.classify(userQuery);
-    model?.setThinkingMode(urgency.enableThinking);
-
-    if (model != null) {
-      // Tagged logging for runtime triage — `debugPrint` is filtered out
-      // in release by default; consumers can enable `-v` or wire
-      // `debugPrint` into a file logger to read these on a phone.
-      debugPrint('[ChatRepo/Tier1] entered for q="${userQuery.substring(0, userQuery.length.clamp(0, 40))}…" isReady=${model!.isReady}');
-      try {
-        final shouldTryDevice = model!.isReady || await model!.isAnyOnDisk();
-        debugPrint('[ChatRepo/Tier1] shouldTryDevice=$shouldTryDevice');
-        if (shouldTryDevice) {
-          final rawAnswer = await model!.generate(prompt);
-          // Post-process: the SDK has no stopStrings API on the
-          // .litertlm path, so after a valid answer the model can
-          // emit a second "User:" turn and start rambling. Truncate
-          // at the first turn-marker artifact.
-          final answer = ChatRepository.truncateAtTurnMarker(rawAnswer);
-          // A cleaned-to-nothing answer means the model produced only
-          // control tokens (e.g. a `<|channel|>thought …` leak starting at
-          // index 0, which truncateAtTurnMarker correctly cuts entirely).
-          // Returning it here would render a blank bubble and look like a
-          // crash. Fall through to the corpus instead — a grounded corpus
-          // answer is strictly better than empty.
-          if (answer.trim().isEmpty) {
-            debugPrint(
-                '[ChatRepo/Tier1] device path produced no usable text '
-                '(raw ${rawAnswer.length} chars, all control tokens) '
-                '— falling through to corpus');
-          } else {
-            debugPrint('[ChatRepo/Tier1] device path success len=${answer.length} (raw ${rawAnswer.length})');
-            if (onPath != null) onPath(GenerationPath.device);
-            return answer;
-          }
-        }
-      } catch (e, st) {
-        debugPrint('[ChatRepo/Tier1] device path FAILED: $e');
-        debugPrint('[ChatRepo/Tier1] stack: $st');
-        // Fall through to the cloud tier, then the corpus. Silently
-        // degrading is better UX than a hard error bubble — the user gets
-        // *something* useful and can retry or call 999.
-      }
-    }
-
-    // TIER 2: Cloud AI — fallback only, reached when the on-device model is
-    // absent, still downloading, or produced nothing usable.
+    // TIER 1: Online Cloud AI (Gemini 3.1 Flash Lite)
+    // When the device has internet access and Cloud AI is configured, query
+    // Gemini 3.1 Flash Lite through the API.
     if (cloudAi != null) {
       final isOnline = await cloudAi!.isOnline;
       if (isOnline) {
         try {
+          debugPrint('[ChatRepo/Tier1] attempting online Cloud AI (Gemini 3.1 Flash Lite)');
           final userMessage = buildUserMessage(query: userQuery, hits: hits);
           final answer = await cloudAi!.generateWithHistory(
             userMessage: userMessage,
             history: history,
           );
-          if (onPath != null) onPath(GenerationPath.cloud);
-          return answer;
+          if (answer.trim().isNotEmpty) {
+            debugPrint('[ChatRepo/Tier1] online Cloud AI success len=${answer.length}');
+            if (onPath != null) onPath(GenerationPath.cloud);
+            return answer;
+          }
         } catch (e) {
-          debugPrint('Tier 2 Cloud AI failed entirely: $e');
-          // Silent fallthrough to the corpus.
+          debugPrint('[ChatRepo/Tier1] Online Cloud AI failed / rate-limited (falling back to on-device model): $e');
         }
+      }
+    }
+
+    // TIER 2: Offline Local AI Model (Gemma 4 on-device via LiteRT-LM)
+    // Used when offline, or when Cloud AI fails, hits rate limits (429), server busy (503), etc.
+    final isRumour = await isRumourQuery(userQuery);
+    final prompt = isRumour
+        ? buildRumourCheckPrompt(query: userQuery, hits: hits, history: history)
+        : buildPrompt(query: userQuery, hits: hits, history: history);
+
+    // Adaptive thinking mode — classify urgency before generation.
+    final urgency = UrgencyClassifier.classify(userQuery);
+    model?.setThinkingMode(urgency.enableThinking);
+
+    if (model != null) {
+      debugPrint('[ChatRepo/Tier2] entered on-device model for q="${userQuery.substring(0, userQuery.length.clamp(0, 40))}…" isReady=${model!.isReady}');
+      try {
+        final shouldTryDevice = model!.isReady || await model!.isAnyOnDisk();
+        debugPrint('[ChatRepo/Tier2] shouldTryDevice=$shouldTryDevice');
+        if (shouldTryDevice) {
+          final rawAnswer = await model!.generate(prompt);
+          final answer = ChatRepository.truncateAtTurnMarker(rawAnswer);
+          if (answer.trim().isEmpty) {
+            debugPrint(
+                '[ChatRepo/Tier2] device path produced no usable text '
+                '(raw ${rawAnswer.length} chars, all control tokens) '
+                '— falling through to corpus');
+          } else {
+            debugPrint('[ChatRepo/Tier2] device path success len=${answer.length} (raw ${rawAnswer.length})');
+            if (onPath != null) onPath(GenerationPath.device);
+            return answer;
+          }
+        }
+      } catch (e, st) {
+        debugPrint('[ChatRepo/Tier2] device path FAILED: $e\n$st');
       }
     }
 

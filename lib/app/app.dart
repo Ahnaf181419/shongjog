@@ -15,6 +15,7 @@ import '../features/emergency/sos_composer_screen.dart';
 import '../features/mesh_comm/mesh_radar_screen.dart';
 import '../features/mesh_comm/mesh_call_service.dart';
 import '../features/mesh_comm/mesh_service.dart';
+import '../features/mesh_comm/mesh_group_service.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/quick_cards/quick_card_detail_screen.dart';
 import '../features/safe_beacon/safety_status_screen.dart';
@@ -236,6 +237,9 @@ class _StartupGateState extends State<_StartupGate> {
         // permanently dead (_recorderReady / _playerReady stay false).
         meshCallService.initialize().catchError(
           (e) => debugPrint('StartupGate: meshCallService init failed: $e'),
+        );
+        meshGroupService.initialize().catchError(
+          (e) => debugPrint('StartupGate: meshGroupService init failed: $e'),
         );
       });
     }

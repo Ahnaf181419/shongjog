@@ -1058,36 +1058,6 @@ abstract class AppLocalizations {
   /// **'কল করুন'**
   String get callTooltip;
 
-  /// No description provided for @safeBeaconTitle.
-  ///
-  /// In bn, this message translates to:
-  /// **'আমি নিরাপদ'**
-  String get safeBeaconTitle;
-
-  /// No description provided for @safeBeaconDesc.
-  ///
-  /// In bn, this message translates to:
-  /// **'আপনার পরিবার ও সংযুক্ত মানুষদের জানান আপনি ভালো আছেন'**
-  String get safeBeaconDesc;
-
-  /// No description provided for @safeBeaconButton.
-  ///
-  /// In bn, this message translates to:
-  /// **'আমি নিরাপদ আছি'**
-  String get safeBeaconButton;
-
-  /// No description provided for @lastSent.
-  ///
-  /// In bn, this message translates to:
-  /// **'শেষ পাঠানো: {count}টি'**
-  String lastSent(Object count);
-
-  /// No description provided for @pendingWait.
-  ///
-  /// In bn, this message translates to:
-  /// **'{count}টি অপেক্ষমান — সংযোগ ফিরলে পাঠানো হবে'**
-  String pendingWait(Object count);
-
   /// No description provided for @beaconSentPending.
   ///
   /// In bn, this message translates to:
@@ -1790,6 +1760,24 @@ abstract class AppLocalizations {
   /// **'কোনো আশ্রয়কেন্দ্রের তথ্য নেই'**
   String get shelterNoData;
 
+  /// No description provided for @shelterBriefLoading.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই শেল্টারের তথ্য লোড হচ্ছে।'**
+  String get shelterBriefLoading;
+
+  /// No description provided for @shelterBriefDistance.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} আপনার অবস্থান থেকে {dist} কিমি দূরে।'**
+  String shelterBriefDistance(Object dist, Object name);
+
+  /// No description provided for @shelterBriefCapacity.
+  ///
+  /// In bn, this message translates to:
+  /// **' ধারণক্ষমতা {count} জন।'**
+  String shelterBriefCapacity(Object count);
+
   /// No description provided for @shelterKm.
   ///
   /// In bn, this message translates to:
@@ -1945,6 +1933,12 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'ভিডিও পাঠান'**
   String get meshSendVideo;
+
+  /// No description provided for @meshSendFile.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফাইল পাঠান'**
+  String get meshSendFile;
 
   /// No description provided for @meshImageMissing.
   ///
@@ -2227,6 +2221,18 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'AI দিয়ে গঠন সম্পন্ন — যাচাই করুন।'**
   String get sosAiSuccess;
+
+  /// No description provided for @sosSentOk.
+  ///
+  /// In bn, this message translates to:
+  /// **'SOS রিপোর্ট ৯৯৯ পাঠানো হয়েছে।'**
+  String get sosSentOk;
+
+  /// No description provided for @sosSendFailed.
+  ///
+  /// In bn, this message translates to:
+  /// **'SOS পাঠানো যায়নি — এখনই ৯৯৯ কল করুন।'**
+  String get sosSendFailed;
 
   /// No description provided for @hazardsAllAlerts.
   ///
@@ -2840,6 +2846,114 @@ abstract class AppLocalizations {
   /// **'ভূমিকম্প'**
   String get hazardEarthquake;
 
+  /// No description provided for @hazardEarthquakeMag.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভূমিকম্প M{mag}'**
+  String hazardEarthquakeMag(Object mag);
+
+  /// No description provided for @damageTypeFlood.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্যা'**
+  String get damageTypeFlood;
+
+  /// No description provided for @damageTypeFire.
+  ///
+  /// In bn, this message translates to:
+  /// **'আগুন'**
+  String get damageTypeFire;
+
+  /// No description provided for @damageTypeCollapsedBuilding.
+  ///
+  /// In bn, this message translates to:
+  /// **'ধসে পড়া ভবন'**
+  String get damageTypeCollapsedBuilding;
+
+  /// No description provided for @damageTypeFallenTree.
+  ///
+  /// In bn, this message translates to:
+  /// **'পড়ে যাওয়া গাছ'**
+  String get damageTypeFallenTree;
+
+  /// No description provided for @damageTypeBlockedRoad.
+  ///
+  /// In bn, this message translates to:
+  /// **'অবরুদ্ধ রাস্তা'**
+  String get damageTypeBlockedRoad;
+
+  /// No description provided for @damageTypeElectricHazard.
+  ///
+  /// In bn, this message translates to:
+  /// **'বৈদ্যুতিক বিপদ'**
+  String get damageTypeElectricHazard;
+
+  /// No description provided for @damageTypeSmoke.
+  ///
+  /// In bn, this message translates to:
+  /// **'ধোঁয়া'**
+  String get damageTypeSmoke;
+
+  /// No description provided for @damageTypeOther.
+  ///
+  /// In bn, this message translates to:
+  /// **'অন্যান্য'**
+  String get damageTypeOther;
+
+  /// No description provided for @damageTypeUnknown.
+  ///
+  /// In bn, this message translates to:
+  /// **'অজানা'**
+  String get damageTypeUnknown;
+
+  /// No description provided for @damageSeverityLow.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিম্ন'**
+  String get damageSeverityLow;
+
+  /// No description provided for @damageSeverityMedium.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাঝারি'**
+  String get damageSeverityMedium;
+
+  /// No description provided for @damageSeverityHigh.
+  ///
+  /// In bn, this message translates to:
+  /// **'উচ্চ'**
+  String get damageSeverityHigh;
+
+  /// No description provided for @damageSeverityCritical.
+  ///
+  /// In bn, this message translates to:
+  /// **'অত্যন্ত উচ্চ'**
+  String get damageSeverityCritical;
+
+  /// No description provided for @damageSeverityUnknown.
+  ///
+  /// In bn, this message translates to:
+  /// **'অজানা'**
+  String get damageSeverityUnknown;
+
+  /// No description provided for @meshCallTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেশ কল'**
+  String get meshCallTitle;
+
+  /// No description provided for @meshCallIncoming.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} আপনাকে কল করছে'**
+  String meshCallIncoming(Object name);
+
+  /// No description provided for @homePromoCardsSubtitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'১০+ ধরনের জরুরি অবস্থায় প্রাথমিক চিকিৎসা'**
+  String get homePromoCardsSubtitle;
+
   /// No description provided for @hazardWildfire.
   ///
   /// In bn, this message translates to:
@@ -3121,6 +3235,24 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'আমি বিপদে আছি'**
   String get safetyDangerButton;
+
+  /// No description provided for @safetyNoContacts.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোনো জরুরি যোগাযোগ সেট করা নেই। সেটিংস → জরুরি নম্বর থেকে যোগ করুন।'**
+  String get safetyNoContacts;
+
+  /// No description provided for @dangerSmsSummary.
+  ///
+  /// In bn, this message translates to:
+  /// **'{sent}টি এসএমএস পাঠানো হয়েছে, {pending}টি অপেক্ষমান।'**
+  String dangerSmsSummary(Object pending, Object sent);
+
+  /// No description provided for @safetyDangerSent.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিপদ সংকেত পাঠানো হয়েছে।'**
+  String get safetyDangerSent;
 
   /// No description provided for @safetyStatusSent.
   ///
@@ -3459,9 +3591,9 @@ abstract class AppLocalizations {
   String triageSummarySos(
     String route,
     String time,
-    int count,
-    int yes,
-    int no,
+    String count,
+    String yes,
+    String no,
   );
 
   /// No description provided for @triageShareableSos.
@@ -3471,9 +3603,9 @@ abstract class AppLocalizations {
   String triageShareableSos(
     String route,
     String time,
-    int count,
-    int yes,
-    int no,
+    String count,
+    String yes,
+    String no,
   );
 
   /// No description provided for @modelRamLabel.
@@ -3523,6 +3655,78 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'ডাউনলোড করা: {size}'**
   String modelStorageUsed(String size);
+
+  /// No description provided for @modelSemanticTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'সেমান্টিক সার্চ (EmbeddingGemma)'**
+  String get modelSemanticTitle;
+
+  /// No description provided for @modelSemanticActive.
+  ///
+  /// In bn, this message translates to:
+  /// **'চালু'**
+  String get modelSemanticActive;
+
+  /// No description provided for @modelSemanticAbsent.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্ধ — কীওয়ার্ড সার্চ চলছে'**
+  String get modelSemanticAbsent;
+
+  /// No description provided for @embedderInstallButton.
+  ///
+  /// In bn, this message translates to:
+  /// **'ইনস্টল'**
+  String get embedderInstallButton;
+
+  /// No description provided for @embedderInstallTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'সেমান্টিক সার্চ ইনস্টল করুন'**
+  String get embedderInstallTitle;
+
+  /// No description provided for @embedderInstallBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'EmbeddingGemma-এর HuggingFace রিপোজিটরি লাইসেন্স-গেটেড। google/embeddinggemma-300m অ্যাক্সেস দেওয়া একটি HF টোকেন পেস্ট করুন — তাহলে স্মার্ট মাল্টিলিংগুয়াল সার্চ চালু হবে।'**
+  String get embedderInstallBody;
+
+  /// No description provided for @embedderTokenLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'HF অ্যাক্সেস টোকেন'**
+  String get embedderTokenLabel;
+
+  /// No description provided for @embedderTokenHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'**
+  String get embedderTokenHint;
+
+  /// No description provided for @embedderInstallCancel.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাতিল'**
+  String get embedderInstallCancel;
+
+  /// No description provided for @embedderInstallProgress.
+  ///
+  /// In bn, this message translates to:
+  /// **'এমবেডার মডেল ডাউনলোড হচ্ছে…'**
+  String get embedderInstallProgress;
+
+  /// No description provided for @embedderInstallSuccess.
+  ///
+  /// In bn, this message translates to:
+  /// **'সেমান্টিক সার্চ এখন চালু।'**
+  String get embedderInstallSuccess;
+
+  /// No description provided for @embedderInstallFailed.
+  ///
+  /// In bn, this message translates to:
+  /// **'ইনস্টল ব্যর্থ: {error}'**
+  String embedderInstallFailed(String error);
 
   /// No description provided for @modelBadgeExpected.
   ///
@@ -3678,7 +3882,7 @@ abstract class AppLocalizations {
   ///
   /// In bn, this message translates to:
   /// **'আরও {count}টি দেখুন'**
-  String hazardsShowMore(int count);
+  String hazardsShowMore(String count);
 
   /// No description provided for @shelterAiRiskAssessment.
   ///
@@ -4094,35 +4298,11 @@ abstract class AppLocalizations {
   /// **'আবার চেষ্টা করুন'**
   String get damageTryAgain;
 
-  /// No description provided for @damageTypeFlood.
-  ///
-  /// In bn, this message translates to:
-  /// **'বন্যা'**
-  String get damageTypeFlood;
-
-  /// No description provided for @damageTypeFire.
-  ///
-  /// In bn, this message translates to:
-  /// **'আগুন'**
-  String get damageTypeFire;
-
   /// No description provided for @damageTypeBuildingCollapse.
   ///
   /// In bn, this message translates to:
   /// **'ধসে পড়া ভবন'**
   String get damageTypeBuildingCollapse;
-
-  /// No description provided for @damageTypeFallenTree.
-  ///
-  /// In bn, this message translates to:
-  /// **'পড়ে যাওয়া গাছ'**
-  String get damageTypeFallenTree;
-
-  /// No description provided for @damageTypeBlockedRoad.
-  ///
-  /// In bn, this message translates to:
-  /// **'অবরুদ্ধ রাস্তা'**
-  String get damageTypeBlockedRoad;
 
   /// No description provided for @damageTypeElectricalHazard.
   ///
@@ -4130,53 +4310,11 @@ abstract class AppLocalizations {
   /// **'বৈদ্যুতিক বিপদ'**
   String get damageTypeElectricalHazard;
 
-  /// No description provided for @damageTypeSmoke.
-  ///
-  /// In bn, this message translates to:
-  /// **'ধোঁয়া'**
-  String get damageTypeSmoke;
-
-  /// No description provided for @damageTypeOther.
-  ///
-  /// In bn, this message translates to:
-  /// **'অন্যান্য'**
-  String get damageTypeOther;
-
-  /// No description provided for @damageTypeUnknown.
-  ///
-  /// In bn, this message translates to:
-  /// **'অজানা'**
-  String get damageTypeUnknown;
-
-  /// No description provided for @damageSeverityLow.
-  ///
-  /// In bn, this message translates to:
-  /// **'নিম্ন'**
-  String get damageSeverityLow;
-
-  /// No description provided for @damageSeverityMedium.
-  ///
-  /// In bn, this message translates to:
-  /// **'মাঝারি'**
-  String get damageSeverityMedium;
-
-  /// No description provided for @damageSeverityHigh.
-  ///
-  /// In bn, this message translates to:
-  /// **'উচ্চ'**
-  String get damageSeverityHigh;
-
   /// No description provided for @damageSeverityVeryHigh.
   ///
   /// In bn, this message translates to:
   /// **'অত্যন্ত উচ্চ'**
   String get damageSeverityVeryHigh;
-
-  /// No description provided for @damageSeverityUnknown.
-  ///
-  /// In bn, this message translates to:
-  /// **'অজানা'**
-  String get damageSeverityUnknown;
 
   /// No description provided for @damageDefaultRecommendation.
   ///
@@ -4428,19 +4566,19 @@ abstract class AppLocalizations {
   ///
   /// In bn, this message translates to:
   /// **'{count} মিনিট আগে'**
-  String riskTimeMinutesAgo(int count);
+  String riskTimeMinutesAgo(String count);
 
   /// No description provided for @riskTimeHoursAgo.
   ///
   /// In bn, this message translates to:
   /// **'{count} ঘণ্টা আগে'**
-  String riskTimeHoursAgo(int count);
+  String riskTimeHoursAgo(String count);
 
   /// No description provided for @riskTimeDaysAgo.
   ///
   /// In bn, this message translates to:
   /// **'{count} দিন আগে'**
-  String riskTimeDaysAgo(int count);
+  String riskTimeDaysAgo(String count);
 
   /// No description provided for @kitTitle.
   ///
@@ -4488,19 +4626,19 @@ abstract class AppLocalizations {
   ///
   /// In bn, this message translates to:
   /// **'{size} জন'**
-  String kitSummaryMembers(int size);
+  String kitSummaryMembers(String size);
 
   /// No description provided for @kitSummaryChildren.
   ///
   /// In bn, this message translates to:
   /// **'{count} শিশু'**
-  String kitSummaryChildren(int count);
+  String kitSummaryChildren(String count);
 
   /// No description provided for @kitSummaryElderly.
   ///
   /// In bn, this message translates to:
   /// **'{count} প্রবীণ'**
-  String kitSummaryElderly(int count);
+  String kitSummaryElderly(String count);
 
   /// No description provided for @kitFamilySizeHint.
   ///
@@ -4542,19 +4680,109 @@ abstract class AppLocalizations {
   ///
   /// In bn, this message translates to:
   /// **'{count} মিনিট আগে'**
-  String adminTimeMinutesAgo(int count);
+  String adminTimeMinutesAgo(String count);
 
   /// No description provided for @adminTimeHoursAgo.
   ///
   /// In bn, this message translates to:
   /// **'{count} ঘণ্টা আগে'**
-  String adminTimeHoursAgo(int count);
+  String adminTimeHoursAgo(String count);
 
   /// No description provided for @adminTimeDaysAgo.
   ///
   /// In bn, this message translates to:
   /// **'{count} দিন আগে'**
-  String adminTimeDaysAgo(int count);
+  String adminTimeDaysAgo(String count);
+
+  /// No description provided for @adminBroadcastConfirmTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'সবার কাছে পাঠাবেন?'**
+  String get adminBroadcastConfirmTitle;
+
+  /// No description provided for @adminBroadcastConfirmBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি নিবন্ধিত ডিভাইসে এটি নোটিফিকেশন হিসেবে পৌঁছাবে। পাঠানো বার্তা আর ফেরানো যাবে না।'**
+  String adminBroadcastConfirmBody(String count);
+
+  /// No description provided for @adminBroadcastConfirmAction.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনই পাঠান'**
+  String get adminBroadcastConfirmAction;
+
+  /// No description provided for @adminBroadcastCounter.
+  ///
+  /// In bn, this message translates to:
+  /// **'{used}/{max}'**
+  String adminBroadcastCounter(String used, String max);
+
+  /// No description provided for @adminBroadcastRecent.
+  ///
+  /// In bn, this message translates to:
+  /// **'সদ্য পাঠানো'**
+  String get adminBroadcastRecent;
+
+  /// No description provided for @adminBroadcastNoneSent.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনো কিছু পাঠানো হয়নি।'**
+  String get adminBroadcastNoneSent;
+
+  /// No description provided for @adminReject.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাতিল করুন'**
+  String get adminReject;
+
+  /// No description provided for @adminRejected.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাতিল করা হয়েছে'**
+  String get adminRejected;
+
+  /// No description provided for @adminConfirmApproveTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'অনুরোধটি অনুমোদন করবেন?'**
+  String get adminConfirmApproveTitle;
+
+  /// No description provided for @adminConfirmApproveBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'অনুমোদিত অনুরোধ আশপাশের ব্যবহারকারীদের ম্যাপে দেখা যাবে।'**
+  String get adminConfirmApproveBody;
+
+  /// No description provided for @adminConfirmRejectTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'অনুরোধটি বাতিল করবেন?'**
+  String get adminConfirmRejectTitle;
+
+  /// No description provided for @adminConfirmRejectBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'অনুরোধটি তালিকায় থাকবে, বাতিল হিসেবে চিহ্নিত হয়ে।'**
+  String get adminConfirmRejectBody;
+
+  /// No description provided for @adminPasswordShow.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাসওয়ার্ড দেখান'**
+  String get adminPasswordShow;
+
+  /// No description provided for @adminPasswordHide.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাসওয়ার্ড লুকান'**
+  String get adminPasswordHide;
+
+  /// No description provided for @adminSigningIn.
+  ///
+  /// In bn, this message translates to:
+  /// **'সাইন ইন হচ্ছে…'**
+  String get adminSigningIn;
 
   /// No description provided for @adminWriteMessage.
   ///
@@ -4681,6 +4909,222 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'~৫ GB'**
   String get modelInfoRamE4b;
+
+  /// No description provided for @demoSeedQ1Question.
+  ///
+  /// In bn, this message translates to:
+  /// **'ওআরএস কীভাবে বানাবো?'**
+  String get demoSeedQ1Question;
+
+  /// No description provided for @demoSeedQ1Answer.
+  ///
+  /// In bn, this message translates to:
+  /// **'১ লিটার পরিষ্কার পানিতে ৬ চা চামচ চিনি ও আধা চা চামচ লবণ মেশান। ভালো করে নাড়ুন এবং ২৪ ঘণ্টার মধ্যে খেয়ে ফেলুন। শিশুদের বারবার চামচ দিয়ে খাওয়ান।'**
+  String get demoSeedQ1Answer;
+
+  /// No description provided for @demoSeedQ2Question.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিকটস্থ আশ্রয়কেন্দ্র কোথায়?'**
+  String get demoSeedQ2Question;
+
+  /// No description provided for @demoSeedQ2Answer.
+  ///
+  /// In bn, this message translates to:
+  /// **'আশ্রয় মানচিত্রে (হোম → আশ্রয়) নিকটস্থ ঘূর্ণিঝড় আশ্রয়কেন্দ্র দেখুন। GPS অনুমতি দিলে দূরত্ব অনুযায়ী সাজানো তালিকা পাবেন।'**
+  String get demoSeedQ2Answer;
+
+  /// No description provided for @demoSeedQ3Question.
+  ///
+  /// In bn, this message translates to:
+  /// **'সাপে কামড়ালে কী করবো?'**
+  String get demoSeedQ3Question;
+
+  /// No description provided for @demoSeedQ3Answer.
+  ///
+  /// In bn, this message translates to:
+  /// **'রোগীকে শান্ত রাখুন। কাটা, চুষা বা টর্নিকেট ব্যবহার করবেন না। আক্রান্ত স্থান নড়াচলা বন্ধ রাখুন এবং দ্রুত নিকটস্থ হাসপাতালে নিন。'**
+  String get demoSeedQ3Answer;
+
+  /// No description provided for @insightCycloneTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঘূর্ণিঝড় প্রস্তুতি'**
+  String get insightCycloneTitle;
+
+  /// No description provided for @insightCycloneBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার নিকটবর্তী আশ্রয়কেন্দ্র আগে থেকেই ম্যাপে দেখে রাখুন।'**
+  String get insightCycloneBody;
+
+  /// No description provided for @insightFloodTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্যা সতর্কতা'**
+  String get insightFloodTitle;
+
+  /// No description provided for @insightFloodBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'পানি বিশুদ্ধ করার নিয়মগুলো জেনে নিন।'**
+  String get insightFloodBody;
+
+  /// Proactive notification when medical interest detected
+  ///
+  /// In bn, this message translates to:
+  /// **'চিকিৎসা সহায়তা'**
+  String get insightMedicalTitle;
+
+  /// No description provided for @insightMedicalBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'ORS তৈরির নিয়ম এবং জরুরি যোগাযোগ প্রস্তুত রাখুন।'**
+  String get insightMedicalBody;
+
+  /// No description provided for @insightOfflineTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'অফলাইন AI প্রস্তুত'**
+  String get insightOfflineTitle;
+
+  /// Default insight body for offline AI
+  ///
+  /// In bn, this message translates to:
+  /// **'ইন্টারনেট ছাড়াই শঙ্গ্যোগ আপনার প্রশ্নের উত্তর দিতে পারে।'**
+  String get insightOfflineBody;
+
+  /// No description provided for @proximityAlertTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিকটস্থ {type}'**
+  String proximityAlertTitle(String type);
+
+  /// No description provided for @proximityAlertBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'{type} চলছে: {address} ({distance} কিমি দূরত্বে)'**
+  String proximityAlertBody(String type, String address, String distance);
+
+  /// No description provided for @commonLoading.
+  ///
+  /// In bn, this message translates to:
+  /// **'লোড হচ্ছে…'**
+  String get commonLoading;
+
+  /// No description provided for @riskHomeMaterial.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঘরের ধরন'**
+  String get riskHomeMaterial;
+
+  /// No description provided for @riskHomeMaterialTinShed.
+  ///
+  /// In bn, this message translates to:
+  /// **'টিনের ঘর'**
+  String get riskHomeMaterialTinShed;
+
+  /// No description provided for @riskHomeMaterialHalfPucka.
+  ///
+  /// In bn, this message translates to:
+  /// **'আধা পাকা'**
+  String get riskHomeMaterialHalfPucka;
+
+  /// No description provided for @riskHomeMaterialPucka.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাকা'**
+  String get riskHomeMaterialPucka;
+
+  /// No description provided for @riskHomeMaterialApartment.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাপার্টমেন্ট'**
+  String get riskHomeMaterialApartment;
+
+  /// No description provided for @riskFloodHistoryNone.
+  ///
+  /// In bn, this message translates to:
+  /// **'কখনো না'**
+  String get riskFloodHistoryNone;
+
+  /// No description provided for @riskFloodHistoryMinor.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাঝারি'**
+  String get riskFloodHistoryMinor;
+
+  /// No description provided for @riskFloodHistoryMajor.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রধান'**
+  String get riskFloodHistoryMajor;
+
+  /// No description provided for @riskElevationLow.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিচু'**
+  String get riskElevationLow;
+
+  /// No description provided for @riskElevationMid.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাঝারি'**
+  String get riskElevationMid;
+
+  /// No description provided for @riskElevationHigh.
+  ///
+  /// In bn, this message translates to:
+  /// **'উঁচু'**
+  String get riskElevationHigh;
+
+  /// No description provided for @damageCameraPermanentDenied.
+  ///
+  /// In bn, this message translates to:
+  /// **'ক্যামেরার অনুমতি স্থায়ীভাবে প্রত্যাখ্যান করা হয়েছে। অনুগ্রহ করে সেটিংসে গিয়ে অনুমতি দিন।'**
+  String get damageCameraPermanentDenied;
+
+  /// No description provided for @damageCameraDenied.
+  ///
+  /// In bn, this message translates to:
+  /// **'ক্যামেরার অনুমতি প্রত্যাখ্যান করা হয়েছে।'**
+  String get damageCameraDenied;
+
+  /// No description provided for @chatFallback999.
+  ///
+  /// In bn, this message translates to:
+  /// **'জরুরি সাহায্যের জন্য ৯৯৯ এ কল করুন।'**
+  String get chatFallback999;
+
+  /// No description provided for @meshTransportNearby.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাছেই'**
+  String get meshTransportNearby;
+
+  /// No description provided for @beaconAnonymousReporter.
+  ///
+  /// In bn, this message translates to:
+  /// **'একজন ব্যবহারকারী'**
+  String get beaconAnonymousReporter;
+
+  /// No description provided for @adminRequestApproved.
+  ///
+  /// In bn, this message translates to:
+  /// **'{type} অনুমোদিত হয়েছে'**
+  String adminRequestApproved(String type);
+
+  /// No description provided for @adminRequestRejected.
+  ///
+  /// In bn, this message translates to:
+  /// **'{type} প্রত্যাখ্যান করা হয়েছে'**
+  String adminRequestRejected(String type);
+
+  /// No description provided for @emergencyGpsFallbackNotice.
+  ///
+  /// In bn, this message translates to:
+  /// **'{warning} — {phone} নম্বরে কল করুন'**
+  String emergencyGpsFallbackNotice(String warning, String phone);
 }
 
 class _AppLocalizationsDelegate

@@ -30,6 +30,8 @@ class _MeshCallScreenState extends State<MeshCallScreen>
   Duration _callDuration = Duration.zero;
   CallState _state = meshCallService.state;
 
+  bool _didPop = false;
+
   @override
   void initState() {
     super.initState();
@@ -46,7 +48,8 @@ class _MeshCallScreenState extends State<MeshCallScreen>
           if (mounted) setState(() => _callDuration += const Duration(seconds: 1));
         });
       }
-      if (s == CallState.idle) {
+      if (s == CallState.idle && !_didPop) {
+        _didPop = true;
         Navigator.of(context).pop();
       }
     });

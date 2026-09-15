@@ -36,6 +36,7 @@ import 'api_key_ring.dart';
 class CloudAiService {
   static const String primaryModelId = 'gemini-3.1-flash-lite';
   static const String fallbackModelId = 'gemini-3.1-flash-lite-preview';
+  static const String resilientFallbackModelId = 'gemini-3-flash-preview';
 
   /// Tried only after *both* Gemini models are gone.
   ///
@@ -154,6 +155,15 @@ class CloudAiService {
       debugPrint('Fallback ($fallbackModelId) returned nothing usable');
     } catch (e) {
       debugPrint('Fallback ($fallbackModelId) failed: $e');
+    }
+
+    // 2b. Resilient fallback: gemini-3-flash-preview if 3.1 models are under high capacity / 503
+    try {
+      final text = await _generate(resilientFallbackModelId, contents);
+      if (text != null) return text;
+      debugPrint('Resilient Fallback ($resilientFallbackModelId) returned nothing usable');
+    } catch (e) {
+      debugPrint('Resilient Fallback ($resilientFallbackModelId) failed: $e');
     }
 
     // 3. Both Gemini models are gone. Gemma is slow and only sometimes

@@ -293,7 +293,7 @@ class _EmergencySheetState extends State<EmergencySheet> {
     if (gpsWarning != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('$gpsWarning — $phone ${l10n.emergencyCallFallback}'),
+          content: Text(l10n.emergencyGpsFallbackNotice(gpsWarning, phone)),
           backgroundColor: ShongjogTheme.alertBright,
           duration: const Duration(seconds: 5),
         ),

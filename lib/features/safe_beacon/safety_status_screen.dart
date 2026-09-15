@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/bangla_numerals.dart';
 import '../../core/connectivity_provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../contacts/contacts_repository.dart';
@@ -56,9 +57,14 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
   }
 
   Future<({String name, String phone, String userId})> _readProfile() async {
+    // Capture the localized default BEFORE the await (lint:
+    // use_build_context_synchronously).
+    final defaultName = AppLocalizations.of(context).profileDefaultName;
     final prefs = await SharedPreferences.getInstance();
     return (
-      name: prefs.getString('user_name') ?? 'একজন ব্যবহারকারী',
+      // Locale-aware default (the report's userName surfaces in the
+      // admin danger list and mesh peers' screens).
+      name: prefs.getString('user_name') ?? defaultName,
       phone: prefs.getString('user_phone') ?? '',
       userId: await stableUserId(prefs),
     );
@@ -93,12 +99,23 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
     setState(() => _sending = true);
     try {
       final p = await _readProfile();
+
+      // Audit F3 (2026-09-08): the safe beacon used to ship WITHOUT GPS
+      // (null, null) — ported from the orphaned SafeBeaconScreen, whose
+      // one-tap flow always tried a fix first. A safe message with a
+      // location answers the family's real question ("WHERE are you
+      // safe?") and fails soft when GPS is denied or times out.
+      final gps = await _getGps();
+      if (!mounted) return;
+
       final report = SafetyReport(
         id: 'safe-${DateTime.now().microsecondsSinceEpoch}',
         userId: p.userId,
         userName: p.name,
         userPhone: p.phone,
         status: SafetyReport.safeStatus,
+        lat: gps.lat,
+        lon: gps.lon,
         timestamp: DateTime.now(),
       );
 
@@ -112,13 +129,27 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
       meshService.sendMessage('SAFE:${jsonEncode(report.toJson())}',
           echoSelf: false);
 
-      // 2. Queue SMS to contacts.
-      await _queueSms(_safeMessage(p.name, p.phone, null, null));
+      // 2. Queue SMS to contacts (with GPS when available).
+      final sms = await _queueSms(
+          _safeMessage(p.name, p.phone, gps.lat, gps.lon));
 
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
+        // Independent-review suggestion 2 (2026-09-09): when there are
+        // no contacts configured, "will notify 0 on reconnect" is
+        // misleading UX. Show an explicit "no contacts" branch.
+        final content = sms.pending == 0 && sms.sent == 0
+            ? l10n.safetyNoContacts
+            : (sms.sent > 0
+                ? l10n.smsSent(numberForLocale(sms.sent, l10n.localeName))
+                : l10n.willNotifyOnReconnect(
+                    numberForLocale(sms.pending, l10n.localeName)));
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context).safetyStatusSent),
+            // Count-aware feedback, ported from SafeBeaconScreen: the
+            // user must know whether contacts were notified now, will
+            // be notified on reconnect, or there are none configured.
+            content: Text(content),
             backgroundColor:
                 ShongjogTheme.toneFill(context, SemanticTone.success),
           ),
@@ -174,13 +205,20 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
           echoSelf: false);
 
       // 4. Queue SMS to contacts (with GPS link).
-      await _queueSms(
-          _dangerMessage(l10n, p.name, p.phone, dangerType, gps.lat, gps.lon));
+      final sms = await _queueSms(
+          _dangerMessage(p.name, p.phone, dangerType, gps.lat, gps.lon));
 
       if (mounted) {
+        // Independent-review suggestion 3 (2026-09-09): mirror the
+        // safe-path count-aware feedback so operators see the truth
+        // (e.g. "৩টি এসএমএস পাঠানো হয়েছে, ২টি অপেক্ষমান").
+        final content = sms.pending == 0 && sms.sent == 0
+            ? l10n.safetyNoContacts
+            : l10n.dangerSmsSummary(numberForLocale(sms.sent, l10n.localeName),
+                numberForLocale(sms.pending, l10n.localeName));
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context).dangerAlertSent),
+            content: Text(content),
             backgroundColor:
                 ShongjogTheme.toneFill(context, SemanticTone.danger),
             duration: const Duration(seconds: 4),
@@ -192,7 +230,12 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
     }
   }
 
-  Future<void> _queueSms(String body) async {
+  /// Queues the SMS body for every configured contact, then drains
+  /// immediately if online. Returns counts so the caller can tell the
+  /// user whether contacts were notified NOW, will be notified on
+  /// reconnect, or there are none configured to notify.
+  /// (Audit F3 — count-aware feedback ported from SafeBeaconScreen.)
+  Future<({int sent, int pending})> _queueSms(String body) async {
     final contacts = await ContactsRepository.loadCustom();
     final phones = contacts
         .map((c) => c.phone)
@@ -203,8 +246,10 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
       _queue.enqueue(body, p);
     }
     if (connectivityProvider.isOnline) {
-      await _queue.drain();
+      final sent = await _queue.drain();
+      return (sent: sent, pending: phones.length - sent);
     }
+    return (sent: 0, pending: phones.length);
   }
 
   String _safeMessage(String name, String phone, double? lat, double? lon) {
@@ -214,13 +259,13 @@ class _SafetyStatusScreenState extends State<SafetyStatusScreen> {
     return 'আমি নিরাপদ আছি। আমি $name। ফোন: $phone।$loc';
   }
 
-  String _dangerMessage(AppLocalizations l10n,
+  String _dangerMessage(
       String name, String phone, DangerType type, double? lat, double? lon) {
     final loc = (lat != null && lon != null)
         ? ' অবস্থান: https://maps.google.com/?q=$lat,$lon'
         : '';
     return 'জরুরি! আমি বিপদে আছি। আমি $name। ফোন: $phone। '
-        'সমস্যা: ${type.label(l10n)}।$loc';
+        'সমস্যা: ${type.labelBn}।$loc';
   }
 
   // ── Build ────────────────────────────────────────────────────

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shongjog/l10n/app_localizations.dart';
+import '../../core/bangla_numerals.dart';
 
 import '../../app/theme.dart';
 import '../../core/model_manager.dart';
@@ -52,10 +53,18 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
   // 0.5↔1.0 per design.md §7.3 — the one piece of liveliness on an
   // otherwise static map. Animations belong in the widget layer (close
   // to the TickerProvider's mount lifecycle), not in the VM.
-  late final AnimationController _pulse = AnimationController(
-    vsync: this,
-    duration: ShelterConstants.pulseDuration,
-  )..repeat(reverse: true);
+  //
+  // Audit F14 (2026-09-09): the controller used to be a `late final
+  // = AnimationController(...)..repeat(...)` field initializer. That
+  // made creation lazy — and since [_pulse] is only read when the user
+  // has a GPS fix (buildUserMarker, line ~345), a unit test or a
+  // cold-start-without-GPS would never trigger the initializer until
+  // [dispose] called [_pulse.dispose]. At that point the element was
+  // already deactivated and the `AnimationController` constructor
+  // threw "Looking up a deactivated widget's ancestor is unsafe".
+  // Moving construction into [initState] matches the pattern used by
+  // ChatScreen / HomeScreen and lets [dispose] just dispose.
+  late final AnimationController _pulse;
 
   StreamSubscription<bool>? _connSub;
   double _currentZoom = 11.0;
@@ -67,6 +76,10 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
   @override
   void initState() {
     super.initState();
+    _pulse = AnimationController(
+      vsync: this,
+      duration: ShelterConstants.pulseDuration,
+    )..repeat(reverse: true);
     _vm.addListener(_onVmChanged);
     campaignRequestService.addListener(_onCampaignChanged);
     _connSub = ConnectivityHelper.onConnectivityChanged.listen(_vm.setOnline);
@@ -300,6 +313,12 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
 
   Widget _buildMap(List<Shelter> shelters, List<RankedShelter>? ranked) {
     final l10n = AppLocalizations.of(context);
+    // The shell Scaffold uses extendBody: true with a floating nav bar, so
+    // this screen renders BEHIND the bar. Flutter exposes the bar's height
+    // to the body as MediaQuery.padding.bottom — the bottom-anchored cards
+    // must add it to their offsets or they slide under the bar (the nav
+    // overlap reported on the shelter details tile).
+    final navBarHeight = MediaQuery.of(context).padding.bottom;
     return Stack(
       children: [
         FlutterMap(
@@ -437,7 +456,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
           Positioned(
             left: 12,
             right: 12,
-            bottom: 12,
+            bottom: navBarHeight + 12,
             child: ShelterRouteInfoCard(
               selected: _vm.selectedShelter!,
               loading: _vm.loadingRoute,
@@ -450,7 +469,7 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
           Positioned(
             left: 16,
             right: 16,
-            bottom: 16,
+            bottom: navBarHeight + 16,
             child: NearestCard(
               top3: ranked.take(3).toList(),
               onTapRow: (s) => _vm.fetchRoute(s as Shelter),
@@ -513,7 +532,15 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      s.nameBn.isNotEmpty ? s.nameBn : s.name,
+                      // Locale-aware primary name (2026-09-09: English
+                      // mode used to always show the Bangla name). The
+                      // secondary line below shows the other language
+                      // when both exist.
+                      AppLocalizations.of(context)
+                              .localeName
+                              .startsWith('bn')
+                          ? (s.nameBn.isNotEmpty ? s.nameBn : s.name)
+                          : (s.name.isNotEmpty ? s.name : s.nameBn),
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
@@ -521,16 +548,21 @@ class _ShelterMapScreenState extends State<ShelterMapScreen>
               ),
               const SizedBox(height: 8),
               if (s.nameBn.isNotEmpty && s.name.isNotEmpty)
-                Text(s.name,
-                    style: TextStyle(
-                        fontSize: 14,
-                        color:
-                            Theme.of(context).colorScheme.onSurfaceVariant)),
+                Text(
+                  AppLocalizations.of(context).localeName.startsWith('bn')
+                      ? s.name
+                      : s.nameBn,
+                  style: TextStyle(
+                      fontSize: 14,
+                      color:
+                          Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
               const SizedBox(height: 16),
               if (km != null)
-                _row(l10n.shelterDistLabel, '${km.toStringAsFixed(1)} ${l10n.shelterKm}'),
+                _row(l10n.shelterDistLabel, '${digitsForLocale(km.toStringAsFixed(1), l10n.localeName)} ${l10n.shelterKm}'),
               if (s.capacity != null)
-                _row(l10n.shelterCapacityLabel, '${s.capacity} ${l10n.shelterPeopleUnit}'),
+                _row(l10n.shelterCapacityLabel,
+                    '${numberForLocale(s.capacity!, l10n.localeName)} ${l10n.shelterPeopleUnit}'),
               _row(l10n.shelterSource, s.source),
               _row('GPS',
                   '${s.lat.toStringAsFixed(4)}, ${s.lon.toStringAsFixed(4)}'),
@@ -725,8 +757,12 @@ class _AiBriefRowState extends State<_AiBriefRow> {
   }
 
   Future<void> _loadBrief() async {
-    // Start with the deterministic fallback.
-    final fallback = ShelterBriefBuilder.fallbackBrief(shelter: widget.shelter);
+    // Start with the deterministic fallback (locale-aware — English
+    // mode gets the English sentence).
+    final fallback = ShelterBriefBuilder.fallbackBrief(
+      shelter: widget.shelter,
+      l10n: AppLocalizations.of(context),
+    );
     if (!mounted) return;
     setState(() {
       _brief = fallback;
