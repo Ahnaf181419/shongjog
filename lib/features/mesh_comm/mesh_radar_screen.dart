@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../core/haptics.dart';
 import '../../l10n/app_localizations.dart';
@@ -110,7 +111,15 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
           _ => AppLocalizations.of(context).meshStartFailed,
         };
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg)),
+          SnackBar(
+            content: Text(msg),
+            action: result.reason == 'permissions'
+                ? SnackBarAction(
+                    label: 'Settings',
+                    onPressed: openAppSettings,
+                  )
+                : null,
+          ),
         );
         return;
       }

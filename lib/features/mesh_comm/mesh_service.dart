@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:gal/gal.dart';
 import 'package:nearby_connections/nearby_connections.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:path_provider/path_provider.dart';
@@ -144,24 +145,60 @@ class MeshService {
   bool get isRunning => _running;
 
   Future<bool> requestPermissions() async {
-    // 🔴 FIX 3: Added nearbyWifiDevices for Android 13+ P2P_CLUSTER
-    final statuses = await [
-      Permission.bluetoothAdvertise,
-      Permission.bluetoothConnect,
-      Permission.bluetoothScan,
-      Permission.location,
-      Permission.nearbyWifiDevices,
-    ].request();
+    int sdkInt = 33;
+    if (Platform.isAndroid) {
+      try {
+        final androidInfo = await DeviceInfoPlugin().androidInfo;
+        sdkInt = androidInfo.version.sdkInt;
+      } catch (_) {}
+    }
 
-    return statuses[Permission.bluetoothAdvertise]!.isGranted &&
-        statuses[Permission.bluetoothConnect]!.isGranted &&
-        statuses[Permission.bluetoothScan]!.isGranted &&
-        statuses[Permission.location]!.isGranted &&
-        (statuses[Permission.nearbyWifiDevices] ?? PermissionStatus.granted)
-            .isGranted;
-    // nearbyWifiDevices may be null on older Androids where the permission
-    // doesn't exist — treat missing as granted. On Android 13+ it IS
-    // required for P2P_CLUSTER Wi-Fi Direct operations.
+    // Android 11 (API 30) and below only support & require runtime Location.
+    // Bluetooth permissions (BLUETOOTH, BLUETOOTH_ADMIN) are granted at install time.
+    final reqList = <Permission>[Permission.location];
+
+    // Android 12 (API 31) added granular Bluetooth runtime permissions
+    if (sdkInt >= 31) {
+      reqList.addAll([
+        Permission.bluetoothAdvertise,
+        Permission.bluetoothConnect,
+        Permission.bluetoothScan,
+      ]);
+    }
+
+    // Android 13 (API 33) added NEARBY_WIFI_DEVICES for Wi-Fi Direct
+    if (sdkInt >= 33) {
+      reqList.add(Permission.nearbyWifiDevices);
+    }
+
+    final statuses = await reqList.request();
+
+    // Location is mandatory on all Android versions for Wi-Fi Direct & Bluetooth discovery
+    final locGranted = statuses[Permission.location]?.isGranted ?? false;
+    if (!locGranted) {
+      debugPrint('MeshService: location permission not granted');
+      return false;
+    }
+
+    if (sdkInt >= 31) {
+      final btAdv = statuses[Permission.bluetoothAdvertise]?.isGranted ?? false;
+      final btConn = statuses[Permission.bluetoothConnect]?.isGranted ?? false;
+      final btScan = statuses[Permission.bluetoothScan]?.isGranted ?? false;
+      if (!btAdv || !btConn || !btScan) {
+        debugPrint('MeshService: Android 12+ Bluetooth permissions not granted');
+        return false;
+      }
+    }
+
+    if (sdkInt >= 33) {
+      final nearbyWifi = statuses[Permission.nearbyWifiDevices]?.isGranted ?? true;
+      if (!nearbyWifi) {
+        debugPrint('MeshService: Android 13+ nearbyWifiDevices not granted');
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /// Pre-flight check: P2P_CLUSTER needs the Wi-Fi radio.
