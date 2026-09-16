@@ -205,6 +205,28 @@ class MeshService {
         _lanPeerSub = _lanTransport!.peers.listen((lanPeers) {
           bool changed = false;
           for (final lp in lanPeers) {
+            // Ignore ourselves if we somehow receive our own beacon
+            if (lp.name == userName) continue;
+
+            String? staleId;
+            bool staleIsConnected = false;
+            for (final entry in _peers.entries) {
+              if (entry.key != lp.endpointId && entry.value.name == lp.name) {
+                staleId = entry.key;
+                staleIsConnected = (entry.value.status == PeerStatus.connected || entry.value.status == PeerStatus.reconnecting);
+                break;
+              }
+            }
+            
+            // If the stale peer is connected but this new LAN peer is not, ignore the LAN peer
+            if (staleIsConnected && lp.status != PeerStatus.connected) continue;
+
+            if (staleId != null) {
+              _disconnectTimers.remove(staleId)?.cancel();
+              _peers.remove(staleId);
+              changed = true;
+            }
+
             final existing = _peers[lp.endpointId];
             if (existing == null || existing.status != lp.status || existing.name != lp.name) {
               _peers[lp.endpointId] = lp;
@@ -644,12 +666,18 @@ class MeshService {
     // the same name (e.g. the peer restarted and got a new ID), remove the
     // stale entry so the user doesn't see two entries for the same person.
     String? staleId;
+    bool staleIsConnected = false;
     for (final entry in _peers.entries) {
       if (entry.key != id && entry.value.name == name) {
         staleId = entry.key;
+        staleIsConnected = (entry.value.status == PeerStatus.connected || entry.value.status == PeerStatus.reconnecting);
         break;
       }
     }
+    
+    // Do not replace a connected peer with a newly discovered disconnected peer
+    if (staleIsConnected) return;
+
     if (staleId != null) {
       _disconnectTimers.remove(staleId)?.cancel();
       _peers.remove(staleId);
@@ -724,9 +752,6 @@ class MeshService {
     // Overwriting connected → reconnecting here was the #1 cause of
     // "connection drops after 1 text message".
     if (peer.status == PeerStatus.connected) return;
-
-    _peers[id] = peer.copyWith(status: PeerStatus.reconnecting);
-    _peersController.add(peerList);
 
     // Start a TTL timer for cleanup if the endpoint doesn't return.
     _disconnectTimers[id]?.cancel();

@@ -85,8 +85,11 @@ class LanSocketTransport {
     if (_running) return true;
     try {
       final prefs = await SharedPreferences.getInstance();
-      _myId = prefs.getString('mesh_device_id') ??
-          '${userName.hashCode.abs()}_${DateTime.now().millisecondsSinceEpoch % 10000}';
+      _myId = prefs.getString('mesh_device_id') ?? '';
+      if (_myId.isEmpty) {
+        _myId = '${userName.hashCode.abs()}_${DateTime.now().millisecondsSinceEpoch % 10000}';
+        await prefs.setString('mesh_device_id', _myId);
+      }
 
       // 1. Start TCP ServerSocket on ephemeral port
       _serverSocket = await ServerSocket.bind(InternetAddress.anyIPv4, 0);
@@ -191,7 +194,7 @@ class LanSocketTransport {
       final port = json['port'] as int?;
       final type = json['type'] as String?;
 
-      if (peerId == null || peerId == _myId || port == null || peerName == null) {
+      if (peerId == null || peerId == _myId || peerName == userName || port == null || peerName == null) {
         return; // Ignore self or malformed packet
       }
 

@@ -228,18 +228,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           ),
           const _Divider(),
-          const _SectionHeader('Mesh Storage & Media'),
-          SwitchListTile(
-            secondary: const Icon(Icons.photo_library_rounded),
-            title: const Text('Auto-Save Received Media'),
-            subtitle: const Text('Save incoming mesh photos & videos to device gallery'),
-            value: _meshAutoSaveMedia,
-            onChanged: (v) async {
-              setState(() => _meshAutoSaveMedia = v);
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.setBool(MeshService.prefAutoSaveMeshMedia, v);
-            },
-          ),
+          const _SectionHeader('Mesh Storage Settings'),
           ListTile(
             leading: const Icon(Icons.folder_rounded),
             title: const Text('Download Folder'),
