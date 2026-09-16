@@ -228,10 +228,17 @@ class MeshService {
         });
 
         _lanMsgSub = _lanTransport!.messages.listen((msg) {
-          _messagesController.add(msg);
+          if (_isUserMessage(msg.text)) {
+            _messagesController.add(msg);
+          }
         });
 
         _lanReqSub = _lanTransport!.connectionRequests.listen((req) {
+          final existing = _peers[req.endpointId];
+          if (existing != null) {
+            _peers[req.endpointId] = existing.copyWith(status: PeerStatus.reconnecting);
+            _peersController.add(peerList);
+          }
           _connectionRequestsController.add(req);
         });
 
@@ -768,6 +775,11 @@ class MeshService {
   void acceptConnection(String id) {
     if (id.startsWith('lan_')) {
       _lanTransport?.acceptConnection(id);
+      final existing = _peers[id];
+      if (existing != null) {
+        _peers[id] = existing.copyWith(status: PeerStatus.connected);
+        _peersController.add(peerList);
+      }
       return;
     }
     Nearby().acceptConnection(
@@ -780,6 +792,11 @@ class MeshService {
   void rejectConnection(String id) {
     if (id.startsWith('lan_')) {
       _lanTransport?.rejectConnection(id);
+      final existing = _peers[id];
+      if (existing != null) {
+        _peers[id] = existing.copyWith(status: PeerStatus.disconnected);
+        _peersController.add(peerList);
+      }
       return;
     }
     Nearby().rejectConnection(id);

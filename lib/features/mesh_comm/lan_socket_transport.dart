@@ -264,23 +264,21 @@ class LanSocketTransport {
           final senderId = msgJson['senderId'] as String?;
           final senderName = msgJson['senderName'] as String?;
 
-          if (type == 'handshake') {
+          if (type == 'connect_request') {
             final peerTcpPort = msgJson['serverPort'] as int? ?? remotePort;
             associatedEndpointId = 'lan_${remoteAddress}_$peerTcpPort';
             _activeSockets[associatedEndpointId!] = socket;
 
-            if (_discoveredPeers.containsKey(associatedEndpointId)) {
-              _discoveredPeers[associatedEndpointId!]!.isConnected = true;
-              _peersController.add(peerList);
-            }
-          } else if (type == 'connect_request') {
-            if (associatedEndpointId != null && senderName != null) {
-              _requestsController.add(
-                ConnectionRequestEvent(associatedEndpointId!, senderName),
-              );
-            }
+            _requestsController.add(
+              ConnectionRequestEvent(associatedEndpointId!, senderName ?? 'LAN Peer'),
+            );
+          } else if (type == 'ping') {
+            _sendFrame(socket, {'type': 'pong'});
+          } else if (type == 'pong') {
+            // Keep-alive heartbeat ack, ignore
           } else if (type == 'text') {
             final text = msgJson['text'] as String? ?? '';
+            if (text == 'PING' || text == 'PONG') return;
             final msg = MeshMessage(
               senderId: associatedEndpointId ?? senderId ?? remoteAddress,
               senderName: senderName ?? 'LAN Peer',
@@ -307,6 +305,10 @@ class LanSocketTransport {
         debugPrint('LanSocketTransport: Socket error: $e');
         if (associatedEndpointId != null) {
           _activeSockets.remove(associatedEndpointId);
+          if (_discoveredPeers.containsKey(associatedEndpointId)) {
+            _discoveredPeers[associatedEndpointId!]!.isConnected = false;
+            _peersController.add(peerList);
+          }
         }
         socket.destroy();
       },
@@ -350,7 +352,7 @@ class LanSocketTransport {
     }
   }
 
-  /// Connect to a discovered LAN peer
+  /// Connect to a discovered LAN peer and await confirmation
   Future<bool> connectToPeer(String endpointId) async {
     final peer = _discoveredPeers[endpointId];
     if (peer == null) return false;
@@ -363,18 +365,17 @@ class LanSocketTransport {
       );
 
       _activeSockets[endpointId] = socket;
-      peer.isConnected = true;
-      _peersController.add(peerList);
+      final completer = Completer<bool>();
 
-      // Send initial handshake frame
+      // Send connection request frame to prompt the receiver
       _sendFrame(socket, {
-        'type': 'handshake',
+        'type': 'connect_request',
         'senderId': _myId,
         'senderName': userName,
         'serverPort': _tcpPort,
       });
 
-      // Listen for incoming frames on this client socket as well
+      // Listen for incoming frames on this client socket
       final buffer = <int>[];
       socket.listen(
         (data) {
@@ -383,8 +384,23 @@ class LanSocketTransport {
             final type = msgJson['type'] as String?;
             final senderName = msgJson['senderName'] as String?;
 
-            if (type == 'text') {
+            if (type == 'connect_accept') {
+              peer.isConnected = true;
+              _peersController.add(peerList);
+              if (!completer.isCompleted) completer.complete(true);
+            } else if (type == 'connect_reject') {
+              peer.isConnected = false;
+              _peersController.add(peerList);
+              _activeSockets.remove(endpointId);
+              socket.destroy();
+              if (!completer.isCompleted) completer.complete(false);
+            } else if (type == 'ping') {
+              _sendFrame(socket, {'type': 'pong'});
+            } else if (type == 'pong') {
+              // Keep-alive heartbeat ack, ignore
+            } else if (type == 'text') {
               final text = msgJson['text'] as String? ?? '';
+              if (text == 'PING' || text == 'PONG') return;
               _messagesController.add(MeshMessage(
                 senderId: endpointId,
                 senderName: senderName ?? peer.name,
@@ -401,16 +417,28 @@ class LanSocketTransport {
           peer.isConnected = false;
           _peersController.add(peerList);
           socket.destroy();
+          if (!completer.isCompleted) completer.complete(false);
         },
         onError: (_) {
           _activeSockets.remove(endpointId);
           peer.isConnected = false;
           _peersController.add(peerList);
           socket.destroy();
+          if (!completer.isCompleted) completer.complete(false);
         },
       );
 
-      return true;
+      return await completer.future.timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          if (!completer.isCompleted) completer.complete(false);
+          _activeSockets.remove(endpointId);
+          peer.isConnected = false;
+          _peersController.add(peerList);
+          socket.destroy();
+          return false;
+        },
+      );
     } catch (e) {
       debugPrint('LanSocketTransport: connectToPeer failed: $e');
       return false;
@@ -421,6 +449,15 @@ class LanSocketTransport {
   bool sendText(String endpointId, String text) {
     final socket = _activeSockets[endpointId];
     if (socket == null) return false;
+
+    if (text == 'PING') {
+      _sendFrame(socket, {'type': 'ping'});
+      return true;
+    }
+    if (text == 'PONG') {
+      _sendFrame(socket, {'type': 'pong'});
+      return true;
+    }
 
     _sendFrame(socket, {
       'type': 'text',
@@ -511,6 +548,14 @@ class LanSocketTransport {
   }
 
   void acceptConnection(String endpointId) {
+    final socket = _activeSockets[endpointId];
+    if (socket != null) {
+      _sendFrame(socket, {
+        'type': 'connect_accept',
+        'senderId': _myId,
+        'senderName': userName,
+      });
+    }
     if (_discoveredPeers.containsKey(endpointId)) {
       _discoveredPeers[endpointId]!.isConnected = true;
       _peersController.add(peerList);
@@ -519,7 +564,14 @@ class LanSocketTransport {
 
   void rejectConnection(String endpointId) {
     final socket = _activeSockets.remove(endpointId);
-    socket?.destroy();
+    if (socket != null) {
+      try {
+        _sendFrame(socket, {
+          'type': 'connect_reject',
+        });
+      } catch (_) {}
+      socket.destroy();
+    }
     if (_discoveredPeers.containsKey(endpointId)) {
       _discoveredPeers[endpointId]!.isConnected = false;
       _peersController.add(peerList);
