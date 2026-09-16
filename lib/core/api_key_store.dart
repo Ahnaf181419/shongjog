@@ -35,7 +35,7 @@ class ApiKeyStore {
     if (stored != null && stored.isNotEmpty) return stored;
     const compiled = String.fromEnvironment('GEMINI_API_KEY');
     if (compiled.isNotEmpty) return compiled.trim();
-    return utf8.decode(base64Decode('QVEuQWI4Uk42SWlWdkhkVWU5X1E0eW52N1FqeWw2a25jNU5XMHJHRHowQ0xBcHkzZ0dEdUE='));
+    return utf8.decode(base64Decode('QVEuQWI4Uk42SnRjVnU0ME9nYUFmamtzRDI5SFpaUGVtYXVpQTgzUTRtdVZiN1ZIVGU5ZXc='));
   }
 
   /// Whether a key has been stored or available.

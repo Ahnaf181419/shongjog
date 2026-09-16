@@ -22,6 +22,7 @@ import 'model_picker_section.dart';
 import '../../core/admin_broadcast_service.dart';
 import '../../features/admin/campaign_request.dart';
 import '../../core/firebase_auth_service.dart';
+import '../../core/api_key_store.dart';
 
 /// Settings screen.
 ///
@@ -181,6 +182,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           ),
           const ModelPickerSection(),
+          ListTile(
+            leading: const Icon(Icons.key_rounded),
+            title: const Text('Cloud Gemini API Key'),
+            subtitle: const Text('Configure or update Google AI key for cloud assistant'),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: _showApiKeyDialog,
+          ),
           const _Divider(),
           _SectionHeader(AppLocalizations.of(context).sectionDiagnostics),
           ListTile(
@@ -582,6 +590,61 @@ class _SettingsScreenState extends State<SettingsScreen> {
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(AppLocalizations.of(context).close),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showApiKeyDialog() async {
+    final keyStore = ApiKeyStore();
+    final currentKey = await keyStore.getKey() ?? '';
+    final ctrl = TextEditingController(text: currentKey);
+
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Cloud Gemini API Key'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Enter your Google AI Studio API key to enable online Gemini AI assistance.',
+              style: TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: ctrl,
+              decoration: const InputDecoration(
+                labelText: 'API Key',
+                border: OutlineInputBorder(),
+                hintText: 'AQ... or AIzaSy...',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(AppLocalizations.of(context).cancel),
+          ),
+          FilledButton(
+            onPressed: () async {
+              final newKey = ctrl.text.trim();
+              if (newKey.isNotEmpty) {
+                await keyStore.saveKey(newKey);
+                await keyStore.saveKeys([newKey]);
+              }
+              if (ctx.mounted) Navigator.pop(ctx);
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Gemini API Key saved successfully!')),
+                );
+              }
+            },
+            child: const Text('Save'),
           ),
         ],
       ),
