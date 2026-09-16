@@ -613,11 +613,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get meshConnecting => 'Connecting via Wi-Fi...';
+  String get meshConnecting => 'Connecting to mesh...';
 
   @override
   String get meshSearching =>
-      'Searching for nearby devices...\nKeep Wi-Fi on. If Shongjog\nusers are nearby, they\'ll appear here.';
+      'Searching for nearby devices...\nKeep Wi-Fi & Bluetooth on. If Shongjog\nusers are nearby, they\'ll appear here.';
 
   @override
   String get meshWifiOff => 'Wi-Fi is off — turn it on and try again';

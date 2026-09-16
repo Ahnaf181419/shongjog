@@ -391,8 +391,16 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.bluetooth_searching_rounded,
-                        size: 48, color: cs.onSurfaceVariant),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.wifi_find_rounded,
+                            size: 40, color: cs.primary.withValues(alpha: 0.85)),
+                        const SizedBox(width: 14),
+                        Icon(Icons.bluetooth_searching_rounded,
+                            size: 40, color: cs.primary.withValues(alpha: 0.85)),
+                      ],
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       AppLocalizations.of(context).meshSearching,

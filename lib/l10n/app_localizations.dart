@@ -1211,13 +1211,13 @@ abstract class AppLocalizations {
   /// No description provided for @meshConnecting.
   ///
   /// In bn, this message translates to:
-  /// **'Wi-Fi সংযোগ চালু হচ্ছে...'**
+  /// **'মেশ সংযোগ চালু হচ্ছে...'**
   String get meshConnecting;
 
   /// No description provided for @meshSearching.
   ///
   /// In bn, this message translates to:
-  /// **'কাছের ডিভাইস খোঁজা হচ্ছে...\nWi-Fi চালু রাখুন এবং Shongjog\nব্যবহারকারী কাছে থাকলে এখানে দেখা যাবে।'**
+  /// **'কাছের ডিভাইস খোঁজা হচ্ছে...\nWi-Fi ও ব্লুটুথ চালু রাখুন। Shongjog\nব্যবহারকারী কাছে থাকলে এখানে দেখা যাবে।'**
   String get meshSearching;
 
   /// No description provided for @meshWifiOff.

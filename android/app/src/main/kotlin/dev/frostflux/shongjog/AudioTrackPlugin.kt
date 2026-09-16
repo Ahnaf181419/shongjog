@@ -37,6 +37,11 @@ class AudioTrackPlugin(private val activity: MainActivity) : MethodChannel.Metho
                 val on = call.argument<Boolean>("on") ?: false
                 val am = activity.getSystemService(AudioManager::class.java)
                 am.mode = AudioManager.MODE_IN_COMMUNICATION
+                if (on) {
+                    audioTrack?.setVolume(0.85f)
+                } else {
+                    audioTrack?.setVolume(1.0f)
+                }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     val devices = am.availableCommunicationDevices
                     val targetType = if (on) AudioDeviceInfo.TYPE_BUILTIN_SPEAKER else AudioDeviceInfo.TYPE_BUILTIN_EARPIECE

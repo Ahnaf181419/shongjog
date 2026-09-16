@@ -127,6 +127,16 @@ class MeshService {
   DateTime? _lastRestartDiscoveryTime;
   DateTime? _lastRestartAdvertisingTime;
 
+  /// Fail-safe auto-recovery state: tracks recently dropped active sessions
+  /// to seamlessly fall back between LAN, Wi-Fi Direct, and Bluetooth Classic.
+  String? _lastActiveSessionPeer;
+  DateTime? _lastDisconnectTime;
+  DateTime? _negotiatingUntil;
+  StreamSubscription? _connectivitySub;
+
+  bool get isHandshakeActive =>
+      _negotiatingUntil != null && DateTime.now().isBefore(_negotiatingUntil!);
+
   /// Multi-hop SOS relay engine. Wired lazily — the listener is
   /// attached to the messages stream on first [start]().
   SosRelayEngine? _relayEngine;
@@ -239,49 +249,7 @@ class MeshService {
       _lanTransport = LanSocketTransport(userName: userName);
       final lanOk = await _lanTransport!.start();
       if (lanOk) {
-        _lanPeerSub = _lanTransport!.peers.listen((lanPeers) {
-          bool changed = false;
-          final incomingLanIds = lanPeers.map((p) => p.endpointId).toSet();
-          
-          // Remove stale LAN peers that disappeared from the LAN stream
-          final staleLanIds = _peers.keys
-              .where((k) => k.startsWith('lan_') && !incomingLanIds.contains(k))
-              .toList();
-          
-          for (final id in staleLanIds) {
-            _disconnectTimers.remove(id)?.cancel();
-            _peers.remove(id);
-            changed = true;
-          }
-
-          for (final lp in lanPeers) {
-            if (_upsertPeer(lp)) {
-              changed = true;
-            }
-          }
-          if (changed) {
-            _peersController.add(peerList);
-          }
-        });
-
-        _lanMsgSub = _lanTransport!.messages.listen((msg) {
-          if (_isUserMessage(msg.text)) {
-            _messagesController.add(msg);
-          }
-        });
-
-        _lanReqSub = _lanTransport!.connectionRequests.listen((req) {
-          final existing = _peers[req.endpointId];
-          if (existing != null) {
-            _peers[req.endpointId] = existing.copyWith(status: PeerStatus.reconnecting);
-            _peersController.add(peerList);
-          }
-          _connectionRequestsController.add(req);
-        });
-
-        _lanProgSub = _lanTransport!.transferProgress.listen((p) {
-          _transferProgressController.add(p);
-        });
+        _wireLanTransport();
       }
     } catch (e) {
       debugPrint('MeshService: LanSocketTransport startup warning: $e');
@@ -334,71 +302,168 @@ class MeshService {
       // Nearby Connections is working → GMS is present.
       activeTransport = MeshTransportType.nearbyConnections;
       debugPrint('MeshService: using Nearby Connections (GMS detected)');
-      _running = true;
-      _startDiscoveryTimer();
-      _startRetryTimer();
-      _peersController.add(peerList);
-      return MeshStartResult(
-        ok: true,
-        advertisingOk: advertisingOk,
-        discoveryOk: discoveryOk,
-        wifiOn: wifiOn,
-      );
-    }
-
-    // ── GMS absent: fall back to GMS-free Wi-Fi Direct ───────────────────
-    debugPrint('MeshService: Nearby Connections unavailable → falling back to Wi-Fi Direct');
-    final wdt = WifiDirectTransport();
-    final wdOk = await wdt.start(userName);
-    if (!wdOk) {
-      return MeshStartResult.fail('radio_unavailable', wifiOn: wifiOn);
-    }
-
-    _wifiDirectTransport = wdt;
-    activeTransport = MeshTransportType.wifiDirect;
-
-    // Bridge WifiDirectTransport peers/messages into MeshService streams.
-    _wdPeerSub = wdt.peers.listen((peers) {
-      _peers.clear();
-      for (final p in peers) {
-        _peers[p.id] = MeshPeer(
-          endpointId: p.id,
-          name: p.displayName,
-          status: p.isConnected ? PeerStatus.connected : PeerStatus.disconnected,
-        );
-      }
-      _peersController.add(peerList);
-    });
-
-    _wdMsgSub = wdt.messages.listen((msg) {
-      _messagesController.add(MeshMessage(
-        senderId: msg.senderId,
-        senderName: msg.senderName,
-        text: msg.text,
-        type: MessageType.text,
-      ));
-    });
-
+    _setupConnectivityMonitoring();
     _running = true;
     _startDiscoveryTimer();
     _startRetryTimer();
     _peersController.add(peerList);
     return MeshStartResult(
       ok: true,
-      advertisingOk: true,
-      discoveryOk: true,
+      advertisingOk: advertisingOk,
+      discoveryOk: discoveryOk,
       wifiOn: wifiOn,
     );
   }
 
-  /// True while any peer is connected or mid-reconnect — i.e. while the
-  /// radio is carrying, or actively re-establishing, a real link.
-  ///
-  /// Every path that would restart discovery or advertising consults this
-  /// first; see [_startDiscoveryTimer] for why bouncing the radio under a
-  /// live link is what made mesh chat unstable.
+  // ── GMS absent: fall back to GMS-free Wi-Fi Direct ───────────────────
+  debugPrint('MeshService: Nearby Connections unavailable → falling back to Wi-Fi Direct');
+  final wdt = WifiDirectTransport();
+  final wdOk = await wdt.start(userName);
+  if (!wdOk) {
+    return MeshStartResult.fail('radio_unavailable', wifiOn: wifiOn);
+  }
+
+  _wifiDirectTransport = wdt;
+  activeTransport = MeshTransportType.wifiDirect;
+
+  // Bridge WifiDirectTransport peers/messages into MeshService streams.
+  _wdPeerSub = wdt.peers.listen((peers) {
+    _peers.clear();
+    for (final p in peers) {
+      _peers[p.id] = MeshPeer(
+        endpointId: p.id,
+        name: p.displayName,
+        status: p.isConnected ? PeerStatus.connected : PeerStatus.disconnected,
+      );
+    }
+    _peersController.add(peerList);
+  });
+
+  _wdMsgSub = wdt.messages.listen((msg) {
+    _messagesController.add(MeshMessage(
+      senderId: msg.senderId,
+      senderName: msg.senderName,
+      text: msg.text,
+      type: MessageType.text,
+    ));
+  });
+
+  _setupConnectivityMonitoring();
+  _running = true;
+  _startDiscoveryTimer();
+  _startRetryTimer();
+  _peersController.add(peerList);
+  return MeshStartResult(
+    ok: true,
+    advertisingOk: true,
+    discoveryOk: true,
+    wifiOn: wifiOn,
+  );
+}
+
+  void _wireLanTransport() {
+    _lanPeerSub?.cancel();
+    _lanPeerSub = _lanTransport!.peers.listen((lanPeers) {
+      bool changed = false;
+      final incomingLanIds = lanPeers.map((p) => p.endpointId).toSet();
+
+      // Remove stale LAN peers that disappeared from the LAN stream
+      final staleLanIds = _peers.keys
+          .where((k) => k.startsWith('lan_') && !incomingLanIds.contains(k))
+          .toList();
+
+      for (final id in staleLanIds) {
+        _disconnectTimers.remove(id)?.cancel();
+        _peers.remove(id);
+        changed = true;
+      }
+
+      for (final lp in lanPeers) {
+        final existing = _peers[lp.endpointId];
+        if (existing != null && existing.status == PeerStatus.connected && lp.status == PeerStatus.disconnected) {
+          debugPrint('MeshService: LAN socket closed for ${existing.displayName} — triggering Bluetooth failover');
+          _lastActiveSessionPeer = existing.displayName;
+          _lastDisconnectTime = DateTime.now();
+          _peers[lp.endpointId] = existing.copyWith(status: PeerStatus.disconnected);
+          changed = true;
+          Future.delayed(const Duration(milliseconds: 300), () {
+            if (!_running) return;
+            if (!hasLiveLink) ensureDiscoverable(force: true);
+          });
+        } else if (_upsertPeer(lp)) {
+          changed = true;
+        }
+      }
+      if (changed) {
+        _peersController.add(peerList);
+      }
+    });
+
+    _lanMsgSub?.cancel();
+    _lanMsgSub = _lanTransport!.messages.listen((msg) {
+      if (_isUserMessage(msg.text)) {
+        _messagesController.add(msg);
+      }
+    });
+
+    _lanReqSub?.cancel();
+    _lanReqSub = _lanTransport!.connectionRequests.listen((req) {
+      final existing = _peers[req.endpointId];
+      if (existing != null) {
+        _peers[req.endpointId] = existing.copyWith(status: PeerStatus.reconnecting);
+        _peersController.add(peerList);
+      }
+      _connectionRequestsController.add(req);
+    });
+
+    _lanProgSub?.cancel();
+    _lanProgSub = _lanTransport!.transferProgress.listen((p) {
+      _transferProgressController.add(p);
+    });
+  }
+
+  void _setupConnectivityMonitoring() {
+    _connectivitySub?.cancel();
+    _connectivitySub = Connectivity().onConnectivityChanged.listen((results) async {
+      if (!_running) return;
+      final hasWifi = results.any((r) => r == ConnectivityResult.wifi);
+      if (!hasWifi) {
+        debugPrint('MeshService: Wi-Fi dropped/disabled — cleaning up LAN transport and bouncing for Bluetooth fallback');
+        _lanPeerSub?.cancel();
+        _lanMsgSub?.cancel();
+        _lanReqSub?.cancel();
+        _lanProgSub?.cancel();
+        await _lanTransport?.stop();
+        _lanTransport = null;
+
+        final lanKeys = _peers.keys.where((k) => k.startsWith('lan_')).toList();
+        for (final k in lanKeys) {
+          _disconnectTimers.remove(k)?.cancel();
+          _peers.remove(k);
+        }
+        _peersController.add(peerList);
+
+        if (!hasLiveLink) {
+          ensureDiscoverable(force: true);
+        }
+      } else if (hasWifi && _lanTransport == null) {
+        debugPrint('MeshService: Wi-Fi restored — starting LAN transport');
+        try {
+          _lanTransport = LanSocketTransport(userName: userName);
+          final lanOk = await _lanTransport!.start();
+          if (lanOk) {
+            _wireLanTransport();
+          }
+        } catch (_) {}
+      }
+    });
+  }
+
+  /// True while any peer is actively connected (carrying data).
+  /// Reconnecting peers do NOT count as a live link because a broken
+  /// connection must not block radio recovery or fallback discovery.
   bool get hasLiveLink =>
-      _peers.values.any((p) => p.status != PeerStatus.disconnected);
+      _peers.values.any((p) => p.status == PeerStatus.connected);
 
   /// Seed the peer map so [hasLiveLink] can be exercised without radios.
   @visibleForTesting
@@ -434,7 +499,7 @@ class MeshService {
     _discoveryTimer?.cancel();
     _discoveryTimer = Timer.periodic(_discoveryInterval, (_) {
       if (!_running) return;
-      if (hasLiveLink) {
+      if (hasLiveLink || isHandshakeActive) {
         _emptyDiscoveryTicks = 0;
         // Heartbeat: keep sockets open & alive across both radios
         for (final p in _peers.values) {
@@ -531,7 +596,7 @@ class MeshService {
       await start();
       return;
     }
-    if (hasLiveLink && !force) {
+    if ((hasLiveLink || isHandshakeActive) && !force) {
       // Live link is active! DO NOT tear down or bounce advertising/discovery!
       // Doing so causes Android WifiP2pManager to enter zombie/BUSY state.
       _lanTransport?.broadcastBeacon();
@@ -606,7 +671,11 @@ class MeshService {
     _discoveryTimer = null;
     _retryTimer?.cancel();
     _retryTimer = null;
-    _retryQueue.clear();
+    _connectivitySub?.cancel();
+    _connectivitySub = null;
+    _lastActiveSessionPeer = null;
+    _lastDisconnectTime = null;
+    _negotiatingUntil = null;
 
     if (activeTransport == MeshTransportType.wifiDirect) {
       await _wifiDirectTransport?.stop();
@@ -642,6 +711,11 @@ class MeshService {
 
   Future<void> stop() async {
     _running = false;
+    _connectivitySub?.cancel();
+    _connectivitySub = null;
+    _lastActiveSessionPeer = null;
+    _lastDisconnectTime = null;
+    _negotiatingUntil = null;
     _discoveryTimer?.cancel();
     _discoveryTimer = null;
     _retryTimer?.cancel();
@@ -752,6 +826,19 @@ class MeshService {
       // Cancel TTL timer if it came back into range
       _disconnectTimers.remove(id)?.cancel();
     }
+
+    // 🔴 FAIL-SAFE AUTO-RECOVERY:
+    // If this discovered peer matches the active session that abruptly disconnected
+    // within the last 20 seconds, automatically re-establish the connection over
+    // the newly active transport (e.g. Bluetooth Classic / RFCOMM)!
+    if (!hasLiveLink && !isHandshakeActive && _lastActiveSessionPeer != null && _lastDisconnectTime != null) {
+      final elapsed = DateTime.now().difference(_lastDisconnectTime!);
+      if (elapsed < const Duration(seconds: 20) && newPeer.displayName == _lastActiveSessionPeer) {
+        debugPrint('MeshService: Auto-recovering session with ${newPeer.displayName} on $id');
+        _negotiatingUntil = DateTime.now().add(const Duration(seconds: 5));
+        connectToEndpoint(id);
+      }
+    }
   }
 
   /// Initiate a connection to a discovered peer.
@@ -805,10 +892,7 @@ class MeshService {
   }
 
   void _onConnectionInitiated(String id, ConnectionInfo info) {
-    // 🔴 FIX 1.2: Add the peer immediately so hasLiveLink is true during
-    // the handshake. Previously the peer wasn't in _peers yet, so the
-    // 15s discovery timer would fire restartDiscovery/restartAdvertising
-    // and tear down the radio mid-negotiation.
+    _negotiatingUntil = DateTime.now().add(const Duration(seconds: 5));
     _pendingConnectionNames[id] = info.endpointName;
     _peers[id] = MeshPeer(
       endpointId: id,
@@ -817,7 +901,17 @@ class MeshService {
     );
     _peersController.add(peerList);
 
-    if (info.isIncomingConnection) {
+    final reqDisplayName = info.endpointName.startsWith(kMeshPeerPrefix)
+        ? info.endpointName.substring(kMeshPeerPrefix.length)
+        : info.endpointName;
+
+    // Fail-safe auto-recovery: auto-accept if this is the peer we just dropped with
+    final bool isSessionRecovery = _lastActiveSessionPeer != null &&
+        _lastDisconnectTime != null &&
+        DateTime.now().difference(_lastDisconnectTime!) < const Duration(seconds: 20) &&
+        reqDisplayName == _lastActiveSessionPeer;
+
+    if (info.isIncomingConnection && !isSessionRecovery) {
       _connectionRequestsController.add(ConnectionRequestEvent(id, info.endpointName));
     } else {
       acceptConnection(id);
@@ -855,7 +949,10 @@ class MeshService {
   }
 
   void _onConnectionResult(String id, Status status) {
+    _negotiatingUntil = null;
     if (status == Status.CONNECTED) {
+      _lastActiveSessionPeer = null;
+      _lastDisconnectTime = null;
       _disconnectTimers.remove(id)?.cancel();
       final existing = _peers[id];
       // 🔴 FIX 3.1: Use the name from discovery or connection initiation,
@@ -880,18 +977,34 @@ class MeshService {
   void _onDisconnected(String id) {
     final peer = _peers[id];
     if (peer == null) return;
-    // Mark as reconnecting — Nearby may auto-reconnect if the peer
-    // comes back into range via onEndpointFound.
+    
+    // Save session for fail-safe fallback & auto-recovery
+    _lastActiveSessionPeer = peer.displayName;
+    _lastDisconnectTime = DateTime.now();
+
+    // Mark as reconnecting briefly
     _peers[id] = peer.copyWith(status: PeerStatus.reconnecting);
     _peersController.add(peerList);
 
-    // Start a TTL timer: if the peer doesn't reconnect within
-    // [_disconnectTtl], remove it from the map entirely.
+    // TTL timer: if reconnect doesn't succeed within 15 seconds, mark disconnected
     _disconnectTimers[id]?.cancel();
-    _disconnectTimers[id] = Timer(_disconnectTtl, () {
-      final p = _peers.remove(id);
+    _disconnectTimers[id] = Timer(const Duration(seconds: 15), () {
+      final p = _peers[id];
+      if (p != null && p.status == PeerStatus.reconnecting) {
+        _peers[id] = p.copyWith(status: PeerStatus.disconnected);
+        _peersController.add(peerList);
+      }
       _disconnectTimers.remove(id);
-      if (p != null) _peersController.add(peerList);
+    });
+
+    // 🔴 TRIGGER IMMEDIATE FAIL-SAFE RADIO RECOVERY & BOUNCE:
+    // Disconnect might be caused by Wi-Fi toggle or router death.
+    // Bounce Nearby advertising & discovery after 300ms so it re-binds to Bluetooth Classic.
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (!_running) return;
+      if (!hasLiveLink) {
+        ensureDiscoverable(force: true);
+      }
     });
   }
 

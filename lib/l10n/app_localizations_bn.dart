@@ -611,11 +611,11 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get meshConnecting => 'Wi-Fi সংযোগ চালু হচ্ছে...';
+  String get meshConnecting => 'মেশ সংযোগ চালু হচ্ছে...';
 
   @override
   String get meshSearching =>
-      'কাছের ডিভাইস খোঁজা হচ্ছে...\nWi-Fi চালু রাখুন এবং Shongjog\nব্যবহারকারী কাছে থাকলে এখানে দেখা যাবে।';
+      'কাছের ডিভাইস খোঁজা হচ্ছে...\nWi-Fi ও ব্লুটুথ চালু রাখুন। Shongjog\nব্যবহারকারী কাছে থাকলে এখানে দেখা যাবে।';
 
   @override
   String get meshWifiOff => 'Wi-Fi বন্ধ আছে — Wi-Fi চালু করে আবার চেষ্টা করুন';
