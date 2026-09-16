@@ -133,6 +133,7 @@ class MeshService {
   DateTime? _lastDisconnectTime;
   DateTime? _negotiatingUntil;
   StreamSubscription? _connectivitySub;
+  bool? _lastKnownHasWifi;
 
   bool get isHandshakeActive =>
       _negotiatingUntil != null && DateTime.now().isBefore(_negotiatingUntil!);
@@ -388,7 +389,7 @@ class MeshService {
           changed = true;
           Future.delayed(const Duration(milliseconds: 300), () {
             if (!_running) return;
-            if (!hasLiveLink) ensureDiscoverable(force: true);
+            if (!hasLiveLink) ensureDiscoverable(force: false);
           });
         } else if (_upsertPeer(lp)) {
           changed = true;
@@ -427,8 +428,11 @@ class MeshService {
     _connectivitySub = Connectivity().onConnectivityChanged.listen((results) async {
       if (!_running) return;
       final hasWifi = results.any((r) => r == ConnectivityResult.wifi);
+      if (_lastKnownHasWifi == hasWifi) return;
+      _lastKnownHasWifi = hasWifi;
+
       if (!hasWifi) {
-        debugPrint('MeshService: Wi-Fi dropped/disabled — cleaning up LAN transport and bouncing for Bluetooth fallback');
+        debugPrint('MeshService: Wi-Fi dropped/disabled — cleaning up LAN transport');
         _lanPeerSub?.cancel();
         _lanMsgSub?.cancel();
         _lanReqSub?.cancel();
@@ -443,9 +447,9 @@ class MeshService {
         }
         _peersController.add(peerList);
 
-        if (!hasLiveLink) {
-          ensureDiscoverable(force: true);
-        }
+        // DO NOT force-bounce Nearby discovery here!
+        // Nearby Connections is already running over Bluetooth/Wi-Fi Direct.
+        // Forcing a bounce wipes the discovery cache and triggers continuous connectivity loops.
       } else if (hasWifi && _lanTransport == null) {
         debugPrint('MeshService: Wi-Fi restored — starting LAN transport');
         try {
@@ -510,7 +514,9 @@ class MeshService {
         return;
       }
 
-      // 🔴 FIX 8.6: Smart discovery throttling when alone
+      // 🔴 FIX: Only restart discovery & advertising if no peers are found yet.
+      // Bouncing discovery when peers are already found wipes Google Nearby's
+      // discovery cache and causes discovered peers to disappear and flicker!
       if (_peers.isEmpty) {
         _emptyDiscoveryTicks++;
         // Throttle: skip ticks to extend interval from 15s -> 30s -> 60s
@@ -519,12 +525,12 @@ class MeshService {
         } else if (_emptyDiscoveryTicks > 4 && _emptyDiscoveryTicks % 2 != 0) {
           return; // 30s cadence
         }
+        restartDiscovery();
+        restartAdvertising();
       } else {
         _emptyDiscoveryTicks = 0;
+        _lanTransport?.broadcastBeacon();
       }
-
-      restartDiscovery();
-      restartAdvertising();
     });
   }
 
@@ -533,7 +539,7 @@ class MeshService {
     final now = DateTime.now();
     // 🔴 FIX 8.6: Debounce rapid consecutive calls unless forced
     if (!force && _lastRestartDiscoveryTime != null) {
-      if (now.difference(_lastRestartDiscoveryTime!) < const Duration(seconds: 2)) {
+      if (now.difference(_lastRestartDiscoveryTime!) < const Duration(seconds: 3)) {
         return;
       }
     }
@@ -565,7 +571,7 @@ class MeshService {
     if (!_running) return;
     final now = DateTime.now();
     if (!force && _lastRestartAdvertisingTime != null) {
-      if (now.difference(_lastRestartAdvertisingTime!) < const Duration(seconds: 2)) {
+      if (now.difference(_lastRestartAdvertisingTime!) < const Duration(seconds: 3)) {
         return;
       }
     }
@@ -997,13 +1003,11 @@ class MeshService {
       _disconnectTimers.remove(id);
     });
 
-    // 🔴 TRIGGER IMMEDIATE FAIL-SAFE RADIO RECOVERY & BOUNCE:
-    // Disconnect might be caused by Wi-Fi toggle or router death.
-    // Bounce Nearby advertising & discovery after 300ms so it re-binds to Bluetooth Classic.
-    Future.delayed(const Duration(milliseconds: 300), () {
+    // 🔴 Radio recovery on disconnect: ensure discoverable without forcing a hard bounce
+    Future.delayed(const Duration(milliseconds: 500), () {
       if (!_running) return;
       if (!hasLiveLink) {
-        ensureDiscoverable(force: true);
+        ensureDiscoverable(force: false);
       }
     });
   }
