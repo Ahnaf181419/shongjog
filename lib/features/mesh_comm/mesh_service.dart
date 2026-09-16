@@ -686,22 +686,33 @@ class MeshService {
     // _connectionRequestsController.close();
   }
 
-  /// Upserts a peer into the map, deduplicating by display name.
+  /// Upserts a peer into the map, deduplicating by display name across transports.
+  /// Tier 1 (LAN sockets) always takes precedence over Tier 2 (Nearby Connections).
   /// Returns true if the map was modified.
   bool _upsertPeer(MeshPeer newPeer) {
     if (newPeer.name == userName) return false;
 
     String? staleId;
     bool staleIsConnected = false;
+    bool staleIsLan = false;
+
     for (final entry in _peers.entries) {
       if (entry.key != newPeer.endpointId && entry.value.name.toLowerCase() == newPeer.name.toLowerCase()) {
         staleId = entry.key;
         staleIsConnected = (entry.value.status == PeerStatus.connected || entry.value.status == PeerStatus.reconnecting);
+        staleIsLan = entry.key.startsWith('lan_');
         break;
       }
     }
     
+    // Never overwrite an active/connecting session with a disconnected beacon
     if (staleIsConnected && newPeer.status != PeerStatus.connected) return false;
+
+    // Never downgrade an existing LAN socket peer to a Nearby Connections beacon.
+    // LAN (Wi-Fi router / Hotspot) is Tier 1 — faster, rock-solid, and immune to Wi-Fi Direct locks.
+    if (staleIsLan && !newPeer.endpointId.startsWith('lan_')) {
+      return false;
+    }
 
     bool changed = false;
     if (staleId != null) {
@@ -732,10 +743,6 @@ class MeshService {
       
       // Cancel TTL timer if it came back into range
       _disconnectTimers.remove(id)?.cancel();
-      
-      if (!hasLiveLink) {
-        restartAdvertising();
-      }
     }
   }
 
