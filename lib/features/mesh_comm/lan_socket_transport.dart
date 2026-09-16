@@ -51,7 +51,7 @@ class LanSocketTransport {
   static const Duration kBeaconInterval = Duration(seconds: 3);
   static const Duration kPeerTtl = Duration(seconds: 12);
 
-  final String userName;
+  String userName;
   late String _myId;
   int _tcpPort = 0;
 
@@ -80,6 +80,11 @@ class LanSocketTransport {
       _discoveredPeers.values.map((p) => p.toMeshPeer()).toList();
 
   LanSocketTransport({required this.userName});
+
+  void updateUserName(String newName) {
+    userName = newName;
+    broadcastBeacon();
+  }
 
   Future<bool> start() async {
     if (_running) return true;
@@ -202,6 +207,9 @@ class LanSocketTransport {
       final endpointId = 'lan_${senderIp.address}_$port';
       final existing = _discoveredPeers[endpointId];
 
+      // If the device already exists under a different endpoint ID (e.g. port or IP changed), remove the stale entry
+      _discoveredPeers.removeWhere((k, v) => v.id == peerId && k != endpointId);
+
       _discoveredPeers[endpointId] = LanPeer(
         id: peerId,
         name: peerName,
@@ -211,7 +219,14 @@ class LanSocketTransport {
         isConnected: existing?.isConnected ?? false,
       );
 
-      _peersController.add(peerList);
+      final bool isNewOrChanged = existing == null ||
+          existing.name != peerName ||
+          existing.port != port ||
+          existing.id != peerId;
+
+      if (isNewOrChanged) {
+        _peersController.add(peerList);
+      }
 
       // If it was a beacon, reply with a direct unicast pong so the peer discovers us immediately
       if (type == 'beacon') {

@@ -74,6 +74,7 @@ class MeshStartResult {
 class MeshService {
   final Strategy strategy = Strategy.P2P_CLUSTER;
   String userName;
+  String deviceId = '';
 
   /// Which transport backend is currently active. Null until [start] completes.
   MeshTransportType? activeTransport;
@@ -110,7 +111,7 @@ class MeshService {
   final Map<String, String> _pendingConnectionNames = {};
 
   /// How long a disconnected peer stays in the list before removal.
-  static const _disconnectTtl = Duration(seconds: 30);
+  static const _disconnectTtl = Duration(seconds: 5);
 
   /// App-wide periodic timer that keeps discovery alive regardless of which
   /// screen is active. Previously this lived only in MeshRadarScreen and died
@@ -127,10 +128,6 @@ class MeshService {
   DateTime? _lastRestartDiscoveryTime;
   DateTime? _lastRestartAdvertisingTime;
 
-  /// Fail-safe auto-recovery state: tracks recently dropped active sessions
-  /// to seamlessly fall back between LAN, Wi-Fi Direct, and Bluetooth Classic.
-  String? _lastActiveSessionPeer;
-  DateTime? _lastDisconnectTime;
   DateTime? _negotiatingUntil;
   StreamSubscription? _connectivitySub;
   bool? _lastKnownHasWifi;
@@ -239,10 +236,19 @@ class MeshService {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final savedName = prefs.getString('user_name') ?? '';
-      if (savedName.isNotEmpty) {
-        userName = '$kMeshPeerPrefix$savedName';
+      var did = prefs.getString('mesh_device_id') ?? '';
+      if (did.isEmpty) {
+        did = (Random().nextInt(0x7FFFFFFF) + 1).toRadixString(16);
+        await prefs.setString('mesh_device_id', did);
       }
+      deviceId = did;
+
+      final savedName = prefs.getString('user_name') ?? '';
+      final rawName = savedName.isNotEmpty ? savedName : userName;
+      final cleanName = rawName.startsWith(kMeshPeerPrefix)
+          ? rawName.substring(kMeshPeerPrefix.length).split('#').first
+          : rawName.split('#').first;
+      userName = '$kMeshPeerPrefix$cleanName#$deviceId';
     } catch (_) {}
 
     // ── Tier 1: Local LAN & Hotspot Socket Transport (Briar LanTcpPlugin pattern) ──
@@ -382,9 +388,7 @@ class MeshService {
       for (final lp in lanPeers) {
         final existing = _peers[lp.endpointId];
         if (existing != null && existing.status == PeerStatus.connected && lp.status == PeerStatus.disconnected) {
-          debugPrint('MeshService: LAN socket closed for ${existing.displayName} — triggering Bluetooth failover');
-          _lastActiveSessionPeer = existing.displayName;
-          _lastDisconnectTime = DateTime.now();
+          debugPrint('MeshService: LAN socket closed for ${existing.displayName}');
           _peers[lp.endpointId] = existing.copyWith(status: PeerStatus.disconnected);
           changed = true;
           Future.delayed(const Duration(milliseconds: 300), () {
@@ -654,7 +658,8 @@ class MeshService {
   Future<void> updateUserName(String newName) async {
     final trimmed = newName.trim();
     if (trimmed.isEmpty) return;
-    userName = '$kMeshPeerPrefix$trimmed';
+    userName = '$kMeshPeerPrefix$trimmed#$deviceId';
+    _lanTransport?.updateUserName(userName);
     if (_running) {
       if (!hasLiveLink) {
         await restartAdvertising();
@@ -679,8 +684,6 @@ class MeshService {
     _retryTimer = null;
     _connectivitySub?.cancel();
     _connectivitySub = null;
-    _lastActiveSessionPeer = null;
-    _lastDisconnectTime = null;
     _negotiatingUntil = null;
 
     if (activeTransport == MeshTransportType.wifiDirect) {
@@ -719,8 +722,6 @@ class MeshService {
     _running = false;
     _connectivitySub?.cancel();
     _connectivitySub = null;
-    _lastActiveSessionPeer = null;
-    _lastDisconnectTime = null;
     _negotiatingUntil = null;
     _discoveryTimer?.cancel();
     _discoveryTimer = null;
@@ -771,15 +772,34 @@ class MeshService {
   /// Returns true if the map was modified.
   bool _upsertPeer(MeshPeer newPeer) {
     if (newPeer.name == userName) return false;
+    if (deviceId.isNotEmpty && newPeer.deviceId == deviceId) return false;
 
     String? staleId;
     bool staleIsConnected = false;
     bool staleIsLan = false;
 
     for (final entry in _peers.entries) {
-      if (entry.key != newPeer.endpointId && entry.value.name.toLowerCase() == newPeer.name.toLowerCase()) {
+      if (entry.key == newPeer.endpointId) continue;
+
+      // 1. Same persistent device ID (handles name change on the same physical device!)
+      final bool sameDeviceId = deviceId.isNotEmpty &&
+          newPeer.deviceId != null &&
+          entry.value.deviceId != null &&
+          newPeer.deviceId == entry.value.deviceId;
+
+      // 2. Same display name across different transports (Nearby vs LAN)
+      final bool sameName = entry.value.displayName.toLowerCase() ==
+          newPeer.displayName.toLowerCase();
+
+      // 3. Same LAN host IP if both are LAN peers
+      final bool sameLanHost = entry.key.startsWith('lan_') &&
+          newPeer.endpointId.startsWith('lan_') &&
+          entry.key.split('_')[1] == newPeer.endpointId.split('_')[1];
+
+      if (sameDeviceId || sameName || sameLanHost) {
         staleId = entry.key;
-        staleIsConnected = (entry.value.status == PeerStatus.connected || entry.value.status == PeerStatus.reconnecting);
+        staleIsConnected = (entry.value.status == PeerStatus.connected ||
+            entry.value.status == PeerStatus.reconnecting);
         staleIsLan = entry.key.startsWith('lan_');
         break;
       }
@@ -831,19 +851,6 @@ class MeshService {
       
       // Cancel TTL timer if it came back into range
       _disconnectTimers.remove(id)?.cancel();
-    }
-
-    // 🔴 FAIL-SAFE AUTO-RECOVERY:
-    // If this discovered peer matches the active session that abruptly disconnected
-    // within the last 20 seconds, automatically re-establish the connection over
-    // the newly active transport (e.g. Bluetooth Classic / RFCOMM)!
-    if (!hasLiveLink && !isHandshakeActive && _lastActiveSessionPeer != null && _lastDisconnectTime != null) {
-      final elapsed = DateTime.now().difference(_lastDisconnectTime!);
-      if (elapsed < const Duration(seconds: 20) && newPeer.displayName == _lastActiveSessionPeer) {
-        debugPrint('MeshService: Auto-recovering session with ${newPeer.displayName} on $id');
-        _negotiatingUntil = DateTime.now().add(const Duration(seconds: 5));
-        connectToEndpoint(id);
-      }
     }
   }
 
@@ -907,17 +914,7 @@ class MeshService {
     );
     _peersController.add(peerList);
 
-    final reqDisplayName = info.endpointName.startsWith(kMeshPeerPrefix)
-        ? info.endpointName.substring(kMeshPeerPrefix.length)
-        : info.endpointName;
-
-    // Fail-safe auto-recovery: auto-accept if this is the peer we just dropped with
-    final bool isSessionRecovery = _lastActiveSessionPeer != null &&
-        _lastDisconnectTime != null &&
-        DateTime.now().difference(_lastDisconnectTime!) < const Duration(seconds: 20) &&
-        reqDisplayName == _lastActiveSessionPeer;
-
-    if (info.isIncomingConnection && !isSessionRecovery) {
+    if (info.isIncomingConnection) {
       _connectionRequestsController.add(ConnectionRequestEvent(id, info.endpointName));
     } else {
       acceptConnection(id);
@@ -957,8 +954,6 @@ class MeshService {
   void _onConnectionResult(String id, Status status) {
     _negotiatingUntil = null;
     if (status == Status.CONNECTED) {
-      _lastActiveSessionPeer = null;
-      _lastDisconnectTime = null;
       _disconnectTimers.remove(id)?.cancel();
       final existing = _peers[id];
       // 🔴 FIX 3.1: Use the name from discovery or connection initiation,
@@ -973,35 +968,22 @@ class MeshService {
       _peersController.add(peerList);
       _flushRetryQueue(targetEndpointId: id);
     } else {
-      _peers.remove(id);
       _pendingConnectionNames.remove(id);
-      _disconnectTimers.remove(id)?.cancel();
-      _peersController.add(peerList);
+      final existing = _peers[id];
+      if (existing != null) {
+        _peers[id] = existing.copyWith(status: PeerStatus.disconnected);
+        _peersController.add(peerList);
+      }
     }
   }
 
   void _onDisconnected(String id) {
     final peer = _peers[id];
     if (peer == null) return;
-    
-    // Save session for fail-safe fallback & auto-recovery
-    _lastActiveSessionPeer = peer.displayName;
-    _lastDisconnectTime = DateTime.now();
 
-    // Mark as reconnecting briefly
-    _peers[id] = peer.copyWith(status: PeerStatus.reconnecting);
+    // Mark as disconnected cleanly
+    _peers[id] = peer.copyWith(status: PeerStatus.disconnected);
     _peersController.add(peerList);
-
-    // TTL timer: if reconnect doesn't succeed within 15 seconds, mark disconnected
-    _disconnectTimers[id]?.cancel();
-    _disconnectTimers[id] = Timer(const Duration(seconds: 15), () {
-      final p = _peers[id];
-      if (p != null && p.status == PeerStatus.reconnecting) {
-        _peers[id] = p.copyWith(status: PeerStatus.disconnected);
-        _peersController.add(peerList);
-      }
-      _disconnectTimers.remove(id);
-    });
 
     // 🔴 Radio recovery on disconnect: ensure discoverable without forcing a hard bounce
     Future.delayed(const Duration(milliseconds: 500), () {

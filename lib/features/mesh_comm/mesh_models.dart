@@ -109,10 +109,23 @@ class MeshPeer {
   }
 
   String get displayName {
-    if (name.startsWith(kMeshPeerPrefix)) {
-      return name.substring(kMeshPeerPrefix.length);
+    var raw = name;
+    if (raw.startsWith(kMeshPeerPrefix)) {
+      raw = raw.substring(kMeshPeerPrefix.length);
     }
-    return name;
+    final hashIdx = raw.indexOf('#');
+    if (hashIdx != -1) {
+      return raw.substring(0, hashIdx);
+    }
+    return raw;
+  }
+
+  String? get deviceId {
+    final hashIdx = name.indexOf('#');
+    if (hashIdx != -1 && hashIdx + 1 < name.length) {
+      return name.substring(hashIdx + 1);
+    }
+    return null;
   }
 
   @override

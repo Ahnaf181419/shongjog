@@ -74,6 +74,7 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
       if (!mounted) return;
       final match = peers.where((p) =>
           p.endpointId == _currentPeer.endpointId ||
+          (p.deviceId != null && _currentPeer.deviceId != null && p.deviceId == _currentPeer.deviceId) ||
           p.displayName == _currentPeer.displayName);
       if (match.isNotEmpty) {
         final updated = match.first;
