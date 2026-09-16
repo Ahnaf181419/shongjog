@@ -19,6 +19,7 @@ import '../safe_beacon/safety_status_service.dart';
 import 'sos_payload.dart';
 import 'sos_relay.dart';
 import 'sos_relay_listener.dart';
+import 'lan_socket_transport.dart';
 import 'wifi_direct_transport.dart';
 
 const _kServiceId = 'com.shongjog.mesh';
@@ -80,6 +81,13 @@ class MeshService {
   WifiDirectTransport? _wifiDirectTransport;
   StreamSubscription? _wdPeerSub;
   StreamSubscription? _wdMsgSub;
+
+  /// Tier 1: Local LAN & Hotspot Socket Transport (Briar LanTcpPlugin pattern).
+  LanSocketTransport? _lanTransport;
+  StreamSubscription? _lanPeerSub;
+  StreamSubscription? _lanMsgSub;
+  StreamSubscription? _lanReqSub;
+  StreamSubscription? _lanProgSub;
 
   final _peersController = StreamController<List<MeshPeer>>.broadcast();
   final _messagesController = StreamController<MeshMessage>.broadcast();
@@ -174,7 +182,10 @@ class MeshService {
 
   Future<MeshStartResult> start() async {
     if (_running) {
-      ensureDiscoverable(force: true);
+      if (!hasLiveLink) {
+        ensureDiscoverable(force: false);
+      }
+      _peersController.add(peerList);
       return MeshStartResult.success;
     }
 
@@ -185,6 +196,41 @@ class MeshService {
         userName = '$kMeshPeerPrefix$savedName';
       }
     } catch (_) {}
+
+    // ── Tier 1: Local LAN & Hotspot Socket Transport (Briar LanTcpPlugin pattern) ──
+    try {
+      _lanTransport = LanSocketTransport(userName: userName);
+      final lanOk = await _lanTransport!.start();
+      if (lanOk) {
+        _lanPeerSub = _lanTransport!.peers.listen((lanPeers) {
+          bool changed = false;
+          for (final lp in lanPeers) {
+            final existing = _peers[lp.endpointId];
+            if (existing == null || existing.status != lp.status || existing.name != lp.name) {
+              _peers[lp.endpointId] = lp;
+              changed = true;
+            }
+          }
+          if (changed) {
+            _peersController.add(peerList);
+          }
+        });
+
+        _lanMsgSub = _lanTransport!.messages.listen((msg) {
+          _messagesController.add(msg);
+        });
+
+        _lanReqSub = _lanTransport!.connectionRequests.listen((req) {
+          _connectionRequestsController.add(req);
+        });
+
+        _lanProgSub = _lanTransport!.transferProgress.listen((p) {
+          _transferProgressController.add(p);
+        });
+      }
+    } catch (e) {
+      debugPrint('MeshService: LanSocketTransport startup warning: $e');
+    }
 
     final granted = await requestPermissions();
     if (!granted) {
@@ -430,10 +476,17 @@ class MeshService {
       await start();
       return;
     }
+    if (hasLiveLink && !force) {
+      // Live link is active! DO NOT tear down or bounce advertising/discovery!
+      // Doing so causes Android WifiP2pManager to enter zombie/BUSY state.
+      _lanTransport?.broadcastBeacon();
+      return;
+    }
     await restartAdvertising(force: force);
     if (!hasLiveLink || force) {
       await restartDiscovery(force: force);
     }
+    _lanTransport?.broadcastBeacon();
   }
 
   /// 🔴 FIX 8.5: Background timer to flush pending message retry queue.
@@ -485,6 +538,53 @@ class MeshService {
     }
   }
 
+  /// Performs a Briar-style Deep Radio Recovery.
+  ///
+  /// When Android's WifiP2pManager enters a zombie/BUSY state (reason 2 or 8003),
+  /// merely restarting discovery fails because the underlying OS Wi-Fi Direct group lock
+  /// is still held. This method aggressively tears down all endpoints, discovery,
+  /// and advertising, waits 400ms for Android OS to release the radio lock,
+  /// clears internal state, and restarts cleanly.
+  Future<void> forceDeepReset() async {
+    debugPrint('MeshService: forceDeepReset executing deep hardware teardown...');
+    _discoveryTimer?.cancel();
+    _discoveryTimer = null;
+    _retryTimer?.cancel();
+    _retryTimer = null;
+    _retryQueue.clear();
+
+    if (activeTransport == MeshTransportType.wifiDirect) {
+      await _wifiDirectTransport?.stop();
+    } else {
+      try { await Nearby().stopAllEndpoints(); } catch (_) {}
+      try { await Nearby().stopDiscovery(); } catch (_) {}
+      try { await Nearby().stopAdvertising(); } catch (_) {}
+    }
+
+    _lanPeerSub?.cancel();
+    _lanMsgSub?.cancel();
+    _lanReqSub?.cancel();
+    _lanProgSub?.cancel();
+    await _lanTransport?.stop();
+    _lanTransport = null;
+
+    for (final t in _disconnectTimers.values) {
+      t.cancel();
+    }
+    _disconnectTimers.clear();
+    _peers.clear();
+    _incomingFiles.clear();
+    _outgoingFiles.clear();
+    _voicePayloadIds.clear();
+    _peersController.add([]);
+
+    // Briar pause: wait 400ms for Android OS WifiP2pManager to release the group lock
+    await Future.delayed(const Duration(milliseconds: 400));
+
+    _running = false;
+    await start();
+  }
+
   Future<void> stop() async {
     _running = false;
     _discoveryTimer?.cancel();
@@ -494,6 +594,13 @@ class MeshService {
     _retryQueue.clear();
     _wdPeerSub?.cancel();
     _wdMsgSub?.cancel();
+    _lanPeerSub?.cancel();
+    _lanMsgSub?.cancel();
+    _lanReqSub?.cancel();
+    _lanProgSub?.cancel();
+    await _lanTransport?.stop();
+    _lanTransport = null;
+
     if (activeTransport == MeshTransportType.wifiDirect) {
       await _wifiDirectTransport?.stop();
     } else {
@@ -580,6 +687,18 @@ class MeshService {
   /// Initiate a connection to a discovered peer.
   /// Called when the user taps on a peer in the radar list.
   Future<bool> connectToEndpoint(String endpointId) async {
+    if (endpointId.startsWith('lan_')) {
+      final ok = await _lanTransport?.connectToPeer(endpointId) ?? false;
+      if (ok) {
+        final existing = _peers[endpointId];
+        if (existing != null) {
+          _peers[endpointId] = existing.copyWith(status: PeerStatus.connected);
+          _peersController.add(peerList);
+        }
+      }
+      return ok;
+    }
+
     try {
       await Nearby().requestConnection(
         userName,
@@ -639,6 +758,10 @@ class MeshService {
   }
 
   void acceptConnection(String id) {
+    if (id.startsWith('lan_')) {
+      _lanTransport?.acceptConnection(id);
+      return;
+    }
     Nearby().acceptConnection(
       id,
       onPayLoadRecieved: _onPayloadReceived,
@@ -647,6 +770,10 @@ class MeshService {
   }
 
   void rejectConnection(String id) {
+    if (id.startsWith('lan_')) {
+      _lanTransport?.rejectConnection(id);
+      return;
+    }
     Nearby().rejectConnection(id);
   }
 
@@ -897,7 +1024,14 @@ class MeshService {
   Future<_MaterializedFile?> _materializeFile(
       int payloadId, String sourceUri) async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
+      final prefs = await SharedPreferences.getInstance();
+      final customDir = prefs.getString('pref_mesh_storage_dir');
+      Directory dir;
+      if (customDir != null && Directory(customDir).existsSync()) {
+        dir = Directory(customDir);
+      } else {
+        dir = await getApplicationDocumentsDirectory();
+      }
       final hint = _incomingFilenames.remove(payloadId) ?? '';
 
       // hint format: "basename" (voice) or "basename|type" (media / file)
@@ -1058,10 +1192,10 @@ class MeshService {
       for (final peer in _peers.values) {
         if (peer.status == PeerStatus.connected) {
           if (targetEndpointId == null || peer.endpointId == targetEndpointId) {
-            // 🔴 FIX 2.3: Route through the active transport instead of
-            // hardcoding Nearby(). On GMS-free devices using WifiDirect,
-            // Nearby().sendBytesPayload() crashes or silently fails.
-            if (activeTransport == MeshTransportType.wifiDirect) {
+            if (peer.endpointId.startsWith('lan_')) {
+              final ok = _lanTransport?.sendText(peer.endpointId, text) ?? false;
+              if (ok) delivered = true;
+            } else if (activeTransport == MeshTransportType.wifiDirect) {
               final ok = _wifiDirectTransport?.sendTextToPeer(
                       peer.endpointId, text) ??
                   false;
@@ -1222,8 +1356,9 @@ class MeshService {
     for (final peer in _peers.values) {
       if (peer.status == PeerStatus.connected) {
         if (targetEndpointId == null || peer.endpointId == targetEndpointId) {
-          // 🔴 FIX 2.3: Route file payloads through the active transport.
-          if (activeTransport == MeshTransportType.wifiDirect) {
+          if (peer.endpointId.startsWith('lan_')) {
+            _lanTransport?.sendFile(peer.endpointId, sendPath, type: MessageType.voice);
+          } else if (activeTransport == MeshTransportType.wifiDirect) {
             _wifiDirectTransport?.sendFile(sendPath,
                 targetPeerId: peer.endpointId);
           } else {
@@ -1298,8 +1433,9 @@ class MeshService {
     for (final peer in _peers.values) {
       if (peer.status == PeerStatus.connected) {
         if (targetEndpointId == null || peer.endpointId == targetEndpointId) {
-          // 🔴 FIX 2.3: Route file payloads through the active transport.
-          if (activeTransport == MeshTransportType.wifiDirect) {
+          if (peer.endpointId.startsWith('lan_')) {
+            _lanTransport?.sendFile(peer.endpointId, sendPath, type: type);
+          } else if (activeTransport == MeshTransportType.wifiDirect) {
             _wifiDirectTransport?.sendFile(sendPath,
                 targetPeerId: peer.endpointId);
           } else {
@@ -1364,7 +1500,9 @@ class MeshService {
     for (final peer in _peers.values) {
       if (peer.status == PeerStatus.connected) {
         if (targetEndpointId == null || peer.endpointId == targetEndpointId) {
-          if (activeTransport == MeshTransportType.wifiDirect) {
+          if (peer.endpointId.startsWith('lan_')) {
+            _lanTransport?.sendFile(peer.endpointId, sendPath, type: MessageType.file);
+          } else if (activeTransport == MeshTransportType.wifiDirect) {
             _wifiDirectTransport?.sendFile(sendPath,
                 targetPeerId: peer.endpointId);
           } else {

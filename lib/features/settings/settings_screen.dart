@@ -1,6 +1,7 @@
 
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -40,6 +41,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _soundEnabled = true;
   bool _showInsights = true;
   bool _meshAutoSaveMedia = false;
+  String? _meshStorageDir;
   String? _kbVersion;
   UserProfileData _profile = UserProfileData.empty;
 
@@ -61,6 +63,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _showInsights = prefs.getBool('pref_show_insights') ?? true;
         _meshAutoSaveMedia =
             prefs.getBool(MeshService.prefAutoSaveMeshMedia) ?? false;
+        _meshStorageDir = prefs.getString('pref_mesh_storage_dir');
         _kbVersion = prefs.getString('kb_version') ?? 'v1.0';
         _profile = profile;
       });
@@ -224,6 +227,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
               );
             },
           ),
+          const _Divider(),
+          const _SectionHeader('Mesh Storage & Media'),
+          SwitchListTile(
+            secondary: const Icon(Icons.photo_library_rounded),
+            title: const Text('Auto-Save Received Media'),
+            subtitle: const Text('Save incoming mesh photos & videos to device gallery'),
+            value: _meshAutoSaveMedia,
+            onChanged: (v) async {
+              setState(() => _meshAutoSaveMedia = v);
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setBool(MeshService.prefAutoSaveMeshMedia, v);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.folder_rounded),
+            title: const Text('Download Folder'),
+            subtitle: Text(
+              _meshStorageDir != null && _meshStorageDir!.isNotEmpty
+                  ? _meshStorageDir!
+                  : 'Default App Documents',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 12),
+            ),
+            trailing: OutlinedButton(
+              onPressed: () async {
+                final selected = await FilePicker.getDirectoryPath();
+                if (selected != null) {
+                  setState(() => _meshStorageDir = selected);
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setString('pref_mesh_storage_dir', selected);
+                }
+              },
+              child: const Text('Change'),
+            ),
+          ),
+          if (_meshStorageDir != null && _meshStorageDir!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: 72, bottom: 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () async {
+                    setState(() => _meshStorageDir = null);
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.remove('pref_mesh_storage_dir');
+                  },
+                  icon: const Icon(Icons.restore_rounded, size: 16),
+                  label: const Text('Reset to Default', style: TextStyle(fontSize: 12)),
+                ),
+              ),
+            ),
           const _Divider(),
           _SectionHeader(AppLocalizations.of(context).sectionInfo),
           ListTile(

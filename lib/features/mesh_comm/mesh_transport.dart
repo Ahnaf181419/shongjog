@@ -10,6 +10,9 @@ enum MeshTransportType {
   /// Wi-Fi Direct via flutter_p2p_connection — GMS-free. Works on CN-market Xiaomi,
   /// AOSP builds, HyperOS without Play Services.
   wifiDirect,
+
+  /// Pure Local LAN / Hotspot TCP Sockets + UDP broadcast (Briar LanTcpPlugin pattern).
+  lanSocket,
 }
 
 /// Unified event emitted from either transport backend.

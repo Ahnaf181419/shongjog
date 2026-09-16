@@ -248,9 +248,9 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
   Future<void> _pickAndSendFile() async {
     if (_sendingMedia) return;
     try {
-      final file = await FilePicker.pickFile();
-      if (file == null || file.path == null) return;
-      final path = file.path!;
+      final picked = await FilePicker.pickFile();
+      if (picked == null || picked.path == null) return;
+      final path = picked.path!;
       if (!mounted) return;
       setState(() => _sendingMedia = true);
       final res = await meshService.sendFileMessage(

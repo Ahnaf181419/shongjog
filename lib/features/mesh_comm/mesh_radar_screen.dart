@@ -78,11 +78,16 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
 
     for (final name in _savedContacts) {
       if (!activeNames.contains(name)) {
-        combined.add(MeshPeer(
-          endpointId: 'saved_$name',
-          name: name,
-          status: PeerStatus.disconnected,
-        ));
+        final match = meshService.peerList.where((p) => p.displayName == name);
+        if (match.isNotEmpty) {
+          combined.add(match.first);
+        } else {
+          combined.add(MeshPeer(
+            endpointId: 'saved_$name',
+            name: name,
+            status: PeerStatus.disconnected,
+          ));
+        }
       }
     }
     
@@ -99,6 +104,9 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
   }
 
   Future<void> _startMesh() async {
+    // Seed initial peer list immediately so returning to radar is never blank
+    _peers = List.of(meshService.peerList);
+
     if (!meshService.isRunning) {
       final result = await meshService.start();
       if (!mounted) return;
@@ -116,23 +124,27 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
         return;
       }
     } else {
-      meshService.ensureDiscoverable(force: true);
+      meshService.ensureDiscoverable(force: false);
     }
 
     if (!mounted) return;
-    setState(() => _started = true);
+    setState(() {
+      _started = true;
+      _peers = List.of(meshService.peerList);
+    });
 
+    _peerSub?.cancel();
     _peerSub = meshService.peers.listen((peers) {
       if (mounted) setState(() => _peers = peers);
     });
 
     _groups = meshGroupService.groups;
+    _groupSub?.cancel();
     _groupSub = meshGroupService.groupsStream.listen((groups) {
       if (mounted) setState(() => _groups = groups);
     });
 
-    // Kick off a fresh scan immediately on (re-)entry
-    meshService.ensureDiscoverable(force: true);
+    meshService.ensureDiscoverable(force: false);
   }
 
   @override
@@ -270,15 +282,20 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
             IconButton(
               icon: const Icon(Icons.refresh_rounded),
               tooltip: AppLocalizations.of(context).meshRescanTooltip,
-              onPressed: () {
+              onPressed: () async {
                 HapticService.lightTap();
-                meshService.ensureDiscoverable(force: true);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(AppLocalizations.of(context).meshRescanning),
                     duration: const Duration(seconds: 2),
                   ),
                 );
+                await meshService.forceDeepReset();
+                if (mounted) {
+                  setState(() {
+                    _peers = List.of(meshService.peerList);
+                  });
+                }
               },
             ),
           if (_started)
@@ -426,7 +443,10 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
                           ),
                         );
                         if (context.mounted) {
-                          meshService.ensureDiscoverable(force: true);
+                          setState(() {
+                            _peers = List.of(meshService.peerList);
+                          });
+                          meshService.ensureDiscoverable(force: false);
                         }
                       },
                     );
@@ -685,7 +705,19 @@ class _PeerTile extends StatelessWidget {
           if (!isOfflineSaved) const Icon(Icons.chevron_right_rounded),
         ],
       ),
-      onTap: isOfflineSaved ? null : onTap,
+      onTap: isOfflineSaved
+          ? () {
+              HapticService.lightTap();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    '${peer.displayName} is offline. Turn on Wi-Fi/Hotspot or stay nearby to connect.',
+                  ),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            }
+          : onTap,
     );
   }
 }
