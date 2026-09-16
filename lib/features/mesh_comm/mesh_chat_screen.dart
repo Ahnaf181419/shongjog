@@ -55,11 +55,15 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
   @override
   void initState() {
     super.initState();
-    _currentPeer = widget.peer;
+    final live = meshService.peerList.where((p) =>
+        p.endpointId == widget.peer.endpointId ||
+        p.displayName == widget.peer.displayName);
+    _currentPeer = live.isNotEmpty ? live.first : widget.peer;
     _loadPersistedMessages();
     // 1-on-1 view: only this device's messages and this peer's.
     _msgSub = meshService.messages.listen((m) {
-      if (m.belongsToChatWith(_currentPeer.endpointId) && mounted) {
+      if ((m.belongsToChatWith(_currentPeer.endpointId) ||
+          m.senderName == _currentPeer.displayName) && mounted) {
         setState(() => _messages.add(m));
         _scrollToBottom();
         _persistMessages();
@@ -71,8 +75,11 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
       final match = peers.where((p) =>
           p.endpointId == _currentPeer.endpointId ||
           p.displayName == _currentPeer.displayName);
-      if (match.isNotEmpty && match.first != _currentPeer) {
-        setState(() => _currentPeer = match.first);
+      if (match.isNotEmpty) {
+        final updated = match.first;
+        if (updated != _currentPeer) {
+          setState(() => _currentPeer = updated);
+        }
       }
     });
   }
@@ -468,7 +475,7 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
                   Expanded(
                     child: TextField(
                       controller: _msgCtrl,
-                      enabled: _currentPeer.status == PeerStatus.connected,
+                      enabled: _currentPeer.status != PeerStatus.disconnected,
                       decoration: InputDecoration(
                         hintText: l10n.meshInputHint,
                         border: const OutlineInputBorder(),
@@ -480,7 +487,7 @@ class _MeshChatScreenState extends State<MeshChatScreen> {
                   ),
                   const SizedBox(width: 8),
                   IconButton.filled(
-                    onPressed: _currentPeer.status == PeerStatus.connected
+                    onPressed: _currentPeer.status != PeerStatus.disconnected
                         ? _sendText
                         : null,
                     icon: const Icon(Icons.send_rounded),

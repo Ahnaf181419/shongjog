@@ -169,10 +169,16 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
       }
     }
     if (!mounted) return;
+    final fresh = meshService.peerList.where((p) =>
+        p.endpointId == peer.endpointId || p.displayName == peer.displayName);
+    final targetPeer = fresh.isNotEmpty
+        ? fresh.first
+        : peer.copyWith(status: PeerStatus.reconnecting);
+
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => MeshChatScreen(peer: peer),
+        builder: (_) => MeshChatScreen(peer: targetPeer),
       ),
     );
     if (mounted) {
@@ -326,7 +332,11 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
                     duration: const Duration(seconds: 2),
                   ),
                 );
-                await meshService.forceDeepReset();
+                if (meshService.hasLiveLink) {
+                  await meshService.ensureDiscoverable(force: false);
+                } else {
+                  await meshService.ensureDiscoverable(force: true);
+                }
                 if (mounted) {
                   setState(() {
                     _peers = List.of(meshService.peerList);

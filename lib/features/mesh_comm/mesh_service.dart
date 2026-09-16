@@ -706,7 +706,14 @@ class MeshService {
     }
     
     // Never overwrite an active/connecting session with a disconnected beacon
-    if (staleIsConnected && newPeer.status != PeerStatus.connected) return false;
+    final existingSameId = _peers[newPeer.endpointId];
+    final bool currentIsConnected = existingSameId != null &&
+        (existingSameId.status == PeerStatus.connected ||
+         existingSameId.status == PeerStatus.reconnecting);
+
+    if ((staleIsConnected || currentIsConnected) && newPeer.status != PeerStatus.connected) {
+      return false;
+    }
 
     // Never downgrade an existing LAN socket peer to a Nearby Connections beacon.
     // LAN (Wi-Fi router / Hotspot) is Tier 1 — faster, rock-solid, and immune to Wi-Fi Direct locks.
@@ -731,6 +738,7 @@ class MeshService {
 
   void _onEndpointFound(String id, String name, String serviceId) {
     if (!name.startsWith(kMeshPeerPrefix)) return;
+    if (name == userName) return;
     
     final newPeer = MeshPeer(
       endpointId: id,
@@ -785,7 +793,7 @@ class MeshService {
     // actual disconnection lifecycle is governed by onDisconnected().
     // Overwriting connected → reconnecting here was the #1 cause of
     // "connection drops after 1 text message".
-    if (peer.status == PeerStatus.connected) return;
+    if (peer.status == PeerStatus.connected || peer.status == PeerStatus.reconnecting) return;
 
     // Start a TTL timer for cleanup if the endpoint doesn't return.
     _disconnectTimers[id]?.cancel();

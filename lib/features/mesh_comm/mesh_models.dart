@@ -114,4 +114,16 @@ class MeshPeer {
     }
     return name;
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MeshPeer &&
+          runtimeType == other.runtimeType &&
+          endpointId == other.endpointId &&
+          status == other.status &&
+          name == other.name;
+
+  @override
+  int get hashCode => Object.hash(endpointId, status, name);
 }
