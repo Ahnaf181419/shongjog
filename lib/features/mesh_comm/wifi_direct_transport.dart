@@ -63,7 +63,11 @@ class WifiDirectTransport implements MeshTransport {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      _myId = prefs.getString('mesh_device_id') ?? _userName.hashCode.toString();
+      _myId = prefs.getString('mesh_device_id') ?? '';
+      if (_myId.isEmpty) {
+        _myId = _userName.hashCode.toString();
+        await prefs.setString('mesh_device_id', _myId);
+      }
 
       // Try to find an existing host first (act as client).
       final clientInst = FlutterP2pClient();

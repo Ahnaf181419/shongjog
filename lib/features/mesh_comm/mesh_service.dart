@@ -204,32 +204,21 @@ class MeshService {
       if (lanOk) {
         _lanPeerSub = _lanTransport!.peers.listen((lanPeers) {
           bool changed = false;
+          final incomingLanIds = lanPeers.map((p) => p.endpointId).toSet();
+          
+          // Remove stale LAN peers that disappeared from the LAN stream
+          final staleLanIds = _peers.keys
+              .where((k) => k.startsWith('lan_') && !incomingLanIds.contains(k))
+              .toList();
+          
+          for (final id in staleLanIds) {
+            _disconnectTimers.remove(id)?.cancel();
+            _peers.remove(id);
+            changed = true;
+          }
+
           for (final lp in lanPeers) {
-            // Ignore ourselves if we somehow receive our own beacon
-            if (lp.name == userName) continue;
-
-            String? staleId;
-            bool staleIsConnected = false;
-            for (final entry in _peers.entries) {
-              if (entry.key != lp.endpointId && entry.value.name == lp.name) {
-                staleId = entry.key;
-                staleIsConnected = (entry.value.status == PeerStatus.connected || entry.value.status == PeerStatus.reconnecting);
-                break;
-              }
-            }
-            
-            // If the stale peer is connected but this new LAN peer is not, ignore the LAN peer
-            if (staleIsConnected && lp.status != PeerStatus.connected) continue;
-
-            if (staleId != null) {
-              _disconnectTimers.remove(staleId)?.cancel();
-              _peers.remove(staleId);
-              changed = true;
-            }
-
-            final existing = _peers[lp.endpointId];
-            if (existing == null || existing.status != lp.status || existing.name != lp.name) {
-              _peers[lp.endpointId] = lp;
+            if (_upsertPeer(lp)) {
               changed = true;
             }
           }
@@ -653,62 +642,56 @@ class MeshService {
     // _connectionRequestsController.close();
   }
 
-  void _onEndpointFound(String id, String name, String serviceId) {
-    if (!name.startsWith(kMeshPeerPrefix)) return;
+  /// Upserts a peer into the map, deduplicating by display name.
+  /// Returns true if the map was modified.
+  bool _upsertPeer(MeshPeer newPeer) {
+    if (newPeer.name == userName) return false;
 
-    final existing = _peers[id];
-    if (existing != null && existing.status == PeerStatus.connected) return;
-
-    final displayName = name.substring(kMeshPeerPrefix.length);
-    if (displayName.isEmpty) return;
-
-    // Deduplication by display name: if a different endpoint ID arrives with
-    // the same name (e.g. the peer restarted and got a new ID), remove the
-    // stale entry so the user doesn't see two entries for the same person.
     String? staleId;
     bool staleIsConnected = false;
     for (final entry in _peers.entries) {
-      if (entry.key != id && entry.value.name == name) {
+      if (entry.key != newPeer.endpointId && entry.value.name.toLowerCase() == newPeer.name.toLowerCase()) {
         staleId = entry.key;
         staleIsConnected = (entry.value.status == PeerStatus.connected || entry.value.status == PeerStatus.reconnecting);
         break;
       }
     }
     
-    // Do not replace a connected peer with a newly discovered disconnected peer
-    if (staleIsConnected) return;
+    if (staleIsConnected && newPeer.status != PeerStatus.connected) return false;
 
+    bool changed = false;
     if (staleId != null) {
       _disconnectTimers.remove(staleId)?.cancel();
       _peers.remove(staleId);
+      changed = true;
     }
 
-    // If this peer was disconnected, cancel its cleanup timer — it's
-    // coming back into range. The connection flow will promote it to
-    // connected via _onConnectionResult.
-    _disconnectTimers.remove(id)?.cancel();
+    final existing = _peers[newPeer.endpointId];
+    if (existing == null || existing.status != newPeer.status || existing.name != newPeer.name) {
+      _peers[newPeer.endpointId] = newPeer;
+      changed = true;
+    }
+    return changed;
+  }
 
-    _peers[id] = MeshPeer(
+  void _onEndpointFound(String id, String name, String serviceId) {
+    if (!name.startsWith(kMeshPeerPrefix)) return;
+    
+    final newPeer = MeshPeer(
       endpointId: id,
       name: name,
       status: PeerStatus.disconnected,
     );
-    _peersController.add(peerList);
 
-    // Mutual discovery kick: announce ourselves back immediately so
-    // the newly found peer's radar sees us right away!
-    if (!hasLiveLink) {
-      restartAdvertising();
-    }
-
-    // Auto-reconnect if this peer was previously connected or reconnecting
-    // (i.e. we had an active session that dropped). This avoids requiring
-    // the user to manually tap to reconnect every time discovery finds the
-    // peer again.
-    if (existing != null &&
-        (existing.status == PeerStatus.reconnecting ||
-         existing.status == PeerStatus.connected)) {
-      connectToEndpoint(id);
+    if (_upsertPeer(newPeer)) {
+      _peersController.add(peerList);
+      
+      // Cancel TTL timer if it came back into range
+      _disconnectTimers.remove(id)?.cancel();
+      
+      if (!hasLiveLink) {
+        restartAdvertising();
+      }
     }
   }
 

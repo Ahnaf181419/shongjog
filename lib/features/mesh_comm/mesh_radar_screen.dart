@@ -67,40 +67,31 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
     await prefs.setStringList('pref_saved_contacts', _savedContacts);
   }
 
-  List<MeshPeer> _getCombinedPeers() {
-    final combined = <MeshPeer>[];
-    final activeNames = <String>{};
-
-    for (final p in _peers) {
-      combined.add(p);
-      activeNames.add(p.displayName);
-    }
-
-    for (final name in _savedContacts) {
-      if (!activeNames.contains(name)) {
-        final match = meshService.peerList.where((p) => p.displayName == name);
-        if (match.isNotEmpty) {
-          combined.add(match.first);
-        } else {
-          combined.add(MeshPeer(
-            endpointId: 'saved_$name',
-            name: name,
-            status: PeerStatus.disconnected,
-          ));
-        }
-      }
-    }
-    
-    // Put connected/active peers at the top
-    combined.sort((a, b) {
+  List<MeshPeer> _getActivePeers() {
+    final active = List<MeshPeer>.from(_peers);
+    active.sort((a, b) {
       final aActive = a.status == PeerStatus.connected || a.status == PeerStatus.reconnecting;
       final bActive = b.status == PeerStatus.connected || b.status == PeerStatus.reconnecting;
       if (aActive && !bActive) return -1;
       if (!aActive && bActive) return 1;
       return 0;
     });
+    return active;
+  }
 
-    return combined;
+  List<MeshPeer> _getOfflineSavedContacts() {
+    final offline = <MeshPeer>[];
+    final activeNames = _peers.map((p) => p.displayName).toSet();
+    for (final name in _savedContacts) {
+      if (!activeNames.contains(name)) {
+        offline.add(MeshPeer(
+          endpointId: 'saved_$name',
+          name: name,
+          status: PeerStatus.disconnected,
+        ));
+      }
+    }
+    return offline;
   }
 
   Future<void> _startMesh() async {
@@ -145,6 +136,42 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
     });
 
     meshService.ensureDiscoverable(force: false);
+  }
+
+  Future<void> _handlePeerTap(MeshPeer peer) async {
+    if (peer.status != PeerStatus.connected) {
+      HapticService.lightTap();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).meshConnectingStatus),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      final ok = await meshService.connectToEndpoint(peer.endpointId);
+      if (!ok) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context).meshConnectFailed),
+          ),
+        );
+        return;
+      }
+    }
+    if (!mounted) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MeshChatScreen(peer: peer),
+      ),
+    );
+    if (mounted) {
+      setState(() {
+        _peers = List.of(meshService.peerList);
+      });
+      meshService.ensureDiscoverable(force: false);
+    }
   }
 
   @override
@@ -298,19 +325,7 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
                 }
               },
             ),
-          if (_started)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: Text(
-                  AppLocalizations.of(context).meshDeviceCount(_peers.length),
-                  style: TextStyle(
-                    color: cs.onSurfaceVariant,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            ),
+
         ],
       ),
       body: Column(
@@ -351,7 +366,7 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
               ),
             ),
 
-          if (_started && _getCombinedPeers().isEmpty)
+          if (_started && _getActivePeers().isEmpty && _groups.isEmpty && _getOfflineSavedContacts().isEmpty)
             Expanded(
               child: Center(
                 child: Column(
@@ -374,7 +389,7 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
               ),
             ),
 
-          if (_started && (_getCombinedPeers().isNotEmpty || _groups.isNotEmpty))
+          if (_started && (_getActivePeers().isNotEmpty || _groups.isNotEmpty || _getOfflineSavedContacts().isNotEmpty))
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () async {
@@ -382,75 +397,86 @@ class _MeshRadarScreenState extends State<MeshRadarScreen>
                   await meshService.ensureDiscoverable(force: true);
                   await Future.delayed(const Duration(milliseconds: 600));
                 },
-                child: ListView.builder(
+                child: ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  itemCount: _groups.length + _getCombinedPeers().length,
-                  itemBuilder: (context, index) {
-                    if (index < _groups.length) {
-                      final group = _groups[index];
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: cs.secondaryContainer,
-                          child: Icon(Icons.group_rounded, color: cs.onSecondaryContainer),
+                  children: [
+                    if (_groups.isNotEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        child: Text(
+                          'Groups',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: cs.primary,
+                          ),
                         ),
-                        title: Text(group.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text('${group.memberCount} members'),
-                        onTap: () {
-                          HapticService.lightTap();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => MeshGroupScreen(group: group),
-                            ),
-                          );
-                        },
-                      );
-                    }
-
-                    final peerIndex = index - _groups.length;
-                    final peer = _getCombinedPeers()[peerIndex];
-                    return _PeerTile(
-                      peer: peer,
-                      isSaved: _savedContacts.contains(peer.displayName),
-                      onToggleSave: () => _toggleSavedContact(peer.displayName),
-                      onTap: () async {
-                        if (peer.status != PeerStatus.connected) {
-                          HapticService.lightTap();
-                          if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(AppLocalizations.of(context).meshConnectingStatus),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                          final ok = await meshService.connectToEndpoint(peer.endpointId);
-                          if (!ok) {
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(AppLocalizations.of(context).meshConnectFailed),
+                      ),
+                      for (final group in _groups)
+                        ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: cs.secondaryContainer,
+                            child: Icon(Icons.group_rounded, color: cs.onSecondaryContainer),
+                          ),
+                          title: Text(group.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text('${group.memberCount} members'),
+                          onTap: () {
+                            HapticService.lightTap();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => MeshGroupScreen(group: group),
                               ),
                             );
-                            return;
-                          }
-                        }
-                        if (!context.mounted) return;
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => MeshChatScreen(peer: peer),
+                          },
+                        ),
+                      const Divider(height: 16),
+                    ],
+
+                    if (_getActivePeers().isNotEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                        child: Text(
+                          'Nearby Devices (${_getActivePeers().length})',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: cs.primary,
                           ),
-                        );
-                        if (context.mounted) {
-                          setState(() {
-                            _peers = List.of(meshService.peerList);
-                          });
-                          meshService.ensureDiscoverable(force: false);
-                        }
-                      },
-                    );
-                  },
+                        ),
+                      ),
+                      for (final peer in _getActivePeers())
+                        _PeerTile(
+                          peer: peer,
+                          isSaved: _savedContacts.contains(peer.displayName),
+                          onToggleSave: () => _toggleSavedContact(peer.displayName),
+                          onTap: () => _handlePeerTap(peer),
+                        ),
+                    ],
+
+                    if (_getOfflineSavedContacts().isNotEmpty) ...[
+                      if (_getActivePeers().isNotEmpty) const Divider(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                        child: Text(
+                          'Saved Contacts (Offline)',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                      for (final peer in _getOfflineSavedContacts())
+                        _PeerTile(
+                          peer: peer,
+                          isSaved: true,
+                          onToggleSave: () => _toggleSavedContact(peer.displayName),
+                          onTap: () => _handlePeerTap(peer),
+                        ),
+                    ],
+                  ],
                 ),
               ),
             ),
